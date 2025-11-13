@@ -1,0 +1,9 @@
+node_modules
+.next
+.env
+.env.local
+.env.*.local
+campaign.db
+desktop.ini
+backups
+components_old
