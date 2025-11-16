@@ -7,7 +7,12 @@ export type NFT = {
   uri?: string | null;
 };
 
-export default function NftGrid({ nfts }: { nfts: NFT[] }) {
+type NftGridProps = {
+  nfts: NFT[];
+  onPick?: (n: NFT) => void;
+};
+
+export default function NftGrid({ nfts, onPick }: NftGridProps) {
   return (
     <div
       style={{
@@ -26,6 +31,14 @@ export default function NftGrid({ nfts }: { nfts: NFT[] }) {
           <a
             key={n.id}
             href={href}
+            onClick={
+              onPick
+                ? (e) => {
+                    e.preventDefault();
+                    onPick(n);
+                  }
+                : undefined
+            }
             style={{
               display: "grid",
               gap: 8,
