@@ -8,6 +8,7 @@ type PhoneShowcaseProps = {
   // We don't care about the exact BgChoice shape here – "any" keeps TS happy
   bg?: any;
   title?: string;
+  showHint?: boolean;
 };
 
 export default function PhoneShowcase({
@@ -15,6 +16,7 @@ export default function PhoneShowcase({
   intervalMs = 3000,
   bg,
   title = "How it looks",
+  showHint = true,
 }: PhoneShowcaseProps) {
   const [index, setIndex] = useState(0);
 
@@ -50,9 +52,11 @@ export default function PhoneShowcase({
     <section style={{ padding: "32px 0" }}>
       <div style={{ textAlign: "center", marginBottom: 16 }}>
         <h2 style={{ fontSize: 20, margin: 0 }}>{title}</h2>
-        <p style={{ fontSize: 13, opacity: 0.7, marginTop: 4 }}>
-          Preview of RetroGrave lock screens cycling through a few examples.
-        </p>
+        {showHint && (
+          <p style={{ fontSize: 13, opacity: 0.7, marginTop: 4 }}>
+            Preview of RetroGrave lock screens cycling through a few examples.
+          </p>
+        )}
       </div>
 
       <div style={{ display: "flex", justifyContent: "center" }}>
