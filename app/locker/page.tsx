@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useSearchParams } from "next/navigation";
 
 import BackgroundPicker, { BgChoice } from "../components/BackgroundPicker";
@@ -15,7 +21,23 @@ import ClientOnly from "../components/ClientOnly";
 
 type NftFetchResp = { id: string; name?: string; image?: string } | null;
 
+// 🧊 Outer page: just wraps the client logic in Suspense
 export default function LockerPage() {
+  return (
+    <Suspense
+      fallback={
+        <main style={{ padding: "32px 18px" }}>
+          <p style={{ fontSize: 14, opacity: 0.8 }}>Loading locker…</p>
+        </main>
+      }
+    >
+      <LockerInner />
+    </Suspense>
+  );
+}
+
+// 🔥 Inner component: uses useSearchParams and all the locker logic
+function LockerInner() {
   const sp = useSearchParams();
   const mint = sp.get("mint") || "";
   const uri = sp.get("uri") || "";
@@ -32,11 +54,12 @@ export default function LockerPage() {
     []
   );
 
+  // start with the default background
   useEffect(() => {
     setBg(initialBg);
   }, [initialBg]);
 
-  // Listen for dev background changes (local dev-only)
+  // listen for devbg:change events (local dev background tester)
   useEffect(() => {
     if (!devMode) return;
 
@@ -45,18 +68,15 @@ export default function LockerPage() {
       const url = ev.detail;
 
       if (url) {
-        // When a dev background URL is provided, use it as the image background.
-        // BgChoice's image variant expects a `file` field, so we pass `file: null`.
+        // BgChoice's image variant expects a `file` field, but for
+        // dev we just pass null so it satisfies the type.
         setBg({
-  kind: "image",
-  value: url,
-  // BgChoice requires a real File, so we provide a harmless empty File object
-  file: new File([], ""),
-} as BgChoice);
-
+          kind: "image",
+          value: url,
+          file: null,
+        } as BgChoice);
         setHint("Using dev background (local file)");
       } else {
-        // When cleared, go back to the default background and clear the hint
         setBg(initialBg);
         setHint(null);
       }
@@ -66,9 +86,10 @@ export default function LockerPage() {
     return () => window.removeEventListener("devbg:change", onDevBg);
   }, [devMode, initialBg]);
 
-  // Fetch NFT by mint
+  // fetch NFT by mint (and optional uri)
   useEffect(() => {
     let cancelled = false;
+
     if (!mint) {
       setNft(null);
       return;
@@ -79,6 +100,7 @@ export default function LockerPage() {
         setLoading(true);
         const qs = new URLSearchParams({ mint });
         if (uri) qs.set("uri", uri);
+
         const r = await fetch(`/api/nft-by-mint?${qs.toString()}`, {
           cache: "no-store",
         });
@@ -143,7 +165,7 @@ export default function LockerPage() {
                 aspectRatio: "9 / 19.5",
                 borderRadius: 26,
                 overflow: "hidden",
-                boxShadow: "0 18px 44px rgba(0,0,0,0.45)",
+                boxShadow: "0 18px 44px rgba(0, 0, 0, 0.45)",
                 background: "#221a33",
                 margin: "0 auto",
               }}
@@ -201,7 +223,7 @@ export default function LockerPage() {
         </div>
       </section>
 
-      {/* Also make DevBgTester client-only to be safe */}
+      {/* Dev-only background tester, also client-only */}
       <ClientOnly>
         <DevBgTester />
       </ClientOnly>
