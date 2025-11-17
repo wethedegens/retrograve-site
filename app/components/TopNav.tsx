@@ -12,7 +12,7 @@ const nav = [
   { href: "/", label: "HOME" },
   // { href: "/magapixel", label: "MAGAPIXEL" }, // hidden
   { href: "/community", label: "COMMUNITY" },
-  { href: "/leaderboard", label: "LEADERBOARD" },
+  // { href: "/leaderboard", label: "LEADERBOARD" }, // removed (404)
   { href: "/collect", label: "COLLECT NOW" },
   { href: "https://x.com/retrograve", label: "FOLLOW ON X", external: true },
 ];
