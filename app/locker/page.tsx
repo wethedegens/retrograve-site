@@ -38,17 +38,22 @@ export default function LockerPage() {
 
   useEffect(() => {
     if (!devMode) return;
+
     const onDevBg = (e: Event) => {
       const ev = e as CustomEvent<string | null>;
       const url = ev.detail;
+
       if (url) {
-        setBg(({ kind: "image", value: url } as any) ?? initialBg);
+        // When a dev background URL is provided, use it as the image background
+        setBg({ kind: "image", value: url } as BgChoice);
         setHint("Using dev background (local file)");
       } else {
+        // When cleared, go back to the default background and clear the hint
         setBg(initialBg);
         setHint(null);
       }
     };
+
     window.addEventListener("devbg:change", onDevBg);
     return () => window.removeEventListener("devbg:change", onDevBg);
   }, [devMode, initialBg]);
