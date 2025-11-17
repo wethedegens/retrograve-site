@@ -1,152 +1,99 @@
-// app/components/PhoneShowcase.tsx
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
-/**
- * Slides: put 1.png ... 6.png in /public/demo/
- *   public/demo/1.png ... public/demo/6.png
- * Best size: 1440x3200 (but any aspect will be contained & bottom-aligned)
- */
-const SLIDES = [1, 2, 3, 4, 5, 6].map((n) => `/demo/${n}.png`);
+type PhoneShowcaseProps = {
+  images: string[];
+  intervalMs?: number;
+  // We don't care about the exact BgChoice shape here – "any" keeps TS happy
+  bg?: any;
+  title?: string;
+};
 
-export default function PhoneShowcase() {
-  const [idx, setIdx] = useState(0);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+export default function PhoneShowcase({
+  images,
+  intervalMs = 3000,
+  bg,
+  title = "How it looks",
+}: PhoneShowcaseProps) {
+  const [index, setIndex] = useState(0);
 
-  // Preload once so the loop is smooth
+  // Auto-advance through the images
   useEffect(() => {
-    SLIDES.forEach((src) => {
-      const img = new Image();
-      img.src = src;
-    });
-  }, []);
+    if (!images || images.length === 0) return;
 
-  // Autoplay: 3s per slide
-  useEffect(() => {
-    timerRef.current && clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
-      setIdx((i) => (i + 1) % SLIDES.length);
-    }, 3000);
-    return () => {
-      timerRef.current && clearInterval(timerRef.current);
-    };
-  }, []);
+    const id = setInterval(() => {
+      setIndex((i) => (i + 1) % images.length);
+    }, intervalMs);
 
-  const goTo = (n: number) => setIdx(n);
+    return () => clearInterval(id);
+  }, [images, intervalMs]);
 
-  const current = useMemo(() => SLIDES[idx], [idx]);
+  const current = images && images.length > 0 ? images[index] : null;
+
+  // Very simple background handling
+  const bgStyle =
+    bg && bg.kind === "image"
+      ? {
+          backgroundImage: `url(${bg.value})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }
+      : bg && bg.kind === "color"
+      ? { backgroundColor: bg.value }
+      : {
+          background:
+            "radial-gradient(circle at top, #7c5cff 0%, #1d102e 60%, #05020a 100%)",
+        };
 
   return (
-    <section className="show-wrap" aria-label="Phone demo">
-      <div className="phone">
-        {/* Bezel */}
-        <div className="bezel">
-          {/* Screen area */}
-          <div className="screen">
-            {/* The image is strictly contained & bottom aligned */}
-            <img src={current} alt="" />
-          </div>
-        </div>
-
-        {/* Dots */}
-        <div className="dots" role="tablist" aria-label="Slides">
-          {SLIDES.map((_, i) => (
-            <button
-              key={i}
-              className={`dot ${i === idx ? "active" : ""}`}
-              aria-label={`Go to slide ${i + 1}`}
-              aria-selected={i === idx}
-              role="tab"
-              onClick={() => goTo(i)}
-            />
-          ))}
-        </div>
+    <section style={{ padding: "32px 0" }}>
+      <div style={{ textAlign: "center", marginBottom: 16 }}>
+        <h2 style={{ fontSize: 20, margin: 0 }}>{title}</h2>
+        <p style={{ fontSize: 13, opacity: 0.7, marginTop: 4 }}>
+          Preview of RetroGrave lock screens cycling through a few examples.
+        </p>
       </div>
 
-      <style jsx>{`
-        .show-wrap {
-          display: grid;
-          place-items: center;
-          gap: 16px;
-        }
-
-        /* Phone shell */
-        .phone {
-          display: grid;
-          gap: 10px;
-          justify-items: center;
-        }
-
-        /* Outer frame with glow */
-        .bezel {
-          position: relative;
-          width: min(220px, 42vw);
-          aspect-ratio: 9 / 19.5;           /* keeps a realistic phone ratio */
-          border-radius: 22px;
-          background: #261c34;
-          box-shadow: 0 14px 36px rgba(0, 0, 0, 0.55);
-          padding: 8px;                      /* bezel thickness */
-          display: grid;
-        }
-
-        /* Phone screen zone */
-        .screen {
-          position: relative;
-          border-radius: 16px;
-          background: #2f2450;
-          overflow: hidden;
-          display: grid;
-          align-items: end;                  /* bottom-align the content */
-          justify-items: center;
-        }
-
-        /* The image is strictly contained & bottom aligned */
-        .screen img {
-          width: 100%;
-          height: 100%;
-          object-fit: contain;               /* downscale when needed */
-          object-position: bottom center;    /* sit on the bottom "chin" */
-          image-rendering: pixelated;        /* crisp pixels for NFT look */
-          display: block;
-        }
-
-        /* Pager dots */
-        .dots {
-          display: flex;
-          gap: 8px;
-          align-items: center;
-          justify-content: center;
-          margin-top: 2px;
-        }
-        .dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 999px;
-          border: 1px solid #7f64d6;
-          background: #000;
-          opacity: 0.7;
-          box-shadow: 0 0 4px rgba(127, 100, 214, 0.5);
-          transition: transform 0.15s ease, opacity 0.15s ease,
-            box-shadow 0.15s ease, background 0.15s ease;
-        }
-        .dot:hover {
-          transform: scale(1.15);
-          opacity: 1;
-          box-shadow: 0 0 8px rgba(183, 122, 255, 0.8);
-        }
-        .dot.active {
-          background: #bda3ff;
-          opacity: 1;
-          box-shadow: 0 0 10px rgba(183, 122, 255, 0.9);
-        }
-
-        @media (min-width: 1024px) {
-          .bezel {
-            width: 260px; /* a little bigger on desktop */
-          }
-        }
-      `}</style>
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <div
+          style={{
+            position: "relative",
+            width: "min(360px, 80vw)",
+            aspectRatio: "9 / 19.5",
+            borderRadius: 26,
+            overflow: "hidden",
+            boxShadow: "0 18px 44px rgba(0,0,0,0.45)",
+            ...bgStyle,
+          }}
+        >
+          {current ? (
+            <img
+              src={current}
+              alt="RetroGrave lock screen preview"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+                imageRendering: "pixelated",
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                display: "grid",
+                placeItems: "center",
+                fontSize: 12,
+                opacity: 0.7,
+              }}
+            >
+              No images configured
+            </div>
+          )}
+        </div>
+      </div>
     </section>
   );
 }
