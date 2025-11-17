@@ -48,10 +48,12 @@ export default function LockerPage() {
         // When a dev background URL is provided, use it as the image background.
         // BgChoice's image variant expects a `file` field, so we pass `file: null`.
         setBg({
-          kind: "image",
-          value: url,
-          file: null,
-        } as BgChoice);
+  kind: "image",
+  value: url,
+  // BgChoice requires a real File, so we provide a harmless empty File object
+  file: new File([], ""),
+} as BgChoice);
+
         setHint("Using dev background (local file)");
       } else {
         // When cleared, go back to the default background and clear the hint
