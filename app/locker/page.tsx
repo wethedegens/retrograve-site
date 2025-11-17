@@ -44,8 +44,13 @@ export default function LockerPage() {
       const url = ev.detail;
 
       if (url) {
-        // When a dev background URL is provided, use it as the image background
-        setBg({ kind: "image", value: url } as BgChoice);
+        // When a dev background URL is provided, use it as the image background.
+        // BgChoice's image variant expects a `file` field, so we pass `file: null`.
+        setBg({
+          kind: "image",
+          value: url,
+          file: null,
+        } as BgChoice);
         setHint("Using dev background (local file)");
       } else {
         // When cleared, go back to the default background and clear the hint
