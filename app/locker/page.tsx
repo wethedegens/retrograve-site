@@ -36,6 +36,7 @@ export default function LockerPage() {
     setBg(initialBg);
   }, [initialBg]);
 
+  // Listen for dev background changes (local dev-only)
   useEffect(() => {
     if (!devMode) return;
 
@@ -63,12 +64,14 @@ export default function LockerPage() {
     return () => window.removeEventListener("devbg:change", onDevBg);
   }, [devMode, initialBg]);
 
+  // Fetch NFT by mint
   useEffect(() => {
     let cancelled = false;
     if (!mint) {
       setNft(null);
       return;
     }
+
     (async () => {
       try {
         setLoading(true);
@@ -85,6 +88,7 @@ export default function LockerPage() {
         if (!cancelled) setLoading(false);
       }
     })();
+
     return () => {
       cancelled = true;
     };
