@@ -18,8 +18,12 @@ export default function Header() {
 
         {/* CENTER: nav */}
         <nav className="rg-nav" role="navigation" aria-label="Main">
-          <Link href="/" className="nav-link">HOME</Link>
-          <Link href="/retrogs" className="nav-link">MY RETROGRAVES</Link>
+          <Link href="/" className="nav-link">
+            HOME
+          </Link>
+          <Link href="/retrogs" className="nav-link">
+            MY RETROGRAVES
+          </Link>
           <a
             href={DISCORD_INVITE}
             target="_blank"
@@ -29,10 +33,11 @@ export default function Header() {
             COMMUNITY
           </a>
 
-          {/* ✅ New menu item */}
-          <Link href="/leaderboard" className="nav-link">LEADERBOARD</Link>
+          {/* LEADERBOARD REMOVED */}
 
-          <Link href="/collect" className="nav-link">COLLECT NOW</Link>
+          <Link href="/collect" className="nav-link">
+            COLLECT NOW
+          </Link>
           <a
             href="https://x.com/retrograve"
             target="_blank"
@@ -67,8 +72,12 @@ export default function Header() {
           align-items: center;
           height: 48px;
         }
-        .rg-left { justify-content: flex-start; }
-        .rg-right { justify-content: flex-end; }
+        .rg-left {
+          justify-content: flex-start;
+        }
+        .rg-right {
+          justify-content: flex-end;
+        }
 
         /* TV logo */
         .tv-link {
@@ -80,13 +89,13 @@ export default function Header() {
           width: 56px;
           height: auto;
           border-radius: 8px;
-          box-shadow: 0 0 10px rgba(183,122,255,0.35);
+          box-shadow: 0 0 10px rgba(183, 122, 255, 0.35);
           transition: transform 0.18s ease, box-shadow 0.18s ease;
         }
         .tv-link:hover .tv,
         .tv-link:focus-visible .tv {
           transform: scale(1.04);
-          box-shadow: 0 0 16px rgba(183,122,255,0.8);
+          box-shadow: 0 0 16px rgba(183, 122, 255, 0.8);
           outline: none;
         }
 
@@ -112,32 +121,37 @@ export default function Header() {
           color: #ffffff !important;
           text-decoration: none !important;
           text-underline-offset: 0 !important;
-          text-shadow:
-            0 0 10px rgba(183,122,255,0.80),
-            0 0 20px rgba(183,122,255,0.50) !important;
-          transition: transform 0.22s ease, text-shadow 0.22s ease, opacity 0.22s ease !important;
+          text-shadow: 0 0 10px rgba(183, 122, 255, 0.8),
+            0 0 20px rgba(183, 122, 255, 0.5) !important;
+          transition: transform 0.22s ease, text-shadow 0.22s ease,
+            opacity 0.22s ease !important;
           opacity: 0.95 !important;
         }
         :global(.rg-header .nav-link:hover),
         :global(.rg-header .nav-link:focus-visible) {
           opacity: 1 !important;
           transform: scale(1.05) !important;
-          text-shadow:
-            0 0 18px rgba(183,122,255,1),
-            0 0 32px rgba(183,122,255,1) !important;
+          text-shadow: 0 0 18px rgba(183, 122, 255, 1),
+            0 0 32px rgba(183, 122, 255, 1) !important;
           outline: none !important;
         }
 
         /* ===== Responsive tweaks ===== */
         @media (max-width: 900px) {
-          .rg-bar { grid-template-columns: auto 1fr auto; }
-          .rg-nav { gap: 18px; }
+          .rg-bar {
+            grid-template-columns: auto 1fr auto;
+          }
+          .rg-nav {
+            gap: 18px;
+          }
           :global(.rg-header .nav-link),
           :global(.rg-header .nav-link:link),
           :global(.rg-header .nav-link:visited) {
             font-size: 18px !important;
           }
-          .tv { width: 48px; }
+          .tv {
+            width: 48px;
+          }
         }
       `}</style>
     </header>
