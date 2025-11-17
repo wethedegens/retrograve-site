@@ -68,12 +68,13 @@ function LockerInner() {
       const url = ev.detail;
 
       if (url) {
-        // BgChoice's image variant expects a `file` field, but for
-        // dev we just pass null so it satisfies the type.
+        // BgChoice's image variant expects a `file: File` field.
+        // For dev-only URL backgrounds we don't have a File object,
+        // so we satisfy the type with a dummy cast.
         setBg({
           kind: "image",
           value: url,
-          file: null,
+          file: null as unknown as File,
         } as BgChoice);
         setHint("Using dev background (local file)");
       } else {
