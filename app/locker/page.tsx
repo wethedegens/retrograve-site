@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Suspense,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import BackgroundPicker, { BgChoice } from "../components/BackgroundPicker";
@@ -21,45 +15,42 @@ import ClientOnly from "../components/ClientOnly";
 
 type NftFetchResp = { id: string; name?: string; image?: string } | null;
 
-// 🧊 Outer page: just wraps the client logic in Suspense
-export default function LockerPage() {
-  return (
-    <Suspense
-      fallback={
-        <main style={{ padding: "32px 18px" }}>
-          <p style={{ fontSize: 14, opacity: 0.8 }}>Loading locker…</p>
-        </main>
-      }
-    >
-      <LockerInner />
-    </Suspense>
-  );
-}
-
-// 🔥 Inner component: uses useSearchParams and all the locker logic
 function LockerInner() {
   const sp = useSearchParams();
   const mint = sp.get("mint") || "";
   const uri = sp.get("uri") || "";
   const devMode = sp.get("devbg") === "1";
 
+  const imageParam = sp.get("image") || "";
+  const nameParam = sp.get("name") || "";
+
   const composerRef = useRef<ComposerHandle | null>(null);
-  const [nft, setNft] = useState<SimpleNft | null>(null);
-  const [bg, setBg] = useState<BgChoice | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [hint, setHint] = useState<null | string>(null);
 
   const initialBg = useMemo<BgChoice>(
     () => ({ kind: "color", value: "#3e2d75" }),
     []
   );
 
-  // start with the default background
+  const [bg, setBg] = useState<BgChoice | null>(initialBg);
+  const [nft, setNft] = useState<SimpleNft | null>(() => {
+    if (!mint && !imageParam) return null;
+    return {
+      id: mint || "unknown",
+      name: nameParam || undefined,
+      image: imageParam || undefined,
+      uri: uri || undefined,
+    };
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [hint, setHint] = useState<null | string>(null);
+
+  // keep bg in sync with initialBg when it changes
   useEffect(() => {
     setBg(initialBg);
   }, [initialBg]);
 
-  // listen for devbg:change events (local dev background tester)
+  // Dev background tester (local-only)
   useEffect(() => {
     if (!devMode) return;
 
@@ -68,14 +59,11 @@ function LockerInner() {
       const url = ev.detail;
 
       if (url) {
-        // BgChoice's image variant expects a `file: File` field.
-        // For dev-only URL backgrounds we don't have a File object,
-        // so we satisfy the type with a dummy cast.
         setBg({
           kind: "image",
           value: url,
-          file: null as unknown as File,
-        } as BgChoice);
+          file: null,
+        });
         setHint("Using dev background (local file)");
       } else {
         setBg(initialBg);
@@ -87,9 +75,22 @@ function LockerInner() {
     return () => window.removeEventListener("devbg:change", onDevBg);
   }, [devMode, initialBg]);
 
-  // fetch NFT by mint (and optional uri)
+  // Fetch NFT details **only** if we don't already have an image in the URL
   useEffect(() => {
     let cancelled = false;
+
+    // If we already have an image param, just build the NFT from that and skip fetch
+    if (imageParam) {
+      const fromParams: SimpleNft = {
+        id: mint || "unknown",
+        name: nameParam || undefined,
+        image: imageParam,
+        uri: uri || undefined,
+      };
+      setNft(fromParams);
+      setLoading(false);
+      return;
+    }
 
     if (!mint) {
       setNft(null);
@@ -101,12 +102,22 @@ function LockerInner() {
         setLoading(true);
         const qs = new URLSearchParams({ mint });
         if (uri) qs.set("uri", uri);
-
         const r = await fetch(`/api/nft-by-mint?${qs.toString()}`, {
           cache: "no-store",
         });
         const j = (await r.json()) as NftFetchResp;
-        if (!cancelled) setNft(j);
+        if (!cancelled) {
+          if (j) {
+            setNft({
+              id: j.id,
+              name: j.name,
+              image: j.image,
+              uri: uri || undefined,
+            });
+          } else {
+            setNft(null);
+          }
+        }
       } catch {
         if (!cancelled) setNft(null);
       } finally {
@@ -117,7 +128,7 @@ function LockerInner() {
     return () => {
       cancelled = true;
     };
-  }, [mint, uri]);
+  }, [mint, uri, imageParam, nameParam]);
 
   return (
     <main style={{ padding: "18px 0 80px" }}>
@@ -146,7 +157,6 @@ function LockerInner() {
 
             <div style={{ height: 12 }} />
 
-            {/* Render client-only to avoid hydration diffs */}
             <ClientOnly>
               <ShareActions
                 composerRef={composerRef}
@@ -166,7 +176,7 @@ function LockerInner() {
                 aspectRatio: "9 / 19.5",
                 borderRadius: 26,
                 overflow: "hidden",
-                boxShadow: "0 18px 44px rgba(0, 0, 0, 0.45)",
+                boxShadow: "0 18px 44px rgba(0,0,0,0.45)",
                 background: "#221a33",
                 margin: "0 auto",
               }}
@@ -224,7 +234,6 @@ function LockerInner() {
         </div>
       </section>
 
-      {/* Dev-only background tester, also client-only */}
       <ClientOnly>
         <DevBgTester />
       </ClientOnly>
@@ -241,4 +250,8 @@ function LockerInner() {
       `}</style>
     </main>
   );
+}
+
+export default function LockerPage() {
+  return <LockerInner />;
 }
