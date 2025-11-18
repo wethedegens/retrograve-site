@@ -38,7 +38,6 @@ function LockerInner() {
       id: mint || "unknown",
       name: nameParam || undefined,
       image: imageParam || undefined,
-      uri: uri || undefined,
     };
   });
 
@@ -50,8 +49,7 @@ function LockerInner() {
     setBg(initialBg);
   }, [initialBg]);
 
-  // Dev background tester — for now we only change the hint text,
-  // to avoid any type issues with BgChoice's "image" variant.
+  // Dev background tester – for now, just controls the hint text
   useEffect(() => {
     if (!devMode) return;
 
@@ -60,8 +58,6 @@ function LockerInner() {
       const url = ev.detail;
 
       if (url) {
-        // We *could* wire this to a real BgChoice.image, but for now
-        // we just show a hint so the dev build stays type-safe.
         setHint("Using dev background (local file)");
       } else {
         setBg(initialBg);
@@ -83,7 +79,6 @@ function LockerInner() {
         id: mint || "unknown",
         name: nameParam || undefined,
         image: imageParam,
-        uri: uri || undefined,
       };
       setNft(fromParams);
       setLoading(false);
@@ -110,7 +105,6 @@ function LockerInner() {
               id: j.id,
               name: j.name,
               image: j.image,
-              uri: uri || undefined,
             });
           } else {
             setNft(null);
