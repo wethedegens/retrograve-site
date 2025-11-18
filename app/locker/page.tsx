@@ -45,12 +45,13 @@ function LockerInner() {
   const [loading, setLoading] = useState(false);
   const [hint, setHint] = useState<null | string>(null);
 
-  // keep bg in sync with initialBg when it changes
+  // Keep bg in sync with initialBg when it changes
   useEffect(() => {
     setBg(initialBg);
   }, [initialBg]);
 
-  // Dev background tester (local-only)
+  // Dev background tester — for now we only change the hint text,
+  // to avoid any type issues with BgChoice's "image" variant.
   useEffect(() => {
     if (!devMode) return;
 
@@ -59,11 +60,8 @@ function LockerInner() {
       const url = ev.detail;
 
       if (url) {
-        setBg({
-          kind: "image",
-          value: url,
-          file: null,
-        });
+        // We *could* wire this to a real BgChoice.image, but for now
+        // we just show a hint so the dev build stays type-safe.
         setHint("Using dev background (local file)");
       } else {
         setBg(initialBg);
@@ -75,11 +73,11 @@ function LockerInner() {
     return () => window.removeEventListener("devbg:change", onDevBg);
   }, [devMode, initialBg]);
 
-  // Fetch NFT details **only** if we don't already have an image in the URL
+  // Fetch NFT details only if we don't already have an image in the URL
   useEffect(() => {
     let cancelled = false;
 
-    // If we already have an image param, just build the NFT from that and skip fetch
+    // If an image is already provided via the URL, build from that and skip fetch
     if (imageParam) {
       const fromParams: SimpleNft = {
         id: mint || "unknown",
