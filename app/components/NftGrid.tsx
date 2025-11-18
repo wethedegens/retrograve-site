@@ -9,7 +9,12 @@ export type NFT = {
   uri?: string | null;
 };
 
-export default function NftGrid({ nfts }: { nfts: NFT[] }) {
+type Props = {
+  nfts: NFT[];
+  onPick?: (n: NFT) => void;
+};
+
+export default function NftGrid({ nfts, onPick }: Props) {
   if (!nfts || nfts.length === 0) {
     return (
       <p style={{ margin: "0 18px 18px", opacity: 0.75 }}>
@@ -21,14 +26,44 @@ export default function NftGrid({ nfts }: { nfts: NFT[] }) {
   return (
     <div className="nft-grid">
       {nfts.map((n) => {
-        const href =
+        // URL used when we control navigation here
+        const lockerHref =
           `/locker?mint=${encodeURIComponent(n.id)}` +
           `&image=${encodeURIComponent(n.image || "")}` +
           `&name=${encodeURIComponent(n.name || "")}` +
           (n.uri ? `&uri=${encodeURIComponent(n.uri)}` : "");
 
+        // If a parent (like Showcase.tsx) passes onPick, we delegate
+        if (onPick) {
+          return (
+            <button
+              key={n.id}
+              type="button"
+              className="nft-card"
+              onClick={() => onPick(n)}
+            >
+              <div className="thumb-wrap">
+                {n.image ? (
+                  <img
+                    src={n.image}
+                    alt={n.name || n.id}
+                    className="thumb"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="thumb placeholder">No image</div>
+                )}
+              </div>
+              <div className="meta">
+                <div className="name">{n.name || n.id}</div>
+              </div>
+            </button>
+          );
+        }
+
+        // Default behaviour: internal link with image/name/uri in the URL
         return (
-          <Link key={n.id} href={href} className="nft-card">
+          <Link key={n.id} href={lockerHref} className="nft-card">
             <div className="thumb-wrap">
               {n.image ? (
                 <img
@@ -66,6 +101,10 @@ export default function NftGrid({ nfts }: { nfts: NFT[] }) {
           box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
           transition: transform 0.12s ease, box-shadow 0.12s ease,
             background 0.12s ease;
+          cursor: pointer;
+          border: none;
+          text-align: left;
+          width: 100%;
         }
         .nft-card:hover {
           transform: translateY(-3px);
