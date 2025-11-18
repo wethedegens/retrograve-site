@@ -22,13 +22,23 @@ export type MetaAttribute = {
 export type SimpleNft = {
   id: string;
   name?: string;
-  image?: string;           // main RetroGrave image (1440x3200)
-  attributes?: MetaAttribute[];
+  image?: string; // remote fallback
+  attributes?: MetaAttribute[]; // used to rebuild from local layers
 };
 
 export type ExportSize = { label: string; w: number; h: number };
 
 type Size = { w: number; h: number };
+
+/** --------- CONFIG: update only these if your structure changes ---------- */
+// Your MAGApixel layer sprites under /public:
+const BASE_TRAITS_DIR = "/collections/magapixel/layers";
+
+// NOTE: "Background" is intentionally NOT here – we don't draw it so we can swap BGs.
+const LAYER_ORDER = ["Skin", "Face", "Body", "Head", "Glasses", "Hand"];
+
+const CANDIDATE_EXTS = [".png", ".webp"]; // try both if you mix formats
+/** ----------------------------------------------------------------------- */
 
 const PRESETS: Record<string, Size> = {
   master: { w: 1440, h: 3200 },
@@ -55,22 +65,76 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-// Try proxy first, then raw URL as a fallback
-async function loadNftImage(raw: string): Promise<HTMLImageElement> {
-  const sources = isHttpUrl(raw)
-    ? [proxyUrl(raw), raw]
-    : [raw];
+/** Normalize folder/file segments */
+function slugify(s: string) {
+  return s
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[+]/g, " plus ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
 
-  let lastErr: any = null;
-  for (const s of sources) {
-    try {
-      return await loadImage(s);
-    } catch (e) {
-      lastErr = e;
-      console.warn("Failed to load NFT image from", s, e);
-    }
+/**
+ * Detect whether this NFT *should* be treated as a layered/generative one,
+ * meaning we DO NOT want to fall back to the baked PNG background.
+ */
+function hasLayerTraits(attrs?: MetaAttribute[] | null): boolean {
+  if (!attrs || !attrs.length) return false;
+  const target = ["skin", "face", "body", "head", "glasses", "hand"];
+  return attrs.some((a) => {
+    const t = String(a?.trait_type || "").trim().toLowerCase();
+    return target.includes(t);
+  });
+}
+
+/**
+ * Load the FIRST existing image for each layer type (Skin/Face/Body/Head/Glasses/Hand),
+ * skipping Background completely so we can use our own phone BG.
+ */
+async function loadExistingLayersPerType(
+  attrs?: MetaAttribute[] | null
+): Promise<HTMLImageElement[]> {
+  if (!attrs) return [];
+
+  // Map: trait_type -> attribute
+  const byType = new Map<string, MetaAttribute>();
+  for (const a of attrs) {
+    const t = String(a?.trait_type || "").trim();
+    if (!t) continue;
+    byType.set(t, a);
   }
-  throw lastErr || new Error("could not load NFT image");
+
+  const images: HTMLImageElement[] = [];
+
+  for (const type of LAYER_ORDER) {
+    // Background isn't in LAYER_ORDER; we never draw it
+    const attr = byType.get(type);
+    if (!attr || attr.value == null) continue;
+
+    const typeSeg = slugify(type); // "Skin" -> "skin"
+    const valSeg = slugify(String(attr.value)); // "Teflon Don" -> "teflon-don"
+
+    // Try both .png and .webp for resiliency
+    const candidates = CANDIDATE_EXTS.map(
+      (ext) => `${BASE_TRAITS_DIR}/${typeSeg}/${valSeg}${ext}`
+    );
+
+    let loaded: HTMLImageElement | null = null;
+    for (const url of candidates) {
+      try {
+        loaded = await loadImage(url);
+        // console.log("Loaded layer", type, "from", url);
+        break;
+      } catch {
+        // try next extension
+      }
+    }
+    if (loaded) images.push(loaded);
+  }
+
+  return images;
 }
 
 const Composer = forwardRef<
@@ -81,6 +145,10 @@ const Composer = forwardRef<
   const [loadingImg, setLoadingImg] = useState(false);
 
   const previewScale = 0.58;
+  const activeBg = useMemo(
+    () => bg || ({ kind: "color", value: "#3e2d75" } as BgChoice),
+    [bg]
+  );
   const previewSize: Size = useMemo(
     () => ({
       w: Math.round(1440 * previewScale),
@@ -89,18 +157,9 @@ const Composer = forwardRef<
     []
   );
 
-  const activeBg = useMemo<BgChoice>(
-    () =>
-      bg || ({
-        kind: "color",
-        value: "#3e2d75",
-      } as BgChoice),
-    [bg]
-  );
-
-  /** Core draw: background -> single NFT image */
+  /** Core draw: background -> local layers (if any) -> OPTIONAL remote image */
   const draw = async (ctx: CanvasRenderingContext2D, size: Size) => {
-    // Background
+    // Phone background (solid color or uploaded image)
     if (activeBg.kind === "color") {
       ctx.fillStyle = activeBg.value || "#2b2146";
       ctx.fillRect(0, 0, size.w, size.h);
@@ -119,27 +178,50 @@ const Composer = forwardRef<
       }
     }
 
-    if (!nft?.image) {
-      console.warn("Composer: nft.image is missing for NFT:", nft);
-      return;
+    const layeredMode = hasLayerTraits(nft?.attributes);
+    let drewLayers = false;
+
+    // Try to draw local layers (Skin/Face/Body/Head/Glasses/Hand)
+    if (layeredMode) {
+      setLoadingImg(true);
+      try {
+        const imgs = await loadExistingLayersPerType(nft?.attributes);
+        if (imgs.length) {
+          const base = imgs[0];
+          const scale = Math.min(size.w / base.width, size.h / base.height);
+          const drawW = base.width * scale;
+          const drawH = base.height * scale;
+          const dx = (size.w - drawW) / 2;
+          const dy = size.h - drawH; // bottom align
+          ctx.imageSmoothingEnabled = false;
+          for (const li of imgs) {
+            ctx.drawImage(li, dx, dy, drawW, drawH);
+          }
+          drewLayers = true;
+        }
+      } finally {
+        setLoadingImg(false);
+      }
     }
 
-    setLoadingImg(true);
-    try {
-      console.log("Composer: drawing NFT image", nft.image);
-      const img = await loadNftImage(nft.image);
-      const scale = Math.min(size.w / img.width, size.h / img.height);
-      const drawW = img.width * scale;
-      const drawH = img.height * scale;
-      const dx = (size.w - drawW) / 2;
-      const dy = size.h - drawH; // bottom align
-
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(img, dx, dy, drawW, drawH);
-    } catch (err) {
-      console.error("Composer: Failed to draw NFT image:", err);
-    } finally {
-      setLoadingImg(false);
+    // Fallback: draw the remote NFT image ONLY if we are NOT in layered mode
+    // (or if we are, but absolutely no traits hint that layers exist).
+    if (!drewLayers && nft?.image && !layeredMode) {
+      setLoadingImg(true);
+      try {
+        const src = isHttpUrl(nft.image) ? proxyUrl(nft.image!) : nft.image!;
+        console.log("Composer: drawing NFT image", src);
+        const img = await loadImage(src);
+        const scale = Math.min(size.w / img.width, size.h / img.height);
+        const drawW = img.width * scale;
+        const drawH = img.height * scale;
+        const dx = (size.w - drawW) / 2;
+        const dy = size.h - drawH;
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(img, dx, dy, drawW, drawH);
+      } finally {
+        setLoadingImg(false);
+      }
     }
   };
 
@@ -148,43 +230,39 @@ const Composer = forwardRef<
     if (!c) return;
     c.width = previewSize.w;
     c.height = previewSize.h;
-
     const ctx = c.getContext("2d");
     if (!ctx) return;
-
     ctx.clearRect(0, 0, c.width, c.height);
     await draw(ctx, previewSize);
   };
 
   useEffect(() => {
-    console.log("Composer received NFT:", nft);
     renderPreview();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nft?.image, activeBg]);
+  }, [nft?.image, (nft?.attributes || []).length, activeBg]);
 
   useImperativeHandle(ref, () => ({
     exportAt: async (size) => {
       const target: Size =
         typeof size === "string" ? PRESETS[size] : { w: size.w, h: size.h };
-
       const c = document.createElement("canvas");
       c.width = target.w;
       c.height = target.h;
       const ctx = c.getContext("2d");
       if (!ctx) return;
-
       await draw(ctx, target);
 
       const blob = await new Promise<Blob | null>((res) =>
         c.toBlob(res, "image/png")
       );
       if (!blob) return;
-
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${(nft?.name || "retrograve")
-        .replace(/\s+/g, "_")}_${target.w}x${target.h}.png`;
+      a.download = `${(nft?.name || "nft").replace(
+        /\s+/g,
+        "_"
+      )}_${target.w}x${target.h}.png`;
       a.click();
       URL.revokeObjectURL(url);
     },
@@ -199,7 +277,6 @@ const Composer = forwardRef<
               ? "Loading image…"
               : "Preview is scaled; exports are full size."}
           </div>
-
           <canvas
             ref={canvasRef}
             className="phone-canvas"
