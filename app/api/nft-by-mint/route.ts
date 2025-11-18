@@ -14,7 +14,14 @@ export async function GET(req: Request) {
     const mint = (url.searchParams.get("mint") || "").trim();
     const uri = (url.searchParams.get("uri") || "").trim();
 
-    // 1) If a metadata URI is passed, use the old behavior (direct fetch)
+    if (!mint && !uri) {
+      return NextResponse.json(
+        { error: "Missing mint or uri" },
+        { status: 400 }
+      );
+    }
+
+    // 1) If a metadata URI is passed explicitly, use that directly
     if (uri) {
       const r = await fetch(uri, { cache: "no-store" });
       if (!r.ok) {
@@ -29,18 +36,11 @@ export async function GET(req: Request) {
         id: mint || meta?.name || "",
         name: meta?.name || mint || "",
         image: meta?.image || "",
-        attributes: Array.isArray(meta?.attributes) ? meta!.attributes : [],
+        attributes: Array.isArray(meta?.attributes) ? meta.attributes! : [],
       });
     }
 
-    // 2) If no URI but we DO have a mint, resolve via Helius
-    if (!mint) {
-      return NextResponse.json(
-        { error: "Missing mint or uri" },
-        { status: 400 }
-      );
-    }
-
+    // 2) No URI, but we DO have a mint – resolve via Helius
     const heliusKey = process.env.HELIUS_API_KEY;
     if (!heliusKey) {
       console.error("Missing HELIUS_API_KEY in env");
