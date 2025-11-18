@@ -55,6 +55,24 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
+// Try proxy first, then raw URL as a fallback
+async function loadNftImage(raw: string): Promise<HTMLImageElement> {
+  const sources = isHttpUrl(raw)
+    ? [proxyUrl(raw), raw]
+    : [raw];
+
+  let lastErr: any = null;
+  for (const s of sources) {
+    try {
+      return await loadImage(s);
+    } catch (e) {
+      lastErr = e;
+      console.warn("Failed to load NFT image from", s, e);
+    }
+  }
+  throw lastErr || new Error("could not load NFT image");
+}
+
 const Composer = forwardRef<
   ComposerHandle,
   { nft: SimpleNft | null; bg: BgChoice | null }
@@ -80,7 +98,7 @@ const Composer = forwardRef<
     [bg]
   );
 
-  /** Core draw: background -> single NFT image (no local layer logic) */
+  /** Core draw: background -> single NFT image */
   const draw = async (ctx: CanvasRenderingContext2D, size: Size) => {
     // Background
     if (activeBg.kind === "color") {
@@ -101,18 +119,15 @@ const Composer = forwardRef<
       }
     }
 
-    // NFT image on top
     if (!nft?.image) {
+      console.warn("Composer: nft.image is missing for NFT:", nft);
       return;
     }
 
     setLoadingImg(true);
     try {
-      const src = isHttpUrl(nft.image)
-        ? proxyUrl(nft.image)
-        : nft.image;
-
-      const img = await loadImage(src);
+      console.log("Composer: drawing NFT image", nft.image);
+      const img = await loadNftImage(nft.image);
       const scale = Math.min(size.w / img.width, size.h / img.height);
       const drawW = img.width * scale;
       const drawH = img.height * scale;
@@ -122,7 +137,7 @@ const Composer = forwardRef<
       ctx.imageSmoothingEnabled = false;
       ctx.drawImage(img, dx, dy, drawW, drawH);
     } catch (err) {
-      console.error("Failed to draw NFT image in Composer:", err);
+      console.error("Composer: Failed to draw NFT image:", err);
     } finally {
       setLoadingImg(false);
     }
@@ -142,7 +157,7 @@ const Composer = forwardRef<
   };
 
   useEffect(() => {
-    // Re-render whenever the image URL or background changes
+    console.log("Composer received NFT:", nft);
     renderPreview();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nft?.image, activeBg]);
