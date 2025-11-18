@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  Suspense,
+} from "react";
 import { useSearchParams } from "next/navigation";
 
 import BackgroundPicker, { BgChoice } from "../components/BackgroundPicker";
@@ -49,7 +55,7 @@ function LockerInner() {
     setBg(initialBg);
   }, [initialBg]);
 
-  // Dev background tester – for now, just controls the hint text
+  // Dev background tester – just controls the hint text for now
   useEffect(() => {
     if (!devMode) return;
 
@@ -245,5 +251,22 @@ function LockerInner() {
 }
 
 export default function LockerPage() {
-  return <LockerInner />;
+  return (
+    <Suspense
+      fallback={
+        <main
+          style={{
+            minHeight: "60vh",
+            display: "grid",
+            placeItems: "center",
+            color: "#cfc2ff",
+          }}
+        >
+          Loading locker…
+        </main>
+      }
+    >
+      <LockerInner />
+    </Suspense>
+  );
 }
