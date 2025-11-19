@@ -1,12 +1,7 @@
+// app/locker/page.tsx
 "use client";
 
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  Suspense,
-} from "react";
+import { useEffect, useMemo, useRef, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 import BackgroundPicker, { BgChoice } from "../components/BackgroundPicker";
@@ -14,12 +9,18 @@ import ExportButtons from "../components/ExportButtons";
 import Composer, {
   type ComposerHandle,
   type SimpleNft,
+  type MetaAttribute,
 } from "../components/Composer";
 import ShareActions from "../components/ShareActions";
 import DevBgTester from "../components/DevBgTester";
 import ClientOnly from "../components/ClientOnly";
 
-type NftFetchResp = { id: string; name?: string; image?: string } | null;
+type NftFetchResp = {
+  id: string;
+  name?: string;
+  image?: string;
+  attributes?: MetaAttribute[];
+} | null;
 
 function LockerInner() {
   const sp = useSearchParams();
@@ -44,6 +45,7 @@ function LockerInner() {
       id: mint || "unknown",
       name: nameParam || undefined,
       image: imageParam || undefined,
+      // No attributes when coming only from URL params
     };
   });
 
@@ -85,6 +87,7 @@ function LockerInner() {
         id: mint || "unknown",
         name: nameParam || undefined,
         image: imageParam,
+        // No attributes available from URL-only flow
       };
       setNft(fromParams);
       setLoading(false);
@@ -111,6 +114,7 @@ function LockerInner() {
               id: j.id,
               name: j.name,
               image: j.image,
+              attributes: Array.isArray(j.attributes) ? j.attributes : [],
             });
           } else {
             setNft(null);
@@ -174,7 +178,7 @@ function LockerInner() {
                 aspectRatio: "9 / 19.5",
                 borderRadius: 26,
                 overflow: "hidden",
-                boxShadow: "0 18px 44px rgba(0,0,0,0.45)",
+                boxShadow: "0 18px 44px rgba(0, 0, 0, 0.45)",
                 background: "#221a33",
                 margin: "0 auto",
               }}
