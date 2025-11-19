@@ -204,13 +204,20 @@ const Composer = forwardRef<
       }
     }
 
-    // Fallback: draw the remote NFT image ONLY if we are NOT in layered mode
-    // (or if we are, but absolutely no traits hint that layers exist).
-    if (!drewLayers && nft?.image && !layeredMode) {
+    // Fallback: draw the remote NFT image ONLY if we truly have **no**
+    // attributes to work with. If attributes exist, we avoid this so we
+    // don't pull in the baked background.
+    const noAttrs = !nft?.attributes || nft.attributes.length === 0;
+
+    if (!drewLayers && nft?.image && noAttrs) {
       setLoadingImg(true);
       try {
         const src = isHttpUrl(nft.image) ? proxyUrl(nft.image!) : nft.image!;
-        console.log("Composer: drawing NFT image", src);
+        console.log("Composer: drawing FALLBACK NFT image", {
+          src,
+          layeredMode,
+          attrCount: nft?.attributes?.length || 0,
+        });
         const img = await loadImage(src);
         const scale = Math.min(size.w / img.width, size.h / img.height);
         const drawW = img.width * scale;
