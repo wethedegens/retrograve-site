@@ -32,7 +32,8 @@ type Size = { w: number; h: number };
 
 /** --------- CONFIG: update only these if your structure changes ---------- */
 // Your MAGApixel layer sprites under /public:
-const BASE_TRAITS_DIR = "/collections/magapixel/layers";
+// NOTE: we are now using /magapixel/layers (NOT /collections/magapixel/layers)
+const BASE_TRAITS_DIR = "/magapixel/layers";
 
 // NOTE: "Background" is intentionally NOT here – we don't draw it so we can swap BGs.
 const LAYER_ORDER = ["Skin", "Face", "Body", "Head", "Glasses", "Hand"];
@@ -77,8 +78,8 @@ function slugify(s: string) {
 }
 
 /**
- * Detect whether this NFT *should* be treated as a layered/generative one.
- * (We still fall back to the PNG if no local layers can be loaded.)
+ * Detect whether this NFT *should* be treated as a layered/generative one,
+ * meaning we DO NOT want to fall back to the baked PNG background.
  */
 function hasLayerTraits(attrs?: MetaAttribute[] | null): boolean {
   if (!attrs || !attrs.length) return false;
@@ -125,23 +126,12 @@ async function loadExistingLayersPerType(
     for (const url of candidates) {
       try {
         loaded = await loadImage(url);
-        console.log("Loaded layer", type, "from", url);
+        // console.log("Loaded layer", type, "from", url);
         break;
       } catch {
         // try next extension
       }
     }
-    if (!loaded) {
-      console.warn(
-        "Missing local layer sprite for",
-        type,
-        "value",
-        attr.value,
-        "expected one of:",
-        candidates
-      );
-    }
-
     if (loaded) images.push(loaded);
   }
 
@@ -209,26 +199,19 @@ const Composer = forwardRef<
             ctx.drawImage(li, dx, dy, drawW, drawH);
           }
           drewLayers = true;
-        } else {
-          console.warn(
-            "Layered NFT but no local layers loaded; falling back to PNG if available.",
-            nft?.id
-          );
         }
       } finally {
         setLoadingImg(false);
       }
     }
 
-    // Fallback: draw the remote NFT image if we didn't draw ANY local layers
-    if (!drewLayers && nft?.image) {
+    // Fallback: draw the remote NFT image ONLY if we are NOT in layered mode
+    // (or if we are, but absolutely no traits hint that layers exist).
+    if (!drewLayers && nft?.image && !layeredMode) {
       setLoadingImg(true);
       try {
         const src = isHttpUrl(nft.image) ? proxyUrl(nft.image!) : nft.image!;
-        console.log("Composer: drawing FALLBACK NFT image", src, {
-          layeredMode,
-          attrCount: nft?.attributes?.length || 0,
-        });
+        console.log("Composer: drawing NFT image", src);
         const img = await loadImage(src);
         const scale = Math.min(size.w / img.width, size.h / img.height);
         const drawW = img.width * scale;
