@@ -1,7 +1,7 @@
 // app/sitemap.ts
 import type { MetadataRoute } from "next";
 
-const SITE = "https://retrograve.tv"; // ← change if your final domain is different
+const SITE = "https://retrograve.xyz"; // ← change if your final domain is different
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
