@@ -14,6 +14,7 @@ import Composer, {
 import ShareActions from "../components/ShareActions";
 import DevBgTester from "../components/DevBgTester";
 import ClientOnly from "../components/ClientOnly";
+import WalletDebug from "../components/WalletDebug";
 
 type NftFetchResp = {
   id: string;
@@ -239,6 +240,9 @@ function LockerInner() {
       <ClientOnly>
         <DevBgTester />
       </ClientOnly>
+
+      {/* Wallet debug overlay – safe to keep or remove later */}
+      <WalletDebug />
 
       <style jsx>{`
         @media (max-width: 860px) {
