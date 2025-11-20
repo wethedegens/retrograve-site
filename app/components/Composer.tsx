@@ -32,8 +32,10 @@ type Size = { w: number; h: number };
 
 /** --------- CONFIG: update only these if your structure changes ---------- */
 // Your MAGApixel layer sprites under /public:
-// NOTE: we are now using /magapixel/layers (NOT /collections/magapixel/layers)
-const BASE_TRAITS_DIR = "/magapixel/layers";
+//
+// You now have: public/magapixel/{body,face,glasses,head,skin,hand}/...
+// So the base path must be "/magapixel" (no /layers here).
+const BASE_TRAITS_DIR = "/magapixel";
 
 // NOTE: "Background" is intentionally NOT here – we don't draw it so we can swap BGs.
 const LAYER_ORDER = ["Skin", "Face", "Body", "Head", "Glasses", "Hand"];
@@ -110,7 +112,6 @@ async function loadExistingLayersPerType(
   const images: HTMLImageElement[] = [];
 
   for (const type of LAYER_ORDER) {
-    // Background isn't in LAYER_ORDER; we never draw it
     const attr = byType.get(type);
     if (!attr || attr.value == null) continue;
 
@@ -206,7 +207,6 @@ const Composer = forwardRef<
     }
 
     // Fallback: draw the remote NFT image ONLY if we are NOT in layered mode
-    // (or if we are, but absolutely no traits hint that layers exist).
     if (!drewLayers && nft?.image && !layeredMode) {
       setLoadingImg(true);
       try {
