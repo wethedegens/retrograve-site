@@ -22,7 +22,7 @@ export default function OgWLBanner() {
     <div className="og-corner" role="region" aria-label="OG & WL announcement">
       <a
         className="chip"
-        href="https://x.com/retrograve"
+        href="https://x.com/RETROGRAVE_NFT"
         target="_blank"
         rel="noreferrer"
         aria-label="Follow RetroGrave on X"
