@@ -14,5 +14,5 @@ const nav = [
   { href: "/community", label: "COMMUNITY" },
   // { href: "/leaderboard", label: "LEADERBOARD" }, // removed (404)
   { href: "/collect", label: "COLLECT NOW" },
-  { href: "https://x.com/retrograve", label: "FOLLOW ON X", external: true },
+  { href: "https://x.com/RETROGRAVE_NFT", label: "FOLLOW ON X", external: true },
 ];
