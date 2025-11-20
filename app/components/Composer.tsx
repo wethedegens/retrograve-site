@@ -77,8 +77,8 @@ function slugify(s: string) {
 }
 
 /**
- * Detect whether this NFT *should* be treated as a layered/generative one,
- * meaning we DO NOT want to fall back to the baked PNG background.
+ * Detect whether this NFT *should* be treated as a layered/generative one.
+ * (We still fall back to the PNG if no local layers can be loaded.)
  */
 function hasLayerTraits(attrs?: MetaAttribute[] | null): boolean {
   if (!attrs || !attrs.length) return false;
@@ -125,12 +125,23 @@ async function loadExistingLayersPerType(
     for (const url of candidates) {
       try {
         loaded = await loadImage(url);
-        // console.log("Loaded layer", type, "from", url);
+        console.log("Loaded layer", type, "from", url);
         break;
       } catch {
         // try next extension
       }
     }
+    if (!loaded) {
+      console.warn(
+        "Missing local layer sprite for",
+        type,
+        "value",
+        attr.value,
+        "expected one of:",
+        candidates
+      );
+    }
+
     if (loaded) images.push(loaded);
   }
 
@@ -198,23 +209,23 @@ const Composer = forwardRef<
             ctx.drawImage(li, dx, dy, drawW, drawH);
           }
           drewLayers = true;
+        } else {
+          console.warn(
+            "Layered NFT but no local layers loaded; falling back to PNG if available.",
+            nft?.id
+          );
         }
       } finally {
         setLoadingImg(false);
       }
     }
 
-    // Fallback: draw the remote NFT image ONLY if we truly have **no**
-    // attributes to work with. If attributes exist, we avoid this so we
-    // don't pull in the baked background.
-    const noAttrs = !nft?.attributes || nft.attributes.length === 0;
-
-    if (!drewLayers && nft?.image && noAttrs) {
+    // Fallback: draw the remote NFT image if we didn't draw ANY local layers
+    if (!drewLayers && nft?.image) {
       setLoadingImg(true);
       try {
         const src = isHttpUrl(nft.image) ? proxyUrl(nft.image!) : nft.image!;
-        console.log("Composer: drawing FALLBACK NFT image", {
-          src,
+        console.log("Composer: drawing FALLBACK NFT image", src, {
           layeredMode,
           attrCount: nft?.attributes?.length || 0,
         });
