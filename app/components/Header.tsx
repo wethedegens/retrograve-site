@@ -39,7 +39,7 @@ export default function Header() {
             COLLECT NOW
           </Link>
           <a
-            href="https://x.com/retrograve"
+            href="https://x.com/RETROGRAVE_NFT"
             target="_blank"
             rel="noopener noreferrer"
             className="nav-link"
