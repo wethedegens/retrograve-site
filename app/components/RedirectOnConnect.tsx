@@ -30,7 +30,8 @@ export default function RedirectOnConnect() {
     const handleConnect = () => {
       if (armed.current) {
         armed.current = false; // prevent any double-fires
-        router.replace("/retrogs");
+        router.replace("/");
+
       }
     };
 
