@@ -52,7 +52,14 @@ const PRESETS: Record<string, Size> = {
 };
 
 export type ComposerHandle = {
+  // legacy helper (still works)
   exportAt: (size: ExportSize | keyof typeof PRESETS) => Promise<void>;
+  // new API used by ExportButtons – returns a Blob so caller can decide how to download
+  exportImage: (opts: {
+    width: number;
+    height: number;
+    format?: "png";
+  }) => Promise<Blob | null>;
 };
 
 const isHttpUrl = (s?: string | null) => !!s && /^https?:\/\//i.test(s);
@@ -127,7 +134,6 @@ async function loadExistingLayersPerType(
     for (const url of candidates) {
       try {
         loaded = await loadImage(url);
-        // console.log("Loaded layer", type, "from", url);
         break;
       } catch {
         // try next extension
@@ -243,20 +249,25 @@ const Composer = forwardRef<
   }, [nft?.image, (nft?.attributes || []).length, activeBg]);
 
   useImperativeHandle(ref, () => ({
+    // legacy helper used earlier – now just calls exportImage internally
     exportAt: async (size) => {
       const target: Size =
         typeof size === "string" ? PRESETS[size] : { w: size.w, h: size.h };
-      const c = document.createElement("canvas");
-      c.width = target.w;
-      c.height = target.h;
-      const ctx = c.getContext("2d");
-      if (!ctx) return;
-      await draw(ctx, target);
 
-      const blob = await new Promise<Blob | null>((res) =>
-        c.toBlob(res, "image/png")
-      );
+      const blob = await (async () => {
+        const c = document.createElement("canvas");
+        c.width = target.w;
+        c.height = target.h;
+        const ctx = c.getContext("2d");
+        if (!ctx) return null;
+        await draw(ctx, target);
+        return await new Promise<Blob | null>((res) =>
+          c.toBlob(res, "image/png")
+        );
+      })();
+
       if (!blob) return;
+
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -266,6 +277,24 @@ const Composer = forwardRef<
       )}_${target.w}x${target.h}.png`;
       a.click();
       URL.revokeObjectURL(url);
+    },
+
+    // new API: Export to a Blob so caller (ExportButtons) can decide how to handle download
+    exportImage: async ({ width, height, format = "png" }) => {
+      const target: Size = { w: width, h: height };
+      const c = document.createElement("canvas");
+      c.width = target.w;
+      c.height = target.h;
+      const ctx = c.getContext("2d");
+      if (!ctx) return null;
+
+      await draw(ctx, target);
+
+      const mime = format === "png" ? "image/png" : "image/png";
+      const blob = await new Promise<Blob | null>((res) =>
+        c.toBlob(res, mime)
+      );
+      return blob;
     },
   }));
 
