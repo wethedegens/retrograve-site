@@ -1,127 +1,172 @@
-// app/components/ExportButtons.tsx
 "use client";
 
-import { RefObject, useState } from "react";
-import type { ComposerHandle, ExportSize } from "./Composer";
+import { useState } from "react";
+import type { ComposerHandle } from "./Composer";
 
-type Btn = {
-  label: string;
-  size: ExportSize | { w: number; h: number; label?: string };
-  id: string; // for busy state key
+type ExportButtonsProps = {
+  composerRef: React.RefObject<ComposerHandle | null>;
 };
 
-export default function ExportButtons({
-  composerRef,
-}: {
-  composerRef: RefObject<ComposerHandle>;
-}) {
-  const [busy, setBusy] = useState<string | null>(null);
+// Helper: detect iOS / in-app browser-ish environments
+function isIOSLike() {
+  if (typeof navigator === "undefined") return false;
+  return /iPad|iPhone|iPod/.test(navigator.userAgent);
+}
 
-  const run = async (btn: Btn) => {
-    const c = composerRef.current;
-    if (!c) return;
+// Helper: detect Phantom in-app browser (very rough, but good enough)
+function isPhantomInApp() {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent.toLowerCase();
+  return ua.includes("phantom");
+}
+
+async function downloadBlobSmart(
+  blob: Blob,
+  filename: string
+): Promise<void> {
+  const url = URL.createObjectURL(blob);
+
+  const ios = isIOSLike();
+  const phantom = isPhantomInApp();
+
+  // On iOS / Phantom, the "download" attribute is often ignored.
+  // Instead, we open the image directly so the user can long-press & save.
+  if (ios || phantom) {
+    // Use _self so it stays in the same tab (prevents getting "stuck")
+    window.open(url, "_self");
+    return;
+  }
+
+  // Normal desktop-ish behavior: create a download link
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  // Clean up
+  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
+export default function ExportButtons({ composerRef }: ExportButtonsProps) {
+  const [busy, setBusy] = useState(false);
+
+  async function handleExport(
+    width: number,
+    height: number,
+    filename: string
+  ) {
+    if (!composerRef.current) return;
     try {
-      setBusy(btn.id);
-      // Normalize to ExportSize
-      const s =
-        "w" in btn.size
-          ? { label: btn.size.label || btn.label, w: btn.size.w, h: btn.size.h }
-          : btn.size;
-      await c.exportAt(s);
+      setBusy(true);
+      const blob = await composerRef.current.exportAsPng({
+        width,
+        height,
+      });
+      if (!blob) return;
+
+      await downloadBlobSmart(blob, filename);
     } finally {
-      setBusy(null);
+      setBusy(false);
     }
-  };
-
-  const buttons: Btn[] = [
-    { id: "master", label: "Download Master (1440×3200)", size: { w: 1440, h: 3200 } },
-    { id: "ip15pm", label: "Download iPhone 15/14 Pro Max (1290×2796)", size: { w: 1290, h: 2796 } },
-    { id: "ip15pro", label: "Download iPhone 15/14 Pro (1179×2556)", size: { w: 1179, h: 2556 } },
-    { id: "and209", label: "Download Android 20:9 (1080×2400)", size: { w: 1080, h: 2400 } },
-    { id: "qhdp", label: "Download Android QHD+ (1440×3040)", size: { w: 1440, h: 3040 } },
-
-    // ✅ New share-friendly size — explicit object so no preset key needed
-    { id: "share", label: "Share your RetroGrave (1080×1350)", size: { w: 1080, h: 1350, label: "Share" } },
-  ];
+  }
 
   return (
-    <div className="export-wrap">
-      <div className="export-title">Export</div>
+    <div className="export-buttons">
+      <h3>Export</h3>
 
-      {buttons.map((b) => (
-        <button
-          key={b.id}
-          className={`btn ${busy === b.id ? "busy" : ""}`}
-          disabled={busy !== null}
-          onClick={() => run(b)}
-        >
-          <span className="btn-label">{busy === b.id ? "Preparing…" : b.label}</span>
-          <span className="sp" aria-hidden />
-        </button>
-      ))}
+      <button
+        disabled={busy}
+        onClick={() =>
+          handleExport(1440, 3200, "lockscreen-master-1440x3200.png")
+        }
+      >
+        Download Master (1440×3200)
+      </button>
+
+      <button
+        disabled={busy}
+        onClick={() =>
+          handleExport(1290, 2796, "iphone-15-pro-max-1290x2796.png")
+        }
+      >
+        Download iPhone 15/14 Pro Max (1290×2796)
+      </button>
+
+      <button
+        disabled={busy}
+        onClick={() =>
+          handleExport(1179, 2556, "iphone-15-14-pro-1179x2556.png")
+        }
+      >
+        Download iPhone 15/14 Pro (1179×2556)
+      </button>
+
+      <button
+        disabled={busy}
+        onClick={() =>
+          handleExport(1080, 2400, "android-20-9-1080x2400.png")
+        }
+      >
+        Download Android 20:9 (1080×2400)
+      </button>
+
+      <button
+        disabled={busy}
+        onClick={() =>
+          handleExport(1440, 3040, "android-qhd-plus-1440x3040.png")
+        }
+      >
+        Download Android QHD+ (1440×3040)
+      </button>
 
       <style jsx>{`
-        .export-wrap {
-          display: grid;
-          gap: 10px;
+        .export-buttons {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
         }
-        .export-title {
-          font-weight: 700;
-          letter-spacing: 0.04em;
-          color: #cfc2ff;
-          margin-bottom: 6px;
-          opacity: 0.9;
-        }
-        .btn {
-          width: 100%;
-          appearance: none;
-          border: 1px solid rgba(183, 122, 255, 0.35);
-          color: #eae6ff;
-          background: rgba(34, 26, 51, 0.8);
-          padding: 12px 14px;
-          border-radius: 12px;
+
+        h3 {
           font-size: 13px;
+          text-transform: uppercase;
+          letter-spacing: 0.18em;
+          color: #cfc2ff;
+          margin: 0 0 6px;
+        }
+
+        button {
+          width: 100%;
+          padding: 10px 12px;
+          border-radius: 999px;
+          border: 1px solid rgba(189, 169, 255, 0.4);
+          background: radial-gradient(
+            circle at top left,
+            rgba(189, 169, 255, 0.25),
+            rgba(40, 20, 80, 0.95)
+          );
+          color: #fdfbff;
+          font-size: 13px;
+          font-weight: 500;
           text-align: left;
-          display: grid;
-          grid-template-columns: 1fr auto;
-          align-items: center;
-          gap: 10px;
-          transition: transform 0.15s ease, box-shadow 0.15s ease,
-            background 0.15s ease, border-color 0.15s ease;
-          box-shadow: 0 0 0 0 rgba(183, 122, 255, 0.2) inset;
+          cursor: pointer;
+          transition:
+            transform 0.12s ease,
+            box-shadow 0.12s ease,
+            border-color 0.12s ease,
+            background 0.12s ease;
         }
-        .btn:hover:not(:disabled) {
+
+        button:hover:not(:disabled) {
           transform: translateY(-1px);
-          box-shadow: 0 0 16px rgba(183, 122, 255, 0.45);
-          border-color: rgba(183, 122, 255, 0.6);
-          background: rgba(34, 26, 51, 0.95);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+          border-color: rgba(255, 255, 255, 0.7);
         }
-        .btn:disabled {
+
+        button:disabled {
           opacity: 0.6;
           cursor: default;
-        }
-        .btn.busy {
-          box-shadow: 0 0 0 2px rgba(183, 122, 255, 0.35) inset;
-          background: rgba(34, 26, 51, 0.95);
-        }
-        .btn-label {
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        .sp {
-          height: 6px;
-          width: 6px;
-          border-radius: 50%;
-          background: radial-gradient(
-            circle at 50% 50%,
-            rgba(183, 122, 255, 1) 0%,
-            rgba(60, 15, 90, 0.2) 60%,
-            rgba(30, 0, 50, 0.1) 100%
-          );
-          box-shadow:
-            0 0 14px rgba(183, 122, 255, 0.45),
-            0 0 26px rgba(183, 122, 255, 0.35);
         }
       `}</style>
     </div>
