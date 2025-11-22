@@ -20,10 +20,7 @@ function isPhantomInApp() {
   return ua.includes("phantom");
 }
 
-async function downloadBlobSmart(
-  blob: Blob,
-  filename: string
-): Promise<void> {
+async function downloadBlobSmart(blob: Blob, filename: string): Promise<void> {
   const url = URL.createObjectURL(blob);
 
   const ios = isIOSLike();
@@ -52,18 +49,19 @@ async function downloadBlobSmart(
 export default function ExportButtons({ composerRef }: ExportButtonsProps) {
   const [busy, setBusy] = useState(false);
 
-  async function handleExport(
-    width: number,
-    height: number,
-    filename: string
-  ) {
+  async function handleExport(width: number, height: number, filename: string) {
     if (!composerRef.current) return;
+
     try {
       setBusy(true);
-      const blob = await composerRef.current.exportAsPng({
+
+      // ✅ New API on ComposerHandle
+      const blob = await composerRef.current.exportImage({
+        format: "png",
         width,
         height,
       });
+
       if (!blob) return;
 
       await downloadBlobSmart(blob, filename);
