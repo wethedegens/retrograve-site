@@ -170,3 +170,29 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
     </div>
   );
 }
+async function downloadBlobSmart(blob: Blob, filename: string): Promise<void> {
+  const url = URL.createObjectURL(blob);
+
+  const ios = isIOSLike();
+  const phantom = isPhantomInApp();
+
+  // iOS + Phantom: must stay in SAME TAB and give user a long-press-save page.
+  if (ios || phantom) {
+    // Keep the blob alive longer
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+
+    // IMPORTANT: _self keeps it in the same tab (prevents dead links)
+    window.location.href = url;
+    return;
+  }
+
+  // Desktop behavior
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
