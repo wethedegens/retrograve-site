@@ -12,21 +12,21 @@ type ExportButtonsProps = {
 // Helper: detect iOS-ish environments
 function isIOSLike() {
   if (typeof navigator === "undefined") return false;
-  return /iPad|iPhone|iPod/.test(navigator.userAgent);
+  return /iPad|iPhone|iPod/i.test(navigator.userAgent || "");
 }
 
 // Helper: detect Phantom in-app browser (rough but fine)
 function isPhantomInApp() {
   if (typeof navigator === "undefined") return false;
-  const ua = navigator.userAgent.toLowerCase();
+  const ua = (navigator.userAgent || "").toLowerCase();
   return ua.includes("phantom");
 }
 
-// Generic mobile-ish detection (for the floating tip)
+// Generic mobile-ish detection (for tip + overlay safety net)
 function isMobileLike() {
   if (typeof navigator === "undefined") return false;
-  const ua = navigator.userAgent;
-  return /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(
+  const ua = navigator.userAgent || "";
+  return /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(
     ua
   );
 }
@@ -78,9 +78,10 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
 
       const ios = isIOSLike();
       const phantom = isPhantomInApp();
+      const mobile = isMobileLike();
 
-      if (ios || phantom) {
-        // 🔹 On iOS / Phantom: show the image in-page so user can long-press & save
+      // 🔹 Any mobile-ish / Phantom / iOS: show overlay for long-press save
+      if (ios || phantom || mobile) {
         const reader = new FileReader();
         reader.onloadend = () => {
           const dataUrl = reader.result as string;
@@ -147,7 +148,7 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
         </button>
       </div>
 
-      {/* 🔹 Mobile overlay preview for iOS / Phantom */}
+      {/* 🔹 Mobile overlay preview for iOS / Phantom / mobile-ish */}
       {previewUrl && (
         <div
           className="download-overlay"
