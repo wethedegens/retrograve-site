@@ -1,9 +1,8 @@
-
 // app/components/ExportButtons.tsx
-// MOBILE_EXPORT_OVERLAY_V1
+// MOBILE_EXPORT_OVERLAY_V1 + MOBILE_TIP_HINT_V1
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ComposerHandle } from "./Composer";
 
 type ExportButtonsProps = {
@@ -23,6 +22,15 @@ function isPhantomInApp() {
   return ua.includes("phantom");
 }
 
+// Generic mobile-ish detection (for the floating tip)
+function isMobileLike() {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent;
+  return /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(
+    ua
+  );
+}
+
 // Desktop-only download helper using a blob URL
 function downloadBlobDesktop(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
@@ -38,6 +46,16 @@ function downloadBlobDesktop(blob: Blob, filename: string) {
 export default function ExportButtons({ composerRef }: ExportButtonsProps) {
   const [busy, setBusy] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [showMobileTip, setShowMobileTip] = useState(false);
+
+  // Decide if we should show the bottom-left mobile hint
+  useEffect(() => {
+    if (typeof navigator === "undefined") return;
+
+    if (isMobileLike() || isPhantomInApp() || isIOSLike()) {
+      setShowMobileTip(true);
+    }
+  }, []);
 
   async function handleExport(
     width: number,
@@ -156,6 +174,25 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
         </div>
       )}
 
+      {/* 🔹 Small floating hint on mobile / Phantom */}
+      {showMobileTip && (
+        <div className="mobile-download-tip">
+          <span>
+            Tip:{" "}
+            <strong>Tap &amp; hold</strong> the image to download on
+            mobile.
+          </span>
+          <button
+            type="button"
+            className="mobile-tip-close"
+            onClick={() => setShowMobileTip(false)}
+            aria-label="Dismiss download tip"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       <style jsx>{`
         .export-buttons {
           display: flex;
@@ -261,6 +298,36 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
           font-size: 13px;
           font-weight: 500;
           cursor: pointer;
+        }
+
+        /* Floating mobile tip (bottom-left) */
+        .mobile-download-tip {
+          position: fixed;
+          left: 12px;
+          bottom: 12px;
+          z-index: 9000;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 10px;
+          border-radius: 999px;
+          background: rgba(0, 0, 0, 0.8);
+          color: #fdfbff;
+          font-size: 11px;
+          line-height: 1.3;
+          backdrop-filter: blur(6px);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+        }
+
+        .mobile-tip-close {
+          border: none;
+          background: transparent;
+          color: inherit;
+          font-size: 14px;
+          cursor: pointer;
+          padding: 0;
+          margin: 0;
+          line-height: 1;
         }
       `}</style>
     </>
