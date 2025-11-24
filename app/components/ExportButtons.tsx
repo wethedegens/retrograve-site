@@ -8,7 +8,7 @@ type ExportButtonsProps = {
   composerRef: React.RefObject<ComposerHandle | null>;
 };
 
-// Helper: detect iOS-ish
+// Helper: detect iOS-ish environments
 function isIOSLike() {
   if (typeof navigator === "undefined") return false;
   return /iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -21,26 +21,21 @@ function isPhantomInApp() {
   return ua.includes("phantom");
 }
 
-// Single, correct helper
-async function downloadBlobSmart(
-  blob: Blob,
-  filename: string
-): Promise<void> {
+// Unified download helper: behaves nicely on desktop *and* iOS/Phantom
+async function downloadBlobSmart(blob: Blob, filename: string): Promise<void> {
   const url = URL.createObjectURL(blob);
 
   const ios = isIOSLike();
   const phantom = isPhantomInApp();
 
+  // On iOS / Phantom, the "download" attribute is usually ignored.
+  // Open directly so the user can long-press / save image.
   if (ios || phantom) {
-    // Keep the blob alive long enough for user to save
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
-
-    // Stay in SAME TAB so Phantom/iOS don't kill the blob
-    window.location.href = url;
+    window.open(url, "_self");
     return;
   }
 
-  // Normal desktop behavior
+  // Normal desktop download
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
@@ -60,13 +55,15 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
     filename: string
   ) {
     if (!composerRef.current) return;
+
     try {
       setBusy(true);
 
+      // ✅ New API on ComposerHandle
       const blob = await composerRef.current.exportImage({
         width,
         height,
-        format: "image/png",
+        format: "png", // <-- IMPORTANT: literal "png", NOT "image/png"
       });
 
       if (!blob) return;
