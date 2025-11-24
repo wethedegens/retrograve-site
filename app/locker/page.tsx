@@ -247,10 +247,26 @@ function LockerInner() {
       <style jsx>{`
         @media (max-width: 860px) {
           .locker-layout {
-            grid-template-columns: 1fr;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
           }
+
           .left-panel {
-            order: 2;
+            width: 100%;
+            max-width: 360px;
+          }
+
+          /* shrink the outer phone frame and soften the shadow */
+          .phone-frame {
+            width: min(260px, 70vw) !important;
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5);
+          }
+
+          /* hide the top purple hint on mobile to free space */
+          .phone-hint {
+            display: none;
           }
         }
       `}</style>
