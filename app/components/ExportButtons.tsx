@@ -1,5 +1,5 @@
 // app/components/ExportButtons.tsx
-// MOBILE_EXPORT_OVERLAY_V1 + MOBILE_TIP_HINT_V2
+// UNIVERSAL_OVERLAY_EXPORT_V1
 "use client";
 
 import { useEffect, useState } from "react";
@@ -9,38 +9,13 @@ type ExportButtonsProps = {
   composerRef: React.RefObject<ComposerHandle | null>;
 };
 
-// Helper: detect iOS-ish environments
-function isIOSLike() {
-  if (typeof navigator === "undefined") return false;
-  return /iPad|iPhone|iPod/i.test(navigator.userAgent || "");
-}
-
-// Helper: detect Phantom in-app browser (rough but fine)
-function isPhantomInApp() {
-  if (typeof navigator === "undefined") return false;
-  const ua = (navigator.userAgent || "").toLowerCase();
-  return ua.includes("phantom");
-}
-
-// Generic mobile-ish detection (for tip + overlay safety net)
+// Generic mobile-ish detection (for the floating tip only)
 function isMobileLike() {
   if (typeof navigator === "undefined") return false;
   const ua = navigator.userAgent || "";
   return /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(
     ua
   );
-}
-
-// Desktop-only download helper using a blob URL
-function downloadBlobDesktop(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 10_000);
 }
 
 export default function ExportButtons({ composerRef }: ExportButtonsProps) {
@@ -51,8 +26,7 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
   // Decide if we should show the bottom-left mobile hint
   useEffect(() => {
     if (typeof navigator === "undefined") return;
-
-    if (isMobileLike() || isPhantomInApp() || isIOSLike()) {
+    if (isMobileLike()) {
       setShowMobileTip(true);
     }
   }, []);
@@ -76,22 +50,13 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
 
       if (!blob) return;
 
-      const ios = isIOSLike();
-      const phantom = isPhantomInApp();
-      const mobile = isMobileLike();
-
-      // 🔹 Any mobile-ish / Phantom / iOS: show overlay for long-press save
-      if (ios || phantom || mobile) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const dataUrl = reader.result as string;
-          setPreviewUrl(dataUrl);
-        };
-        reader.readAsDataURL(blob);
-      } else {
-        // 🔹 Normal desktop behavior
-        downloadBlobDesktop(blob, filename);
-      }
+      // 🔹 ALWAYS use overlay with data URL, on ALL devices
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const dataUrl = reader.result as string;
+        setPreviewUrl(dataUrl);
+      };
+      reader.readAsDataURL(blob);
     } finally {
       setBusy(false);
     }
@@ -148,7 +113,7 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
         </button>
       </div>
 
-      {/* 🔹 Mobile overlay preview for iOS / Phantom / mobile-ish */}
+      {/* 🔹 Universal overlay preview (desktop + mobile) */}
       {previewUrl && (
         <div
           className="download-overlay"
@@ -169,8 +134,11 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
             </button>
 
             <p className="overlay-text">
-              Tap &amp; hold the image below to save it to your phone.
+              Tap &amp; hold the image below to save it on mobile.
+              On desktop, right-click the image and choose{" "}
+              <strong>“Save Image As…”</strong>.
             </p>
+
             <div className="overlay-image-wrap">
               <img src={previewUrl} alt="Exported lockscreen" />
             </div>
@@ -178,7 +146,7 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
         </div>
       )}
 
-      {/* 🔹 Small floating hint on mobile / Phantom */}
+      {/* 🔹 Small floating hint on mobile */}
       {showMobileTip && (
         <div className="mobile-download-tip">
           <span>
