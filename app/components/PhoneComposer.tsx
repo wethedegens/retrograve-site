@@ -26,11 +26,27 @@ export default function PhoneComposer({
           display: grid;
           grid-template-columns: auto 280px;
           gap: 16px;
-          align-items: start;
+          align-items: flex-start;
         }
+
+        .side {
+          max-width: 320px;
+        }
+
+        /* 📱 On mobile: stack vertically (phone on top, buttons below) */
         @media (max-width: 900px) {
-          .phone-composer { grid-template-columns: 1fr; }
-          .side { order: 2; }
+          .phone-composer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            row-gap: 14px;
+          }
+
+          .side {
+            order: 2;
+            width: 100%;
+            max-width: 360px;
+          }
         }
       `}</style>
     </div>
