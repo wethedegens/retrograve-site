@@ -1,3 +1,4 @@
+// app/components/ExportButtons.tsx
 "use client";
 
 import { useState } from "react";
@@ -7,34 +8,39 @@ type ExportButtonsProps = {
   composerRef: React.RefObject<ComposerHandle | null>;
 };
 
-// Helper: detect iOS / in-app browser-ish environments
+// Helper: detect iOS-ish
 function isIOSLike() {
   if (typeof navigator === "undefined") return false;
   return /iPad|iPhone|iPod/.test(navigator.userAgent);
 }
 
-// Helper: detect Phantom in-app browser (very rough, but good enough)
+// Helper: detect Phantom in-app browser (rough but fine)
 function isPhantomInApp() {
   if (typeof navigator === "undefined") return false;
   const ua = navigator.userAgent.toLowerCase();
   return ua.includes("phantom");
 }
 
-async function downloadBlobSmart(blob: Blob, filename: string): Promise<void> {
+// Single, correct helper
+async function downloadBlobSmart(
+  blob: Blob,
+  filename: string
+): Promise<void> {
   const url = URL.createObjectURL(blob);
 
   const ios = isIOSLike();
   const phantom = isPhantomInApp();
 
-  // On iOS / Phantom, the "download" attribute is often ignored.
-  // Instead, we open the image directly so the user can long-press & save.
   if (ios || phantom) {
-    // Use _self so it stays in the same tab (prevents getting "stuck")
-    window.open(url, "_self");
+    // Keep the blob alive long enough for user to save
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+
+    // Stay in SAME TAB so Phantom/iOS don't kill the blob
+    window.location.href = url;
     return;
   }
 
-  // Normal desktop-ish behavior: create a download link
+  // Normal desktop behavior
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
@@ -42,24 +48,25 @@ async function downloadBlobSmart(blob: Blob, filename: string): Promise<void> {
   a.click();
   a.remove();
 
-  // Clean up
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
 }
 
 export default function ExportButtons({ composerRef }: ExportButtonsProps) {
   const [busy, setBusy] = useState(false);
 
-  async function handleExport(width: number, height: number, filename: string) {
+  async function handleExport(
+    width: number,
+    height: number,
+    filename: string
+  ) {
     if (!composerRef.current) return;
-
     try {
       setBusy(true);
 
-      // ✅ New API on ComposerHandle
       const blob = await composerRef.current.exportImage({
-        format: "png",
         width,
         height,
+        format: "image/png",
       });
 
       if (!blob) return;
@@ -169,30 +176,4 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
       `}</style>
     </div>
   );
-}
-async function downloadBlobSmart(blob: Blob, filename: string): Promise<void> {
-  const url = URL.createObjectURL(blob);
-
-  const ios = isIOSLike();
-  const phantom = isPhantomInApp();
-
-  // iOS + Phantom: must stay in SAME TAB and give user a long-press-save page.
-  if (ios || phantom) {
-    // Keep the blob alive longer
-    setTimeout(() => URL.revokeObjectURL(url), 60000);
-
-    // IMPORTANT: _self keeps it in the same tab (prevents dead links)
-    window.location.href = url;
-    return;
-  }
-
-  // Desktop behavior
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-
-  setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
