@@ -166,7 +166,8 @@ function LockerInner() {
               className="phone-frame"
               style={{
                 position: "relative",
-                width: "min(360px, 78vw)",
+                width: "340px",
+                maxWidth: "90vw",
                 aspectRatio: "9 / 19.5",
                 borderRadius: 26,
                 overflow: "hidden",
@@ -206,7 +207,7 @@ function LockerInner() {
                     fontSize: 11,
                     lineHeight: 1,
                     color: "#cfc2ff",
-                    background: "rgba(0,0,0,0.35)",
+                    background: "rgba(0, 0, 0, 0.35)",
                     padding: "6px 8px",
                     borderRadius: 999,
                     backdropFilter: "blur(2px)",
