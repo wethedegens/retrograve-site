@@ -1,5 +1,5 @@
 // app/components/ExportButtons.tsx
-// MOBILE_EXPORT_OVERLAY_V1 + MOBILE_TIP_HINT_V1
+// MOBILE_EXPORT_OVERLAY_V1 + MOBILE_TIP_HINT_V2
 "use client";
 
 import { useEffect, useState } from "react";
@@ -71,7 +71,7 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
       const blob = await composerRef.current.exportImage({
         width,
         height,
-        format: "png", // literal "png"
+        format: "png",
       });
 
       if (!blob) return;
@@ -157,19 +157,22 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
             className="overlay-inner"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Top-right back button */}
+            <button
+              type="button"
+              className="overlay-close"
+              onClick={() => setPreviewUrl(null)}
+              aria-label="Back to wardrobe"
+            >
+              ✕
+            </button>
+
             <p className="overlay-text">
               Tap &amp; hold the image below to save it to your phone.
             </p>
             <div className="overlay-image-wrap">
               <img src={previewUrl} alt="Exported lockscreen" />
             </div>
-            <button
-              type="button"
-              className="overlay-close"
-              onClick={() => setPreviewUrl(null)}
-            >
-              Close
-            </button>
           </div>
         </div>
       )}
@@ -254,9 +257,10 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
         }
 
         .overlay-inner {
+          position: relative;
           background: #11091f;
           border-radius: 18px;
-          padding: 16px;
+          padding: 20px 16px 16px;
           max-width: 480px;
           width: 100%;
           box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
@@ -270,7 +274,7 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
           font-size: 13px;
           color: #f7f0ff;
           text-align: center;
-          margin: 0;
+          margin: 0 24px 4px;
         }
 
         .overlay-image-wrap {
@@ -288,15 +292,20 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
         }
 
         .overlay-close {
-          align-self: center;
-          margin-top: 4px;
-          padding: 8px 18px;
-          border-radius: 999px;
-          border: 1px solid rgba(189, 169, 255, 0.4);
-          background: #2a1548;
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          border: none;
+          background: rgba(0, 0, 0, 0.75);
           color: #fdfbff;
-          font-size: 13px;
-          font-weight: 500;
+          width: 26px;
+          height: 26px;
+          border-radius: 999px;
+          font-size: 14px;
+          line-height: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           cursor: pointer;
         }
 
