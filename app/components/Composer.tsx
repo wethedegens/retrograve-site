@@ -361,13 +361,13 @@ const Composer = forwardRef<
           height: auto;
         }
 
-        /* 📱 Mobile tweaks: make phone smaller + remove hint to free space */
-        @media (max-width: 768px) {
+        /* 📱 Shrink phone and hide hint on anything smaller than a laptop */
+        @media (max-width: 1200px) {
           .composer-wrap {
-            margin-bottom: 8px;
+            margin-bottom: 14px;
           }
           .phone-frame {
-            width: min(280px, 65vw);
+            width: min(240px, 58vw);
             box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5);
           }
           .phone-surface {
@@ -375,7 +375,7 @@ const Composer = forwardRef<
             gap: 3px;
           }
           .phone-hint {
-            display: none; /* free some vertical space on small screens */
+            display: none;
           }
         }
       `}</style>
