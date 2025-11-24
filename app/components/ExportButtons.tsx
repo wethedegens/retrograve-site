@@ -1,5 +1,5 @@
 // app/components/ExportButtons.tsx
-// UNIVERSAL_OVERLAY_EXPORT_V1
+// UNIVERSAL_OVERLAY_EXPORT_V2
 "use client";
 
 import { useEffect, useState } from "react";
@@ -119,20 +119,23 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
           className="download-overlay"
           onClick={() => setPreviewUrl(null)}
         >
+          {/* Viewport-pinned back button */}
+          <button
+            type="button"
+            className="overlay-close"
+            onClick={(e) => {
+              e.stopPropagation();
+              setPreviewUrl(null);
+            }}
+            aria-label="Back to wardrobe"
+          >
+            ✕
+          </button>
+
           <div
             className="overlay-inner"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Top-right back button */}
-            <button
-              type="button"
-              className="overlay-close"
-              onClick={() => setPreviewUrl(null)}
-              aria-label="Back to wardrobe"
-            >
-              ✕
-            </button>
-
             <p className="overlay-text">
               Tap &amp; hold the image below to save it on mobile.
               On desktop, right-click the image and choose{" "}
@@ -261,21 +264,22 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
         }
 
         .overlay-close {
-          position: absolute;
-          top: 8px;
-          right: 8px;
+          position: fixed;
+          top: 16px;
+          right: 16px;
           border: none;
-          background: rgba(0, 0, 0, 0.75);
+          background: rgba(0, 0, 0, 0.85);
           color: #fdfbff;
-          width: 26px;
-          height: 26px;
+          width: 30px;
+          height: 30px;
           border-radius: 999px;
-          font-size: 14px;
+          font-size: 16px;
           line-height: 1;
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
+          z-index: 10000;
         }
 
         /* Floating mobile tip (bottom-left) */
