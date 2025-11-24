@@ -1,4 +1,6 @@
+
 // app/components/ExportButtons.tsx
+// MOBILE_EXPORT_OVERLAY_V1
 "use client";
 
 import { useState } from "react";
@@ -21,29 +23,8 @@ function isPhantomInApp() {
   return ua.includes("phantom");
 }
 
-// Unified download helper: desktop vs iOS/Phantom
-async function downloadBlobSmart(blob: Blob, filename: string): Promise<void> {
-  const ios = isIOSLike();
-  const phantom = isPhantomInApp();
-
-  // 🔹 On iOS / Phantom, just navigate this tab to a data URL.
-  // That avoids popup blockers and weird in-app rules.
-  if (ios || phantom) {
-    const reader = new FileReader();
-
-    reader.onloadend = () => {
-      const dataUrl = reader.result as string;
-
-      // Navigate current tab to the image.
-      // On that screen, the user can long-press → Save Image.
-      window.location.href = dataUrl;
-    };
-
-    reader.readAsDataURL(blob);
-    return;
-  }
-
-  // 🔹 Normal desktop download using a temporary blob: URL
+// Desktop-only download helper using a blob URL
+function downloadBlobDesktop(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -56,6 +37,7 @@ async function downloadBlobSmart(blob: Blob, filename: string): Promise<void> {
 
 export default function ExportButtons({ composerRef }: ExportButtonsProps) {
   const [busy, setBusy] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   async function handleExport(
     width: number,
@@ -67,7 +49,7 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
     try {
       setBusy(true);
 
-      // Uses the exportImage API from ComposerHandle
+      // Uses the exportImage API from ComposerHandle (returns a Blob)
       const blob = await composerRef.current.exportImage({
         width,
         height,
@@ -76,60 +58,103 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
 
       if (!blob) return;
 
-      await downloadBlobSmart(blob, filename);
+      const ios = isIOSLike();
+      const phantom = isPhantomInApp();
+
+      if (ios || phantom) {
+        // 🔹 On iOS / Phantom: show the image in-page so user can long-press & save
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const dataUrl = reader.result as string;
+          setPreviewUrl(dataUrl);
+        };
+        reader.readAsDataURL(blob);
+      } else {
+        // 🔹 Normal desktop behavior
+        downloadBlobDesktop(blob, filename);
+      }
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <div className="export-buttons">
-      <h3>Export</h3>
+    <>
+      <div className="export-buttons">
+        <h3>Export</h3>
 
-      <button
-        disabled={busy}
-        onClick={() =>
-          handleExport(1440, 3200, "lockscreen-master-1440x3200.png")
-        }
-      >
-        Download Master (1440×3200)
-      </button>
+        <button
+          disabled={busy}
+          onClick={() =>
+            handleExport(1440, 3200, "lockscreen-master-1440x3200.png")
+          }
+        >
+          Download Master (1440×3200)
+        </button>
 
-      <button
-        disabled={busy}
-        onClick={() =>
-          handleExport(1290, 2796, "iphone-15-pro-max-1290x2796.png")
-        }
-      >
-        Download iPhone 15/14 Pro Max (1290×2796)
-      </button>
+        <button
+          disabled={busy}
+          onClick={() =>
+            handleExport(1290, 2796, "iphone-15-pro-max-1290x2796.png")
+          }
+        >
+          Download iPhone 15/14 Pro Max (1290×2796)
+        </button>
 
-      <button
-        disabled={busy}
-        onClick={() =>
-          handleExport(1179, 2556, "iphone-15-14-pro-1179x2556.png")
-        }
-      >
-        Download iPhone 15/14 Pro (1179×2556)
-      </button>
+        <button
+          disabled={busy}
+          onClick={() =>
+            handleExport(1179, 2556, "iphone-15-14-pro-1179x2556.png")
+          }
+        >
+          Download iPhone 15/14 Pro (1179×2556)
+        </button>
 
-      <button
-        disabled={busy}
-        onClick={() =>
-          handleExport(1080, 2400, "android-20-9-1080x2400.png")
-        }
-      >
-        Download Android 20:9 (1080×2400)
-      </button>
+        <button
+          disabled={busy}
+          onClick={() =>
+            handleExport(1080, 2400, "android-20-9-1080x2400.png")
+          }
+        >
+          Download Android 20:9 (1080×2400)
+        </button>
 
-      <button
-        disabled={busy}
-        onClick={() =>
-          handleExport(1440, 3040, "android-qhd-plus-1440x3040.png")
-        }
-      >
-        Download Android QHD+ (1440×3040)
-      </button>
+        <button
+          disabled={busy}
+          onClick={() =>
+            handleExport(1440, 3040, "android-qhd-plus-1440x3040.png")
+          }
+        >
+          Download Android QHD+ (1440×3040)
+        </button>
+      </div>
+
+      {/* 🔹 Mobile overlay preview for iOS / Phantom */}
+      {previewUrl && (
+        <div
+          className="download-overlay"
+          onClick={() => setPreviewUrl(null)}
+        >
+          <div
+            className="overlay-inner"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="overlay-text">
+              Tap &amp; hold the image below to save it to your phone.
+            </p>
+            <div className="overlay-image-wrap">
+              <img src={previewUrl} alt="Exported lockscreen" />
+            </div>
+            <button
+              type="button"
+              className="overlay-close"
+              onClick={() => setPreviewUrl(null)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
 
       <style jsx>{`
         .export-buttons {
@@ -178,7 +203,66 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
           opacity: 0.6;
           cursor: default;
         }
+
+        /* Overlay styles */
+        .download-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.78);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 9999;
+          padding: 18px;
+        }
+
+        .overlay-inner {
+          background: #11091f;
+          border-radius: 18px;
+          padding: 16px;
+          max-width: 480px;
+          width: 100%;
+          box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+          border: 1px solid rgba(189, 169, 255, 0.4);
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .overlay-text {
+          font-size: 13px;
+          color: #f7f0ff;
+          text-align: center;
+          margin: 0;
+        }
+
+        .overlay-image-wrap {
+          background: #040008;
+          border-radius: 18px;
+          padding: 8px;
+          display: flex;
+          justify-content: center;
+        }
+
+        .overlay-image-wrap img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 14px;
+        }
+
+        .overlay-close {
+          align-self: center;
+          margin-top: 4px;
+          padding: 8px 18px;
+          border-radius: 999px;
+          border: 1px solid rgba(189, 169, 255, 0.4);
+          background: #2a1548;
+          color: #fdfbff;
+          font-size: 13px;
+          font-weight: 500;
+          cursor: pointer;
+        }
       `}</style>
-    </div>
+    </>
   );
 }
