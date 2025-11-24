@@ -23,26 +23,30 @@ function isPhantomInApp() {
 
 // Unified download helper: behaves nicely on desktop *and* iOS/Phantom
 async function downloadBlobSmart(blob: Blob, filename: string): Promise<void> {
-  const url = URL.createObjectURL(blob);
-
   const ios = isIOSLike();
   const phantom = isPhantomInApp();
 
-  // On iOS / Phantom, the "download" attribute is usually ignored.
-  // Open directly so the user can long-press / save image.
+  // On iOS / Phantom, blob: URLs can render as a blank page.
+  // Safer: convert to data URL and navigate there so the image shows directly.
   if (ios || phantom) {
-    window.open(url, "_self");
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const dataUrl = reader.result as string;
+      // Show the image directly in the same tab:
+      window.location.href = dataUrl;
+    };
+    reader.readAsDataURL(blob);
     return;
   }
 
-  // Normal desktop download
+  // Normal desktop download using a temporary blob: URL
+  const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
   document.body.appendChild(a);
   a.click();
   a.remove();
-
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
 }
 
@@ -59,11 +63,10 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
     try {
       setBusy(true);
 
-      // ✅ New API on ComposerHandle
       const blob = await composerRef.current.exportImage({
         width,
         height,
-        format: "png", // <-- IMPORTANT: literal "png", NOT "image/png"
+        format: "png", // literal "png"
       });
 
       if (!blob) return;

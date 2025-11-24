@@ -30,6 +30,12 @@ export type ExportSize = { label: string; w: number; h: number };
 
 type Size = { w: number; h: number };
 
+export type ExportImageOptions = {
+  width: number;
+  height: number;
+  format?: "png";
+};
+
 /** --------- CONFIG: update only these if your structure changes ---------- */
 // Your MAGApixel layer sprites under /public:
 //
@@ -52,14 +58,11 @@ const PRESETS: Record<string, Size> = {
 };
 
 export type ComposerHandle = {
-  // legacy helper (still works)
+  // Used by ExportButtons
+  exportImage: (opts: ExportImageOptions) => Promise<Blob | null>;
+
+  // Backwards-compatible helper (still available if we ever want it)
   exportAt: (size: ExportSize | keyof typeof PRESETS) => Promise<void>;
-  // new API used by ExportButtons – returns a Blob so caller can decide how to download
-  exportImage: (opts: {
-    width: number;
-    height: number;
-    format?: "png";
-  }) => Promise<Blob | null>;
 };
 
 const isHttpUrl = (s?: string | null) => !!s && /^https?:\/\//i.test(s);
@@ -217,7 +220,6 @@ const Composer = forwardRef<
       setLoadingImg(true);
       try {
         const src = isHttpUrl(nft.image) ? proxyUrl(nft.image!) : nft.image!;
-        console.log("Composer: drawing NFT image", src);
         const img = await loadImage(src);
         const scale = Math.min(size.w / img.width, size.h / img.height);
         const drawW = img.width * scale;
@@ -248,55 +250,56 @@ const Composer = forwardRef<
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nft?.image, (nft?.attributes || []).length, activeBg]);
 
-  useImperativeHandle(ref, () => ({
-    // legacy helper used earlier – now just calls exportImage internally
-    exportAt: async (size) => {
-      const target: Size =
-        typeof size === "string" ? PRESETS[size] : { w: size.w, h: size.h };
-
-      const blob = await (async () => {
-        const c = document.createElement("canvas");
-        c.width = target.w;
-        c.height = target.h;
-        const ctx = c.getContext("2d");
-        if (!ctx) return null;
-        await draw(ctx, target);
-        return await new Promise<Blob | null>((res) =>
-          c.toBlob(res, "image/png")
-        );
-      })();
-
-      if (!blob) return;
-
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${(nft?.name || "nft").replace(
-        /\s+/g,
-        "_"
-      )}_${target.w}x${target.h}.png`;
-      a.click();
-      URL.revokeObjectURL(url);
-    },
-
-    // new API: Export to a Blob so caller (ExportButtons) can decide how to handle download
-    exportImage: async ({ width, height, format = "png" }) => {
-      const target: Size = { w: width, h: height };
+  useImperativeHandle(ref, () => {
+    // Internal helper: render at any size and return a Blob
+    const doExportImage = async (
+      opts: ExportImageOptions
+    ): Promise<Blob | null> => {
+      const { width, height, format = "png" } = opts;
       const c = document.createElement("canvas");
-      c.width = target.w;
-      c.height = target.h;
+      c.width = width;
+      c.height = height;
       const ctx = c.getContext("2d");
       if (!ctx) return null;
 
-      await draw(ctx, target);
+      await draw(ctx, { w: width, h: height });
 
       const mime = format === "png" ? "image/png" : "image/png";
       const blob = await new Promise<Blob | null>((res) =>
         c.toBlob(res, mime)
       );
       return blob;
-    },
-  }));
+    };
+
+    return {
+      exportImage: doExportImage,
+
+      // Backwards-compatible: still lets us trigger a direct download if we ever want.
+      async exportAt(size: ExportSize | keyof typeof PRESETS) {
+        const target: Size =
+          typeof size === "string"
+            ? PRESETS[size]
+            : { w: size.w, h: size.h };
+
+        const blob = await doExportImage({
+          width: target.w,
+          height: target.h,
+          format: "png",
+        });
+        if (!blob) return;
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${(nft?.name || "nft").replace(
+          /\s+/g,
+          "_"
+        )}_${target.w}x${target.h}.png`;
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+    };
+  });
 
   return (
     <div className="composer-wrap">
