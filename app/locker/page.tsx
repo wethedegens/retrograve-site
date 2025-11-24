@@ -46,19 +46,16 @@ function LockerInner() {
       id: mint || "unknown",
       name: nameParam || undefined,
       image: imageParam || undefined,
-      // No attributes when coming only from URL params
     };
   });
 
   const [loading, setLoading] = useState(false);
   const [hint, setHint] = useState<null | string>(null);
 
-  // Keep bg in sync with initialBg when it changes
   useEffect(() => {
     setBg(initialBg);
   }, [initialBg]);
 
-  // Dev background tester – just controls the hint text for now
   useEffect(() => {
     if (!devMode) return;
 
@@ -78,17 +75,14 @@ function LockerInner() {
     return () => window.removeEventListener("devbg:change", onDevBg);
   }, [devMode, initialBg]);
 
-  // Fetch NFT details only if we don't already have an image in the URL
   useEffect(() => {
     let cancelled = false;
 
-    // If an image is already provided via the URL, build from that and skip fetch
     if (imageParam) {
       const fromParams: SimpleNft = {
         id: mint || "unknown",
         name: nameParam || undefined,
         image: imageParam,
-        // No attributes available from URL-only flow
       };
       setNft(fromParams);
       setLoading(false);
@@ -109,6 +103,7 @@ function LockerInner() {
           cache: "no-store",
         });
         const j = (await r.json()) as NftFetchResp;
+
         if (!cancelled) {
           if (j) {
             setNft({
@@ -150,16 +145,12 @@ function LockerInner() {
             alignItems: "start",
           }}
         >
-          {/* LEFT: presets + export + share */}
+          {/* LEFT PANEL */}
           <div className="left-panel">
             <BackgroundPicker value={bg || initialBg} onChange={setBg} />
-
             <div style={{ height: 12 }} />
-
             <ExportButtons composerRef={composerRef} />
-
             <div style={{ height: 12 }} />
-
             <ClientOnly>
               <ShareActions
                 composerRef={composerRef}
@@ -169,8 +160,8 @@ function LockerInner() {
             </ClientOnly>
           </div>
 
-          {/* RIGHT: phone preview */}
-          <div>
+          {/* RIGHT PANEL — PHONE */}
+          <div className="right-panel">
             <div
               className="phone-frame"
               style={{
@@ -181,7 +172,6 @@ function LockerInner() {
                 overflow: "hidden",
                 boxShadow: "0 18px 44px rgba(0, 0, 0, 0.45)",
                 background: "#221a33",
-                margin: "0 auto",
               }}
             >
               <div
@@ -241,32 +231,31 @@ function LockerInner() {
         <DevBgTester />
       </ClientOnly>
 
-      {/* Wallet debug overlay – safe to keep or remove later */}
       <WalletDebug />
 
+      {/* ======= RESPONSIVE FIXES ======= */}
       <style jsx>{`
+        /* MOBILE — STACK EVERYTHING */
         @media (max-width: 860px) {
           .locker-layout {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 18px;
+            grid-template-columns: 1fr;
           }
-
           .left-panel {
-            width: 100%;
-            max-width: 360px;
+            order: 2;
           }
-
-          /* shrink the outer phone frame and soften the shadow */
-          .phone-frame {
-            width: min(260px, 70vw) !important;
-            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5);
+          .right-panel {
+            order: 1;
+            display: flex;
+            justify-content: center;
           }
+        }
 
-          /* hide the top purple hint on mobile to free space */
-          .phone-hint {
-            display: none;
+        /* DESKTOP — CENTER PHONE IN RIGHT COLUMN */
+        @media (min-width: 861px) {
+          .right-panel {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
           }
         }
       `}</style>
