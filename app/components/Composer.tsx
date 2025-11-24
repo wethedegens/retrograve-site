@@ -326,7 +326,8 @@ const Composer = forwardRef<
         }
         .phone-frame {
           position: relative;
-          width: min(360px, 78vw);
+          width: 340px;
+          max-width: 88vw;
           aspect-ratio: 9 / 19.5;
           border-radius: 26px;
           overflow: hidden;
@@ -357,17 +358,17 @@ const Composer = forwardRef<
           white-space: nowrap;
         }
         .phone-canvas {
-          width: 86%;
+          width: 92%;
           height: auto;
         }
 
-        /* 📱 Shrink phone and hide hint on anything smaller than a laptop */
-        @media (max-width: 1200px) {
+        /* 📱 Mobile tweaks: make phone smaller + remove hint to free space */
+        @media (max-width: 768px) {
           .composer-wrap {
-            margin-bottom: 14px;
+            margin-bottom: 8px;
           }
           .phone-frame {
-            width: min(240px, 58vw);
+            width: min(280px, 65vw);
             box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5);
           }
           .phone-surface {
@@ -375,7 +376,7 @@ const Composer = forwardRef<
             gap: 3px;
           }
           .phone-hint {
-            display: none;
+            display: none; /* free some vertical space on small screens */
           }
         }
       `}</style>
