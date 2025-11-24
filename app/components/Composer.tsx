@@ -360,6 +360,24 @@ const Composer = forwardRef<
           width: 86%;
           height: auto;
         }
+
+        /* 📱 Mobile tweaks: make phone smaller + remove hint to free space */
+        @media (max-width: 768px) {
+          .composer-wrap {
+            margin-bottom: 8px;
+          }
+          .phone-frame {
+            width: min(280px, 65vw);
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5);
+          }
+          .phone-surface {
+            padding: 4px 4px 6px;
+            gap: 3px;
+          }
+          .phone-hint {
+            display: none; /* free some vertical space on small screens */
+          }
+        }
       `}</style>
     </div>
   );
