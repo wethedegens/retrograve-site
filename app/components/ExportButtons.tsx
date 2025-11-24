@@ -21,25 +21,29 @@ function isPhantomInApp() {
   return ua.includes("phantom");
 }
 
-// Unified download helper: behaves nicely on desktop *and* iOS/Phantom
+// Unified download helper: desktop vs iOS/Phantom
 async function downloadBlobSmart(blob: Blob, filename: string): Promise<void> {
   const ios = isIOSLike();
   const phantom = isPhantomInApp();
 
-  // On iOS / Phantom, blob: URLs can render as a blank page.
-  // Safer: convert to data URL and navigate there so the image shows directly.
+  // 🔹 On iOS / Phantom, just navigate this tab to a data URL.
+  // That avoids popup blockers and weird in-app rules.
   if (ios || phantom) {
     const reader = new FileReader();
+
     reader.onloadend = () => {
       const dataUrl = reader.result as string;
-      // Show the image directly in the same tab:
+
+      // Navigate current tab to the image.
+      // On that screen, the user can long-press → Save Image.
       window.location.href = dataUrl;
     };
+
     reader.readAsDataURL(blob);
     return;
   }
 
-  // Normal desktop download using a temporary blob: URL
+  // 🔹 Normal desktop download using a temporary blob: URL
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -63,6 +67,7 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
     try {
       setBusy(true);
 
+      // Uses the exportImage API from ComposerHandle
       const blob = await composerRef.current.exportImage({
         width,
         height,
