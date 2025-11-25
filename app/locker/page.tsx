@@ -52,10 +52,12 @@ function LockerInner() {
   const [loading, setLoading] = useState(false);
   const [hint, setHint] = useState<null | string>(null);
 
+  // keep bg synced with initial
   useEffect(() => {
     setBg(initialBg);
   }, [initialBg]);
 
+  // dev background tester
   useEffect(() => {
     if (!devMode) return;
 
@@ -75,6 +77,7 @@ function LockerInner() {
     return () => window.removeEventListener("devbg:change", onDevBg);
   }, [devMode, initialBg]);
 
+  // fetch NFT details (unless we already have image in URL)
   useEffect(() => {
     let cancelled = false;
 
@@ -166,13 +169,13 @@ function LockerInner() {
               className="phone-frame"
               style={{
                 position: "relative",
-                width: "340px",
-                maxWidth: "90vw",
+                width: "min(360px, 78vw)",
                 aspectRatio: "9 / 19.5",
                 borderRadius: 26,
                 overflow: "hidden",
                 boxShadow: "0 18px 44px rgba(0, 0, 0, 0.45)",
                 background: "#221a33",
+                margin: "0 auto", // ✅ center in the right column
               }}
             >
               <div
@@ -207,7 +210,7 @@ function LockerInner() {
                     fontSize: 11,
                     lineHeight: 1,
                     color: "#cfc2ff",
-                    background: "rgba(0, 0, 0, 0.35)",
+                    background: "rgba(0,0,0,0.35)",
                     padding: "6px 8px",
                     borderRadius: 999,
                     backdropFilter: "blur(2px)",
