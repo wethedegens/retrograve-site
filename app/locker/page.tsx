@@ -52,12 +52,12 @@ function LockerInner() {
   const [loading, setLoading] = useState(false);
   const [hint, setHint] = useState<null | string>(null);
 
-  // Keep bg in sync with initialBg
+  // keep bg in sync
   useEffect(() => {
     setBg(initialBg);
   }, [initialBg]);
 
-  // Dev background tester – updates bg + optional hint
+  // dev background tester (still updates state, just no extra hint pill)
   useEffect(() => {
     if (!devMode) return;
 
@@ -66,6 +66,7 @@ function LockerInner() {
       const url = ev.detail;
 
       if (url) {
+        // if you ever want a special hint again we can wire into Composer later
         setHint("Using dev background (local file)");
       } else {
         setBg(initialBg);
@@ -77,7 +78,7 @@ function LockerInner() {
     return () => window.removeEventListener("devbg:change", onDevBg);
   }, [devMode, initialBg]);
 
-  // Fetch NFT details only if we don't already have an image in the URL
+  // fetch NFT unless image is in URL
   useEffect(() => {
     let cancelled = false;
 
@@ -202,30 +203,7 @@ function LockerInner() {
                   zIndex: 1,
                 }}
               >
-                {/* ✅ Only show THIS hint when loading or when a special hint is set.
-                    Otherwise, Composer's own hint will be the only one visible. */}
-                {(loading || hint) && (
-                  <div
-                    className="phone-hint"
-                    style={{
-                      alignSelf: "start",
-                      justifySelf: "center",
-                      fontSize: 11,
-                      lineHeight: 1,
-                      color: "#cfc2ff",
-                      background: "rgba(0,0,0,0.35)",
-                      padding: "6px 8px",
-                      borderRadius: 999,
-                      backdropFilter: "blur(2px)",
-                      pointerEvents: "none",
-                      userSelect: "none",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {hint || "Loading image…"}
-                  </div>
-                )}
-
+                {/* ❌ No extra hint here anymore – Composer handles its own hint */}
                 <Composer ref={composerRef} nft={nft} bg={bg || initialBg} />
               </div>
             </div>
@@ -239,9 +217,8 @@ function LockerInner() {
 
       <WalletDebug />
 
-      {/* ======= RESPONSIVE FIXES ======= */}
+      {/* RESPONSIVE LAYOUT */}
       <style jsx>{`
-        /* MOBILE — STACK EVERYTHING */
         @media (max-width: 860px) {
           .locker-layout {
             grid-template-columns: 1fr;
@@ -256,7 +233,6 @@ function LockerInner() {
           }
         }
 
-        /* DESKTOP — CENTER PHONE IN RIGHT COLUMN */
         @media (min-width: 861px) {
           .right-panel {
             display: flex;
