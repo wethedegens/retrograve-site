@@ -50,14 +50,14 @@ function LockerInner() {
   });
 
   const [loading, setLoading] = useState(false);
-  const [hint, setHint] = useState<null | string>(null);
+  const [hint, setHint] = useState<null | string>(null); // kept for DevBgTester hook-in
 
-  // keep bg in sync
+  // keep bg in sync with initialBg
   useEffect(() => {
     setBg(initialBg);
   }, [initialBg]);
 
-  // dev background tester (still updates state, just no extra hint pill)
+  // dev background tester (updates bg + optional hint text)
   useEffect(() => {
     if (!devMode) return;
 
@@ -66,7 +66,6 @@ function LockerInner() {
       const url = ev.detail;
 
       if (url) {
-        // if you ever want a special hint again we can wire into Composer later
         setHint("Using dev background (local file)");
       } else {
         setBg(initialBg);
@@ -164,7 +163,7 @@ function LockerInner() {
             </ClientOnly>
           </div>
 
-          {/* RIGHT PANEL — PHONE */}
+          {/* RIGHT PANEL — PHONE PREVIEW */}
           <div className="right-panel">
             <div
               className="phone-frame"
@@ -203,7 +202,7 @@ function LockerInner() {
                   zIndex: 1,
                 }}
               >
-                {/* ❌ No extra hint here anymore – Composer handles its own hint */}
+                {/* Composer handles its own hint pill */}
                 <Composer ref={composerRef} nft={nft} bg={bg || initialBg} />
               </div>
             </div>
@@ -219,17 +218,31 @@ function LockerInner() {
 
       {/* RESPONSIVE LAYOUT */}
       <style jsx>{`
+        /* Default desktop: two columns, phone centered in right column */
+        .phone-frame {
+          margin-left: auto;
+          margin-right: auto;
+        }
+
         @media (max-width: 860px) {
           .locker-layout {
             grid-template-columns: 1fr;
           }
+
           .left-panel {
             order: 2;
           }
+
           .right-panel {
             order: 1;
+            width: 100%;
             display: flex;
             justify-content: center;
+          }
+
+          .phone-frame {
+            margin-left: auto;
+            margin-right: auto;
           }
         }
 
