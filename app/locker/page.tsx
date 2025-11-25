@@ -52,12 +52,12 @@ function LockerInner() {
   const [loading, setLoading] = useState(false);
   const [hint, setHint] = useState<null | string>(null);
 
-  // keep bg synced with initial
+  // Keep bg in sync with initialBg
   useEffect(() => {
     setBg(initialBg);
   }, [initialBg]);
 
-  // dev background tester
+  // Dev background tester – updates bg + optional hint
   useEffect(() => {
     if (!devMode) return;
 
@@ -77,7 +77,7 @@ function LockerInner() {
     return () => window.removeEventListener("devbg:change", onDevBg);
   }, [devMode, initialBg]);
 
-  // fetch NFT details (unless we already have image in URL)
+  // Fetch NFT details only if we don't already have an image in the URL
   useEffect(() => {
     let cancelled = false;
 
@@ -175,7 +175,7 @@ function LockerInner() {
                 overflow: "hidden",
                 boxShadow: "0 18px 44px rgba(0, 0, 0, 0.45)",
                 background: "#221a33",
-                margin: "0 auto", // ✅ center in the right column
+                margin: "0 auto",
               }}
             >
               <div
@@ -202,27 +202,29 @@ function LockerInner() {
                   zIndex: 1,
                 }}
               >
-                <div
-                  className="phone-hint"
-                  style={{
-                    alignSelf: "start",
-                    justifySelf: "center",
-                    fontSize: 11,
-                    lineHeight: 1,
-                    color: "#cfc2ff",
-                    background: "rgba(0,0,0,0.35)",
-                    padding: "6px 8px",
-                    borderRadius: 999,
-                    backdropFilter: "blur(2px)",
-                    pointerEvents: "none",
-                    userSelect: "none",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {loading
-                    ? "Loading image…"
-                    : hint || "Preview is scaled; exports are full size."}
-                </div>
+                {/* ✅ Only show THIS hint when loading or when a special hint is set.
+                    Otherwise, Composer's own hint will be the only one visible. */}
+                {(loading || hint) && (
+                  <div
+                    className="phone-hint"
+                    style={{
+                      alignSelf: "start",
+                      justifySelf: "center",
+                      fontSize: 11,
+                      lineHeight: 1,
+                      color: "#cfc2ff",
+                      background: "rgba(0,0,0,0.35)",
+                      padding: "6px 8px",
+                      borderRadius: 999,
+                      backdropFilter: "blur(2px)",
+                      pointerEvents: "none",
+                      userSelect: "none",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {hint || "Loading image…"}
+                  </div>
+                )}
 
                 <Composer ref={composerRef} nft={nft} bg={bg || initialBg} />
               </div>
