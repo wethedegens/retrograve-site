@@ -1,172 +1,125 @@
 // app/components/ExportButtons.tsx
-// UNIVERSAL_OVERLAY_EXPORT_V2
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { ComposerHandle } from "./Composer";
 
+// What we need from the parent
 type ExportButtonsProps = {
   composerRef: React.RefObject<ComposerHandle | null>;
 };
 
-// Generic mobile-ish detection (for the floating tip only)
-function isMobileLike() {
-  if (typeof navigator === "undefined") return false;
-  const ua = navigator.userAgent || "";
-  return /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(
-    ua
-  );
-}
+// Device variants understood by Composer
+type ExportDevice = "phone" | "ipad" | "desktop";
+
+type ExportDefinition = {
+  key: string;
+  label: string;
+  width: number;
+  height: number;
+  device: ExportDevice;
+};
+
+const EXPORTS: ExportDefinition[] = [
+  {
+    key: "master",
+    label: "Download Master (1440×3200)",
+    width: 1440,
+    height: 3200,
+    device: "phone",
+  },
+  {
+    key: "iphone15pm",
+    label: "Download iPhone 15/14 Pro Max (1290×2796)",
+    width: 1290,
+    height: 2796,
+    device: "phone",
+  },
+  {
+    key: "iphone15pro",
+    label: "Download iPhone 15/14 Pro (1179×2556)",
+    width: 1179,
+    height: 2556,
+    device: "phone",
+  },
+  {
+    key: "android-20-9",
+    label: "Download Android 20:9 (1080×2400)",
+    width: 1080,
+    height: 2400,
+    device: "phone",
+  },
+  {
+    key: "android-qhd-plus",
+    label: "Download Android QHD+ (1440×3040)",
+    width: 1440,
+    height: 3040,
+    device: "phone",
+  },
+
+  // 🆕 iPad preset – tall 4:3-ish portrait
+  {
+    key: "ipad",
+    label: "Download iPad (2048×2732)",
+    width: 2048,
+    height: 2732,
+    device: "ipad",
+  },
+
+  // 🆕 Desktop preset – 16:9 wallpaper
+  {
+    key: "desktop",
+    label: "Download Desktop (2560×1440)",
+    width: 2560,
+    height: 1440,
+    device: "desktop",
+  },
+];
 
 export default function ExportButtons({ composerRef }: ExportButtonsProps) {
-  const [busy, setBusy] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [showMobileTip, setShowMobileTip] = useState(false);
+  const [activeKey, setActiveKey] = useState<string | null>(null);
 
-  // Decide if we should show the bottom-left mobile hint
-  useEffect(() => {
-    if (typeof navigator === "undefined") return;
-    if (isMobileLike()) {
-      setShowMobileTip(true);
-    }
-  }, []);
-
-  async function handleExport(
-    width: number,
-    height: number,
-    filename: string
-  ) {
-    if (!composerRef.current) return;
+  async function handleExport(def: ExportDefinition) {
+    const composer = composerRef.current;
+    if (!composer) return;
 
     try {
-      setBusy(true);
+      setActiveKey(def.key);
 
-      // Uses the exportImage API from ComposerHandle (returns a Blob)
-      const blob = await composerRef.current.exportImage({
-        width,
-        height,
+      const blob = await composer.exportImage({
+        width: def.width,
+        height: def.height,
         format: "png",
+        device: def.device,
       });
 
       if (!blob) return;
 
-      // 🔹 ALWAYS use overlay with data URL, on ALL devices
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const dataUrl = reader.result as string;
-        setPreviewUrl(dataUrl);
-      };
-      reader.readAsDataURL(blob);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      // Simple filename that encodes size & device
+      a.download = `lockscreen_${def.device}_${def.width}x${def.height}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
     } finally {
-      setBusy(false);
+      setActiveKey(null);
     }
   }
 
   return (
-    <>
-      <div className="export-buttons">
-        <h3>Export</h3>
-
+    <div className="export-buttons">
+      {EXPORTS.map((def) => (
         <button
-          disabled={busy}
-          onClick={() =>
-            handleExport(1440, 3200, "lockscreen-master-1440x3200.png")
-          }
+          key={def.key}
+          type="button"
+          onClick={() => handleExport(def)}
+          className="export-btn"
+          disabled={activeKey === def.key}
         >
-          Download Master (1440×3200)
+          {activeKey === def.key ? "Preparing download…" : def.label}
         </button>
-
-        <button
-          disabled={busy}
-          onClick={() =>
-            handleExport(1290, 2796, "iphone-15-pro-max-1290x2796.png")
-          }
-        >
-          Download iPhone 15/14 Pro Max (1290×2796)
-        </button>
-
-        <button
-          disabled={busy}
-          onClick={() =>
-            handleExport(1179, 2556, "iphone-15-14-pro-1179x2556.png")
-          }
-        >
-          Download iPhone 15/14 Pro (1179×2556)
-        </button>
-
-        <button
-          disabled={busy}
-          onClick={() =>
-            handleExport(1080, 2400, "android-20-9-1080x2400.png")
-          }
-        >
-          Download Android 20:9 (1080×2400)
-        </button>
-
-        <button
-          disabled={busy}
-          onClick={() =>
-            handleExport(1440, 3040, "android-qhd-plus-1440x3040.png")
-          }
-        >
-          Download Android QHD+ (1440×3040)
-        </button>
-      </div>
-
-      {/* 🔹 Universal overlay preview (desktop + mobile) */}
-      {previewUrl && (
-        <div
-          className="download-overlay"
-          onClick={() => setPreviewUrl(null)}
-        >
-          {/* Viewport-pinned back button */}
-          <button
-            type="button"
-            className="overlay-close"
-            onClick={(e) => {
-              e.stopPropagation();
-              setPreviewUrl(null);
-            }}
-            aria-label="Back to wardrobe"
-          >
-            ✕
-          </button>
-
-          <div
-            className="overlay-inner"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <p className="overlay-text">
-              Tap &amp; hold the image below to save it on mobile.
-              On desktop, right-click the image and choose{" "}
-              <strong>“Save Image As…”</strong>.
-            </p>
-
-            <div className="overlay-image-wrap">
-              <img src={previewUrl} alt="Exported lockscreen" />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 🔹 Small floating hint on mobile */}
-      {showMobileTip && (
-        <div className="mobile-download-tip">
-          <span>
-            Tip:{" "}
-            <strong>Tap &amp; hold</strong> the image to download on
-            mobile.
-          </span>
-          <button
-            type="button"
-            className="mobile-tip-close"
-            onClick={() => setShowMobileTip(false)}
-            aria-label="Dismiss download tip"
-          >
-            ×
-          </button>
-        </div>
-      )}
+      ))}
 
       <style jsx>{`
         .export-buttons {
@@ -174,144 +127,39 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
           flex-direction: column;
           gap: 8px;
         }
-
-        h3 {
-          font-size: 13px;
-          text-transform: uppercase;
-          letter-spacing: 0.18em;
-          color: #cfc2ff;
-          margin: 0 0 6px;
-        }
-
-        button {
+        .export-btn {
           width: 100%;
-          padding: 10px 12px;
-          border-radius: 999px;
-          border: 1px solid rgba(189, 169, 255, 0.4);
-          background: radial-gradient(
-            circle at top left,
-            rgba(189, 169, 255, 0.25),
-            rgba(40, 20, 80, 0.95)
-          );
-          color: #fdfbff;
-          font-size: 13px;
-          font-weight: 500;
           text-align: left;
+          border-radius: 999px;
+          padding: 10px 16px;
+          border: 1px solid rgba(255, 255, 255, 0.18);
+          background: #4b2a83;
+          color: #f5e8ff;
+          font-size: 13px;
           cursor: pointer;
-          transition:
-            transform 0.12s ease,
-            box-shadow 0.12s ease,
-            border-color 0.12s ease,
-            background 0.12s ease;
+          transition: background 0.15s ease, transform 0.05s ease,
+            box-shadow 0.15s ease, opacity 0.15s ease;
+          box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
         }
-
-        button:hover:not(:disabled) {
+        .export-btn:hover:not(:disabled) {
+          background: #5a33a0;
           transform: translateY(-1px);
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-          border-color: rgba(255, 255, 255, 0.7);
+          box-shadow: 0 10px 22px rgba(0, 0, 0, 0.4);
         }
-
-        button:disabled {
+        .export-btn:disabled {
           opacity: 0.6;
           cursor: default;
+          transform: none;
+          box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
         }
 
-        /* Overlay styles */
-        .download-overlay {
-          position: fixed;
-          inset: 0;
-          background: rgba(0, 0, 0, 0.78);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 9999;
-          padding: 18px;
-        }
-
-        .overlay-inner {
-          position: relative;
-          background: #11091f;
-          border-radius: 18px;
-          padding: 20px 16px 16px;
-          max-width: 480px;
-          width: 100%;
-          box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
-          border: 1px solid rgba(189, 169, 255, 0.4);
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-
-        .overlay-text {
-          font-size: 13px;
-          color: #f7f0ff;
-          text-align: center;
-          margin: 0 24px 4px;
-        }
-
-        .overlay-image-wrap {
-          background: #040008;
-          border-radius: 18px;
-          padding: 8px;
-          display: flex;
-          justify-content: center;
-        }
-
-        .overlay-image-wrap img {
-          max-width: 100%;
-          height: auto;
-          border-radius: 14px;
-        }
-
-        .overlay-close {
-          position: fixed;
-          top: 16px;
-          right: 16px;
-          border: none;
-          background: rgba(0, 0, 0, 0.85);
-          color: #fdfbff;
-          width: 30px;
-          height: 30px;
-          border-radius: 999px;
-          font-size: 16px;
-          line-height: 1;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          z-index: 10000;
-        }
-
-        /* Floating mobile tip (bottom-left) */
-        .mobile-download-tip {
-          position: fixed;
-          left: 12px;
-          bottom: 12px;
-          z-index: 9000;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          padding: 6px 10px;
-          border-radius: 999px;
-          background: rgba(0, 0, 0, 0.8);
-          color: #fdfbff;
-          font-size: 11px;
-          line-height: 1.3;
-          backdrop-filter: blur(6px);
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
-        }
-
-        .mobile-tip-close {
-          border: none;
-          background: transparent;
-          color: inherit;
-          font-size: 14px;
-          cursor: pointer;
-          padding: 0;
-          margin: 0;
-          line-height: 1;
+        @media (max-width: 768px) {
+          .export-btn {
+            font-size: 12px;
+            padding: 9px 14px;
+          }
         }
       `}</style>
-    </>
+    </div>
   );
 }
