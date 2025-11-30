@@ -9,10 +9,15 @@ import {
   useRef,
   useState,
 } from "react";
+import {
+  getBackgroundImagePath,
+  type DeviceVariant,
+} from "../backgroundsConfig";
 
 export type BgChoice =
   | { kind: "color"; value: string }
-  | { kind: "image"; file: File };
+  | { kind: "image"; file: File }
+  | { kind: "preset"; id: string };
 
 export type MetaAttribute = {
   trait_type?: string;
@@ -34,6 +39,12 @@ export type ExportImageOptions = {
   width: number;
   height: number;
   format?: "png";
+  /**
+   * Which device preset this export is for.
+   * Used to pick the correct background image variant.
+   * Defaults to "phone" so existing callers keep working.
+   */
+  device?: DeviceVariant;
 };
 
 /** --------- CONFIG: update only these if your structure changes ---------- */
@@ -148,6 +159,24 @@ async function loadExistingLayersPerType(
   return images;
 }
 
+/**
+ * Draw a background image that covers the canvas and bottom-aligns,
+ * given a direct src URL.
+ */
+async function drawBackgroundImageFromSrc(
+  ctx: CanvasRenderingContext2D,
+  size: Size,
+  src: string
+) {
+  const img = await loadImage(src);
+  const scale = Math.max(size.w / img.width, size.h / img.height);
+  const drawW = img.width * scale;
+  const drawH = img.height * scale;
+  const dx = (size.w - drawW) / 2;
+  const dy = size.h - drawH; // bottom align
+  ctx.drawImage(img, dx, dy, drawW, drawH);
+}
+
 const Composer = forwardRef<
   ComposerHandle,
   { nft: SimpleNft | null; bg: BgChoice | null }
@@ -168,17 +197,38 @@ const Composer = forwardRef<
     []
   );
 
-  /** Core draw: background -> local layers (if any) -> OPTIONAL remote image */
-  const draw = async (ctx: CanvasRenderingContext2D, size: Size) => {
-    // Phone background (solid color or uploaded image)
-    if (activeBg.kind === "color") {
+  /**
+   * Core draw: background -> local layers (if any) -> OPTIONAL remote image
+   * Device tells us which background variant to use (phone/ipad/desktop).
+   */
+  const draw = async (
+    ctx: CanvasRenderingContext2D,
+    size: Size,
+    device: DeviceVariant
+  ) => {
+    // 1) Background: preset image, solid color, or uploaded image
+    if (activeBg.kind === "preset") {
+      const src = getBackgroundImagePath(activeBg.id, device);
+      if (src) {
+        setLoadingImg(true);
+        try {
+          await drawBackgroundImageFromSrc(ctx, size, src);
+        } finally {
+          setLoadingImg(false);
+        }
+      } else {
+        // fallback to default color if something's missing
+        ctx.fillStyle = "#2b2146";
+        ctx.fillRect(0, 0, size.w, size.h);
+      }
+    } else if (activeBg.kind === "color") {
       ctx.fillStyle = activeBg.value || "#2b2146";
       ctx.fillRect(0, 0, size.w, size.h);
     } else if (activeBg.kind === "image" && activeBg.file) {
       const url = URL.createObjectURL(activeBg.file);
       try {
         const img = await loadImage(url);
-        const scale = Math.min(size.w / img.width, size.h / img.height);
+        const scale = Math.max(size.w / img.width, size.h / img.height);
         const drawW = img.width * scale;
         const drawH = img.height * scale;
         const dx = (size.w - drawW) / 2;
@@ -189,6 +239,7 @@ const Composer = forwardRef<
       }
     }
 
+    // 2) NFT layers / remote image
     const layeredMode = hasLayerTraits(nft?.attributes);
     let drewLayers = false;
 
@@ -242,7 +293,8 @@ const Composer = forwardRef<
     const ctx = c.getContext("2d");
     if (!ctx) return;
     ctx.clearRect(0, 0, c.width, c.height);
-    await draw(ctx, previewSize);
+    // For preview, we always use the phone variant
+    await draw(ctx, previewSize, "phone");
   };
 
   useEffect(() => {
@@ -255,14 +307,14 @@ const Composer = forwardRef<
     const doExportImage = async (
       opts: ExportImageOptions
     ): Promise<Blob | null> => {
-      const { width, height, format = "png" } = opts;
+      const { width, height, format = "png", device = "phone" } = opts;
       const c = document.createElement("canvas");
       c.width = width;
       c.height = height;
       const ctx = c.getContext("2d");
       if (!ctx) return null;
 
-      await draw(ctx, { w: width, h: height });
+      await draw(ctx, { w: width, h: height }, device);
 
       const mime = format === "png" ? "image/png" : "image/png";
       const blob = await new Promise<Blob | null>((res) =>
@@ -285,6 +337,7 @@ const Composer = forwardRef<
           width: target.w,
           height: target.h,
           format: "png",
+          device: "phone",
         });
         if (!blob) return;
 
