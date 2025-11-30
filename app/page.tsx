@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import FAQ from "./components/FAQ";
+import LockscreenedFAQ from "./components/LockscreenedFAQ";
 import { PROJECTS } from "./projectsConfig";
 
 export default function HomePage() {
@@ -122,7 +122,7 @@ export default function HomePage() {
             actually use every day—phone-native lock screens that feel intentional,
             respectful of the art, and easy to access.
           </p>
-          <FAQ />
+          <LockscreenedFAQ />
         </div>
       </section>
 
