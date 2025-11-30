@@ -11,6 +11,16 @@ export default function HomePage() {
       {/* HERO */}
       <section className="hero">
         <div className="hero-inner">
+          {/* Logo row */}
+          <div className="hero-logo-row">
+            {/* Put your LockScreened logo file in /public and update the src if needed */}
+            <img
+              src="/lockscreened-logo.svg"
+              alt="LockScreened"
+              className="hero-logo"
+            />
+          </div>
+
           <div className="hero-label">LOCKSCREENED</div>
           <h1 className="hero-title">Phone-native lock screens for your NFTs.</h1>
           <p className="hero-subtitle">
@@ -26,6 +36,30 @@ export default function HomePage() {
               Learn how it works
             </a>
           </div>
+
+          {/* Social links row */}
+          <div className="hero-socials">
+            {/* TODO: replace hrefs with your real links */}
+            <a
+              href="https://discord.gg/YOUR_INVITE"
+              target="_blank"
+              rel="noreferrer"
+              className="social-pill"
+            >
+              <span className="social-dot" />
+              Discord
+            </a>
+            <a
+              href="https://x.com/YOUR_HANDLE"
+              target="_blank"
+              rel="noreferrer"
+              className="social-pill"
+            >
+              <span className="social-dot" />
+              X (Twitter)
+            </a>
+          </div>
+
           <div className="hero-note">
             Built by Misfit, starting with MAGApixel & RetroGrave and expanding to
             curated partner collections over time.
@@ -144,6 +178,17 @@ export default function HomePage() {
           text-align: left;
         }
 
+        .hero-logo-row {
+          margin-bottom: 10px;
+        }
+
+        .hero-logo {
+          height: 36px;
+          width: auto;
+          display: block;
+          filter: drop-shadow(0 0 18px rgba(186, 137, 255, 0.7));
+        }
+
         .hero-label {
           font-size: 11px;
           letter-spacing: 0.22em;
@@ -211,6 +256,43 @@ export default function HomePage() {
 
         .hero-btn-ghost:hover {
           background: rgba(255, 255, 255, 0.04);
+        }
+
+        .hero-socials {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-top: 14px;
+        }
+
+        .social-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 5px 10px;
+          border-radius: 999px;
+          font-size: 12px;
+          text-decoration: none;
+          color: #d6ceff;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          transition:
+            background 0.2s ease,
+            border-color 0.2s ease,
+            transform 0.1s ease;
+        }
+
+        .social-pill:hover {
+          background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(255, 255, 255, 0.3);
+          transform: translateY(-1px);
+        }
+
+        .social-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 999px;
+          background: #f04b83;
         }
 
         .hero-note {
@@ -398,6 +480,9 @@ export default function HomePage() {
           .hero-actions {
             flex-direction: column;
             align-items: flex-start;
+          }
+          .hero-socials {
+            justify-content: flex-start;
           }
         }
       `}</style>
