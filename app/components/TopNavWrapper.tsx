@@ -5,12 +5,13 @@ import { usePathname } from "next/navigation";
 import TopNav from "./TopNav";
 
 /**
- * Renders the existing TopNav on all pages EXCEPT the LockScreened homepage (/).
+ * Renders the RetroGrave header (TopNav) on every page
+ * EXCEPT the LockScreened hub homepage (/).
  */
 export default function TopNavWrapper() {
   const pathname = usePathname();
 
-  // Hide nav on LockScreened hub homepage
+  // Hide nav ONLY on the LockScreened homepage
   if (pathname === "/") {
     return null;
   }

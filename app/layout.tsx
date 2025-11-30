@@ -23,7 +23,7 @@ export default function RootLayout({
         <Providers>
           <WalletGate>
             <RedirectOnConnect />
-            {/* Top nav is now hidden on "/" by TopNavWrapper */}
+            {/* Header is now controlled by TopNavWrapper */}
             <TopNavWrapper />
             {children}
           </WalletGate>
