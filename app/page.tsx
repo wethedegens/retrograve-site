@@ -23,8 +23,9 @@ export default function HomePage() {
           <h1 className="hero-title">LOCKSCREENED</h1>
 
           <p className="hero-kicker">
-            Legendary lock screens, pixel-perfect wallpapers for all phones. A
-            multi-project Web3 ecosystem designed for screens, collectors, and
+            Legendary lock screens, pixel-perfect wallpapers for all phones.
+            <br />
+            A multi-project Web3 ecosystem designed for screens, collectors, and
             culture.
           </p>
 
@@ -180,12 +181,12 @@ export default function HomePage() {
         .ls-home {
           display: flex;
           flex-direction: column;
-          gap: 40px;
+          gap: 28px; /* bring projects closer to hero */
           padding-bottom: 24px;
         }
 
         .hero {
-          padding: 40px 16px 8px;
+          padding: 40px 16px 0;
         }
 
         .hero-inner {
@@ -195,7 +196,7 @@ export default function HomePage() {
         }
 
         .hero-logo-row {
-          margin-bottom: 16px;
+          margin-bottom: 18px;
         }
 
         .hero-logo {
@@ -207,23 +208,23 @@ export default function HomePage() {
         }
 
         .hero-title {
-          font-size: clamp(36px, 5vw, 46px);
-          line-height: 1.05;
+          font-size: clamp(44px, 7vw, 64px); /* bigger LOCKSCREENED */
+          line-height: 1.03;
           color: #f9f4ff;
           text-shadow:
-            0 0 18px rgba(186, 137, 255, 0.7),
-            0 0 32px rgba(186, 137, 255, 0.4);
-          margin-bottom: 10px;
-          letter-spacing: 0.2em;
+            0 0 22px rgba(186, 137, 255, 0.8),
+            0 0 40px rgba(186, 137, 255, 0.45);
+          margin-bottom: 12px;
+          letter-spacing: 0.23em;
         }
 
         .hero-kicker {
-          font-size: 15px;
+          font-size: 16px; /* slightly larger */
           line-height: 1.7;
           color: #d6cffd;
-          max-width: 720px;
-          margin: 0 auto 10px;
-          text-shadow: 0 0 12px rgba(186, 137, 255, 0.35);
+          max-width: 760px;
+          margin: 0 auto 12px;
+          text-shadow: 0 0 14px rgba(186, 137, 255, 0.4);
         }
 
         .hero-subtitle {
@@ -231,7 +232,7 @@ export default function HomePage() {
           line-height: 1.7;
           color: #c3b9e9;
           max-width: 640px;
-          margin: 0 auto;
+          margin: 14px auto 0; /* a bit lower than subtext */
         }
 
         .hero-actions {
@@ -295,7 +296,7 @@ export default function HomePage() {
 
         /* PROJECTS – PHONE GRID */
         .projects-section {
-          padding: 4px 16px 0;
+          padding: 0 16px 0; /* pull closer to hero */
         }
 
         .projects-inner {
@@ -520,8 +521,8 @@ export default function HomePage() {
 
         @media (max-width: 768px) {
           .hero-title {
-            font-size: 32px;
-            letter-spacing: 0.14em;
+            font-size: 36px;
+            letter-spacing: 0.16em;
           }
           .hero-actions {
             flex-direction: column;
