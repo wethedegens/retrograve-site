@@ -140,7 +140,8 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
             <div className="preview-text">
               <strong>{previewLabel}</strong>
               <div style={{ marginTop: 4 }}>
-                On mobile: <b>tap and hold</b> the image to save it.
+                On mobile (including Phantom):{" "}
+                <b>tap and hold</b> the image to save it.
               </div>
               <div style={{ fontSize: 11, opacity: 0.8 }}>
                 On desktop: right-click → “Save image as…”.
@@ -162,106 +163,129 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
               Close
             </button>
           </div>
-
-          <style jsx>{`
-            .preview-overlay {
-              position: fixed;
-              inset: 0;
-              background: rgba(5, 0, 20, 0.88);
-              backdrop-filter: blur(4px);
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              z-index: 9999;
-              padding: 16px;
-            }
-            .preview-inner {
-              max-width: 480px;
-              width: 100%;
-              background: #161022;
-              border-radius: 18px;
-              border: 1px solid rgba(255, 255, 255, 0.15);
-              box-shadow: 0 18px 44px rgba(0, 0, 0, 0.6);
-              padding: 16px;
-              display: flex;
-              flex-direction: column;
-              gap: 12px;
-              color: #f5e8ff;
-            }
-            .preview-text {
-              font-size: 13px;
-              line-height: 1.4;
-            }
-            .preview-image-wrap {
-              background: #05030a;
-              border-radius: 14px;
-              padding: 8px;
-              display: flex;
-              justify-content: center;
-            }
-            .preview-image {
-              max-width: 100%;
-              height: auto;
-              border-radius: 12px;
-            }
-            .preview-close {
-              align-self: flex-end;
-              margin-top: 4px;
-              border-radius: 999px;
-              padding: 6px 14px;
-              border: 1px solid rgba(255, 255, 255, 0.2);
-              background: #4b2a83;
-              color: #f5e8ff;
-              font-size: 12px;
-              cursor: pointer;
-            }
-            .preview-close:hover {
-              background: #5a33a0;
-            }
-
-            .export-buttons {
-              display: flex;
-              flex-direction: column;
-              gap: 8px;
-            }
-            .export-btn {
-              width: 100%;
-              text-align: left;
-              border-radius: 999px;
-              padding: 10px 16px;
-              border: 1px solid rgba(255, 255, 255, 0.18);
-              background: #4b2a83;
-              color: #f5e8ff;
-              font-size: 13px;
-              cursor: pointer;
-              transition: background 0.15s ease, transform 0.05s ease,
-                box-shadow 0.15s ease, opacity 0.15s ease;
-              box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
-            }
-            .export-btn:hover:not(:disabled) {
-              background: #5a33a0;
-              transform: translateY(-1px);
-              box-shadow: 0 10px 22px rgba(0, 0, 0, 0.4);
-            }
-            .export-btn:disabled {
-              opacity: 0.6;
-              cursor: default;
-              transform: none;
-              box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-            }
-
-            @media (max-width: 768px) {
-              .export-btn {
-                font-size: 12px;
-                padding: 9px 14px;
-              }
-              .preview-inner {
-                max-width: 100%;
-              }
-            }
-          `}</style>
         </div>
       )}
+
+      <style jsx>{`
+        .export-buttons {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          margin-top: 10px;
+        }
+
+        .export-btn {
+          width: 100%;
+          text-align: left;
+          padding: 12px 20px;
+          border-radius: 30px;
+
+          /* Retrograve look */
+          background: linear-gradient(180deg, #4b2a83 0%, #3a2068 100%);
+          border: 1px solid rgba(255, 255, 255, 0.18);
+          color: #e9d7ff;
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+
+          /* subtle depth */
+          box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+          transition: background 0.2s ease, transform 0.1s ease,
+            box-shadow 0.2s ease, opacity 0.15s ease;
+        }
+
+        .export-btn:hover:not(:disabled) {
+          background: linear-gradient(180deg, #5a33a0 0%, #44287e 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+        }
+
+        .export-btn:active:not(:disabled) {
+          transform: translateY(0);
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .export-btn:disabled {
+          opacity: 0.65;
+          cursor: default;
+          background: linear-gradient(180deg, #38245b 0%, #2f1d4d 100%);
+          box-shadow: none;
+        }
+
+        /* Overlay styles */
+        .preview-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(5, 0, 20, 0.88);
+          backdrop-filter: blur(4px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 9999;
+          padding: 16px;
+        }
+
+        .preview-inner {
+          max-width: 480px;
+          width: 100%;
+          background: #161022;
+          border-radius: 18px;
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          box-shadow: 0 18px 44px rgba(0, 0, 0, 0.6);
+          padding: 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          color: #f5e8ff;
+        }
+
+        .preview-text {
+          font-size: 13px;
+          line-height: 1.4;
+        }
+
+        .preview-image-wrap {
+          background: #05030a;
+          border-radius: 14px;
+          padding: 8px;
+          display: flex;
+          justify-content: center;
+        }
+
+        .preview-image {
+          max-width: 100%;
+          height: auto;
+          border-radius: 12px;
+        }
+
+        .preview-close {
+          align-self: flex-end;
+          margin-top: 4px;
+          border-radius: 999px;
+          padding: 6px 14px;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          background: #4b2a83;
+          color: #f5e8ff;
+          font-size: 12px;
+          cursor: pointer;
+          transition: background 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .preview-close:hover {
+          background: #5a33a0;
+          box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+        }
+
+        @media (max-width: 768px) {
+          .export-btn {
+            font-size: 13px;
+            padding: 10px 18px;
+          }
+          .preview-inner {
+            max-width: 100%;
+          }
+        }
+      `}</style>
     </>
   );
 }
