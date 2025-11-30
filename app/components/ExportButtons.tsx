@@ -4,6 +4,18 @@
 import { useState } from "react";
 import type { ComposerHandle } from "./Composer";
 
+// Helper: detect iOS-ish environments
+function isIOSLike() {
+  if (typeof navigator === "undefined") return false;
+  return /iPad|iPhone|iPod/.test(navigator.userAgent);
+}
+
+// Helper: detect Phantom in-app browser (rough but fine)
+function isPhantomInApp() {
+  if (typeof navigator === "undefined") return false;
+  return /Phantom/.test(navigator.userAgent) && /Mobile/.test(navigator.userAgent);
+}
+
 // What we need from the parent
 type ExportButtonsProps = {
   composerRef: React.RefObject<ComposerHandle | null>;
@@ -96,12 +108,23 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
       if (!blob) return;
 
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      // Simple filename that encodes size & device
-      a.download = `lockscreen_${def.device}_${def.width}x${def.height}.png`;
-      a.click();
-      URL.revokeObjectURL(url);
+      const filename = `lockscreen_${def.device}_${def.width}x${def.height}.png`;
+
+      const inApp = isIOSLike() || isPhantomInApp();
+
+      if (inApp) {
+        // For Phantom / iOS in-app: open in a new tab so the user can long-press/save
+        window.open(url, "_blank");
+        // Let it live a bit so the browser can load it
+        setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      } else {
+        // Normal browsers: trigger a download directly
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
     } finally {
       setActiveKey(null);
     }
