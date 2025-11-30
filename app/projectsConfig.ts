@@ -6,8 +6,9 @@ export type LockerProject = {
   tagline: string;       // Short subtitle under the name
   primaryColor: string;  // Card gradient base
   accentColor?: string;  // Optional extra color for gradient
-  lockerPath: string;    // Where the "Open locker" button goes
+  lockerPath: string;    // Where the main button goes
   status: "live" | "coming-soon";
+  ctaLabel?: string;     // Optional custom button label for live projects
 };
 
 export const PROJECTS: LockerProject[] = [
@@ -19,15 +20,18 @@ export const PROJECTS: LockerProject[] = [
     accentColor: "#ffb347",
     lockerPath: "/locker",
     status: "live",
+    ctaLabel: "Open locker →",
   },
   {
     slug: "retrograve",
-    name: "RetroGrave Locker",
-    tagline: "Legendary lock screens for RetroGraves (launching after mint).",
+    name: "RetroGrave",
+    tagline: "Legendary lock screens for RetroGraves (learn more before mint).",
     primaryColor: "#a46bff",
     accentColor: "#6c4bff",
-    lockerPath: "/retrograve-locker",
-    status: "coming-soon",
+    // This points to your RetroGrave site inside this app
+    lockerPath: "/retrograve",
+    status: "live",
+    ctaLabel: "Visit RetroGrave site →",
   },
   // Example slot for your first client – we’ll wire their route later
   {

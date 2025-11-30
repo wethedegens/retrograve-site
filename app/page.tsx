@@ -98,7 +98,7 @@ export default function HomePage() {
                   <div className="project-footer">
                     {p.status === "live" ? (
                       <Link href={p.lockerPath} className="project-btn">
-                        Open locker →
+                        {p.ctaLabel || "Open locker →"}
                       </Link>
                     ) : (
                       <button className="project-btn project-btn-disabled" disabled>
