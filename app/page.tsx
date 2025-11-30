@@ -1,295 +1,399 @@
 // app/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-
-import PhoneShowcase from "./components/PhoneShowcase";
-import type { BgChoice } from "./components/Composer";
-import Roadmap from "./components/Roadmap";
+import Link from "next/link";
 import FAQ from "./components/FAQ";
-import OgWLBanner from "./components/OgWLBanner";
-
-/** ===== Tiny, self-contained countdown (fixed-left, compact, below header) ===== */
-function CountdownSmall({ targetIso }: { targetIso: string }) {
-  const target = new Date(targetIso);
-  const [now, setNow] = useState<Date | null>(null);
-
-  useEffect(() => {
-    setNow(new Date());
-    const id = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  if (!now) return null;
-
-  let diff = Math.max(0, target.getTime() - now.getTime());
-  const days = Math.floor(diff / 86400000);
-  diff -= days * 86400000;
-  const hours = Math.floor(diff / 3600000);
-  diff -= hours * 3600000;
-  const minutes = Math.floor(diff / 60000);
-  diff -= minutes * 60000;
-  const seconds = Math.floor(diff / 1000);
-
-  return (
-    <div className="cd">
-      <div className="cd-title">RETROGRAVE COLLECTION LAUNCH</div>
-      <div className="cd-pills">
-        <Pill v={days} label="DAYS" />
-        <Pill v={hours} label="HOURS" />
-        <Pill v={minutes} label="MINUTES" />
-        <Pill v={seconds} label="SECONDS" />
-      </div>
-
-      <style jsx>{`
-        .cd {
-          position: absolute;
-          left: clamp(12px, 7vw, 140px);
-          top: 96px;               /* Keep this; still clears the header nicely */
-          transform: scale(0.82);
-          transform-origin: left top;
-          background: rgba(22, 14, 35, 0.55);
-          backdrop-filter: blur(4px);
-          border-radius: 12px;
-          padding: 8px 10px;
-          box-shadow:
-            inset 0 0 0 1px rgba(183,122,255,0.14),
-            0 10px 24px rgba(0,0,0,0.35);
-          z-index: 4;
-        }
-        .cd-title {
-          font-family: "VT323", monospace;
-          color: #cdb8ff;
-          font-size: 11px;
-          letter-spacing: 0.06em;
-          margin-bottom: 6px;
-          white-space: nowrap;
-        }
-        .cd-pills { display: flex; gap: 8px; }
-
-        @media (max-width: 1200px) {
-          .cd { top: 90px; transform: scale(0.80); }
-        }
-        @media (max-width: 980px) {
-          .cd { top: 84px; transform: scale(0.78); }
-        }
-        @media (max-width: 760px) {
-          .cd { left: 12px; top: 76px; transform: scale(0.76); }
-        }
-        @media (max-width: 560px) {
-          .cd { top: 68px; transform: scale(0.74); }
-        }
-        @media (max-width: 420px) {
-          .cd { display: none; }
-        }
-      `}</style>
-    </div>
-  );
-}
-
-function Pill({ v, label }: { v: number; label: string }) {
-  const vv = String(v).padStart(2, "0");
-  return (
-    <>
-      <div className="pill" role="group" aria-label={label.toLowerCase()}>
-        <div className="num">{vv}</div>
-        <div className="txt">{label}</div>
-      </div>
-
-      <style jsx>{`
-        .pill {
-          min-width: 56px;
-          padding: 7px 9px;
-          border-radius: 10px;
-          background:
-            radial-gradient(120% 200% at 80% 0%,
-              rgba(183,122,255,0.24),
-              rgba(30,12,60,0.18) 60%,
-              rgba(30,12,60,0.1) 100%),
-            rgba(32,18,48,0.5);
-          box-shadow:
-            inset 0 0 0 1px rgba(183,122,255,0.22),
-            0 6px 14px rgba(0,0,0,0.33);
-          display: grid;
-          justify-items: center;
-          gap: 2px;
-        }
-        .num {
-          font-family: "VT323", monospace;
-          font-size: 20px;
-          color: #fff;
-          line-height: 1;
-          text-shadow: 0 0 8px rgba(183,122,255,0.7);
-        }
-        .txt {
-          font-size: 9px;
-          letter-spacing: 0.06em;
-          color: #cdb8ff;
-          opacity: 0.85;
-        }
-      `}</style>
-    </>
-  );
-}
-/** ===== End countdown ===== */
+import { PROJECTS } from "./projectsConfig";
 
 export default function HomePage() {
-  const SHOW_COUNTDOWN = true;
-
-  // Demo images: put these in /public/demo/ (or replace with remote URLs)
-  const demoImages = [
-    "/demo/1.png",
-    "/demo/2.png",
-    "/demo/3.png",
-    "/demo/4.png",
-    "/demo/5.png",
-    "/demo/6.png",
-  ];
-
-  const bg: BgChoice = { kind: "color", value: "#3e2d75" };
-
-  // Jan 1, 2026 12:00 PM PST (-08:00 on that date)
-  const TARGET_PST = "2026-01-01T12:00:00-08:00";
-
   return (
-    <main className="home-wrap">
-      <OgWLBanner />
-
-      {/* Hero is tight to the top now */}
+    <main className="ls-home">
+      {/* HERO */}
       <section className="hero">
-        <h1 className="title">RETROGRAVE LOCKSCREEN LOCKER</h1>
-        <p className="subtitle">
-          Download your NFT with the perfect background—sized for any phone.
-        </p>
-        {SHOW_COUNTDOWN && <CountdownSmall targetIso={TARGET_PST} />}
+        <div className="hero-inner">
+          <div className="hero-label">LOCKSCREENED</div>
+          <h1 className="hero-title">Phone-native lock screens for your NFTs.</h1>
+          <p className="hero-subtitle">
+            LockScreened is a holder-first toolkit that turns partner NFT collections
+            into perfectly sized, crisp wallpapers for phones, tablets, and desktops.
+            No cropping, no guessing—just export and save.
+          </p>
+          <div className="hero-actions">
+            <a href="#projects" className="hero-btn hero-btn-primary">
+              View partner projects
+            </a>
+            <a href="#faq" className="hero-btn hero-btn-ghost">
+              Learn how it works
+            </a>
+          </div>
+          <div className="hero-note">
+            Built by Misfit, starting with MAGApixel & RetroGrave and expanding to
+            curated partner collections over time.
+          </div>
+        </div>
       </section>
 
-      <div className="showcase-wrap">
-        <PhoneShowcase
-          images={demoImages}
-          intervalMs={3000}
-          bg={bg}
-          title="How it looks"
-          showHint={false}
-        />
-      </div>
-
-      <ScrollHint targetId="roadmap" />
-
-      <section id="roadmap" className="roadmap-wrap">
-        <Roadmap />
+      {/* HOW IT WORKS */}
+      <section className="steps-section">
+        <div className="steps-inner">
+          <h2 className="section-title">How LockScreened works</h2>
+          <div className="steps-grid">
+            <div className="step-card">
+              <div className="step-number">1</div>
+              <h3>Connect with a partner locker</h3>
+              <p>
+                Choose a partner project below and open their locker. Connect your
+                wallet to view eligible NFTs from that collection.
+              </p>
+            </div>
+            <div className="step-card">
+              <div className="step-number">2</div>
+              <h3>Swap backgrounds in real time</h3>
+              <p>
+                Pick from curated backgrounds tuned to each project&apos;s art, or
+                upload your own. Everything renders at exact device pixels.
+              </p>
+            </div>
+            <div className="step-card">
+              <div className="step-number">3</div>
+              <h3>Export for phone, tablet, or desktop</h3>
+              <p>
+                Download master, iPhone, Android, iPad, and desktop versions. Previews
+                are scaled for speed, exports are full quality.
+              </p>
+            </div>
+          </div>
+        </div>
       </section>
 
-      <FAQ />
+      {/* PROJECT DIRECTORY */}
+      <section id="projects" className="projects-section">
+        <div className="projects-inner">
+          <h2 className="section-title">Partner projects</h2>
+          <p className="section-subtitle">
+            Each project below has (or will have) its own dedicated locker on
+            LockScreened, with backgrounds tailored to its artwork and community.
+          </p>
+
+          <div className="projects-grid">
+            {PROJECTS.map((p) => (
+              <article key={p.slug} className="project-card">
+                <div
+                  className="project-banner"
+                  style={{
+                    background: `linear-gradient(135deg, ${p.primaryColor}, ${
+                      p.accentColor || "#2b1b4b"
+                    })`,
+                  }}
+                >
+                  <div className="project-badge">
+                    {p.status === "live" ? "Live" : "Coming soon"}
+                  </div>
+                  <div className="project-name">{p.name}</div>
+                </div>
+
+                <div className="project-body">
+                  <p className="project-tagline">{p.tagline}</p>
+
+                  <div className="project-footer">
+                    {p.status === "live" ? (
+                      <Link href={p.lockerPath} className="project-btn">
+                        Open locker →
+                      </Link>
+                    ) : (
+                      <button className="project-btn project-btn-disabled" disabled>
+                        Locker in development
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ / HEART & VISION */}
+      <section id="faq" className="faq-section">
+        <div className="faq-inner">
+          <h2 className="section-title">The heart behind LockScreened</h2>
+          <p className="section-subtitle">
+            LockScreened started as a way to give NFT holders something they can
+            actually use every day—phone-native lock screens that feel intentional,
+            respectful of the art, and easy to access.
+          </p>
+          <FAQ />
+        </div>
+      </section>
 
       <style jsx>{`
-        .home-wrap {
-          display: grid;
-          gap: 20px;
-          justify-items: center;
-          padding: 2px 12px 48px; /* ⬅ tighter top padding */
+        .ls-home {
+          display: flex;
+          flex-direction: column;
+          gap: 48px;
+          padding-bottom: 64px;
         }
 
         .hero {
-          position: relative;
+          padding: 40px 16px 8px;
+        }
+
+        .hero-inner {
+          max-width: 820px;
+          margin: 0 auto;
+          text-align: left;
+        }
+
+        .hero-label {
+          font-size: 11px;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+          color: #b8a5ff;
+          margin-bottom: 8px;
+        }
+
+        .hero-title {
+          font-size: clamp(32px, 4vw, 40px);
+          line-height: 1.1;
+          color: #f9f4ff;
+          text-shadow: 0 0 18px rgba(186, 137, 255, 0.65);
+          margin-bottom: 12px;
+        }
+
+        .hero-subtitle {
+          font-size: 14px;
+          line-height: 1.6;
+          color: #c3b9e9;
+          max-width: 640px;
+        }
+
+        .hero-actions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          margin-top: 18px;
+        }
+
+        .hero-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 999px;
+          padding: 9px 18px;
+          font-size: 13px;
+          font-weight: 500;
+          text-decoration: none;
+          border: 1px solid transparent;
+          transition: background 0.2s ease, transform 0.1s ease,
+            box-shadow 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .hero-btn-primary {
+          background: linear-gradient(135deg, #7a4dff, #f04b83);
+          color: #fff;
+          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+        }
+
+        .hero-btn-primary:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero-btn-ghost {
+          background: transparent;
+          color: #d0c6ff;
+          border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .hero-btn-ghost:hover {
+          background: rgba(255, 255, 255, 0.04);
+        }
+
+        .hero-note {
+          margin-top: 10px;
+          font-size: 11px;
+          color: #9b93c9;
+        }
+
+        .section-title {
+          font-size: 20px;
+          color: #f4ecff;
+          margin-bottom: 6px;
+        }
+
+        .section-subtitle {
+          font-size: 13px;
+          color: #b3aacd;
+          max-width: 680px;
+        }
+
+        .steps-section {
+          padding: 8px 16px 0;
+        }
+
+        .steps-inner {
+          max-width: 960px;
+          margin: 0 auto;
+        }
+
+        .steps-grid {
           display: grid;
-          gap: 8px;               /* slightly tighter vertical rhythm */
-          justify-items: center;
-          margin-top: 0;          /* ⬅ remove extra top margin */
-          width: 100%;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 14px;
+          margin-top: 18px;
         }
 
-        .title {
-          margin: 6px 0 0;        /* ⬅ was 12px; pulls headline up */
-          text-align: center;
-          font-family: "Oswald", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu,
-            Cantarell, "Helvetica Neue", Arial;
-          font-weight: 800;
-          font-size: clamp(28px, 4.2vw, 56px);
-          letter-spacing: 1px;
-          color: #ffffff;
-          text-shadow:
-            0 0 8px rgba(183, 122, 255, 0.6),
-            0 0 18px rgba(183, 122, 255, 0.35);
-          line-height: 1.05;
-          white-space: nowrap;
+        .step-card {
+          border-radius: 18px;
+          background: radial-gradient(circle at top left, #3a2463, #150f25);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          padding: 14px 14px 16px;
+          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
         }
 
-        .subtitle {
-          margin: 0;
-          text-align: center;
-          color: #bda3ff;
-          font-size: 15px;
-          letter-spacing: 0.3px;
+        .step-number {
+          width: 24px;
+          height: 24px;
+          border-radius: 999px;
+          background: #f04b83;
+          color: #fff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+          font-weight: 600;
+          margin-bottom: 6px;
         }
 
-        .showcase-wrap { margin-top: 10px; } /* ⬅ a bit tighter under subtitle */
+        .step-card h3 {
+          font-size: 14px;
+          margin-bottom: 4px;
+          color: #f5ecff;
+        }
 
-        @media (max-width: 420px) {
-          .title {
-            white-space: normal;
-            line-height: 1.1;
-            font-size: clamp(22px, 7vw, 34px);
+        .step-card p {
+          font-size: 13px;
+          color: #c4bedc;
+          line-height: 1.5;
+        }
+
+        .projects-section {
+          padding: 8px 16px 0;
+        }
+
+        .projects-inner {
+          max-width: 1040px;
+          margin: 0 auto;
+        }
+
+        .projects-grid {
+          margin-top: 18px;
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: 16px;
+        }
+
+        .project-card {
+          border-radius: 20px;
+          background: #130d23;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .project-banner {
+          padding: 14px 14px 32px;
+          position: relative;
+        }
+
+        .project-badge {
+          position: absolute;
+          top: 10px;
+          right: 12px;
+          font-size: 11px;
+          padding: 3px 9px;
+          border-radius: 999px;
+          background: rgba(7, 4, 18, 0.75);
+          color: #f5ecff;
+          border: 1px solid rgba(255, 255, 255, 0.22);
+        }
+
+        .project-name {
+          font-size: 16px;
+          font-weight: 600;
+          color: #fff8ff;
+          text-shadow: 0 0 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .project-body {
+          padding: 12px 14px 14px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .project-tagline {
+          font-size: 13px;
+          color: #c1b6e0;
+          min-height: 38px;
+        }
+
+        .project-footer {
+          display: flex;
+          justify-content: flex-start;
+        }
+
+        .project-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 999px;
+          padding: 8px 16px;
+          font-size: 13px;
+          font-weight: 500;
+          border: 1px solid rgba(255, 255, 255, 0.35);
+          color: #f7ecff;
+          text-decoration: none;
+          background: rgba(255, 255, 255, 0.02);
+          cursor: pointer;
+          transition: background 0.2s ease, color 0.2s ease,
+            border-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .project-btn:hover {
+          background: rgba(255, 255, 255, 0.08);
+          transform: translateY(-1px);
+        }
+
+        .project-btn-disabled {
+          opacity: 0.7;
+          cursor: default;
+        }
+
+        .faq-section {
+          padding: 16px 16px 0;
+        }
+
+        .faq-inner {
+          max-width: 900px;
+          margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+          .hero-inner {
+            text-align: left;
+          }
+          .hero-title {
+            font-size: 30px;
+          }
+          .hero-actions {
+            flex-direction: column;
+            align-items: flex-start;
           }
         }
-
-        .roadmap-wrap { margin-top: -6px; }
       `}</style>
     </main>
-  );
-}
-
-function ScrollHint({ targetId }: { targetId: string }) {
-  return (
-    <>
-      <button
-        className="scroll-hint"
-        aria-label="Scroll to roadmap"
-        onClick={() => {
-          const el = document.getElementById(targetId);
-          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-        }}
-      >
-        <span className="chev" aria-hidden>
-          ▼
-        </span>
-      </button>
-
-      <style jsx>{`
-        .scroll-hint {
-          position: sticky;
-          top: 8px;
-          margin-top: -4px;
-          border: 0;
-          background: transparent;
-          cursor: pointer;
-          display: grid;
-          place-items: center;
-          width: 42px;
-          height: 28px;
-          opacity: 0.8;
-          transition: opacity 0.2s ease, transform 0.2s ease;
-          z-index: 5;
-        }
-        .scroll-hint:hover { opacity: 1; transform: translateY(-1px); }
-        .chev {
-          font-family: "VT323", monospace;
-          font-size: 18px;
-          line-height: 1;
-          color: #ffffff;
-          text-shadow:
-            0 0 8px rgba(183,122,255,.65),
-            0 0 14px rgba(183,122,255,.45);
-          animation: pulse 1.8s ease-in-out infinite;
-        }
-        @keyframes pulse {
-          0%, 100% { transform: translateY(0); opacity: .85; }
-          50%      { transform: translateY(4px); opacity: 1; }
-        }
-        @media (max-width: 420px) {
-          .scroll-hint { display: none; }
-        }
-      `}</style>
-    </>
   );
 }
