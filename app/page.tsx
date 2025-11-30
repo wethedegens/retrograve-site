@@ -11,17 +11,22 @@ export default function HomePage() {
       {/* HERO */}
       <section className="hero">
         <div className="hero-inner">
-          {/* Logo row */}
+          {/* Logo + name + tagline (top-left) */}
           <div className="hero-logo-row">
-            {/* Put your LockScreened logo file in /public and update the src if needed */}
+            {/* Update src to match your actual LockScreened logo file */}
             <img
               src="/lockscreened-logo.svg"
               alt="LockScreened"
               className="hero-logo"
             />
+            <div className="hero-logo-text">
+              <div className="hero-logo-title">LockScreened</div>
+              <div className="hero-logo-tagline">
+                Legendary lock screens for partner NFT collections.
+              </div>
+            </div>
           </div>
 
-          <div className="hero-label">LOCKSCREENED</div>
           <h1 className="hero-title">Phone-native lock screens for your NFTs.</h1>
           <p className="hero-subtitle">
             LockScreened is a holder-first toolkit that turns partner NFT collections
@@ -41,7 +46,7 @@ export default function HomePage() {
           <div className="hero-socials">
             {/* TODO: replace hrefs with your real links */}
             <a
-              href="https://discord.gg/YOUR_INVITE"
+              href="https://discord.gg/mSNHRFdCkS"
               target="_blank"
               rel="noreferrer"
               className="social-pill"
@@ -50,7 +55,7 @@ export default function HomePage() {
               Discord
             </a>
             <a
-              href="https://x.com/YOUR_HANDLE"
+              href="https://x.com/RETROGRAVE_NFT"
               target="_blank"
               rel="noreferrer"
               className="social-pill"
@@ -61,8 +66,7 @@ export default function HomePage() {
           </div>
 
           <div className="hero-note">
-            Built by Misfit, starting with MAGApixel & RetroGrave and expanding to
-            curated partner collections over time.
+            Built by RetroGrave and expanding to curated partner collections over time.
           </div>
         </div>
       </section>
@@ -179,22 +183,37 @@ export default function HomePage() {
         }
 
         .hero-logo-row {
-          margin-bottom: 10px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 14px;
         }
 
         .hero-logo {
-          height: 36px;
+          height: 40px;
           width: auto;
           display: block;
-          filter: drop-shadow(0 0 18px rgba(186, 137, 255, 0.7));
+          border-radius: 8px;
+          box-shadow: 0 0 16px rgba(186, 137, 255, 0.7);
         }
 
-        .hero-label {
-          font-size: 11px;
-          letter-spacing: 0.22em;
+        .hero-logo-text {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+
+        .hero-logo-title {
+          font-size: 18px;
+          font-weight: 700;
+          letter-spacing: 0.16em;
           text-transform: uppercase;
-          color: #b8a5ff;
-          margin-bottom: 8px;
+          color: #f9f4ff;
+        }
+
+        .hero-logo-tagline {
+          font-size: 12px;
+          color: #c7baf3;
         }
 
         .hero-title {
