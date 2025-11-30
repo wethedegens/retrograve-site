@@ -1,13 +1,13 @@
-// app/page.tsx
+// app/retrograve/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 
-import PhoneShowcase from "./components/PhoneShowcase";
-import type { BgChoice } from "./components/Composer";
-import Roadmap from "./components/Roadmap";
-import FAQ from "./components/FAQ";
-import OgWLBanner from "./components/OgWLBanner";
+import PhoneShowcase from "../components/PhoneShowcase";
+import type { BgChoice } from "../components/Composer";
+import Roadmap from "../components/Roadmap";
+import FAQ from "../components/FAQ";
+import OgWLBanner from "../components/OgWLBanner";
 
 /** ===== Tiny, self-contained countdown (fixed-left, compact, below header) ===== */
 function CountdownSmall({ targetIso }: { targetIso: string }) {
@@ -45,7 +45,7 @@ function CountdownSmall({ targetIso }: { targetIso: string }) {
         .cd {
           position: absolute;
           left: clamp(12px, 7vw, 140px);
-          top: 96px;               /* Keep this; still clears the header nicely */
+          top: 96px;
           transform: scale(0.82);
           transform-origin: left top;
           background: rgba(22, 14, 35, 0.55);
@@ -53,8 +53,8 @@ function CountdownSmall({ targetIso }: { targetIso: string }) {
           border-radius: 12px;
           padding: 8px 10px;
           box-shadow:
-            inset 0 0 0 1px rgba(183,122,255,0.14),
-            0 10px 24px rgba(0,0,0,0.35);
+            inset 0 0 0 1px rgba(183, 122, 255, 0.14),
+            0 10px 24px rgba(0, 0, 0, 0.35);
           z-index: 4;
         }
         .cd-title {
@@ -65,22 +65,40 @@ function CountdownSmall({ targetIso }: { targetIso: string }) {
           margin-bottom: 6px;
           white-space: nowrap;
         }
-        .cd-pills { display: flex; gap: 8px; }
+        .cd-pills {
+          display: flex;
+          gap: 8px;
+        }
 
         @media (max-width: 1200px) {
-          .cd { top: 90px; transform: scale(0.80); }
+          .cd {
+            top: 90px;
+            transform: scale(0.8);
+          }
         }
         @media (max-width: 980px) {
-          .cd { top: 84px; transform: scale(0.78); }
+          .cd {
+            top: 84px;
+            transform: scale(0.78);
+          }
         }
         @media (max-width: 760px) {
-          .cd { left: 12px; top: 76px; transform: scale(0.76); }
+          .cd {
+            left: 12px;
+            top: 76px;
+            transform: scale(0.76);
+          }
         }
         @media (max-width: 560px) {
-          .cd { top: 68px; transform: scale(0.74); }
+          .cd {
+            top: 68px;
+            transform: scale(0.74);
+          }
         }
         @media (max-width: 420px) {
-          .cd { display: none; }
+          .cd {
+            display: none;
+          }
         }
       `}</style>
     </div>
@@ -102,14 +120,16 @@ function Pill({ v, label }: { v: number; label: string }) {
           padding: 7px 9px;
           border-radius: 10px;
           background:
-            radial-gradient(120% 200% at 80% 0%,
-              rgba(183,122,255,0.24),
-              rgba(30,12,60,0.18) 60%,
-              rgba(30,12,60,0.1) 100%),
-            rgba(32,18,48,0.5);
+            radial-gradient(
+              120% 200% at 80% 0%,
+              rgba(183, 122, 255, 0.24),
+              rgba(30, 12, 60, 0.18) 60%,
+              rgba(30, 12, 60, 0.1) 100%
+            ),
+            rgba(32, 18, 48, 0.5);
           box-shadow:
-            inset 0 0 0 1px rgba(183,122,255,0.22),
-            0 6px 14px rgba(0,0,0,0.33);
+            inset 0 0 0 1px rgba(183, 122, 255, 0.22),
+            0 6px 14px rgba(0, 0, 0, 0.33);
           display: grid;
           justify-items: center;
           gap: 2px;
@@ -119,7 +139,7 @@ function Pill({ v, label }: { v: number; label: string }) {
           font-size: 20px;
           color: #fff;
           line-height: 1;
-          text-shadow: 0 0 8px rgba(183,122,255,0.7);
+          text-shadow: 0 0 8px rgba(183, 122, 255, 0.7);
         }
         .txt {
           font-size: 9px;
@@ -136,7 +156,6 @@ function Pill({ v, label }: { v: number; label: string }) {
 export default function HomePage() {
   const SHOW_COUNTDOWN = true;
 
-  // Demo images: put these in /public/demo/ (or replace with remote URLs)
   const demoImages = [
     "/demo/1.png",
     "/demo/2.png",
@@ -155,7 +174,6 @@ export default function HomePage() {
     <main className="home-wrap">
       <OgWLBanner />
 
-      {/* Hero is tight to the top now */}
       <section className="hero">
         <h1 className="title">RETROGRAVE LOCKSCREEN LOCKER</h1>
         <p className="subtitle">
@@ -187,23 +205,23 @@ export default function HomePage() {
           display: grid;
           gap: 20px;
           justify-items: center;
-          padding: 2px 12px 48px; /* ⬅ tighter top padding */
+          padding: 2px 12px 48px;
         }
 
         .hero {
           position: relative;
           display: grid;
-          gap: 8px;               /* slightly tighter vertical rhythm */
+          gap: 8px;
           justify-items: center;
-          margin-top: 0;          /* ⬅ remove extra top margin */
+          margin-top: 0;
           width: 100%;
         }
 
         .title {
-          margin: 6px 0 0;        /* ⬅ was 12px; pulls headline up */
+          margin: 6px 0 0;
           text-align: center;
-          font-family: "Oswald", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu,
-            Cantarell, "Helvetica Neue", Arial;
+          font-family: "Oswald", system-ui, -apple-system, Segoe UI, Roboto,
+            Ubuntu, Cantarell, "Helvetica Neue", Arial;
           font-weight: 800;
           font-size: clamp(28px, 4.2vw, 56px);
           letter-spacing: 1px;
@@ -223,7 +241,9 @@ export default function HomePage() {
           letter-spacing: 0.3px;
         }
 
-        .showcase-wrap { margin-top: 10px; } /* ⬅ a bit tighter under subtitle */
+        .showcase-wrap {
+          margin-top: 10px;
+        }
 
         @media (max-width: 420px) {
           .title {
@@ -233,7 +253,9 @@ export default function HomePage() {
           }
         }
 
-        .roadmap-wrap { margin-top: -6px; }
+        .roadmap-wrap {
+          margin-top: -6px;
+        }
       `}</style>
     </main>
   );
@@ -271,23 +293,35 @@ function ScrollHint({ targetId }: { targetId: string }) {
           transition: opacity 0.2s ease, transform 0.2s ease;
           z-index: 5;
         }
-        .scroll-hint:hover { opacity: 1; transform: translateY(-1px); }
+        .scroll-hint:hover {
+          opacity: 1;
+          transform: translateY(-1px);
+        }
         .chev {
           font-family: "VT323", monospace;
           font-size: 18px;
           line-height: 1;
           color: #ffffff;
           text-shadow:
-            0 0 8px rgba(183,122,255,.65),
-            0 0 14px rgba(183,122,255,.45);
+            0 0 8px rgba(183, 122, 255, 0.65),
+            0 0 14px rgba(183, 122, 255, 0.45);
           animation: pulse 1.8s ease-in-out infinite;
         }
         @keyframes pulse {
-          0%, 100% { transform: translateY(0); opacity: .85; }
-          50%      { transform: translateY(4px); opacity: 1; }
+          0%,
+          100% {
+            transform: translateY(0);
+            opacity: 0.85;
+          }
+          50% {
+            transform: translateY(4px);
+            opacity: 1;
+          }
         }
         @media (max-width: 420px) {
-          .scroll-hint { display: none; }
+          .scroll-hint {
+            display: none;
+          }
         }
       `}</style>
     </>

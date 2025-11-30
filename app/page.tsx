@@ -184,8 +184,12 @@ export default function HomePage() {
           font-weight: 500;
           text-decoration: none;
           border: 1px solid transparent;
-          transition: background 0.2s ease, transform 0.1s ease,
-            box-shadow 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+          transition:
+            background 0.2s ease,
+            transform 0.1s ease,
+            box-shadow 0.2s ease,
+            color 0.2s ease,
+            border-color 0.2s ease;
         }
 
         .hero-btn-primary {
@@ -358,8 +362,11 @@ export default function HomePage() {
           text-decoration: none;
           background: rgba(255, 255, 255, 0.02);
           cursor: pointer;
-          transition: background 0.2s ease, color 0.2s ease,
-            border-color 0.2s ease, transform 0.1s ease;
+          transition:
+            background 0.2s ease,
+            color 0.2s ease,
+            border-color 0.2s ease,
+            transform 0.1s ease;
         }
 
         .project-btn:hover {
