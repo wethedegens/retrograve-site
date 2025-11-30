@@ -97,12 +97,12 @@ export default function HomePage() {
 
                   <div className="project-footer">
                     {p.status === "live" ? (
-                      <Link href={p.lockerPath} className="project-btn">
-                        {p.ctaLabel || "Open locker →"}
+                      <Link href={p.href} className="project-btn">
+                        {p.cta}
                       </Link>
                     ) : (
                       <button className="project-btn project-btn-disabled" disabled>
-                        Locker in development
+                        {p.cta}
                       </button>
                     )}
                   </div>

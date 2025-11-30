@@ -1,14 +1,14 @@
 // app/projectsConfig.ts
 
 export type LockerProject = {
-  slug: string;          // URL segment we can use later, e.g. "magapixel"
-  name: string;          // Display name
+  slug: string;          // URL segment / identifier
+  name: string;          // Card title
   tagline: string;       // Short subtitle under the name
   primaryColor: string;  // Card gradient base
   accentColor?: string;  // Optional extra color for gradient
-  lockerPath: string;    // Where the main button goes
+  href: string;          // Where the main button should link
   status: "live" | "coming-soon";
-  ctaLabel?: string;     // Optional custom button label for live projects
+  cta: string;           // Button label for live projects
 };
 
 export const PROJECTS: LockerProject[] = [
@@ -18,9 +18,9 @@ export const PROJECTS: LockerProject[] = [
     tagline: "Phone-native lock screens for MAGApixel NFTs.",
     primaryColor: "#f04b83",
     accentColor: "#ffb347",
-    lockerPath: "/locker",
+    href: "/locker",
     status: "live",
-    ctaLabel: "Open locker →",
+    cta: "Open locker →",
   },
   {
     slug: "retrograve",
@@ -28,19 +28,18 @@ export const PROJECTS: LockerProject[] = [
     tagline: "Legendary lock screens for RetroGraves (learn more before mint).",
     primaryColor: "#a46bff",
     accentColor: "#6c4bff",
-    // This points to your RetroGrave site inside this app
-    lockerPath: "/retrograve",
+    href: "/retrograve",
     status: "live",
-    ctaLabel: "Visit RetroGrave site →",
+    cta: "Visit RetroGrave site →",
   },
-  // Example slot for your first client – we’ll wire their route later
   {
     slug: "client-1",
     name: "Client Project #1",
     tagline: "Custom lockscreen engine for partner NFTs.",
     primaryColor: "#00c6ff",
     accentColor: "#0072ff",
-    lockerPath: "/client-1-locker",
+    href: "/client-1-locker",
     status: "coming-soon",
+    cta: "Locker in development",
   },
 ];
