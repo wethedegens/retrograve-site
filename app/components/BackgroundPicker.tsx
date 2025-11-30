@@ -4,7 +4,6 @@ import { useRef } from "react";
 import {
   BACKGROUNDS,
   type BackgroundConfig,
-  getBackgroundImagePath,
 } from "../backgroundsConfig";
 
 export type BgChoice =
@@ -65,9 +64,9 @@ export default function BackgroundPicker({
                 onClick={() => handlePresetClick(bg)}
                 style={{
                   position: "relative",
-                  width: 28,
-                  height: 28,
-                  borderRadius: 999,
+                  width: 30,
+                  height: 30,
+                  borderRadius: 9999,
                   border: isSelected
                     ? "2px solid rgba(129, 199, 255, 0.9)"
                     : "1px solid rgba(255,255,255,.25)",
@@ -75,13 +74,17 @@ export default function BackgroundPicker({
                   background: "transparent",
                   cursor: "pointer",
                   outline: "none",
+                  flexShrink: 0,
                 }}
               >
                 <div
                   style={{
                     position: "absolute",
-                    inset: 2,
-                    borderRadius: 999,
+                    left: 2,
+                    top: 2,
+                    right: 2,
+                    bottom: 2,
+                    borderRadius: 9999,
                     overflow: "hidden",
                   }}
                 >
@@ -93,6 +96,7 @@ export default function BackgroundPicker({
                       width: "100%",
                       height: "100%",
                       objectFit: "cover",
+                      display: "block",
                     }}
                     loading="lazy"
                   />
@@ -134,7 +138,7 @@ export default function BackgroundPicker({
               style={{
                 width: 22,
                 height: 22,
-                borderRadius: 999,
+                borderRadius: 9999,
                 border: "1px solid rgba(255,255,255,.25)",
                 background: hex,
                 outline:
@@ -148,7 +152,7 @@ export default function BackgroundPicker({
         </div>
       </div>
 
-      {/* UPLOAD AREA (unchanged behavior, just renamed for clarity) */}
+      {/* UPLOAD AREA */}
       <div>
         <div
           style={{
