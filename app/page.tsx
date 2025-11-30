@@ -43,37 +43,10 @@ export default function HomePage() {
               Learn how it works
             </a>
           </div>
-
-          {/* Social links row */}
-          <div className="hero-socials">
-            <a
-              href="https://discord.gg/mSNHRFdCkS"
-              target="_blank"
-              rel="noreferrer"
-              className="social-pill"
-            >
-              <span className="social-dot" />
-              Discord
-            </a>
-            <a
-              href="https://x.com/RETROGRAVE_NFT"
-              target="_blank"
-              rel="noreferrer"
-              className="social-pill"
-            >
-              <span className="social-dot" />
-              X (Twitter)
-            </a>
-          </div>
-
-          <div className="hero-note">
-            Built by RetroGrave and expanding to curated partner collections over
-            time.
-          </div>
         </div>
       </section>
 
-      {/* PARTNER PROJECTS – PHONE GRID (now directly under hero) */}
+      {/* PARTNER PROJECTS – PHONE GRID */}
       <section id="projects" className="projects-section">
         <div className="projects-inner">
           <h2 className="section-title">Partner projects</h2>
@@ -129,7 +102,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* HOW IT WORKS – NOW BELOW THE PHONES */}
+      {/* HOW IT WORKS */}
       <section className="steps-section">
         <div className="steps-inner">
           <h2 className="section-title">How LockScreened works</h2>
@@ -138,16 +111,16 @@ export default function HomePage() {
               <div className="step-number">1</div>
               <h3>Connect with a partner locker</h3>
               <p>
-                Choose a partner project above and open their locker. Connect your
-                wallet to view eligible NFTs from that collection.
+                Choose a partner project above and open their locker. Connect
+                your wallet to view eligible NFTs from that collection.
               </p>
             </div>
             <div className="step-card">
               <div className="step-number">2</div>
               <h3>Swap backgrounds in real time</h3>
               <p>
-                Pick from curated backgrounds tuned to each project&apos;s art, or
-                upload your own. Everything renders at exact device pixels.
+                Pick from curated backgrounds tuned to each project&apos;s art,
+                or upload your own. Everything renders at exact device pixels.
               </p>
             </div>
             <div className="step-card">
@@ -168,19 +141,47 @@ export default function HomePage() {
           <h2 className="section-title">The heart behind LockScreened</h2>
           <p className="section-subtitle">
             LockScreened started as a way to give NFT holders something they can
-            actually use every day—phone-native lock screens that feel intentional,
-            respectful of the art, and easy to access.
+            actually use every day—phone-native lock screens that feel
+            intentional, respectful of the art, and easy to access.
           </p>
           <LockscreenedFAQ />
         </div>
       </section>
 
+      {/* FOOTER – built by + socials at bottom center */}
+      <footer className="ls-footer">
+        <p className="footer-note">
+          Built by RetroGrave and expanding to curated partner collections over
+          time.
+        </p>
+        <div className="footer-socials">
+          <a
+            href="https://discord.gg/mSNHRFdCkS"
+            target="_blank"
+            rel="noreferrer"
+            className="social-pill"
+          >
+            <span className="social-dot" />
+            Discord
+          </a>
+          <a
+            href="https://x.com/RETROGRAVE_NFT"
+            target="_blank"
+            rel="noreferrer"
+            className="social-pill"
+          >
+            <span className="social-dot" />
+            X (Twitter)
+          </a>
+        </div>
+      </footer>
+
       <style jsx>{`
         .ls-home {
           display: flex;
           flex-direction: column;
-          gap: 48px;
-          padding-bottom: 64px;
+          gap: 40px;
+          padding-bottom: 24px;
         }
 
         .hero {
@@ -190,50 +191,55 @@ export default function HomePage() {
         .hero-inner {
           max-width: 820px;
           margin: 0 auto;
-          text-align: left;
+          text-align: center;
         }
 
         .hero-logo-row {
-          margin-bottom: 12px;
+          margin-bottom: 16px;
         }
 
         .hero-logo {
           height: 40px;
           width: auto;
-          display: block;
+          display: inline-block;
           border-radius: 8px;
           box-shadow: 0 0 16px rgba(186, 137, 255, 0.7);
         }
 
         .hero-title {
-          font-size: clamp(32px, 4vw, 40px);
-          line-height: 1.1;
+          font-size: clamp(36px, 5vw, 46px);
+          line-height: 1.05;
           color: #f9f4ff;
-          text-shadow: 0 0 18px rgba(186, 137, 255, 0.65);
-          margin-bottom: 8px;
-          letter-spacing: 0.18em;
+          text-shadow:
+            0 0 18px rgba(186, 137, 255, 0.7),
+            0 0 32px rgba(186, 137, 255, 0.4);
+          margin-bottom: 10px;
+          letter-spacing: 0.2em;
         }
 
         .hero-kicker {
-          font-size: 14px;
-          line-height: 1.6;
-          color: #d0c7ff;
+          font-size: 15px;
+          line-height: 1.7;
+          color: #d6cffd;
           max-width: 720px;
-          margin-bottom: 10px;
+          margin: 0 auto 10px;
+          text-shadow: 0 0 12px rgba(186, 137, 255, 0.35);
         }
 
         .hero-subtitle {
-          font-size: 13px;
-          line-height: 1.6;
+          font-size: 14px;
+          line-height: 1.7;
           color: #c3b9e9;
           max-width: 640px;
+          margin: 0 auto;
         }
 
         .hero-actions {
           display: flex;
           flex-wrap: wrap;
           gap: 10px;
-          margin-top: 18px;
+          margin-top: 20px;
+          justify-content: center;
         }
 
         .hero-btn {
@@ -275,49 +281,6 @@ export default function HomePage() {
           background: rgba(255, 255, 255, 0.04);
         }
 
-        .hero-socials {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-          margin-top: 14px;
-        }
-
-        .social-pill {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          padding: 5px 10px;
-          border-radius: 999px;
-          font-size: 12px;
-          text-decoration: none;
-          color: #d6ceff;
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          transition:
-            background 0.2s ease,
-            border-color 0.2s ease,
-            transform 0.1s ease;
-        }
-
-        .social-pill:hover {
-          background: rgba(255, 255, 255, 0.08);
-          border-color: rgba(255, 255, 255, 0.3);
-          transform: translateY(-1px);
-        }
-
-        .social-dot {
-          width: 6px;
-          height: 6px;
-          border-radius: 999px;
-          background: #f04b83;
-        }
-
-        .hero-note {
-          margin-top: 10px;
-          font-size: 11px;
-          color: #9b93c9;
-        }
-
         .section-title {
           font-size: 20px;
           color: #f4ecff;
@@ -332,16 +295,21 @@ export default function HomePage() {
 
         /* PROJECTS – PHONE GRID */
         .projects-section {
-          padding: 8px 16px 0;
+          padding: 4px 16px 0;
         }
 
         .projects-inner {
           max-width: 1040px;
           margin: 0 auto;
+          text-align: center;
+        }
+
+        .projects-inner .section-subtitle {
+          margin: 0 auto;
         }
 
         .phone-grid {
-          margin-top: 20px;
+          margin-top: 18px;
           display: grid;
           grid-template-columns: repeat(5, minmax(0, 1fr));
           gap: 18px;
@@ -364,7 +332,7 @@ export default function HomePage() {
         }
 
         .phone-tile-disabled {
-          opacity: 0.72;
+          opacity: 0.8;
           cursor: default;
         }
 
@@ -495,6 +463,55 @@ export default function HomePage() {
           margin: 0 auto;
         }
 
+        /* FOOTER */
+        .ls-footer {
+          padding: 24px 16px 32px;
+          text-align: center;
+        }
+
+        .footer-note {
+          font-size: 12px;
+          color: #a79dd6;
+          margin-bottom: 10px;
+        }
+
+        .footer-socials {
+          display: flex;
+          justify-content: center;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+
+        .social-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 5px 10px;
+          border-radius: 999px;
+          font-size: 12px;
+          text-decoration: none;
+          color: #d6ceff;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          transition:
+            background 0.2s ease,
+            border-color 0.2s ease,
+            transform 0.1s ease;
+        }
+
+        .social-pill:hover {
+          background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(255, 255, 255, 0.3);
+          transform: translateY(-1px);
+        }
+
+        .social-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 999px;
+          background: #f04b83;
+        }
+
         @media (max-width: 1024px) {
           .phone-grid {
             grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -502,19 +519,13 @@ export default function HomePage() {
         }
 
         @media (max-width: 768px) {
-          .hero-inner {
-            text-align: left;
-          }
           .hero-title {
-            font-size: 30px;
-            letter-spacing: 0.12em;
+            font-size: 32px;
+            letter-spacing: 0.14em;
           }
           .hero-actions {
             flex-direction: column;
-            align-items: flex-start;
-          }
-          .hero-socials {
-            justify-content: flex-start;
+            align-items: center;
           }
           .phone-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
