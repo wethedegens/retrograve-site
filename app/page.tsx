@@ -10,6 +10,7 @@ type LockerProject = {
   label: string;
   lockerPath: string; // internal or external URL
   glow: string;
+  preview?: string; // NEW – optional preview image shown inside the phone
 };
 
 const PROJECTS: LockerProject[] = [
@@ -19,6 +20,7 @@ const PROJECTS: LockerProject[] = [
     label: "Live",
     lockerPath: "/locker/magapixel",
     glow: "magapixel",
+    preview: "/lockscreened-previews/magapixel.png",
   },
   {
     name: "RetroGrave Locker",
@@ -26,6 +28,7 @@ const PROJECTS: LockerProject[] = [
     label: "Live",
     lockerPath: "/retrograve",
     glow: "retrograve",
+    preview: "/lockscreened-previews/retrograve.png",
   },
   {
     name: "MEOWGA",
@@ -33,6 +36,7 @@ const PROJECTS: LockerProject[] = [
     label: "Coming soon",
     lockerPath: "#",
     glow: "meowga",
+    preview: "/lockscreened-previews/meowga.png",
   },
   {
     name: "Enchanted Miners",
@@ -40,6 +44,7 @@ const PROJECTS: LockerProject[] = [
     label: "Coming soon",
     lockerPath: "#",
     glow: "miners",
+    preview: "/lockscreened-previews/miners.png",
   },
   {
     name: "Client Project #1",
@@ -47,6 +52,7 @@ const PROJECTS: LockerProject[] = [
     label: "Coming soon",
     lockerPath: "#",
     glow: "client",
+    preview: "/lockscreened-previews/client1.png",
   },
 ];
 
@@ -130,7 +136,16 @@ export default function HomePage() {
                       {p.status === "live" ? "LIVE" : "COMING SOON"}
                     </span>
                   </div>
-                  <div className="phone-screen" />
+                  <div className="phone-screen">
+                    {/* NEW – project preview image inside the phone */}
+                    {p.preview && (
+                      <img
+                        src={p.preview}
+                        alt={`${p.name} preview`}
+                        className="phone-preview"
+                      />
+                    )}
+                  </div>
                   <div className="phone-name">{p.name}</div>
                   <div className="phone-status">
                     {p.status === "live" ? "Live" : "Coming soon"}
@@ -195,7 +210,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FAQ – only one heading now; LockscreenedFAQ handles its own title */}
+      {/* FAQ – LockscreenedFAQ handles its own title */}
       <section id="faq" className="ls-faq">
         <LockscreenedFAQ />
       </section>
@@ -239,19 +254,15 @@ export default function HomePage() {
 
         /* Page background image just for LockScreened page */
         .ls-page::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background-image: url("/lockscreened-bg-v2.jpg");
-  background-size: cover;
-
-  /* ⬇️ SHIFT IMAGE DOWN ABOUT 2 INCHES */
-  background-position: center calc(100% + 120px);
-
-  background-repeat: no-repeat;
-  z-index: -1;
-}
-
+          content: "";
+          position: fixed;
+          inset: 0;
+          background-image: url("/lockscreened-bg-v2.jpg");
+          background-size: cover;
+          background-position: center calc(100% + 120px);
+          background-repeat: no-repeat;
+          z-index: -1;
+        }
 
         /* Floating logo top-right (small) */
         .ls-logo-floating {
@@ -408,6 +419,7 @@ export default function HomePage() {
           align-items: center;
           gap: 10px;
         }
+
         .phone-screen {
           width: 100%;
           height: 220px;
@@ -418,7 +430,17 @@ export default function HomePage() {
             rgba(10, 6, 26, 0.96)
           );
           box-shadow: inset 0 0 0 1px rgba(210, 180, 255, 0.12);
+          position: relative;
+          overflow: hidden; /* keep image inside rounded corners */
         }
+
+        .phone-preview {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+
         .phone-pill {
           align-self: flex-end;
           padding: 2px 10px;
