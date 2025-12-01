@@ -9,7 +9,7 @@ import Roadmap from "../components/Roadmap";
 import FAQ from "../components/FAQ";
 import OgWLBanner from "../components/OgWLBanner";
 
-/** ===== Tiny Countdown (optional) ===== */
+/** ===== Tiny, self-contained countdown (fixed-left, compact, below header) ===== */
 function CountdownSmall({ targetIso }: { targetIso: string }) {
   const target = new Date(targetIso);
   const [now, setNow] = useState<Date | null>(null);
@@ -69,6 +69,37 @@ function CountdownSmall({ targetIso }: { targetIso: string }) {
           display: flex;
           gap: 8px;
         }
+
+        @media (max-width: 1200px) {
+          .cd {
+            top: 90px;
+            transform: scale(0.8);
+          }
+        }
+        @media (max-width: 980px) {
+          .cd {
+            top: 84px;
+            transform: scale(0.78);
+          }
+        }
+        @media (max-width: 760px) {
+          .cd {
+            left: 12px;
+            top: 76px;
+            transform: scale(0.76);
+          }
+        }
+        @media (max-width: 560px) {
+          .cd {
+            top: 68px;
+            transform: scale(0.74);
+          }
+        }
+        @media (max-width: 420px) {
+          .cd {
+            display: none;
+          }
+        }
       `}</style>
     </div>
   );
@@ -120,8 +151,8 @@ function Pill({ v, label }: { v: number; label: string }) {
     </>
   );
 }
+/** ===== End countdown ===== */
 
-/** ======================= MAIN PAGE ======================= */
 export default function HomePage() {
   const SHOW_COUNTDOWN = false;
 
@@ -134,7 +165,6 @@ export default function HomePage() {
     "/demo/enchanted-6.png",
   ];
 
-  // Phone background (inside the phone)
   const bg: BgChoice = { kind: "color", value: "#152333" };
 
   const TARGET_PST = "2026-01-01T12:00:00-08:00";
@@ -176,10 +206,6 @@ export default function HomePage() {
           gap: 20px;
           justify-items: center;
           padding: 2px 12px 48px;
-
-          /* ⭐ Your new background */
-          background: url("/enchanted-miners-bg.png")
-            center top / cover no-repeat fixed;
         }
 
         .hero {
@@ -194,14 +220,16 @@ export default function HomePage() {
         .title {
           margin: 6px 0 0;
           text-align: center;
-          font-family: "Oswald", system-ui;
+          font-family: "Oswald", system-ui, -apple-system, Segoe UI, Roboto,
+            Ubuntu, Cantarell, "Helvetica Neue", Arial;
           font-weight: 800;
           font-size: clamp(28px, 4.2vw, 56px);
           letter-spacing: 1px;
-          color: #ffffff;
+          /* changed from white to pink from the flowers */
+          color: #ff5ba8;
           text-shadow:
-            0 0 8px rgba(145, 205, 255, 0.6),
-            0 0 18px rgba(145, 205, 255, 0.35);
+            0 0 6px rgba(255, 91, 168, 0.7),
+            0 0 16px rgba(214, 62, 136, 0.6);
           line-height: 1.05;
           white-space: nowrap;
         }
@@ -209,13 +237,23 @@ export default function HomePage() {
         .subtitle {
           margin: 0;
           text-align: center;
-          color: #cfe8ff;
+          /* slightly deeper pink for contrast */
+          color: #e34792;
           font-size: 15px;
           letter-spacing: 0.3px;
+          text-shadow: 0 0 4px rgba(227, 71, 146, 0.4);
         }
 
         .showcase-wrap {
           margin-top: 10px;
+        }
+
+        @media (max-width: 420px) {
+          .title {
+            white-space: normal;
+            line-height: 1.1;
+            font-size: clamp(22px, 7vw, 34px);
+          }
         }
 
         .roadmap-wrap {
@@ -226,7 +264,6 @@ export default function HomePage() {
   );
 }
 
-/** Scroll hint */
 function ScrollHint({ targetId }: { targetId: string }) {
   return (
     <>
@@ -267,10 +304,10 @@ function ScrollHint({ targetId }: { targetId: string }) {
           font-family: "VT323", monospace;
           font-size: 18px;
           line-height: 1;
-          color: #ffffff;
+          color: #ff5ba8;
           text-shadow:
-            0 0 8px rgba(145, 205, 255, 0.65),
-            0 0 14px rgba(145, 205, 255, 0.45);
+            0 0 8px rgba(255, 91, 168, 0.65),
+            0 0 14px rgba(214, 62, 136, 0.45);
           animation: pulse 1.8s ease-in-out infinite;
         }
         @keyframes pulse {
@@ -282,6 +319,11 @@ function ScrollHint({ targetId }: { targetId: string }) {
           50% {
             transform: translateY(4px);
             opacity: 1;
+          }
+        }
+        @media (max-width: 420px) {
+          .scroll-hint {
+            display: none;
           }
         }
       `}</style>
