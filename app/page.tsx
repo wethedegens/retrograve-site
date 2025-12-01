@@ -10,7 +10,7 @@ type LockerProject = {
   label: string;
   lockerPath: string; // internal or external URL
   glow: string;
-  preview?: string; // NEW – optional preview image shown inside the phone
+  preview?: string; // optional preview image shown inside the phone
 };
 
 const PROJECTS: LockerProject[] = [
@@ -40,10 +40,11 @@ const PROJECTS: LockerProject[] = [
   },
   {
     name: "Enchanted Miners",
-    status: "coming",
-    label: "Coming soon",
-    lockerPath: "#",
+    status: "live",
+    label: "Live",
+    lockerPath: "/enchanted-miners",
     glow: "miners",
+    // You can change this path; just make sure the file exists in /public
     preview: "/lockscreened-previews/miners.png",
   },
   {
@@ -137,7 +138,6 @@ export default function HomePage() {
                     </span>
                   </div>
                   <div className="phone-screen">
-                    {/* NEW – project preview image inside the phone */}
                     {p.preview && (
                       <img
                         src={p.preview}
@@ -210,7 +210,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FAQ – LockscreenedFAQ handles its own title */}
+      {/* FAQ */}
       <section id="faq" className="ls-faq">
         <LockscreenedFAQ />
       </section>
@@ -252,7 +252,6 @@ export default function HomePage() {
           position: relative;
         }
 
-        /* Page background image just for LockScreened page */
         .ls-page::before {
           content: "";
           position: fixed;
@@ -264,7 +263,6 @@ export default function HomePage() {
           z-index: -1;
         }
 
-        /* Floating logo top-right (small) */
         .ls-logo-floating {
           position: fixed;
           top: 18px;
@@ -279,7 +277,6 @@ export default function HomePage() {
           filter: drop-shadow(0 0 12px rgba(183, 122, 255, 0.8));
         }
 
-        /* ===== Hero ===== */
         .ls-hero {
           margin-top: 12px;
           max-width: 820px;
@@ -361,7 +358,6 @@ export default function HomePage() {
           transform: translateY(-1px);
         }
 
-        /* ===== Partner projects ===== */
         .ls-partners {
           margin-top: 40px;
           max-width: 1120px;
@@ -431,17 +427,16 @@ export default function HomePage() {
           );
           box-shadow: inset 0 0 0 1px rgba(210, 180, 255, 0.12);
           position: relative;
-          overflow: hidden; /* keep image inside rounded corners */
+          overflow: hidden;
         }
 
         .phone-preview {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: bottom; /* <— NEW: anchor to bottom */
-  display: block;
-}
-
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: bottom;
+          display: block;
+        }
 
         .phone-pill {
           align-self: flex-end;
@@ -492,7 +487,6 @@ export default function HomePage() {
             0 18px 34px rgba(71, 140, 255, 0.6);
         }
 
-        /* ===== How it works ===== */
         .ls-how {
           margin-top: 48px;
           max-width: 1120px;
@@ -541,14 +535,12 @@ export default function HomePage() {
           color: #e5d9ff;
         }
 
-        /* ===== FAQ ===== */
         .ls-faq {
           margin-top: 60px;
           max-width: 900px;
           width: 100%;
         }
 
-        /* ===== Footer ===== */
         .ls-footer {
           margin-top: 48px;
           text-align: center;
@@ -579,7 +571,6 @@ export default function HomePage() {
           transform: translateY(-1px);
         }
 
-        /* ===== Responsive tweaks ===== */
         @media (max-width: 1024px) {
           .phone-grid {
             grid-template-columns: repeat(3, minmax(150px, 1fr));
