@@ -115,14 +115,6 @@ export default function HomePage() {
         <div className="phone-grid">
           {PROJECTS.map((p) => {
             const isExternal = p.lockerPath.startsWith("http");
-            const Tag = isExternal ? "a" : Link;
-            const linkProps = isExternal
-              ? {
-                  href: p.lockerPath,
-                  target: "_blank",
-                  rel: "noopener noreferrer",
-                }
-              : { href: p.lockerPath };
 
             const inner = (
               <div
@@ -131,9 +123,7 @@ export default function HomePage() {
                 }`}
               >
                 <div className="phone-tag">{p.tag}</div>
-                <div className="phone-screen">
-                  {/* empty center for now – just the frame */}
-                </div>
+                <div className="phone-screen" />
                 <div className="phone-footer">
                   <div className="phone-name">{p.name}</div>
                   <div className="phone-status">{p.footer}</div>
@@ -141,10 +131,25 @@ export default function HomePage() {
               </div>
             );
 
-            // @ts-expect-error – Tag can be Link or "a"
-            return <Tag key={p.name} {...linkProps} className="phone-link">
-              {inner}
-            </Tag>;
+            if (isExternal) {
+              return (
+                <a
+                  key={p.name}
+                  href={p.lockerPath}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="phone-link"
+                >
+                  {inner}
+                </a>
+              );
+            }
+
+            return (
+              <Link key={p.name} href={p.lockerPath} className="phone-link">
+                {inner}
+              </Link>
+            );
           })}
         </div>
       </section>
@@ -180,12 +185,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FAQ (single block – no double heading) */}
+      {/* FAQ */}
       <section className="faq-section" id="faq">
         <LockscreenedFAQ />
       </section>
 
-      {/* FOOTER LINE */}
+      {/* FOOTER */}
       <footer className="ls-footer">
         <p>
           Built by RetroGrave and expanding to curated partner collections over
