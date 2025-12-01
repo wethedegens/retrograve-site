@@ -244,7 +244,7 @@ export default function HomePage() {
           inset: 0;
           background-image: url("/lockscreened-bg-v2.jpg");
           background-size: cover;
-          background-position: center top;
+          background-position: center bottom;
           background-repeat: no-repeat;
           z-index: -1;
         }
