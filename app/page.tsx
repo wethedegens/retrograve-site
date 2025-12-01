@@ -239,15 +239,19 @@ export default function HomePage() {
 
         /* Page background image just for LockScreened page */
         .ls-page::before {
-          content: "";
-          position: fixed;
-          inset: 0;
-          background-image: url("/lockscreened-bg-v2.jpg");
-          background-size: cover;
-          background-position: center bottom;
-          background-repeat: no-repeat;
-          z-index: -1;
-        }
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url("/lockscreened-bg-v2.jpg");
+  background-size: cover;
+
+  /* ⬇️ SHIFT IMAGE DOWN ABOUT 2 INCHES */
+  background-position: center calc(100% + 120px);
+
+  background-repeat: no-repeat;
+  z-index: -1;
+}
+
 
         /* Floating logo top-right (small) */
         .ls-logo-floating {
