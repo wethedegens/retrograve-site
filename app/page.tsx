@@ -435,11 +435,13 @@ export default function HomePage() {
         }
 
         .phone-preview {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-        }
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: bottom; /* <— NEW: anchor to bottom */
+  display: block;
+}
+
 
         .phone-pill {
           align-self: flex-end;
