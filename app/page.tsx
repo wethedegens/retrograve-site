@@ -2,111 +2,119 @@
 "use client";
 
 import Link from "next/link";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import LockscreenedFAQ from "./components/LockscreenedFAQ";
 
 type LockerProject = {
   name: string;
   status: "live" | "coming";
-  tag: string;
-  footer: string;
-  lockerPath: string;
+  label: string;
+  lockerPath: string; // internal or external URL
+  glow: string;
 };
 
 const PROJECTS: LockerProject[] = [
   {
     name: "MAGApixel Locker",
     status: "live",
-    tag: "LIVE",
-    footer: "Live",
-    lockerPath: "/magapixel",
+    label: "Live",
+    lockerPath: "/locker/magapixel",
+    glow: "magapixel",
   },
   {
     name: "RetroGrave Locker",
     status: "live",
-    tag: "LIVE",
-    footer: "Live",
+    label: "Live",
     lockerPath: "/retrograve",
+    glow: "retrograve",
   },
   {
     name: "MEOWGA",
     status: "coming",
-    tag: "COMING SOON",
-    footer: "Coming soon",
+    label: "Coming soon",
     lockerPath: "#",
+    glow: "meowga",
   },
   {
     name: "Enchanted Miners",
     status: "coming",
-    tag: "COMING SOON",
-    footer: "Coming soon",
+    label: "Coming soon",
     lockerPath: "#",
+    glow: "miners",
   },
   {
     name: "Client Project #1",
     status: "coming",
-    tag: "COMING SOON",
-    footer: "Coming soon",
+    label: "Coming soon",
     lockerPath: "#",
+    glow: "client",
   },
 ];
 
 export default function HomePage() {
-  const scrollToId = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
   return (
-    <main className="ls-main">
-      {/* Top-left logo */}
-      <div className="ls-logo-bar">
-        <img
-          src="/lockscreened-logo.png"
-          alt="LockScreened logo"
-          className="ls-logo-img"
-        />
-      </div>
-
-      {/* HERO */}
-      <section className="hero">
-        <div className="hero-inner">
-          <h1 className="hero-title">LOCKSCREENED</h1>
-
-          <p className="hero-subtitle">
-            Legendary lock screens, pixel-perfect wallpapers for all phones.
-            <br />
-            A multi-project Web3 ecosystem designed for screens, collectors, and
-            culture.
-          </p>
-
-          <p className="hero-body">
-            LockScreened is a holder-first toolkit that turns partner NFT
-            collections into perfectly sized, crisp wallpapers for phones,
-            tablets, and desktops. No cropping, no guessing—just export and
-            save.
-          </p>
-
-          <div className="hero-actions">
-            <button
-              className="pill-btn primary"
-              onClick={() => scrollToId("projects")}
-            >
-              View partner projects
-            </button>
-            <button
-              className="pill-btn"
-              onClick={() => scrollToId("how-it-works")}
-            >
-              Learn how it works
-            </button>
+    <main id="top" className="ls-page">
+      {/* Fixed logo + wallet */}
+      <header className="ls-header">
+        <div className="ls-header-inner">
+          <Link href="#top" className="ls-logo-link" aria-label="LockScreened home">
+            <img
+              src="/lockscreened-logo.png"
+              alt="LockScreened logo"
+              className="ls-logo"
+            />
+          </Link>
+          <div className="ls-header-spacer" />
+          <div className="ls-wallet-wrap">
+            <WalletMultiButton />
           </div>
+        </div>
+      </header>
+
+      {/* Hero */}
+      <section className="ls-hero">
+        <h1 className="ls-title">LOCKSCREENED</h1>
+
+        <p className="ls-subtitle">
+          Legendary lock screens, pixel-perfect wallpapers for all phones.
+        </p>
+        <p className="ls-subtitle">
+          A multi-project Web3 ecosystem designed for screens, collectors, and
+          culture.
+        </p>
+
+        <p className="ls-body">
+          LockScreened is a holder-first toolkit that turns partner NFT
+          collections into perfectly sized, crisp wallpapers for phones,
+          tablets, and desktops. No cropping, no guessing—just export and save.
+        </p>
+
+        <div className="ls-hero-actions">
+          <button
+            className="ls-btn ls-btn-primary"
+            onClick={() => {
+              const el = document.getElementById("projects");
+              if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+          >
+            View partner projects
+          </button>
+          <button
+            className="ls-btn ls-btn-ghost"
+            onClick={() => {
+              const el = document.getElementById("how");
+              if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+          >
+            Learn how it works
+          </button>
         </div>
       </section>
 
-      {/* PARTNER PROJECTS */}
-      <section className="partner-section" id="projects">
-        <h2 className="section-title">Partner projects</h2>
-        <p className="section-copy">
+      {/* Partner projects */}
+      <section id="projects" className="ls-partners">
+        <h2 className="ls-section-title">Partner projects</h2>
+        <p className="ls-section-copy">
           Each project below has (or will have) its own dedicated locker on
           LockScreened. Tap a phone to jump straight into that project&apos;s
           experience.
@@ -114,396 +122,485 @@ export default function HomePage() {
 
         <div className="phone-grid">
           {PROJECTS.map((p) => {
-            const isExternal = p.lockerPath.startsWith("http");
+            const isDisabled = p.status === "coming" || p.lockerPath === "#";
+            const Tag = isDisabled ? "div" : Link;
+
+            const linkProps = isDisabled
+              ? {}
+              : {
+                  href: p.lockerPath,
+                };
 
             const inner = (
-              <div
-                className={`phone-frame ${
-                  p.status === "coming" ? "phone-coming" : "phone-live"
-                }`}
-              >
-                <div className="phone-tag">{p.tag}</div>
-                <div className="phone-screen" />
-                <div className="phone-footer">
+              <>
+                <div className={`phone-frame glow-${p.glow}`}>
+                  <div className="phone-pill">
+                    <span className="pill-text">
+                      {p.status === "live" ? "LIVE" : "COMING SOON"}
+                    </span>
+                  </div>
+                  <div className="phone-screen" />
                   <div className="phone-name">{p.name}</div>
-                  <div className="phone-status">{p.footer}</div>
+                  <div className="phone-status">
+                    {p.status === "live" ? "Live" : "Coming soon"}
+                  </div>
                 </div>
-              </div>
+              </>
             );
 
-            if (isExternal) {
+            if (isDisabled) {
               return (
-                <a
+                <div
                   key={p.name}
-                  href={p.lockerPath}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="phone-link"
+                  className="phone-link phone-link-disabled"
+                  aria-disabled="true"
                 >
                   {inner}
-                </a>
+                </div>
               );
             }
 
             return (
-              <Link key={p.name} href={p.lockerPath} className="phone-link">
+              <Tag
+                key={p.name}
+                {...(linkProps as any)}
+                className="phone-link"
+              >
                 {inner}
-              </Link>
+              </Tag>
             );
           })}
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
-      <section className="how-section" id="how-it-works">
-        <h2 className="section-title">How LockScreened works</h2>
-        <div className="steps-grid">
-          <div className="step-card">
-            <div className="step-pill">1</div>
-            <h3>Connect with a partner locker</h3>
-            <p>
+      {/* How LockScreened works */}
+      <section id="how" className="ls-how">
+        <h2 className="ls-section-title">How LockScreened works</h2>
+        <div className="how-grid">
+          <article className="how-card">
+            <div className="how-step">1</div>
+            <h3 className="how-title">Connect with a partner locker</h3>
+            <p className="how-text">
               Choose a partner project above and open their locker. Connect your
               wallet to view eligible NFTs from that collection.
             </p>
-          </div>
-          <div className="step-card">
-            <div className="step-pill">2</div>
-            <h3>Swap backgrounds in real time</h3>
-            <p>
+          </article>
+          <article className="how-card">
+            <div className="how-step">2</div>
+            <h3 className="how-title">Swap backgrounds in real time</h3>
+            <p className="how-text">
               Pick from curated backgrounds tuned to each project&apos;s art, or
               upload your own. Everything renders at exact device pixels.
             </p>
-          </div>
-          <div className="step-card">
-            <div className="step-pill">3</div>
-            <h3>Export for phone, tablet, or desktop</h3>
-            <p>
+          </article>
+          <article className="how-card">
+            <div className="how-step">3</div>
+            <h3 className="how-title">Export for phone, tablet, or desktop</h3>
+            <p className="how-text">
               Download master, iPhone, Android, iPad, and desktop versions.
               Previews are scaled for speed, exports are full quality.
             </p>
-          </div>
+          </article>
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="faq-section" id="faq">
+      <section id="faq" className="ls-faq">
+        <h2 className="ls-section-title">FAQ</h2>
         <LockscreenedFAQ />
       </section>
 
-      {/* FOOTER */}
+      {/* Footer */}
       <footer className="ls-footer">
-        <p>
+        <p className="ls-footer-text">
           Built by RetroGrave and expanding to curated partner collections over
           time.
         </p>
+        <div className="ls-footer-links">
+          <a
+            href="https://discord.gg/mSNHRFdCkS"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ls-footer-pill"
+          >
+            Discord
+          </a>
+          <a
+            href="https://x.com/RETROGRAVE_NFT"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ls-footer-pill"
+          >
+            X (Twitter)
+          </a>
+        </div>
       </footer>
 
       <style jsx>{`
-        .ls-main {
+        .ls-page {
           min-height: 100vh;
-          color: #fff;
-          background: #050007;
-          padding: 24px 16px 80px;
-        }
-
-        /* Logo bar */
-        .ls-logo-bar {
-          position: fixed;
-          top: 14px;
-          left: 16px;
-          z-index: 40;
-        }
-
-        .ls-logo-img {
-          height: 64px;
-          width: auto;
-          filter: drop-shadow(0 0 14px rgba(183, 122, 255, 0.9));
-        }
-
-        @media (max-width: 640px) {
-          .ls-logo-img {
-            height: 52px;
-          }
-        }
-
-        /* HERO */
-        .hero {
+          padding: 96px 16px 72px;
           display: flex;
-          justify-content: center;
+          flex-direction: column;
+          align-items: center;
+          color: #ffffff;
+        }
+
+        /* ===== Header / logo / wallet ===== */
+        .ls-header {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          padding: 12px 20px;
+          z-index: 40;
+          pointer-events: none;
+        }
+        .ls-header-inner {
+          max-width: 1120px;
+          margin: 0 auto;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          pointer-events: auto;
+        }
+        .ls-logo-link {
+          display: inline-flex;
+          align-items: center;
+        }
+        .ls-logo {
+          width: 180px;
+          height: auto;
+          display: block;
+          filter: drop-shadow(0 0 12px rgba(183, 122, 255, 0.8));
+        }
+        .ls-header-spacer {
+          flex: 1;
+        }
+        .ls-wallet-wrap :global(.wallet-adapter-button) {
+          border-radius: 999px !important;
+          font-family: "VT323", monospace !important;
+          font-size: 16px !important;
+        }
+
+        /* ===== Hero ===== */
+        .ls-hero {
+          margin-top: 40px;
+          max-width: 820px;
           text-align: center;
-          margin-top: 72px;
         }
-
-        .hero-inner {
-          max-width: 760px;
-          padding-top: 32px;
-        }
-
-        .hero-title {
-          font-family: "Oswald", system-ui, -apple-system, BlinkMacSystemFont,
-            "Segoe UI", sans-serif;
-          font-weight: 800;
+        .ls-title {
+          font-family: "Oswald", system-ui, -apple-system, Segoe UI, Roboto,
+            Ubuntu, Cantarell, "Helvetica Neue", Arial;
           letter-spacing: 0.24em;
-          font-size: clamp(40px, 6vw, 70px);
+          font-size: clamp(40px, 6vw, 72px);
           text-transform: uppercase;
-          margin: 0 0 18px;
-          text-shadow: 0 0 24px rgba(255, 255, 255, 0.9),
-            0 0 60px rgba(183, 122, 255, 1);
+          margin: 0 0 16px;
+          text-shadow:
+            0 0 12px rgba(228, 206, 255, 0.95),
+            0 0 32px rgba(183, 122, 255, 0.9);
         }
-
-        .hero-subtitle {
-          margin: 0 0 10px;
+        .ls-subtitle {
+          margin: 0;
           font-size: 16px;
           line-height: 1.6;
-          color: #e9dcff;
-          text-shadow: 0 0 12px rgba(183, 122, 255, 0.7);
+          color: #e1d4ff;
+          text-shadow: 0 0 10px rgba(183, 122, 255, 0.5);
         }
-
-        .hero-body {
-          margin: 0 0 24px;
-          font-size: 14px;
-          line-height: 1.6;
-          color: #d2c5ff;
-          max-width: 640px;
-          margin-left: auto;
-          margin-right: auto;
+        .ls-subtitle + .ls-subtitle {
+          margin-top: 4px;
         }
-
-        .hero-actions {
+        .ls-body {
+          margin: 18px auto 0;
+          max-width: 720px;
+          font-size: 15px;
+          line-height: 1.7;
+          color: #c4b4ff;
+        }
+        .ls-hero-actions {
+          margin-top: 24px;
           display: flex;
-          gap: 16px;
           justify-content: center;
+          gap: 14px;
           flex-wrap: wrap;
         }
-
-        .pill-btn {
-          border: none;
+        .ls-btn {
           border-radius: 999px;
-          padding: 10px 22px;
+          padding: 10px 20px;
           font-size: 14px;
+          border: 0;
           cursor: pointer;
-          background: transparent;
-          color: #f4e6ff;
-          box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18);
-          transition: background 0.2s ease, box-shadow 0.2s ease,
-            transform 0.2s ease;
+          font-family: "VT323", monospace;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          transition: transform 0.18s ease, box-shadow 0.18s ease,
+            background 0.18s ease, opacity 0.18s ease;
         }
-
-        .pill-btn.primary {
-          background: linear-gradient(135deg, #ff4ecf, #ff8a4f);
-          box-shadow: 0 0 14px rgba(255, 120, 200, 0.7);
+        .ls-btn-primary {
+          background: radial-gradient(
+            120% 200% at 0% 0%,
+            #ff7ad9,
+            #ff3fbf 40%,
+            #c736ff 100%
+          );
           color: #fff;
+          box-shadow:
+            0 0 14px rgba(255, 122, 217, 0.75),
+            0 14px 32px rgba(0, 0, 0, 0.55);
         }
-
-        .pill-btn:hover {
+        .ls-btn-primary:hover {
+          transform: translateY(-1px) scale(1.03);
+          box-shadow:
+            0 0 18px rgba(255, 122, 217, 0.95),
+            0 18px 40px rgba(0, 0, 0, 0.7);
+        }
+        .ls-btn-ghost {
+          background: transparent;
+          color: #f3e8ff;
+          border: 1px solid rgba(235, 210, 255, 0.6);
+          box-shadow: 0 0 10px rgba(183, 122, 255, 0.5);
+        }
+        .ls-btn-ghost:hover {
+          background: rgba(40, 18, 70, 0.85);
           transform: translateY(-1px);
-          box-shadow: 0 0 18px rgba(183, 122, 255, 0.7);
         }
 
-        /* PARTNER PROJECTS */
-        .partner-section {
-          margin-top: 64px;
+        /* ===== Partner projects ===== */
+        .ls-partners {
+          margin-top: 48px;
+          max-width: 1120px;
+          width: 100%;
           text-align: center;
         }
-
-        .section-title {
+        .ls-section-title {
+          font-family: "Oswald", system-ui, -apple-system, Segoe UI, Roboto,
+            Ubuntu, Cantarell, "Helvetica Neue", Arial;
           font-size: 22px;
-          margin-bottom: 6px;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          margin-bottom: 10px;
         }
-
-        .section-copy {
-          font-size: 13px;
-          max-width: 640px;
-          margin: 0 auto 28px;
-          color: #d2c5ff;
+        .ls-section-copy {
+          margin: 0 auto 18px;
+          max-width: 620px;
+          font-size: 14px;
+          color: #c7b7ff;
         }
 
         .phone-grid {
           display: grid;
-          grid-template-columns: repeat(5, minmax(0, 1fr));
-          gap: 20px;
+          grid-template-columns: repeat(5, minmax(150px, 1fr));
+          gap: 18px;
           justify-items: center;
+          margin-top: 12px;
         }
-
-        @media (max-width: 1200px) {
-          .phone-grid {
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-          }
-        }
-
-        @media (max-width: 980px) {
-          .phone-grid {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-          }
-        }
-
-        @media (max-width: 720px) {
-          .phone-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-          }
-        }
-
-        @media (max-width: 480px) {
-          .phone-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-
         .phone-link {
           text-decoration: none;
           color: inherit;
+          display: flex;
+          justify-content: center;
+        }
+        .phone-link-disabled {
+          opacity: 0.7;
+          cursor: default;
         }
 
         .phone-frame {
-          position: relative;
-          width: 170px;
-          height: 320px;
-          border-radius: 34px;
-          padding: 10px 10px 16px;
+          width: 180px;
+          padding: 14px 10px 16px;
+          border-radius: 28px;
           background: radial-gradient(
-              circle at 20% 0%,
-              rgba(255, 255, 255, 0.14),
+              120% 200% at 0% 0%,
+              rgba(248, 136, 255, 0.2),
               transparent 55%
             ),
-            rgba(10, 5, 25, 0.95);
-          box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75);
+            rgba(10, 6, 26, 0.96);
+          box-shadow:
+            0 14px 26px rgba(0, 0, 0, 0.7),
+            0 0 0 1px rgba(200, 160, 255, 0.22);
           display: flex;
           flex-direction: column;
-          justify-content: space-between;
-          transition: transform 0.2s ease, box-shadow 0.2s ease,
-            border-color 0.2s ease;
-          border: 2px solid rgba(183, 122, 255, 0.75);
+          align-items: center;
+          gap: 10px;
         }
-
-        .phone-live {
-          border-color: rgba(255, 118, 180, 0.9);
-        }
-
-        .phone-coming {
-          border-color: rgba(80, 220, 255, 0.9);
-          opacity: 0.9;
-        }
-
-        .phone-frame:hover {
-          transform: translateY(-6px) scale(1.02);
-          box-shadow: 0 20px 48px rgba(0, 0, 0, 0.85);
-        }
-
-        .phone-tag {
-          position: absolute;
-          top: 8px;
-          right: 14px;
-          padding: 3px 8px;
-          border-radius: 999px;
-          font-size: 10px;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          background: rgba(0, 0, 0, 0.85);
-          color: #ffffff;
-          box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
-        }
-
         .phone-screen {
-          flex: 1;
-          margin-top: 20px;
-          margin-bottom: 14px;
-          border-radius: 26px;
+          width: 100%;
+          height: 220px;
+          border-radius: 22px;
           background: radial-gradient(
-              circle at 20% 0%,
-              rgba(120, 90, 255, 0.35),
-              transparent 55%
-            ),
-            #05000b;
+            140% 180% at 0% 0%,
+            rgba(255, 255, 255, 0.08),
+            rgba(10, 6, 26, 0.96)
+          );
+          box-shadow: inset 0 0 0 1px rgba(210, 180, 255, 0.12);
         }
-
-        .phone-footer {
-          text-align: center;
+        .phone-pill {
+          align-self: flex-end;
+          padding: 2px 10px;
+          border-radius: 999px;
+          background: rgba(0, 0, 0, 0.8);
+          box-shadow: 0 0 8px rgba(255, 255, 255, 0.28);
         }
-
+        .pill-text {
+          font-family: "VT323", monospace;
+          font-size: 11px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+        }
         .phone-name {
           font-size: 13px;
-          font-weight: 600;
+          margin-top: 2px;
         }
-
         .phone-status {
           font-size: 11px;
-          color: #d0c3ff;
+          opacity: 0.85;
+          color: #d2c4ff;
         }
 
-        /* HOW IT WORKS */
-        .how-section {
-          margin-top: 72px;
+        /* different edge glows per project */
+        .glow-magapixel {
+          box-shadow:
+            0 0 0 1px rgba(255, 142, 153, 0.6),
+            0 18px 34px rgba(242, 79, 115, 0.55);
+        }
+        .glow-retrograve {
+          box-shadow:
+            0 0 0 1px rgba(182, 133, 255, 0.65),
+            0 18px 34px rgba(137, 92, 255, 0.6);
+        }
+        .glow-meowga {
+          box-shadow:
+            0 0 0 1px rgba(117, 229, 255, 0.7),
+            0 18px 34px rgba(63, 199, 255, 0.6);
+        }
+        .glow-miners {
+          box-shadow:
+            0 0 0 1px rgba(137, 255, 197, 0.7),
+            0 18px 34px rgba(76, 219, 151, 0.6);
+        }
+        .glow-client {
+          box-shadow:
+            0 0 0 1px rgba(119, 182, 255, 0.7),
+            0 18px 34px rgba(71, 140, 255, 0.6);
+        }
+
+        /* ===== How it works ===== */
+        .ls-how {
+          margin-top: 56px;
+          max-width: 1120px;
+          width: 100%;
           text-align: center;
         }
-
-        .steps-grid {
-          margin-top: 24px;
+        .how-grid {
+          margin-top: 18px;
           display: grid;
           grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 20px;
+          gap: 18px;
         }
-
-        @media (max-width: 900px) {
-          .steps-grid {
-            grid-template-columns: 1fr;
-            max-width: 780px;
-            margin-left: auto;
-            margin-right: auto;
-          }
-        }
-
-        .step-card {
-          background: radial-gradient(
-              circle at 0% 0%,
-              rgba(255, 115, 231, 0.2),
-              transparent 60%
-            ),
-            #120726;
-          border-radius: 18px;
+        .how-card {
           padding: 18px 18px 20px;
-          box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+          border-radius: 18px;
+          background: radial-gradient(
+              140% 200% at 0% 0%,
+              rgba(183, 122, 255, 0.3),
+              rgba(19, 10, 38, 0.9)
+            ),
+            rgba(20, 10, 40, 0.95);
+          box-shadow:
+            0 14px 28px rgba(0, 0, 0, 0.8),
+            0 0 0 1px rgba(203, 169, 255, 0.32);
           text-align: left;
         }
-
-        .step-card h3 {
-          margin: 0 0 8px;
-          font-size: 15px;
-        }
-
-        .step-card p {
-          margin: 0;
-          font-size: 13px;
-          line-height: 1.6;
-          color: #e1d5ff;
-        }
-
-        .step-pill {
+        .how-step {
           width: 26px;
           height: 26px;
           border-radius: 999px;
-          background: linear-gradient(135deg, #ff5ad1, #ff9b4b);
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 14px;
-          font-weight: 700;
+          font-family: "VT323", monospace;
+          border: 1px solid rgba(243, 218, 255, 0.9);
           margin-bottom: 10px;
         }
-
-        /* FAQ */
-        .faq-section {
-          margin-top: 72px;
-          max-width: 900px;
-          margin-left: auto;
-          margin-right: auto;
+        .how-title {
+          margin: 0 0 6px;
+          font-size: 15px;
+        }
+        .how-text {
+          margin: 0;
+          font-size: 13px;
+          line-height: 1.6;
+          color: #e5d9ff;
         }
 
-        /* FOOTER */
+        /* ===== FAQ ===== */
+        .ls-faq {
+          margin-top: 60px;
+          max-width: 900px;
+          width: 100%;
+        }
+
+        /* ===== Footer ===== */
         .ls-footer {
           margin-top: 48px;
           text-align: center;
-          font-size: 12px;
-          color: #cbb9ff;
+        }
+        .ls-footer-text {
+          margin: 0 0 10px;
+          font-size: 13px;
+          color: #cbbaff;
+        }
+        .ls-footer-links {
+          display: flex;
+          justify-content: center;
+          gap: 10px;
+        }
+        .ls-footer-pill {
+          padding: 6px 14px;
+          border-radius: 999px;
+          border: 1px solid rgba(203, 170, 255, 0.7);
+          font-size: 13px;
+          text-decoration: none;
+          color: #f0e4ff;
+          transition: background 0.18s ease, transform 0.18s ease,
+            box-shadow 0.18s ease;
+        }
+        .ls-footer-pill:hover {
+          background: rgba(40, 18, 70, 0.9);
+          box-shadow: 0 0 12px rgba(183, 122, 255, 0.7);
+          transform: translateY(-1px);
+        }
+
+        /* ===== Responsive tweaks ===== */
+        @media (max-width: 1024px) {
+          .phone-grid {
+            grid-template-columns: repeat(3, minmax(150px, 1fr));
+          }
+        }
+        @media (max-width: 768px) {
+          .ls-page {
+            padding-top: 88px;
+          }
+          .how-grid {
+            grid-template-columns: 1fr;
+          }
+          .phone-grid {
+            grid-template-columns: repeat(2, minmax(150px, 1fr));
+          }
+          .ls-header {
+            padding-inline: 12px;
+          }
+          .ls-logo {
+            width: 150px;
+          }
+        }
+        @media (max-width: 480px) {
+          .ls-logo {
+            width: 130px;
+          }
+          .ls-title {
+            font-size: clamp(32px, 9vw, 48px);
+          }
         }
       `}</style>
     </main>
