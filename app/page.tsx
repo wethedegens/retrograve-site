@@ -53,7 +53,7 @@ const PROJECTS: LockerProject[] = [
 export default function HomePage() {
   return (
     <main id="top" className="ls-page">
-      {/* Floating logo (no wallet here – wallet comes from global layout) */}
+      {/* Floating logo (wallet comes from global layout, so no extra wallet here) */}
       <div className="ls-logo-floating">
         <img
           src="/lockscreened-logo.png"
@@ -195,9 +195,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FAQ */}
+      {/* FAQ – only one heading now; LockscreenedFAQ handles its own title */}
       <section id="faq" className="ls-faq">
-        <h2 className="ls-section-title">FAQ</h2>
         <LockscreenedFAQ />
       </section>
 
@@ -230,7 +229,7 @@ export default function HomePage() {
       <style jsx>{`
         .ls-page {
           min-height: 100vh;
-          padding: 64px 16px 72px; /* closer to top */
+          padding: 64px 16px 72px;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -238,13 +237,25 @@ export default function HomePage() {
           position: relative;
         }
 
-        /* Floating logo top-right, about half size */
+        /* Page background image just for LockScreened page */
+        .ls-page::before {
+          content: "";
+          position: fixed;
+          inset: 0;
+          background-image: url("/lockscreened-bg.png");
+          background-size: cover;
+          background-position: center top;
+          background-repeat: no-repeat;
+          z-index: -1;
+        }
+
+        /* Floating logo top-right (small) */
         .ls-logo-floating {
           position: fixed;
           top: 18px;
           right: 20px;
           z-index: 30;
-          pointer-events: none; /* so wallet button behind still clickable */
+          pointer-events: none;
         }
         .ls-logo {
           width: 120px;
@@ -255,7 +266,7 @@ export default function HomePage() {
 
         /* ===== Hero ===== */
         .ls-hero {
-          margin-top: 12px; /* pull content up */
+          margin-top: 12px;
           max-width: 820px;
           text-align: center;
         }
