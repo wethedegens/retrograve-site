@@ -242,7 +242,7 @@ export default function HomePage() {
           content: "";
           position: fixed;
           inset: 0;
-          background-image: url("/lockscreened-bg.jpg");
+          background-image: url("/lockscreened-bg-v2.jpg");
           background-size: cover;
           background-position: center top;
           background-repeat: no-repeat;
