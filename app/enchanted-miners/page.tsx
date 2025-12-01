@@ -161,8 +161,6 @@ export default function HomePage() {
     "/demo/enchanted-2.png",
     "/demo/enchanted-3.png",
     "/demo/enchanted-4.png",
-    "/demo/enchanted-5.png",
-    "/demo/enchanted-6.png",
   ];
 
   const bg: BgChoice = { kind: "color", value: "#152333" };
@@ -206,6 +204,19 @@ export default function HomePage() {
           gap: 20px;
           justify-items: center;
           padding: 2px 12px 48px;
+          position: relative;
+        }
+
+        /* BACKGROUND IMAGE – brings your enchanted-miners-bg.png back */
+        .home-wrap::before {
+          content: "";
+          position: fixed;
+          inset: 0;
+          background-image: url("/enchanted-miners-bg.png");
+          background-size: cover;
+          background-position: center bottom;
+          background-repeat: no-repeat;
+          z-index: -1;
         }
 
         .hero {
@@ -225,7 +236,6 @@ export default function HomePage() {
           font-weight: 800;
           font-size: clamp(28px, 4.2vw, 56px);
           letter-spacing: 1px;
-          /* changed from white to pink from the flowers */
           color: #ff5ba8;
           text-shadow:
             0 0 6px rgba(255, 91, 168, 0.7),
@@ -237,7 +247,6 @@ export default function HomePage() {
         .subtitle {
           margin: 0;
           text-align: center;
-          /* slightly deeper pink for contrast */
           color: #e34792;
           font-size: 15px;
           letter-spacing: 0.3px;
