@@ -9,7 +9,7 @@ import Roadmap from "../components/Roadmap";
 import FAQ from "../components/FAQ";
 import OgWLBanner from "../components/OgWLBanner";
 
-/** ===== Tiny, self-contained countdown (fixed-left, compact, below header) ===== */
+/** ===== Tiny Countdown (optional) ===== */
 function CountdownSmall({ targetIso }: { targetIso: string }) {
   const target = new Date(targetIso);
   const [now, setNow] = useState<Date | null>(null);
@@ -69,37 +69,6 @@ function CountdownSmall({ targetIso }: { targetIso: string }) {
           display: flex;
           gap: 8px;
         }
-
-        @media (max-width: 1200px) {
-          .cd {
-            top: 90px;
-            transform: scale(0.8);
-          }
-        }
-        @media (max-width: 980px) {
-          .cd {
-            top: 84px;
-            transform: scale(0.78);
-          }
-        }
-        @media (max-width: 760px) {
-          .cd {
-            left: 12px;
-            top: 76px;
-            transform: scale(0.76);
-          }
-        }
-        @media (max-width: 560px) {
-          .cd {
-            top: 68px;
-            transform: scale(0.74);
-          }
-        }
-        @media (max-width: 420px) {
-          .cd {
-            display: none;
-          }
-        }
       `}</style>
     </div>
   );
@@ -151,13 +120,11 @@ function Pill({ v, label }: { v: number; label: string }) {
     </>
   );
 }
-/** ===== End countdown ===== */
 
+/** ======================= MAIN PAGE ======================= */
 export default function HomePage() {
-  // Turn this to true and set TARGET_PST when you’re ready to run a countdown
   const SHOW_COUNTDOWN = false;
 
-  // TODO: replace these with your actual Enchanted Miners preview images
   const demoImages = [
     "/demo/enchanted-1.png",
     "/demo/enchanted-2.png",
@@ -167,10 +134,9 @@ export default function HomePage() {
     "/demo/enchanted-6.png",
   ];
 
-  // Background behind the phone (inside the RetroGrave phone frame)
+  // Phone background (inside the phone)
   const bg: BgChoice = { kind: "color", value: "#152333" };
 
-  // Example date (only used if SHOW_COUNTDOWN = true)
   const TARGET_PST = "2026-01-01T12:00:00-08:00";
 
   return (
@@ -210,6 +176,10 @@ export default function HomePage() {
           gap: 20px;
           justify-items: center;
           padding: 2px 12px 48px;
+
+          /* ⭐ Your new background */
+          background: url("/enchanted-miners-bg.png")
+            center top / cover no-repeat fixed;
         }
 
         .hero {
@@ -224,8 +194,7 @@ export default function HomePage() {
         .title {
           margin: 6px 0 0;
           text-align: center;
-          font-family: "Oswald", system-ui, -apple-system, Segoe UI, Roboto,
-            Ubuntu, Cantarell, "Helvetica Neue", Arial;
+          font-family: "Oswald", system-ui;
           font-weight: 800;
           font-size: clamp(28px, 4.2vw, 56px);
           letter-spacing: 1px;
@@ -249,14 +218,6 @@ export default function HomePage() {
           margin-top: 10px;
         }
 
-        @media (max-width: 420px) {
-          .title {
-            white-space: normal;
-            line-height: 1.1;
-            font-size: clamp(22px, 7vw, 34px);
-          }
-        }
-
         .roadmap-wrap {
           margin-top: -6px;
         }
@@ -265,6 +226,7 @@ export default function HomePage() {
   );
 }
 
+/** Scroll hint */
 function ScrollHint({ targetId }: { targetId: string }) {
   return (
     <>
@@ -320,11 +282,6 @@ function ScrollHint({ targetId }: { targetId: string }) {
           50% {
             transform: translateY(4px);
             opacity: 1;
-          }
-        }
-        @media (max-width: 420px) {
-          .scroll-hint {
-            display: none;
           }
         }
       `}</style>
