@@ -2,7 +2,6 @@
 "use client";
 
 import Link from "next/link";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import LockscreenedFAQ from "./components/LockscreenedFAQ";
 
 type LockerProject = {
@@ -54,22 +53,14 @@ const PROJECTS: LockerProject[] = [
 export default function HomePage() {
   return (
     <main id="top" className="ls-page">
-      {/* Fixed logo + wallet */}
-      <header className="ls-header">
-        <div className="ls-header-inner">
-          <Link href="#top" className="ls-logo-link" aria-label="LockScreened home">
-            <img
-              src="/lockscreened-logo.png"
-              alt="LockScreened logo"
-              className="ls-logo"
-            />
-          </Link>
-          <div className="ls-header-spacer" />
-          <div className="ls-wallet-wrap">
-            <WalletMultiButton />
-          </div>
-        </div>
-      </header>
+      {/* Floating logo (no wallet here – wallet comes from global layout) */}
+      <div className="ls-logo-floating">
+        <img
+          src="/lockscreened-logo.png"
+          alt="LockScreened logo"
+          className="ls-logo"
+        />
+      </div>
 
       {/* Hero */}
       <section className="ls-hero">
@@ -239,53 +230,32 @@ export default function HomePage() {
       <style jsx>{`
         .ls-page {
           min-height: 100vh;
-          padding: 96px 16px 72px;
+          padding: 64px 16px 72px; /* closer to top */
           display: flex;
           flex-direction: column;
           align-items: center;
           color: #ffffff;
+          position: relative;
         }
 
-        /* ===== Header / logo / wallet ===== */
-        .ls-header {
+        /* Floating logo top-right, about half size */
+        .ls-logo-floating {
           position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          padding: 12px 20px;
-          z-index: 40;
-          pointer-events: none;
-        }
-        .ls-header-inner {
-          max-width: 1120px;
-          margin: 0 auto;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          pointer-events: auto;
-        }
-        .ls-logo-link {
-          display: inline-flex;
-          align-items: center;
+          top: 18px;
+          right: 20px;
+          z-index: 30;
+          pointer-events: none; /* so wallet button behind still clickable */
         }
         .ls-logo {
-          width: 180px;
+          width: 120px;
           height: auto;
           display: block;
           filter: drop-shadow(0 0 12px rgba(183, 122, 255, 0.8));
         }
-        .ls-header-spacer {
-          flex: 1;
-        }
-        .ls-wallet-wrap :global(.wallet-adapter-button) {
-          border-radius: 999px !important;
-          font-family: "VT323", monospace !important;
-          font-size: 16px !important;
-        }
 
         /* ===== Hero ===== */
         .ls-hero {
-          margin-top: 40px;
+          margin-top: 12px; /* pull content up */
           max-width: 820px;
           text-align: center;
         }
@@ -367,7 +337,7 @@ export default function HomePage() {
 
         /* ===== Partner projects ===== */
         .ls-partners {
-          margin-top: 48px;
+          margin-top: 40px;
           max-width: 1120px;
           width: 100%;
           text-align: center;
@@ -457,7 +427,6 @@ export default function HomePage() {
           color: #d2c4ff;
         }
 
-        /* different edge glows per project */
         .glow-magapixel {
           box-shadow:
             0 0 0 1px rgba(255, 142, 153, 0.6),
@@ -486,7 +455,7 @@ export default function HomePage() {
 
         /* ===== How it works ===== */
         .ls-how {
-          margin-top: 56px;
+          margin-top: 48px;
           max-width: 1120px;
           width: 100%;
           text-align: center;
@@ -579,7 +548,7 @@ export default function HomePage() {
         }
         @media (max-width: 768px) {
           .ls-page {
-            padding-top: 88px;
+            padding-top: 72px;
           }
           .how-grid {
             grid-template-columns: 1fr;
@@ -587,16 +556,17 @@ export default function HomePage() {
           .phone-grid {
             grid-template-columns: repeat(2, minmax(150px, 1fr));
           }
-          .ls-header {
-            padding-inline: 12px;
+          .ls-logo-floating {
+            top: 12px;
+            right: 12px;
           }
           .ls-logo {
-            width: 150px;
+            width: 100px;
           }
         }
         @media (max-width: 480px) {
           .ls-logo {
-            width: 130px;
+            width: 90px;
           }
           .ls-title {
             font-size: clamp(32px, 9vw, 48px);
