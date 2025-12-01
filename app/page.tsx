@@ -2,157 +2,151 @@
 "use client";
 
 import Link from "next/link";
-import LockscreenedFAQ from "./components/LockscreenedFAQ";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { PROJECTS } from "./projectsConfig";
+import LockScreenedFAQ from "./components/LockscreenedFAQ";
 
 export default function HomePage() {
   return (
     <main className="ls-home">
-      {/* Fixed logo in top-left */}
-      <div className="ls-logo">
-        <a href="/" aria-label="LockScreened home">
-          <img
-            src="/lockscreened-logo.png"
-            alt="LockScreened"
-            className="ls-logo-img"
-          />
-        </a>
-      </div>
+      {/* TOP BAR: logo left, wallet right */}
+      <header className="ls-top-bar">
+        <div className="ls-top-left">
+          <Link href="/" className="ls-logo-link" aria-label="LockScreened home">
+            <img
+              src="/lockscreened-logo.png"
+              alt="LockScreened"
+              className="ls-logo-img"
+            />
+          </Link>
+        </div>
+        <div className="ls-top-right">
+          <WalletMultiButton />
+        </div>
+      </header>
 
       {/* HERO */}
       <section className="hero">
-        <div className="hero-inner">
-          <h1 className="hero-title">LOCKSCREENED</h1>
+        <h1 className="hero-title">LOCKSCREENED</h1>
 
-          <p className="hero-subtitle">
-            Legendary lock screens, pixel-perfect wallpapers for all phones.
-            <br />
-            A multi-project Web3 ecosystem designed for screens, collectors, and
-            culture.
-          </p>
+        <p className="hero-subtitle-main">
+          Legendary lock screens, pixel-perfect wallpapers for all phones.
+          <br />
+          A multi-project Web3 ecosystem designed for screens, collectors, and
+          culture.
+        </p>
 
-          <p className="hero-body">
-            LockScreened is a holder-first toolkit that turns partner NFT
-            collections into perfectly sized, crisp wallpapers for phones,
-            tablets, and desktops. No cropping, no guessing—just export and
-            save.
-          </p>
+        <p className="hero-subtitle-body">
+          LockScreened is a holder-first toolkit that turns partner NFT
+          collections into perfectly sized, crisp wallpapers for phones,
+          tablets, and desktops. No cropping, no guessing—just export and save.
+        </p>
 
-          <div className="hero-actions">
-            <a href="#projects" className="hero-btn hero-btn-primary">
-              View partner projects
-            </a>
-            <a href="#how" className="hero-btn hero-btn-ghost">
-              Learn how it works
-            </a>
-          </div>
+        <div className="hero-actions">
+          <a href="#projects" className="hero-btn hero-btn-primary">
+            View partner projects
+          </a>
+          <a href="#how" className="hero-btn hero-btn-ghost">
+            Learn how it works
+          </a>
         </div>
       </section>
 
-      {/* PARTNER PROJECT PHONES */}
+      {/* PARTNER PROJECTS – PHONE GRID */}
       <section id="projects" className="projects-section">
-        <div className="projects-inner">
-          <h2 className="section-title">Partner projects</h2>
-          <p className="section-subtitle">
-            Each project below has (or will have) its own dedicated locker on
-            LockScreened. Tap a phone to jump straight into that project&apos;s
-            experience.
-          </p>
+        <h2 className="section-title">Partner projects</h2>
+        <p className="section-subtitle">
+          Each project below has (or will have) its own dedicated locker on
+          LockScreened. Tap a phone to jump straight into that project&apos;s
+          experience.
+        </p>
 
-          <div className="phone-grid">
-            {PROJECTS.map((p) => {
-              const isExternal = p.lockerPath.startsWith("http");
+        <div className="phone-grid">
+          {PROJECTS.map((p) => {
+            const isExternal = p.lockerPath.startsWith("http");
+            const isLive = p.status === "live";
 
-              const inner = (
-                <div className="phone-frame">
-                  <div className="phone-screen">
-                    <span className="phone-status">
-                      {p.status === "live" ? "LIVE" : "COMING SOON"}
-                    </span>
-                    <span className="phone-name">{p.name}</span>
-                  </div>
+            const inner = (
+              <div className={`phone-frame ${isLive ? "phone-live" : "phone-soon"}`}>
+                <div className="phone-status">
+                  {isLive ? "LIVE" : "COMING SOON"}
                 </div>
-              );
+                <div className="phone-screen" />
+                <div className="phone-label">{p.name}</div>
+                <div className="phone-substatus">
+                  {isLive ? "Live" : "Coming soon"}
+                </div>
+              </div>
+            );
 
-              return (
-                <div key={p.slug} className="phone-card">
-                  {p.status === "live" ? (
-                    isExternal ? (
-                      <a
-                        href={p.lockerPath}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="phone-link"
-                      >
-                        {inner}
-                      </a>
-                    ) : (
-                      <Link href={p.lockerPath} className="phone-link">
-                        {inner}
-                      </Link>
-                    )
-                  ) : (
-                    <div className="phone-link phone-link-disabled">
+            return (
+              <div key={p.slug} className="phone-item">
+                {isLive ? (
+                  isExternal ? (
+                    <a
+                      href={p.lockerPath}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="phone-link"
+                    >
                       {inner}
-                    </div>
-                  )}
-
-                  <div className="phone-label">
-                    <div className="phone-label-name">{p.name}</div>
-                    <div className="phone-label-status">
-                      {p.status === "live" ? "Live" : "Coming soon"}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                    </a>
+                  ) : (
+                    <Link href={p.lockerPath} className="phone-link">
+                      {inner}
+                    </Link>
+                  )
+                ) : (
+                  <div className="phone-link phone-link-disabled">{inner}</div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </section>
 
       {/* HOW IT WORKS */}
       <section id="how" className="steps-section">
-        <div className="steps-inner">
-          <h2 className="section-title">How LockScreened works</h2>
-          <div className="steps-grid">
-            <div className="step-card">
-              <div className="step-number">1</div>
-              <h3>Connect with a partner locker</h3>
-              <p>
-                Choose a partner project above and open their locker. Connect
-                your wallet to view eligible NFTs from that collection.
-              </p>
-            </div>
-            <div className="step-card">
-              <div className="step-number">2</div>
-              <h3>Swap backgrounds in real time</h3>
-              <p>
-                Pick from curated backgrounds tuned to each project&apos;s art,
-                or upload your own. Everything renders at exact device pixels.
-              </p>
-            </div>
-            <div className="step-card">
-              <div className="step-number">3</div>
-              <h3>Export for phone, tablet, or desktop</h3>
-              <p>
-                Download master, iPhone, Android, iPad, and desktop versions.
-                Previews are scaled for speed, exports are full quality.
-              </p>
-            </div>
+        <h2 className="section-title">How LockScreened works</h2>
+        <div className="steps-grid">
+          <div className="step-card">
+            <div className="step-number">1</div>
+            <h3>Connect with a partner locker</h3>
+            <p>
+              Choose a partner project above and open their locker. Connect your
+              wallet to view eligible NFTs from that collection.
+            </p>
+          </div>
+
+          <div className="step-card">
+            <div className="step-number">2</div>
+            <h3>Swap backgrounds in real time</h3>
+            <p>
+              Pick from curated backgrounds tuned to each project&apos;s art, or
+              upload your own. Everything renders at exact device pixels.
+            </p>
+          </div>
+
+          <div className="step-card">
+            <div className="step-number">3</div>
+            <h3>Export for phone, tablet, or desktop</h3>
+            <p>
+              Download master, iPhone, Android, iPad, and desktop versions.
+              Previews are scaled for speed, exports are full quality.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* FAQ – let the component handle its own heading so it doesn't double up */}
+      {/* FAQ (LockScreened-specific) */}
       <section id="faq" className="faq-section">
-        <div className="faq-inner">
-          <LockscreenedFAQ />
-        </div>
+        <h2 className="section-title">FAQ</h2>
+        <LockScreenedFAQ />
       </section>
 
-      {/* BOTTOM SOCIAL / CREDIT */}
-      <footer className="ls-footer">
-        <p className="footer-text">
+      {/* FOOTER NOTE + SOCIALS */}
+      <section className="footer-section">
+        <p className="footer-note">
           Built by RetroGrave and expanding to curated partner collections over
           time.
         </p>
@@ -161,87 +155,94 @@ export default function HomePage() {
             href="https://discord.gg/mSNHRFdCkS"
             target="_blank"
             rel="noopener noreferrer"
-            className="footer-pill"
           >
             Discord
           </a>
+          <span className="dot">•</span>
           <a
             href="https://x.com/RETROGRAVE_NFT"
             target="_blank"
             rel="noopener noreferrer"
-            className="footer-pill"
           >
             X (Twitter)
           </a>
         </div>
-      </footer>
+      </section>
 
       <style jsx>{`
         .ls-home {
+          min-height: 100vh;
+          padding: 12px 16px 80px;
           display: flex;
           flex-direction: column;
-          gap: 48px;
-          padding-bottom: 80px;
+          gap: 32px;
         }
 
-        /* ===== Logo ===== */
-        .ls-logo {
-          position: fixed;
-          top: 14px;
-          left: 14px;
-          z-index: 60;
+        /* TOP BAR */
+        .ls-top-bar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          max-width: 1100px;
+          margin: 0 auto 8px;
         }
+
+        .ls-logo-link {
+          display: inline-flex;
+          align-items: center;
+        }
+
         .ls-logo-img {
-          height: 40px;
+          height: 42px;
           width: auto;
-          display: block;
-          filter: drop-shadow(0 0 10px rgba(183, 122, 255, 0.85));
+          border-radius: 12px;
+          box-shadow: 0 0 16px rgba(186, 137, 255, 0.8);
         }
 
+        .ls-top-right :global(.wallet-adapter-button) {
+          border-radius: 999px;
+        }
+
+        /* HERO */
         .hero {
-          padding: 84px 16px 12px;
-        }
-
-        .hero-inner {
-          max-width: 780px;
-          margin: 0 auto;
           text-align: center;
+          margin-top: 8px;
         }
 
         .hero-title {
-          font-size: clamp(40px, 6vw, 60px);
-          letter-spacing: 0.28em;
+          font-size: clamp(44px, 7vw, 72px);
+          letter-spacing: 0.22em;
+          text-indent: 0.22em;
           text-transform: uppercase;
           color: #ffffff;
+          margin: 16px 0 10px;
           text-shadow:
-            0 0 18px rgba(186, 137, 255, 0.95),
-            0 0 40px rgba(186, 137, 255, 0.65);
-          margin-bottom: 14px;
+            0 0 14px rgba(255, 255, 255, 0.9),
+            0 0 26px rgba(186, 137, 255, 0.9);
         }
 
-        .hero-subtitle {
+        .hero-subtitle-main {
           font-size: 16px;
-          line-height: 1.6;
-          color: #e4d7ff;
-          text-shadow: 0 0 10px rgba(130, 90, 220, 0.6);
-          margin-bottom: 10px;
+          color: #e7ddff;
+          margin: 0 0 8px;
+          text-shadow: 0 0 12px rgba(186, 137, 255, 0.6);
         }
 
-        .hero-body {
+        .hero-subtitle-body {
           font-size: 14px;
-          line-height: 1.7;
-          color: #c9bde9;
-          max-width: 640px;
-          margin: 0 auto;
-          margin-bottom: 18px;
+          color: #cfc5f1;
+          margin: 0 0 18px;
+          max-width: 720px;
+          margin-left: auto;
+          margin-right: auto;
+          line-height: 1.6;
         }
 
         .hero-actions {
           display: flex;
           justify-content: center;
-          flex-wrap: wrap;
-          gap: 10px;
-          margin-top: 6px;
+          gap: 12px;
+          margin-bottom: 16px;
         }
 
         .hero-btn {
@@ -249,17 +250,17 @@ export default function HomePage() {
           align-items: center;
           justify-content: center;
           border-radius: 999px;
-          padding: 9px 18px;
+          padding: 9px 20px;
           font-size: 13px;
           font-weight: 500;
           text-decoration: none;
           border: 1px solid transparent;
-          transition: background 0.2s ease, transform 0.1s ease,
-            box-shadow 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+          transition: background 0.18s ease, transform 0.1s ease,
+            box-shadow 0.18s ease, border-color 0.18s ease, color 0.18s ease;
         }
 
         .hero-btn-primary {
-          background: linear-gradient(135deg, #ff4bb8, #ff8f6b);
+          background: linear-gradient(135deg, #ff4bb0, #ff8a6c);
           color: #fff;
           box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
         }
@@ -271,12 +272,12 @@ export default function HomePage() {
 
         .hero-btn-ghost {
           background: transparent;
-          color: #d0c6ff;
-          border-color: rgba(255, 255, 255, 0.3);
+          color: #e0d7ff;
+          border-color: rgba(255, 255, 255, 0.4);
         }
 
         .hero-btn-ghost:hover {
-          background: rgba(255, 255, 255, 0.04);
+          background: rgba(255, 255, 255, 0.05);
         }
 
         .section-title {
@@ -289,115 +290,117 @@ export default function HomePage() {
         .section-subtitle {
           font-size: 13px;
           color: #b3aacd;
-          max-width: 680px;
+          max-width: 720px;
           margin: 0 auto;
           text-align: center;
         }
 
+        /* PHONE GRID */
         .projects-section {
-          padding: 8px 16px 0;
-        }
-
-        .projects-inner {
-          max-width: 1040px;
+          max-width: 1100px;
           margin: 0 auto;
         }
 
         .phone-grid {
-          margin-top: 22px;
+          margin-top: 24px;
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
           gap: 18px;
-          justify-items: center;
         }
 
-        .phone-card {
+        .phone-item {
           display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 6px;
+          justify-content: center;
         }
 
         .phone-link {
           text-decoration: none;
-          cursor: pointer;
         }
 
         .phone-link-disabled {
           cursor: default;
-          opacity: 0.75;
         }
 
         .phone-frame {
-          max-width: 130px;
-          width: 100%;
-          border-radius: 28px;
-          padding: 4px;
-          background: linear-gradient(160deg, #ff4bb8, #ffb36b);
+          position: relative;
+          width: 150px;
+          max-width: 100%;
+          border-radius: 32px;
+          padding: 16px 10px 14px;
+          background: radial-gradient(
+              120% 160% at 0% 0%,
+              rgba(255, 255, 255, 0.12),
+              rgba(16, 8, 36, 0.9)
+            ),
+            rgba(14, 7, 32, 0.95);
+          box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+          display: grid;
+          gap: 10px;
+          justify-items: center;
         }
 
-        .phone-screen {
-          height: 220px;
-          border-radius: 22px;
-          background: radial-gradient(circle at top, #271837, #05030a);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: flex-end;
-          padding: 12px 10px;
-          position: relative;
-          overflow: hidden;
+        .phone-live {
+          box-shadow:
+            0 0 0 1px rgba(255, 129, 177, 0.9),
+            0 16px 40px rgba(0, 0, 0, 0.7);
+        }
+
+        .phone-soon {
+          box-shadow:
+            0 0 0 1px rgba(93, 218, 255, 0.9),
+            0 16px 40px rgba(0, 0, 0, 0.7);
         }
 
         .phone-status {
           position: absolute;
-          top: 10px;
+          top: 8px;
           right: 12px;
-          font-size: 9px;
-          padding: 3px 7px;
+          padding: 2px 8px;
           border-radius: 999px;
-          border: 1px solid rgba(255, 255, 255, 0.7);
-          background: rgba(7, 4, 18, 0.8);
-          color: #fef7ff;
+          font-size: 10px;
           letter-spacing: 0.08em;
+          text-transform: uppercase;
+          background: rgba(7, 4, 18, 0.85);
+          color: #fdf7ff;
+          border: 1px solid rgba(255, 255, 255, 0.35);
         }
 
-        .phone-name {
-          font-size: 11px;
-          color: #e8ddff;
-          text-align: center;
-          opacity: 0.9;
+        .phone-screen {
+          width: 100%;
+          height: 220px;
+          border-radius: 22px;
+          background: radial-gradient(
+            circle at 20% 0%,
+            rgba(255, 255, 255, 0.08),
+            rgba(0, 0, 0, 0.96)
+          );
+          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
         }
 
         .phone-label {
-          text-align: center;
-          font-size: 11px;
-          color: #dbcfff;
-        }
-
-        .phone-label-name {
+          font-size: 12px;
           font-weight: 600;
+          color: #fef8ff;
         }
 
-        .phone-label-status {
+        .phone-substatus {
           font-size: 10px;
-          opacity: 0.75;
+          color: #d1c5ff;
+          opacity: 0.85;
         }
 
+        /* HOW IT WORKS */
         .steps-section {
-          padding: 24px 16px 0;
-        }
-
-        .steps-inner {
-          max-width: 960px;
+          max-width: 1100px;
           margin: 0 auto;
+          margin-top: 32px;
         }
 
         .steps-grid {
+          margin-top: 18px;
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
           gap: 14px;
-          margin-top: 18px;
         }
 
         .step-card {
@@ -434,62 +437,60 @@ export default function HomePage() {
           line-height: 1.5;
         }
 
+        /* FAQ */
         .faq-section {
-          padding: 24px 16px 0;
-        }
-
-        .faq-inner {
           max-width: 900px;
-          margin: 0 auto;
+          margin: 32px auto 0;
         }
 
-        .ls-footer {
-          padding-top: 32px;
+        /* FOOTER */
+        .footer-section {
+          margin-top: 32px;
           text-align: center;
+          font-size: 12px;
+          color: #a89cd4;
         }
 
-        .footer-text {
-          font-size: 12px;
-          color: #a9a0d0;
-          margin-bottom: 10px;
+        .footer-note {
+          margin-bottom: 4px;
         }
 
         .footer-socials {
           display: flex;
           justify-content: center;
-          gap: 10px;
+          gap: 6px;
         }
 
-        .footer-pill {
-          font-size: 12px;
-          padding: 6px 12px;
-          border-radius: 999px;
-          border: 1px solid rgba(255, 255, 255, 0.35);
+        .footer-socials a {
           text-decoration: none;
-          color: #f4ecff;
-          background: rgba(255, 255, 255, 0.02);
-          transition: background 0.2s ease, transform 0.1s ease,
-            border-color 0.2s ease;
+          color: #d8ceff;
         }
 
-        .footer-pill:hover {
-          background: rgba(255, 255, 255, 0.08);
-          transform: translateY(-1px);
+        .footer-socials a:hover {
+          text-decoration: underline;
+        }
+
+        .dot {
+          opacity: 0.6;
         }
 
         @media (max-width: 768px) {
-          .hero {
-            padding-top: 96px;
+          .ls-top-bar {
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
           }
+
           .hero-title {
-            font-size: clamp(32px, 8vw, 44px);
-            letter-spacing: 0.22em;
+            font-size: clamp(34px, 9vw, 50px);
           }
-          .phone-frame {
-            max-width: 120px;
+
+          .hero-subtitle-main {
+            font-size: 15px;
           }
-          .phone-screen {
-            height: 210px;
+
+          .hero-subtitle-body {
+            font-size: 13px;
           }
         }
       `}</style>
