@@ -237,7 +237,7 @@ export default function HomePage() {
       <style jsx>{`
         .ls-page {
           min-height: 100vh;
-          padding: 20px 16px 72px;
+          padding: 16px 16px 72px;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -270,7 +270,7 @@ export default function HomePage() {
         }
 
         .ls-hero {
-          margin-top: -110px;
+          margin-top: -120px;
           max-width: 820px;
           text-align: center;
         }
@@ -278,7 +278,8 @@ export default function HomePage() {
         .ls-hero-logo-wrap {
           display: flex;
           justify-content: center;
-          margin-bottom: 0;
+          /* pull text up over the image's internal padding */
+          margin-bottom: -24px;
         }
 
         .ls-hero-logo {
@@ -293,17 +294,17 @@ export default function HomePage() {
           color: #374151;
         }
 
-        /* Pull the first subtitle up closer to the logo */
+        /* first subtitle sits extra close to the logo */
         .ls-hero p.ls-subtitle:first-of-type {
-          margin-top: -10px;
+          margin-top: -6px;
         }
 
         .ls-subtitle + .ls-subtitle {
-          margin-top: 1px;
+          margin-top: 0;
         }
 
         .ls-body {
-          margin: 4px auto 0; /* very tight under subtitles */
+          margin: 4px auto 0;
           max-width: 720px;
           font-size: 15px;
           line-height: 1.55;
@@ -311,7 +312,7 @@ export default function HomePage() {
         }
 
         .ls-hero-actions {
-          margin-top: 8px; /* closer to body */
+          margin-top: 8px;
           display: flex;
           justify-content: center;
           gap: 14px;
@@ -362,7 +363,7 @@ export default function HomePage() {
         }
 
         .ls-partners {
-          margin-top: 14px; /* bring partner section closer to hero */
+          margin-top: 10px; /* closer to hero */
           max-width: 1120px;
           width: 100%;
           text-align: center;
@@ -494,7 +495,7 @@ export default function HomePage() {
         }
 
         .ls-how {
-          margin-top: 36px;
+          margin-top: 32px;
           max-width: 1120px;
           width: 100%;
           text-align: center;
@@ -542,13 +543,13 @@ export default function HomePage() {
         }
 
         .ls-faq {
-          margin-top: 50px;
+          margin-top: 44px;
           max-width: 900px;
           width: 100%;
         }
 
         .ls-footer {
-          margin-top: 40px;
+          margin-top: 34px;
           text-align: center;
         }
 
@@ -590,10 +591,10 @@ export default function HomePage() {
 
         @media (max-width: 768px) {
           .ls-page {
-            padding-top: 32px;
+            padding-top: 28px;
           }
           .ls-hero {
-            margin-top: -30px;
+            margin-top: -60px;
           }
           .how-grid {
             grid-template-columns: 1fr;
