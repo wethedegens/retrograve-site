@@ -270,7 +270,7 @@ export default function HomePage() {
         }
 
         .ls-hero {
-          margin-top: -120px;
+          margin-top: -180px; /* pull hero up on desktop */
           max-width: 820px;
           text-align: center;
         }
@@ -278,8 +278,7 @@ export default function HomePage() {
         .ls-hero-logo-wrap {
           display: flex;
           justify-content: center;
-          /* pull text up over the image's internal padding */
-          margin-bottom: -24px;
+          margin-bottom: -48px; /* tighter gap under logo */
         }
 
         .ls-hero-logo {
@@ -288,26 +287,21 @@ export default function HomePage() {
         }
 
         .ls-subtitle {
-          margin: 0;
+          margin: -8px 0 0;
           font-size: 16px;
-          line-height: 1.4;
+          line-height: 1.35;
           color: #374151;
         }
 
-        /* first subtitle sits extra close to the logo */
-        .ls-hero p.ls-subtitle:first-of-type {
-          margin-top: -6px;
-        }
-
         .ls-subtitle + .ls-subtitle {
-          margin-top: 0;
+          margin-top: 2px;
         }
 
         .ls-body {
-          margin: 4px auto 0;
+          margin: 6px auto 0;
           max-width: 720px;
           font-size: 15px;
-          line-height: 1.55;
+          line-height: 1.5;
           color: #4b5563;
         }
 
@@ -363,7 +357,7 @@ export default function HomePage() {
         }
 
         .ls-partners {
-          margin-top: 10px; /* closer to hero */
+          margin-top: 8px; /* closer to hero */
           max-width: 1120px;
           width: 100%;
           text-align: center;
@@ -375,12 +369,12 @@ export default function HomePage() {
           font-size: 22px;
           letter-spacing: 0.18em;
           text-transform: uppercase;
-          margin-bottom: 8px;
+          margin-bottom: 6px;
           color: #111827;
         }
 
         .ls-section-copy {
-          margin: 0 auto 14px;
+          margin: 0 auto 12px;
           max-width: 620px;
           font-size: 14px;
           color: #4b5563;
@@ -495,7 +489,7 @@ export default function HomePage() {
         }
 
         .ls-how {
-          margin-top: 32px;
+          margin-top: 30px;
           max-width: 1120px;
           width: 100%;
           text-align: center;
@@ -583,18 +577,23 @@ export default function HomePage() {
           transform: translateY(-1px);
         }
 
+        /* Tablet adjustments */
         @media (max-width: 1024px) {
+          .ls-hero {
+            margin-top: -120px;
+          }
           .phone-grid {
             grid-template-columns: repeat(3, minmax(150px, 1fr));
           }
         }
 
+        /* Mobile adjustments */
         @media (max-width: 768px) {
           .ls-page {
             padding-top: 28px;
           }
           .ls-hero {
-            margin-top: -60px;
+            margin-top: -80px;
           }
           .how-grid {
             grid-template-columns: 1fr;
@@ -603,18 +602,11 @@ export default function HomePage() {
             grid-template-columns: repeat(2, minmax(150px, 1fr));
           }
           .ls-logo-floating {
-            top: 12px;
-            right: 12px;
-          }
-          .ls-logo {
-            width: 100px;
+            display: none; /* hide big right-side logo on mobile */
           }
         }
 
         @media (max-width: 480px) {
-          .ls-logo {
-            width: 90px;
-          }
           .ls-hero-logo {
             max-width: 90vw;
           }
