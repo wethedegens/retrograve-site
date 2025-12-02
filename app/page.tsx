@@ -70,7 +70,7 @@ export default function HomePage() {
 
       {/* Hero */}
       <section className="ls-hero">
-        {/* NEW: wordmark logo instead of text LOCKSCREENED */}
+        {/* Wordmark logo instead of text LOCKSCREENED */}
         <div className="ls-hero-logo-wrap">
           <img
             src="/lockscreened-wordmark.png"
@@ -238,7 +238,7 @@ export default function HomePage() {
       <style jsx>{`
         .ls-page {
           min-height: 100vh;
-          padding: 40px 16px 72px;
+          padding: 32px 16px 72px; /* a bit less top padding */
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -271,7 +271,7 @@ export default function HomePage() {
         }
 
         .ls-hero {
-          margin-top: -10px; /* slight lift to align with icon */
+          margin-top: -40px; /* pulls hero up to sit more centered with the icon */
           max-width: 820px;
           text-align: center;
         }
@@ -279,11 +279,11 @@ export default function HomePage() {
         .ls-hero-logo-wrap {
           display: flex;
           justify-content: center;
-          margin-bottom: 18px;
+          margin-bottom: 10px; /* tighter gap to subtitle */
         }
 
         .ls-hero-logo {
-          max-width: min(640px, 80vw);
+          max-width: min(900px, 90vw); /* bigger logo */
           height: auto;
         }
 
@@ -298,7 +298,7 @@ export default function HomePage() {
         }
 
         .ls-body {
-          margin: 18px auto 0;
+          margin: 16px auto 0;
           max-width: 720px;
           font-size: 15px;
           line-height: 1.7;
@@ -306,7 +306,7 @@ export default function HomePage() {
         }
 
         .ls-hero-actions {
-          margin-top: 24px;
+          margin-top: 22px;
           display: flex;
           justify-content: center;
           gap: 14px;
@@ -357,7 +357,7 @@ export default function HomePage() {
         }
 
         .ls-partners {
-          margin-top: 40px;
+          margin-top: 32px; /* slightly closer to hero */
           max-width: 1120px;
           width: 100%;
           text-align: center;
@@ -489,7 +489,7 @@ export default function HomePage() {
         }
 
         .ls-how {
-          margin-top: 48px;
+          margin-top: 40px;
           max-width: 1120px;
           width: 100%;
           text-align: center;
@@ -537,13 +537,13 @@ export default function HomePage() {
         }
 
         .ls-faq {
-          margin-top: 60px;
+          margin-top: 54px;
           max-width: 900px;
           width: 100%;
         }
 
         .ls-footer {
-          margin-top: 48px;
+          margin-top: 44px;
           text-align: center;
         }
 
@@ -585,10 +585,10 @@ export default function HomePage() {
 
         @media (max-width: 768px) {
           .ls-page {
-            padding-top: 56px;
+            padding-top: 48px;
           }
           .ls-hero {
-            margin-top: -4px;
+            margin-top: -16px; /* less aggressive on mobile so it doesn't clip */
           }
           .how-grid {
             grid-template-columns: 1fr;
@@ -608,6 +608,9 @@ export default function HomePage() {
         @media (max-width: 480px) {
           .ls-logo {
             width: 90px;
+          }
+          .ls-hero-logo {
+            max-width: 90vw;
           }
         }
       `}</style>
