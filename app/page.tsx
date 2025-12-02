@@ -238,7 +238,7 @@ export default function HomePage() {
       <style jsx>{`
         .ls-page {
           min-height: 100vh;
-          padding: 32px 16px 72px; /* a bit less top padding */
+          padding: 32px 16px 72px;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -271,7 +271,7 @@ export default function HomePage() {
         }
 
         .ls-hero {
-          margin-top: -40px; /* pulls hero up to sit more centered with the icon */
+          margin-top: -80px; /* pull hero higher */
           max-width: 820px;
           text-align: center;
         }
@@ -279,34 +279,34 @@ export default function HomePage() {
         .ls-hero-logo-wrap {
           display: flex;
           justify-content: center;
-          margin-bottom: 10px; /* tighter gap to subtitle */
+          margin-bottom: 4px; /* tighter gap to subtitle */
         }
 
         .ls-hero-logo {
-          max-width: min(900px, 90vw); /* bigger logo */
+          max-width: min(900px, 90vw);
           height: auto;
         }
 
         .ls-subtitle {
           margin: 0;
           font-size: 16px;
-          line-height: 1.6;
+          line-height: 1.5;
           color: #374151;
         }
         .ls-subtitle + .ls-subtitle {
-          margin-top: 4px;
+          margin-top: 2px;
         }
 
         .ls-body {
-          margin: 16px auto 0;
+          margin: 10px auto 0; /* closer to subtitles */
           max-width: 720px;
           font-size: 15px;
-          line-height: 1.7;
+          line-height: 1.6;
           color: #4b5563;
         }
 
         .ls-hero-actions {
-          margin-top: 22px;
+          margin-top: 16px; /* bring buttons closer */
           display: flex;
           justify-content: center;
           gap: 14px;
@@ -357,7 +357,7 @@ export default function HomePage() {
         }
 
         .ls-partners {
-          margin-top: 32px; /* slightly closer to hero */
+          margin-top: 24px; /* closer to hero */
           max-width: 1120px;
           width: 100%;
           text-align: center;
@@ -588,7 +588,7 @@ export default function HomePage() {
             padding-top: 48px;
           }
           .ls-hero {
-            margin-top: -16px; /* less aggressive on mobile so it doesn't clip */
+            margin-top: -24px; /* less aggressive on mobile */
           }
           .how-grid {
             grid-template-columns: 1fr;
