@@ -44,7 +44,6 @@ const PROJECTS: LockerProject[] = [
     label: "Live",
     lockerPath: "/enchanted-miners",
     glow: "miners",
-    // You can change this path; just make sure the file exists in /public
     preview: "/lockscreened-previews/miners.png",
   },
   {
@@ -254,7 +253,7 @@ export default function HomePage() {
           content: "";
           position: fixed;
           inset: 0;
-          background-image: url("/lockscreened-bg-v3.jpg");
+          background-image: url("/lockscreened-main-bg.png?v=1");
           background-size: cover;
           background-position: center calc(100% + 120px);
           background-repeat: no-repeat;
@@ -272,7 +271,6 @@ export default function HomePage() {
           width: 120px;
           height: auto;
           display: block;
-          /* logo glow is fine to keep if you like, doesn’t affect text */
           filter: drop-shadow(0 0 12px rgba(183, 122, 255, 0.8));
         }
 
