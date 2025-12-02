@@ -70,7 +70,6 @@ export default function HomePage() {
 
       {/* Hero */}
       <section className="ls-hero">
-        {/* Wordmark logo instead of text LOCKSCREENED */}
         <div className="ls-hero-logo-wrap">
           <img
             src="/lockscreened-wordmark.png"
@@ -238,7 +237,7 @@ export default function HomePage() {
       <style jsx>{`
         .ls-page {
           min-height: 100vh;
-          padding: 20px 16px 72px; /* less top padding so everything shifts up */
+          padding: 20px 16px 72px;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -271,7 +270,7 @@ export default function HomePage() {
         }
 
         .ls-hero {
-          margin-top: -110px; /* pull hero higher toward the top logo */
+          margin-top: -110px;
           max-width: 820px;
           text-align: center;
         }
@@ -279,7 +278,7 @@ export default function HomePage() {
         .ls-hero-logo-wrap {
           display: flex;
           justify-content: center;
-          margin-bottom: 0; /* no gap before subtitles */
+          margin-bottom: 0;
         }
 
         .ls-hero-logo {
@@ -293,12 +292,18 @@ export default function HomePage() {
           line-height: 1.4;
           color: #374151;
         }
+
+        /* Pull the first subtitle up closer to the logo */
+        .ls-hero p.ls-subtitle:first-of-type {
+          margin-top: -10px;
+        }
+
         .ls-subtitle + .ls-subtitle {
           margin-top: 1px;
         }
 
         .ls-body {
-          margin: 6px auto 0; /* closer to subtitles */
+          margin: 4px auto 0; /* very tight under subtitles */
           max-width: 720px;
           font-size: 15px;
           line-height: 1.55;
@@ -306,7 +311,7 @@ export default function HomePage() {
         }
 
         .ls-hero-actions {
-          margin-top: 10px; /* tighter under body */
+          margin-top: 8px; /* closer to body */
           display: flex;
           justify-content: center;
           gap: 14px;
@@ -357,7 +362,7 @@ export default function HomePage() {
         }
 
         .ls-partners {
-          margin-top: 18px; /* bring partner section closer to hero */
+          margin-top: 14px; /* bring partner section closer to hero */
           max-width: 1120px;
           width: 100%;
           text-align: center;
@@ -374,7 +379,7 @@ export default function HomePage() {
         }
 
         .ls-section-copy {
-          margin: 0 auto 16px;
+          margin: 0 auto 14px;
           max-width: 620px;
           font-size: 14px;
           color: #4b5563;
@@ -385,7 +390,7 @@ export default function HomePage() {
           grid-template-columns: repeat(5, minmax(150px, 1fr));
           gap: 18px;
           justify-items: center;
-          margin-top: 10px;
+          margin-top: 8px;
         }
 
         .phone-link {
@@ -588,7 +593,7 @@ export default function HomePage() {
             padding-top: 32px;
           }
           .ls-hero {
-            margin-top: -30px; /* less extreme on mobile */
+            margin-top: -30px;
           }
           .how-grid {
             grid-template-columns: 1fr;
