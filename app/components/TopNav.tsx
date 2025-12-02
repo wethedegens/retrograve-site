@@ -1,18 +1,124 @@
 "use client";
 
-// TopNav.tsx is now a lightweight alias for Header.tsx
-// This ensures older imports still work while transitioning your site structure.
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-import Header from "./Header";
+export default function TopNav() {
+  const path = usePathname();
 
-export default Header;
+  const isMiners = path.startsWith("/enchanted-miners");
+  const isMagapixel = path.startsWith("/locker/magapixel");
+  const isRetrograve = path.startsWith("/retrograve");
 
-// app/components/TopNav.tsx (snippet)
-const nav = [
-  { href: "/", label: "HOME" },
-  // { href: "/magapixel", label: "MAGAPIXEL" }, // hidden
-  { href: "/community", label: "COMMUNITY" },
-  // { href: "/leaderboard", label: "LEADERBOARD" }, // removed (404)
-  { href: "/collect", label: "COLLECT NOW" },
-  { href: "https://x.com/RETROGRAVE_NFT", label: "FOLLOW ON X", external: true },
-];
+  // ---- 1. Enchanted Miners Nav ----
+  if (isMiners) {
+    return (
+      <nav className="topnav">
+        <Link href="/">HOME</Link>
+        <Link href="/my-miners">MY MINERS</Link>
+        <a
+          href="https://discord.gg/C5MfNP7hek"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          COMMUNITY
+        </a>
+        <a
+          href="https://magiceden.us/marketplace/enchanted_miner"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          COLLECT NOW
+        </a>
+        <a
+          href="https://x.com/enchanted_nfts"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          FOLLOW ON X
+        </a>
+
+        <style jsx>{`
+          .topnav {
+            display: flex;
+            gap: 24px;
+            font-family: "VT323", monospace;
+            font-size: 15px;
+            letter-spacing: 0.08em;
+            justify-content: center;
+            margin-top: 22px;
+          }
+          a {
+            text-decoration: none;
+            color: #fff;
+            text-shadow: 0 0 6px rgba(255, 91, 168, 0.75);
+            transition: opacity 0.2s ease;
+          }
+          a:hover {
+            opacity: 0.7;
+          }
+
+          @media (max-width: 480px) {
+            .topnav {
+              gap: 14px;
+              font-size: 12px;
+            }
+          }
+        `}</style>
+      </nav>
+    );
+  }
+
+  // ---- 2. Default Nav (RetroGrave / MAGApixel) ----
+  return (
+    <nav className="topnav">
+      <Link href="/">HOME</Link>
+      <Link href="/my-retrograves">MY RETROGRAVES</Link>
+      <a
+        href="https://discord.gg/mSNHRFdCkS"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        COMMUNITY
+      </a>
+      <a href="https://magiceden.io" target="_blank" rel="noopener noreferrer">
+        COLLECT NOW
+      </a>
+      <a
+        href="https://x.com/RETROGRAVE_NFT"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        FOLLOW ON X
+      </a>
+
+      <style jsx>{`
+        .topnav {
+          display: flex;
+          gap: 24px;
+          font-family: "VT323", monospace;
+          font-size: 15px;
+          letter-spacing: 0.08em;
+          justify-content: center;
+          margin-top: 22px;
+        }
+        a {
+          text-decoration: none;
+          color: #fff;
+          text-shadow: 0 0 6px rgba(183, 122, 255, 0.75);
+          transition: opacity 0.2s ease;
+        }
+        a:hover {
+          opacity: 0.7;
+        }
+
+        @media (max-width: 480px) {
+          .topnav {
+            gap: 14px;
+            font-size: 12px;
+          }
+        }
+      `}</style>
+    </nav>
+  );
+}
