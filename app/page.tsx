@@ -288,7 +288,6 @@ export default function HomePage() {
           font-size: clamp(40px, 6vw, 72px);
           text-transform: uppercase;
           margin: 0 0 16px;
-          /* remove text glow */
           text-shadow: none;
         }
         .ls-subtitle {
@@ -296,7 +295,6 @@ export default function HomePage() {
           font-size: 16px;
           line-height: 1.6;
           color: #f5f1ff;
-          /* remove text glow */
           text-shadow: none;
         }
         .ls-subtitle + .ls-subtitle {
@@ -370,7 +368,7 @@ export default function HomePage() {
           letter-spacing: 0.18em;
           text-transform: uppercase;
           margin-bottom: 10px;
-          text-shadow: none; /* no glow on section titles either */
+          text-shadow: none;
         }
         .ls-section-copy {
           margin: 0 auto 18px;
