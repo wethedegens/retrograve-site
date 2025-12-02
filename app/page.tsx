@@ -238,7 +238,7 @@ export default function HomePage() {
       <style jsx>{`
         .ls-page {
           min-height: 100vh;
-          padding: 32px 16px 72px;
+          padding: 20px 16px 72px; /* less top padding so everything shifts up */
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -271,7 +271,7 @@ export default function HomePage() {
         }
 
         .ls-hero {
-          margin-top: -80px; /* pull hero higher */
+          margin-top: -110px; /* pull hero higher toward the top logo */
           max-width: 820px;
           text-align: center;
         }
@@ -279,7 +279,7 @@ export default function HomePage() {
         .ls-hero-logo-wrap {
           display: flex;
           justify-content: center;
-          margin-bottom: 4px; /* tighter gap to subtitle */
+          margin-bottom: 0; /* no gap before subtitles */
         }
 
         .ls-hero-logo {
@@ -290,23 +290,23 @@ export default function HomePage() {
         .ls-subtitle {
           margin: 0;
           font-size: 16px;
-          line-height: 1.5;
+          line-height: 1.4;
           color: #374151;
         }
         .ls-subtitle + .ls-subtitle {
-          margin-top: 2px;
+          margin-top: 1px;
         }
 
         .ls-body {
-          margin: 10px auto 0; /* closer to subtitles */
+          margin: 6px auto 0; /* closer to subtitles */
           max-width: 720px;
           font-size: 15px;
-          line-height: 1.6;
+          line-height: 1.55;
           color: #4b5563;
         }
 
         .ls-hero-actions {
-          margin-top: 16px; /* bring buttons closer */
+          margin-top: 10px; /* tighter under body */
           display: flex;
           justify-content: center;
           gap: 14px;
@@ -357,7 +357,7 @@ export default function HomePage() {
         }
 
         .ls-partners {
-          margin-top: 24px; /* closer to hero */
+          margin-top: 18px; /* bring partner section closer to hero */
           max-width: 1120px;
           width: 100%;
           text-align: center;
@@ -369,12 +369,12 @@ export default function HomePage() {
           font-size: 22px;
           letter-spacing: 0.18em;
           text-transform: uppercase;
-          margin-bottom: 10px;
+          margin-bottom: 8px;
           color: #111827;
         }
 
         .ls-section-copy {
-          margin: 0 auto 18px;
+          margin: 0 auto 16px;
           max-width: 620px;
           font-size: 14px;
           color: #4b5563;
@@ -385,7 +385,7 @@ export default function HomePage() {
           grid-template-columns: repeat(5, minmax(150px, 1fr));
           gap: 18px;
           justify-items: center;
-          margin-top: 12px;
+          margin-top: 10px;
         }
 
         .phone-link {
@@ -489,14 +489,14 @@ export default function HomePage() {
         }
 
         .ls-how {
-          margin-top: 40px;
+          margin-top: 36px;
           max-width: 1120px;
           width: 100%;
           text-align: center;
         }
 
         .how-grid {
-          margin-top: 18px;
+          margin-top: 16px;
           display: grid;
           grid-template-columns: repeat(3, minmax(0, 1fr));
           gap: 18px;
@@ -537,13 +537,13 @@ export default function HomePage() {
         }
 
         .ls-faq {
-          margin-top: 54px;
+          margin-top: 50px;
           max-width: 900px;
           width: 100%;
         }
 
         .ls-footer {
-          margin-top: 44px;
+          margin-top: 40px;
           text-align: center;
         }
 
@@ -585,10 +585,10 @@ export default function HomePage() {
 
         @media (max-width: 768px) {
           .ls-page {
-            padding-top: 48px;
+            padding-top: 32px;
           }
           .ls-hero {
-            margin-top: -24px; /* less aggressive on mobile */
+            margin-top: -30px; /* less extreme on mobile */
           }
           .how-grid {
             grid-template-columns: 1fr;
