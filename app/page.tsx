@@ -8,9 +8,9 @@ type LockerProject = {
   name: string;
   status: "live" | "coming";
   label: string;
-  lockerPath: string; // internal or external URL
+  lockerPath: string;
   glow: string;
-  preview?: string; // optional preview image shown inside the phone
+  preview?: string;
 };
 
 const PROJECTS: LockerProject[] = [
@@ -44,7 +44,6 @@ const PROJECTS: LockerProject[] = [
     label: "Live",
     lockerPath: "/enchanted-miners",
     glow: "miners",
-    // You can change this path; just make sure the file exists in /public
     preview: "/lockscreened-previews/miners.png",
   },
   {
@@ -60,7 +59,7 @@ const PROJECTS: LockerProject[] = [
 export default function HomePage() {
   return (
     <main id="top" className="ls-page">
-      {/* Floating logo (wallet comes from global layout, so no extra wallet here) */}
+      {/* Floating phone logo in top-right */}
       <div className="ls-logo-floating">
         <img
           src="/lockscreened-logo.png"
@@ -69,7 +68,7 @@ export default function HomePage() {
         />
       </div>
 
-      {/* Hero */}
+      {/* HERO */}
       <section className="ls-hero">
         {/* New wordmark image */}
         <img
@@ -113,7 +112,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Partner projects */}
+      {/* PARTNER PROJECTS */}
       <section id="projects" className="ls-partners">
         <h2 className="ls-section-title">Partner lockers</h2>
         <p className="ls-section-copy">
@@ -134,28 +133,26 @@ export default function HomePage() {
                 };
 
             const inner = (
-              <>
-                <div className={`phone-frame glow-${p.glow}`}>
-                  <div className="phone-pill">
-                    <span className="pill-text">
-                      {p.status === "live" ? "LIVE" : "COMING SOON"}
-                    </span>
-                  </div>
-                  <div className="phone-screen">
-                    {p.preview && (
-                      <img
-                        src={p.preview}
-                        alt={`${p.name} preview`}
-                        className="phone-preview"
-                      />
-                    )}
-                  </div>
-                  <div className="phone-name">{p.name}</div>
-                  <div className="phone-status">
-                    {p.status === "live" ? "Live" : "Coming soon"}
-                  </div>
+              <div className={`phone-frame glow-${p.glow}`}>
+                <div className="phone-pill">
+                  <span className="pill-text">
+                    {p.status === "live" ? "LIVE" : "COMING SOON"}
+                  </span>
                 </div>
-              </>
+                <div className="phone-screen">
+                  {p.preview && (
+                    <img
+                      src={p.preview}
+                      alt={`${p.name} preview`}
+                      className="phone-preview"
+                    />
+                  )}
+                </div>
+                <div className="phone-name">{p.name}</div>
+                <div className="phone-status">
+                  {p.status === "live" ? "Live" : "Coming soon"}
+                </div>
+              </div>
             );
 
             if (isDisabled) {
@@ -183,7 +180,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* How LockScreened works */}
+      {/* HOW IT WORKS */}
       <section id="how" className="ls-how">
         <h2 className="ls-section-title">How LockScreened works</h2>
         <div className="how-grid">
@@ -219,7 +216,7 @@ export default function HomePage() {
         <LockscreenedFAQ />
       </section>
 
-      {/* Footer */}
+      {/* FOOTER */}
       <footer className="ls-footer">
         <p className="ls-footer-text">
           Built by RetroGrave and expanding to curated partner collections over
@@ -260,7 +257,7 @@ export default function HomePage() {
           content: "";
           position: fixed;
           inset: 0;
-          background-image: url("/lockscreened-bg-v2.jpg");
+          background-image: url("/lockscreened-main-bg-2.png");
           background-size: cover;
           background-position: center calc(100% + 120px);
           background-repeat: no-repeat;
@@ -282,12 +279,11 @@ export default function HomePage() {
         }
 
         .ls-hero {
-          margin-top: 8px;
+          margin-top: 110px;
           max-width: 820px;
           text-align: center;
         }
 
-        /* New wordmark: 50% larger and closer to text */
         .ls-wordmark {
           width: clamp(260px, 38vw, 540px);
           display: block;
@@ -515,98 +511,106 @@ export default function HomePage() {
             rgba(20, 10, 40, 0.95);
           box-shadow:
             0 14px 28px rgba(0, 0, 0, 0.8),
-            0 0 0 1px rgba(203, 169, 255, 0.32);
+            0 0 0 1px rgba(205, 170, 255, 0.28);
           text-align: left;
         }
         .how-step {
-          width: 26px;
-          height: 26px;
+          width: 24px;
+          height: 24px;
           border-radius: 999px;
+          border: 1px solid rgba(240, 225, 255, 0.7);
           display: flex;
           align-items: center;
           justify-content: center;
           font-family: "VT323", monospace;
-          border: 1px solid rgba(243, 218, 255, 0.9);
-          margin-bottom: 10px;
+          font-size: 14px;
+          margin-bottom: 6px;
         }
         .how-title {
-          margin: 0 0 6px;
           font-size: 15px;
+          margin-bottom: 4px;
         }
         .how-text {
-          margin: 0;
           font-size: 13px;
           line-height: 1.6;
-          color: #e5d9ff;
+          color: #e7dcff;
         }
 
         .ls-faq {
-          margin-top: 60px;
-          max-width: 900px;
+          margin-top: 48px;
           width: 100%;
+          display: flex;
+          justify-content: center;
         }
 
         .ls-footer {
-          margin-top: 48px;
+          margin-top: 40px;
           text-align: center;
-        }
-        .ls-footer-text {
-          margin: 0 0 10px;
-          font-size: 13px;
-          color: #2a2a33;
+          color: #d9d2ff;
+          font-size: 12px;
         }
         .ls-footer-links {
+          margin-top: 8px;
           display: flex;
           justify-content: center;
-          gap: 10px;
+          gap: 8px;
         }
         .ls-footer-pill {
-          padding: 6px 14px;
+          padding: 4px 10px;
           border-radius: 999px;
-          border: 1px solid rgba(40, 40, 60, 0.5);
-          font-size: 13px;
+          border: 1px solid rgba(230, 214, 255, 0.7);
           text-decoration: none;
-          color: #111117;
-          background: rgba(255, 255, 255, 0.7);
-          transition: background 0.18s ease, transform 0.18s ease,
-            box-shadow 0.18s ease;
-        }
-        .ls-footer-pill:hover {
-          background: rgba(255, 255, 255, 0.95);
-          box-shadow: 0 0 12px rgba(183, 122, 255, 0.4);
-          transform: translateY(-1px);
+          color: #f3eaff;
+          font-size: 11px;
         }
 
         @media (max-width: 1024px) {
           .phone-grid {
             grid-template-columns: repeat(3, minmax(150px, 1fr));
           }
-        }
-        @media (max-width: 768px) {
-          .ls-page {
-            padding-top: 72px;
-          }
-          .how-grid {
-            grid-template-columns: 1fr;
-          }
-          .phone-grid {
-            grid-template-columns: repeat(2, minmax(150px, 1fr));
-          }
           .ls-logo-floating {
-            top: 12px;
+            top: 16px;
             right: 12px;
           }
           .ls-logo {
             width: 90px;
           }
-          .ls-wordmark {
-            width: clamp(240px, 60vw, 420px);
-            margin-bottom: 14px;
-          }
         }
-        @media (max-width: 480px) {
+
+        @media (max-width: 768px) {
+          .ls-page {
+            padding-top: 72px;
+          }
+          .ls-hero {
+            margin-top: 70px;
+          }
+          .phone-grid {
+            grid-template-columns: repeat(2, minmax(150px, 1fr));
+          }
+          .ls-how {
+            margin-top: 40px;
+          }
+          .how-grid {
+            grid-template-columns: 1fr;
+          }
+          .ls-logo-floating {
+            top: 12px;
+            right: 10px;
+          }
           .ls-logo {
             width: 80px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .ls-wordmark {
+            width: 260px;
+          }
+          .ls-subtitle {
+            font-size: 14px;
+          }
+          .ls-body {
+            font-size: 14px;
           }
         }
       `}</style>
