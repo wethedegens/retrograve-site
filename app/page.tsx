@@ -59,7 +59,7 @@ const PROJECTS: LockerProject[] = [
 export default function HomePage() {
   return (
     <main id="top" className="ls-page">
-      {/* Floating logo icon on the right */}
+      {/* Floating logo icon (top-right) */}
       <div className="ls-logo-floating">
         <img
           src="/lockscreened-logo.png"
@@ -72,7 +72,7 @@ export default function HomePage() {
       <section className="ls-hero">
         <div className="ls-hero-logo-wrap">
           <img
-            src="/lockscreened-wordmark.png"
+            src="/lockscreened-wordmark-1.png"
             alt="LockScreened"
             className="ls-hero-logo"
           />
@@ -126,7 +126,6 @@ export default function HomePage() {
           {PROJECTS.map((p) => {
             const isDisabled = p.status === "coming" || p.lockerPath === "#";
             const Tag: any = isDisabled ? "div" : Link;
-
             const linkProps = isDisabled ? {} : { href: p.lockerPath };
 
             const inner = (
@@ -270,7 +269,7 @@ export default function HomePage() {
         }
 
         .ls-hero {
-          margin-top: -180px; /* pull hero up on desktop */
+          margin-top: -140px; /* pull hero up to align with right logo */
           max-width: 820px;
           text-align: center;
         }
@@ -278,16 +277,17 @@ export default function HomePage() {
         .ls-hero-logo-wrap {
           display: flex;
           justify-content: center;
-          margin-bottom: -48px; /* tighter gap under logo */
+          margin-bottom: 6px; /* tight spacing under the new trimmed logo */
         }
 
         .ls-hero-logo {
           max-width: min(900px, 90vw);
           height: auto;
+          display: block;
         }
 
         .ls-subtitle {
-          margin: -8px 0 0;
+          margin: 0;
           font-size: 16px;
           line-height: 1.35;
           color: #374151;
@@ -298,7 +298,7 @@ export default function HomePage() {
         }
 
         .ls-body {
-          margin: 6px auto 0;
+          margin: 10px auto 0;
           max-width: 720px;
           font-size: 15px;
           line-height: 1.5;
@@ -306,7 +306,7 @@ export default function HomePage() {
         }
 
         .ls-hero-actions {
-          margin-top: 8px;
+          margin-top: 16px;
           display: flex;
           justify-content: center;
           gap: 14px;
@@ -357,7 +357,7 @@ export default function HomePage() {
         }
 
         .ls-partners {
-          margin-top: 8px; /* closer to hero */
+          margin-top: 10px;
           max-width: 1120px;
           width: 100%;
           text-align: center;
@@ -577,23 +577,21 @@ export default function HomePage() {
           transform: translateY(-1px);
         }
 
-        /* Tablet adjustments */
         @media (max-width: 1024px) {
           .ls-hero {
-            margin-top: -120px;
+            margin-top: -110px;
           }
           .phone-grid {
             grid-template-columns: repeat(3, minmax(150px, 1fr));
           }
         }
 
-        /* Mobile adjustments */
         @media (max-width: 768px) {
           .ls-page {
             padding-top: 28px;
           }
           .ls-hero {
-            margin-top: -80px;
+            margin-top: -70px;
           }
           .how-grid {
             grid-template-columns: 1fr;
