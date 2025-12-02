@@ -59,7 +59,7 @@ const PROJECTS: LockerProject[] = [
 export default function HomePage() {
   return (
     <main id="top" className="ls-page">
-      {/* Floating logo (wallet comes from global layout, so no extra wallet here) */}
+      {/* Floating logo */}
       <div className="ls-logo-floating">
         <img
           src="/lockscreened-logo.png"
@@ -245,7 +245,7 @@ export default function HomePage() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          color: #ffffff;
+          color: #111827; /* default dark text */
           position: relative;
         }
 
@@ -271,7 +271,7 @@ export default function HomePage() {
           width: 120px;
           height: auto;
           display: block;
-          filter: drop-shadow(0 0 12px rgba(183, 122, 255, 0.8));
+          filter: drop-shadow(0 0 10px rgba(15, 23, 42, 0.4));
         }
 
         .ls-hero {
@@ -287,12 +287,13 @@ export default function HomePage() {
           text-transform: uppercase;
           margin: 0 0 16px;
           text-shadow: none;
+          color: #111827;
         }
         .ls-subtitle {
           margin: 0;
           font-size: 16px;
           line-height: 1.6;
-          color: #f5f1ff;
+          color: #374151;
           text-shadow: none;
         }
         .ls-subtitle + .ls-subtitle {
@@ -303,7 +304,7 @@ export default function HomePage() {
           max-width: 720px;
           font-size: 15px;
           line-height: 1.7;
-          color: #d2c8ff;
+          color: #4b5563;
         }
         .ls-hero-actions {
           margin-top: 24px;
@@ -331,25 +332,25 @@ export default function HomePage() {
             #ff3fbf 40%,
             #c736ff 100%
           );
-          color: #fff;
+          color: #ffffff;
           box-shadow:
-            0 0 14px rgba(255, 122, 217, 0.75),
-            0 14px 32px rgba(0, 0, 0, 0.55);
+            0 8px 18px rgba(0, 0, 0, 0.3),
+            0 0 18px rgba(236, 72, 153, 0.55);
         }
         .ls-btn-primary:hover {
           transform: translateY(-1px) scale(1.03);
           box-shadow:
-            0 0 18px rgba(255, 122, 217, 0.95),
-            0 18px 40px rgba(0, 0, 0, 0.7);
+            0 10px 24px rgba(0, 0, 0, 0.4),
+            0 0 22px rgba(236, 72, 153, 0.7);
         }
         .ls-btn-ghost {
-          background: transparent;
-          color: #f3e8ff;
-          border: 1px solid rgba(235, 210, 255, 0.6);
-          box-shadow: 0 0 10px rgba(183, 122, 255, 0.5);
+          background: rgba(255, 255, 255, 0.8);
+          color: #111827;
+          border: 1px solid rgba(17, 24, 39, 0.12);
+          box-shadow: 0 8px 16px rgba(15, 23, 42, 0.18);
         }
         .ls-btn-ghost:hover {
-          background: rgba(40, 18, 70, 0.85);
+          background: #e5e7eb;
           transform: translateY(-1px);
         }
 
@@ -366,13 +367,14 @@ export default function HomePage() {
           letter-spacing: 0.18em;
           text-transform: uppercase;
           margin-bottom: 10px;
+          color: #111827;
           text-shadow: none;
         }
         .ls-section-copy {
           margin: 0 auto 18px;
           max-width: 620px;
           font-size: 14px;
-          color: #c7b7ff;
+          color: #4b5563;
         }
 
         .phone-grid {
@@ -399,13 +401,13 @@ export default function HomePage() {
           border-radius: 28px;
           background: radial-gradient(
               120% 200% at 0% 0%,
-              rgba(248, 136, 255, 0.2),
+              rgba(248, 136, 255, 0.12),
               transparent 55%
             ),
-            rgba(10, 6, 26, 0.96);
+            rgba(15, 23, 42, 0.95);
           box-shadow:
-            0 14px 26px rgba(0, 0, 0, 0.7),
-            0 0 0 1px rgba(200, 160, 255, 0.22);
+            0 14px 26px rgba(15, 23, 42, 0.85),
+            0 0 0 1px rgba(148, 163, 184, 0.45);
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -419,9 +421,9 @@ export default function HomePage() {
           background: radial-gradient(
             140% 180% at 0% 0%,
             rgba(255, 255, 255, 0.08),
-            rgba(10, 6, 26, 0.96)
+            rgba(15, 23, 42, 0.96)
           );
-          box-shadow: inset 0 0 0 1px rgba(210, 180, 255, 0.12);
+          box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.35);
           position: relative;
           overflow: hidden;
         }
@@ -438,8 +440,8 @@ export default function HomePage() {
           align-self: flex-end;
           padding: 2px 10px;
           border-radius: 999px;
-          background: rgba(0, 0, 0, 0.8);
-          box-shadow: 0 0 8px rgba(255, 255, 255, 0.28);
+          background: rgba(15, 23, 42, 0.95);
+          box-shadow: 0 0 10px rgba(15, 23, 42, 0.6);
         }
         .pill-text {
           font-family: "VT323", monospace;
@@ -450,37 +452,38 @@ export default function HomePage() {
         .phone-name {
           font-size: 13px;
           margin-top: 2px;
+          color: #f9fafb;
         }
         .phone-status {
           font-size: 11px;
-          opacity: 0.85;
-          color: #d2c4ff;
+          opacity: 0.9;
+          color: #e5e7eb;
         }
 
         .glow-magapixel {
           box-shadow:
-            0 0 0 1px rgba(255, 142, 153, 0.6),
-            0 18px 34px rgba(242, 79, 115, 0.55);
+            0 0 0 1px rgba(248, 113, 113, 0.7),
+            0 18px 34px rgba(220, 38, 38, 0.55);
         }
         .glow-retrograve {
           box-shadow:
-            0 0 0 1px rgba(182, 133, 255, 0.65),
-            0 18px 34px rgba(137, 92, 255, 0.6);
+            0 0 0 1px rgba(167, 139, 250, 0.8),
+            0 18px 34px rgba(129, 140, 248, 0.6);
         }
         .glow-meowga {
           box-shadow:
-            0 0 0 1px rgba(117, 229, 255, 0.7),
-            0 18px 34px rgba(63, 199, 255, 0.6);
+            0 0 0 1px rgba(56, 189, 248, 0.9),
+            0 18px 34px rgba(59, 130, 246, 0.6);
         }
         .glow-miners {
           box-shadow:
-            0 0 0 1px rgba(137, 255, 197, 0.7),
-            0 18px 34px rgba(76, 219, 151, 0.6);
+            0 0 0 1px rgba(52, 211, 153, 0.9),
+            0 18px 34px rgba(16, 185, 129, 0.6);
         }
         .glow-client {
           box-shadow:
-            0 0 0 1px rgba(119, 182, 255, 0.7),
-            0 18px 34px rgba(71, 140, 255, 0.6);
+            0 0 0 1px rgba(96, 165, 250, 0.9),
+            0 18px 34px rgba(37, 99, 235, 0.6);
         }
 
         .ls-how {
@@ -500,13 +503,13 @@ export default function HomePage() {
           border-radius: 18px;
           background: radial-gradient(
               140% 200% at 0% 0%,
-              rgba(183, 122, 255, 0.3),
-              rgba(19, 10, 38, 0.9)
+              rgba(129, 140, 248, 0.22),
+              rgba(15, 23, 42, 0.96)
             ),
-            rgba(20, 10, 40, 0.95);
+            rgba(15, 23, 42, 0.96);
           box-shadow:
-            0 14px 28px rgba(0, 0, 0, 0.8),
-            0 0 0 1px rgba(203, 169, 255, 0.32);
+            0 14px 28px rgba(15, 23, 42, 0.9),
+            0 0 0 1px rgba(148, 163, 184, 0.45);
           text-align: left;
         }
         .how-step {
@@ -517,18 +520,19 @@ export default function HomePage() {
           align-items: center;
           justify-content: center;
           font-family: "VT323", monospace;
-          border: 1px solid rgba(243, 218, 255, 0.9);
+          border: 1px solid rgba(249, 250, 251, 0.9);
           margin-bottom: 10px;
         }
         .how-title {
           margin: 0 0 6px;
           font-size: 15px;
+          color: #f9fafb;
         }
         .how-text {
           margin: 0;
           font-size: 13px;
           line-height: 1.6;
-          color: #e5d9ff;
+          color: #e5e7eb;
         }
 
         .ls-faq {
@@ -544,7 +548,7 @@ export default function HomePage() {
         .ls-footer-text {
           margin: 0 0 10px;
           font-size: 13px;
-          color: #cbbaff;
+          color: #4b5563;
         }
         .ls-footer-links {
           display: flex;
@@ -554,16 +558,17 @@ export default function HomePage() {
         .ls-footer-pill {
           padding: 6px 14px;
           border-radius: 999px;
-          border: 1px solid rgba(203, 170, 255, 0.7);
+          border: 1px solid rgba(148, 163, 184, 0.7);
           font-size: 13px;
           text-decoration: none;
-          color: #f0e4ff;
+          color: #111827;
+          background: rgba(255, 255, 255, 0.85);
           transition: background 0.18s ease, transform 0.18s ease,
             box-shadow 0.18s ease;
         }
         .ls-footer-pill:hover {
-          background: rgba(40, 18, 70, 0.9);
-          box-shadow: 0 0 12px rgba(183, 122, 255, 0.7);
+          background: #e5e7eb;
+          box-shadow: 0 8px 18px rgba(15, 23, 42, 0.25);
           transform: translateY(-1px);
         }
 

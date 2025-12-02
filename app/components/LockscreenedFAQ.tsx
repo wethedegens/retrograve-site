@@ -109,6 +109,7 @@ export default function LockscreenedFAQ() {
           letter-spacing: 0.18em;
           text-transform: uppercase;
           margin-bottom: 18px;
+          color: #111827;
         }
 
         .faq-list {
@@ -117,27 +118,26 @@ export default function LockscreenedFAQ() {
           gap: 10px;
         }
 
-        /* Less transparent, more readable card */
         .faq-item {
           border-radius: 14px;
-          background: rgba(10, 10, 18, 0.78); /* <— main change */
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: rgba(15, 23, 42, 0.96);
+          border: 1px solid rgba(148, 163, 184, 0.5);
           box-shadow:
-            0 14px 30px rgba(0, 0, 0, 0.85),
-            0 0 0 1px rgba(120, 90, 200, 0.18);
+            0 14px 30px rgba(15, 23, 42, 0.9),
+            0 0 0 1px rgba(30, 64, 175, 0.35);
           overflow: hidden;
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
           transition: background 0.25s ease, border-color 0.25s ease,
             box-shadow 0.25s ease, transform 0.2s ease;
         }
 
         .faq-item:hover {
-          background: rgba(10, 10, 22, 0.92);
-          border-color: rgba(255, 255, 255, 0.16);
+          background: rgba(15, 23, 42, 0.98);
+          border-color: rgba(129, 140, 248, 0.8);
           box-shadow:
-            0 18px 36px rgba(0, 0, 0, 0.95),
-            0 0 24px rgba(183, 122, 255, 0.5);
+            0 18px 36px rgba(15, 23, 42, 1),
+            0 0 24px rgba(129, 140, 248, 0.5);
           transform: translateY(-1px);
         }
 
@@ -149,7 +149,7 @@ export default function LockscreenedFAQ() {
           justify-content: space-between;
           background: transparent;
           border: none;
-          color: #ffffff;
+          color: #f9fafb;
           text-align: left;
           font-size: 14px;
           cursor: pointer;
@@ -162,21 +162,22 @@ export default function LockscreenedFAQ() {
           width: 28px;
           text-align: center;
           border-radius: 999px;
-          border: 1px solid rgba(230, 210, 255, 0.6);
+          border: 1px solid rgba(191, 219, 254, 0.8);
           background: radial-gradient(
             120% 180% at 0% 0%,
-            rgba(183, 122, 255, 0.7),
-            rgba(40, 10, 70, 0.9)
+            #4f46e5,
+            #1e3a8a
           );
-          box-shadow: 0 0 12px rgba(183, 122, 255, 0.85);
+          box-shadow: 0 0 10px rgba(129, 140, 248, 0.8);
         }
 
         .faq-icon.open {
           background: radial-gradient(
             120% 180% at 0% 0%,
-            rgba(118, 213, 255, 0.8),
-            rgba(20, 40, 90, 0.95)
+            #22c55e,
+            #15803d
           );
+          box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
         }
 
         .faq-answer {
@@ -187,7 +188,7 @@ export default function LockscreenedFAQ() {
         }
 
         .faq-answer.open {
-          max-height: 220px; /* enough for a couple of lines */
+          max-height: 220px;
           padding-bottom: 14px;
         }
 
@@ -195,7 +196,7 @@ export default function LockscreenedFAQ() {
           margin: 4px 0 0;
           font-size: 13px;
           line-height: 1.6;
-          color: #e6dcff;
+          color: #e5e7eb;
         }
 
         @media (max-width: 768px) {
