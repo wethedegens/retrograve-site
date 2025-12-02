@@ -74,17 +74,16 @@ export default function HomePage() {
         <h1 className="ls-title">LOCKSCREENED</h1>
 
         <p className="ls-subtitle">
-          Legendary lock screens, pixel-perfect wallpapers for all phones.
+          Lock screens and wallpapers for Web3-native collectors.
         </p>
         <p className="ls-subtitle">
-          A multi-project Web3 ecosystem designed for screens, collectors, and
-          culture.
+          A simple hub for partner projects, holders, and phone-first art.
         </p>
 
         <p className="ls-body">
-          LockScreened is a holder-first toolkit that turns partner NFT
-          collections into perfectly sized, crisp wallpapers for phones,
-          tablets, and desktops. No cropping, no guessing—just export and save.
+          LockScreened gives every partner collection its own locker—a clean
+          space where holders can plug in their NFTs, swap backgrounds, and
+          export ready-to-use walls for every device.
         </p>
 
         <div className="ls-hero-actions">
@@ -95,7 +94,7 @@ export default function HomePage() {
               if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
             }}
           >
-            View partner projects
+            View partner lockers
           </button>
           <button
             className="ls-btn ls-btn-ghost"
@@ -111,11 +110,11 @@ export default function HomePage() {
 
       {/* Partner projects */}
       <section id="projects" className="ls-partners">
-        <h2 className="ls-section-title">Partner projects</h2>
+        <h2 className="ls-section-title">Partner lockers</h2>
         <p className="ls-section-copy">
           Each project below has (or will have) its own dedicated locker on
-          LockScreened. Tap a phone to jump straight into that project&apos;s
-          experience.
+          LockScreened. Tap a phone to open that project&apos;s experience,
+          connect your wallet, and start building your daily lock screens.
         </p>
 
         <div className="phone-grid">
@@ -185,26 +184,26 @@ export default function HomePage() {
         <div className="how-grid">
           <article className="how-card">
             <div className="how-step">1</div>
-            <h3 className="how-title">Connect with a partner locker</h3>
+            <h3 className="how-title">Pick a partner project</h3>
             <p className="how-text">
-              Choose a partner project above and open their locker. Connect your
-              wallet to view eligible NFTs from that collection.
+              Choose a project from the grid above to open its locker. Connect
+              your wallet to see which NFTs you can use inside the experience.
             </p>
           </article>
           <article className="how-card">
             <div className="how-step">2</div>
-            <h3 className="how-title">Swap backgrounds in real time</h3>
+            <h3 className="how-title">Customize your lock screen</h3>
             <p className="how-text">
-              Pick from curated backgrounds tuned to each project&apos;s art, or
-              upload your own. Everything renders at exact device pixels.
+              Swap backgrounds, experiment with layouts, and preview everything
+              at true device resolution before you export.
             </p>
           </article>
           <article className="how-card">
             <div className="how-step">3</div>
-            <h3 className="how-title">Export for phone, tablet, or desktop</h3>
+            <h3 className="how-title">Download and share</h3>
             <p className="how-text">
-              Download master, iPhone, Android, iPad, and desktop versions.
-              Previews are scaled for speed, exports are full quality.
+              Export files sized for iPhone, Android, tablet, and desktop so
+              your favorite NFTs stay in rotation on every screen.
             </p>
           </article>
         </div>
@@ -218,8 +217,7 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="ls-footer">
         <p className="ls-footer-text">
-          Built by RetroGrave and expanding to curated partner collections over
-          time.
+          Built by RetroGrave and expanding with new partner lockers over time.
         </p>
         <div className="ls-footer-links">
           <a
@@ -274,6 +272,7 @@ export default function HomePage() {
           width: 120px;
           height: auto;
           display: block;
+          /* logo glow is fine to keep if you like, doesn’t affect text */
           filter: drop-shadow(0 0 12px rgba(183, 122, 255, 0.8));
         }
 
@@ -289,16 +288,16 @@ export default function HomePage() {
           font-size: clamp(40px, 6vw, 72px);
           text-transform: uppercase;
           margin: 0 0 16px;
-          text-shadow:
-            0 0 12px rgba(228, 206, 255, 0.95),
-            0 0 32px rgba(183, 122, 255, 0.9);
+          /* remove text glow */
+          text-shadow: none;
         }
         .ls-subtitle {
           margin: 0;
           font-size: 16px;
           line-height: 1.6;
-          color: #e1d4ff;
-          text-shadow: 0 0 10px rgba(183, 122, 255, 0.5);
+          color: #f5f1ff;
+          /* remove text glow */
+          text-shadow: none;
         }
         .ls-subtitle + .ls-subtitle {
           margin-top: 4px;
@@ -308,7 +307,7 @@ export default function HomePage() {
           max-width: 720px;
           font-size: 15px;
           line-height: 1.7;
-          color: #c4b4ff;
+          color: #d2c8ff;
         }
         .ls-hero-actions {
           margin-top: 24px;
@@ -371,6 +370,7 @@ export default function HomePage() {
           letter-spacing: 0.18em;
           text-transform: uppercase;
           margin-bottom: 10px;
+          text-shadow: none; /* no glow on section titles either */
         }
         .ls-section-copy {
           margin: 0 auto 18px;
