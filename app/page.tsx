@@ -1,11 +1,13 @@
 // app/page.tsx
 import Link from "next/link";
+import Image from "next/image";
 
 type PartnerProject = {
   name: string;
   status: "Live" | "Coming soon";
   description: string;
   href: string;
+  image: string; // phone preview image
   accent?: string;
 };
 
@@ -15,6 +17,7 @@ const partnerProjects: PartnerProject[] = [
     status: "Live",
     description: "Pixel-perfect Trump memes, sized for every phone.",
     href: "/magapixel",
+    image: "/phones/magapixel-phone.png", // ⬅ change to your real path
     accent: "#ff6b81",
   },
   {
@@ -22,6 +25,7 @@ const partnerProjects: PartnerProject[] = [
     status: "Live",
     description: "TV-glow pixel undead. RetroGrave holders only.",
     href: "/retrograve",
+    image: "/phones/retrograve-phone.png", // ⬅ change to your real path
     accent: "#f7b731",
   },
   {
@@ -29,6 +33,7 @@ const partnerProjects: PartnerProject[] = [
     status: "Coming soon",
     description: "Patriotic cat chaos. Releasing soon on LockScreened.",
     href: "/meowga",
+    image: "/phones/meowga-phone.png", // ⬅ change to your real path
     accent: "#8854d0",
   },
   {
@@ -36,6 +41,7 @@ const partnerProjects: PartnerProject[] = [
     status: "Live",
     description: "Fantasy miners, perfectly framed for your screen.",
     href: "/enchantedminers",
+    image: "/phones/enchanted-miners-phone.png", // ⬅ change to your real path
     accent: "#20bf6b",
   },
   {
@@ -43,6 +49,7 @@ const partnerProjects: PartnerProject[] = [
     status: "Coming soon",
     description: "First external partner project on LockScreened.",
     href: "/client-1",
+    image: "/phones/client-1-phone.png", // ⬅ change to your real path
     accent: "#0fb9b1",
   },
 ];
@@ -52,14 +59,14 @@ export default function HomePage() {
     <main
       style={{
         minHeight: "100vh",
-        backgroundColor: "#f7dfd7", // soft peachy background like chads.gg
+        backgroundColor: "#f7dfd7", // soft, simple background
         fontFamily:
           "system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif",
       }}
     >
       <div
         style={{
-          maxWidth: 1120,
+          maxWidth: 1200,
           margin: "0 auto",
           padding: "32px 16px 80px",
         }}
@@ -145,7 +152,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Simple hero card instead of neon waves */}
+          {/* WHAT IS LOCKSCREENED CARD */}
           <div>
             <div
               style={{
@@ -206,15 +213,15 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* PARTNER PROJECTS */}
-        <section id="partners" style={{ marginTop: 48 }}>
+        {/* PARTNER LOCKERS WITH PHONE LAYOUTS */}
+        <section id="partners" style={{ marginTop: 56 }}>
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
               alignItems: "baseline",
               gap: 16,
-              marginBottom: 20,
+              marginBottom: 24,
               flexWrap: "wrap",
             }}
           >
@@ -248,10 +255,11 @@ export default function HomePage() {
                 whiteSpace: "nowrap",
               }}
             >
-              More partners coming soon
+              MORE PARTNERS COMING SOON
             </p>
           </div>
 
+          {/* phone-style cards */}
           <div
             style={{
               display: "grid",
@@ -267,68 +275,112 @@ export default function HomePage() {
                   position: "relative",
                   display: "flex",
                   flexDirection: "column",
-                  justifyContent: "space-between",
-                  padding: 18,
-                  borderRadius: 20,
+                  gap: 14,
+                  padding: 16,
+                  borderRadius: 24,
                   backgroundColor: "#fff7f3",
                   border: "1px solid rgba(0,0,0,0.06)",
                   boxShadow:
                     "0 10px 26px rgba(15, 15, 15, 0.05), 0 1px 0 rgba(255,255,255,0.8)",
                   textDecoration: "none",
                   color: "#111",
-                  overflow: "hidden",
                 }}
               >
-                <div style={{ marginBottom: 16 }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      marginBottom: 10,
-                    }}
-                  >
-                    <h3
-                      style={{
-                        fontSize: 16,
-                        letterSpacing: "-0.01em",
-                        margin: 0,
-                      }}
-                    >
-                      {project.name}
-                    </h3>
-                    <span
-                      style={{
-                        fontSize: 11,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.16em",
-                        padding: "4px 8px",
-                        borderRadius: 999,
-                        border:
-                          project.status === "Live"
-                            ? "none"
-                            : "1px solid rgba(0,0,0,0.18)",
-                        backgroundColor:
-                          project.status === "Live"
-                            ? "#111"
-                            : "rgba(255,255,255,0.6)",
-                        color:
-                          project.status === "Live" ? "#fff" : "#555",
-                      }}
-                    >
-                      {project.status}
-                    </span>
-                  </div>
-                  <p
+                {/* status badge */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 4,
+                  }}
+                >
+                  <span
                     style={{
                       fontSize: 13,
-                      color: "rgba(0,0,0,0.7)",
-                      lineHeight: 1.5,
+                      fontWeight: 600,
                     }}
                   >
-                    {project.description}
-                  </p>
+                    {project.name}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.16em",
+                      padding: "4px 8px",
+                      borderRadius: 999,
+                      border:
+                        project.status === "Live"
+                          ? "none"
+                          : "1px solid rgba(0,0,0,0.18)",
+                      backgroundColor:
+                        project.status === "Live"
+                          ? "#111"
+                          : "rgba(255,255,255,0.6)",
+                      color: project.status === "Live" ? "#fff" : "#555",
+                    }}
+                  >
+                    {project.status}
+                  </span>
                 </div>
+
+                {/* PHONE PREVIEW */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    marginTop: 4,
+                    marginBottom: 4,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 120,
+                      height: 220,
+                      borderRadius: 30,
+                      padding: 6,
+                      backgroundColor: "#111",
+                      boxShadow:
+                        "0 12px 24px rgba(15, 15, 15, 0.35), 0 0 0 1px rgba(0,0,0,0.4)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div
+                      style={{
+                        position: "relative",
+                        width: "100%",
+                        height: "100%",
+                        borderRadius: 24,
+                        overflow: "hidden",
+                        backgroundColor: "#000",
+                      }}
+                    >
+                      <Image
+                        src={project.image}
+                        alt={project.name}
+                        fill
+                        sizes="120px"
+                        style={{ objectFit: "cover" }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* DESCRIPTION + CTA */}
+                <p
+                  style={{
+                    fontSize: 13,
+                    color: "rgba(0,0,0,0.7)",
+                    lineHeight: 1.5,
+                    minHeight: 40,
+                  }}
+                >
+                  {project.description}
+                </p>
 
                 <div
                   style={{
@@ -357,14 +409,13 @@ export default function HomePage() {
                       alignItems: "center",
                       justifyContent: "center",
                       fontSize: 14,
-                      transform: "translateX(0)",
                     }}
                   >
                     ↗
                   </span>
                 </div>
 
-                {/* subtle accent bar */}
+                {/* subtle accent bar at bottom */}
                 <div
                   style={{
                     position: "absolute",
