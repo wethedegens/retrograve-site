@@ -59,7 +59,7 @@ const PROJECTS: LockerProject[] = [
 export default function HomePage() {
   return (
     <main id="top" className="ls-page">
-      {/* Floating logo (wallet comes from global layout, so no extra wallet here) */}
+      {/* Floating logo */}
       <div className="ls-logo-floating">
         <img
           src="/lockscreened-logo.png"
@@ -107,7 +107,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Partner projects */}
+      {/* Partner lockers */}
       <section id="projects" className="ls-partners">
         <h2 className="ls-section-title">Partner lockers</h2>
         <p className="ls-section-copy">
@@ -119,37 +119,31 @@ export default function HomePage() {
         <div className="phone-grid">
           {PROJECTS.map((p) => {
             const isDisabled = p.status === "coming" || p.lockerPath === "#";
-            const Tag = isDisabled ? "div" : Link;
+            const Tag: any = isDisabled ? "div" : Link;
 
-            const linkProps = isDisabled
-              ? {}
-              : {
-                  href: p.lockerPath,
-                };
+            const linkProps = isDisabled ? {} : { href: p.lockerPath };
 
             const inner = (
-              <>
-                <div className={`phone-frame glow-${p.glow}`}>
-                  <div className="phone-pill">
-                    <span className="pill-text">
-                      {p.status === "live" ? "LIVE" : "COMING SOON"}
-                    </span>
-                  </div>
-                  <div className="phone-screen">
-                    {p.preview && (
-                      <img
-                        src={p.preview}
-                        alt={`${p.name} preview`}
-                        className="phone-preview"
-                      />
-                    )}
-                  </div>
-                  <div className="phone-name">{p.name}</div>
-                  <div className="phone-status">
-                    {p.status === "live" ? "Live" : "Coming soon"}
-                  </div>
+              <div className={`phone-frame glow-${p.glow}`}>
+                <div className="phone-pill">
+                  <span className="pill-text">
+                    {p.status === "live" ? "LIVE" : "COMING SOON"}
+                  </span>
                 </div>
-              </>
+                <div className="phone-screen">
+                  {p.preview && (
+                    <img
+                      src={p.preview}
+                      alt={`${p.name} preview`}
+                      className="phone-preview"
+                    />
+                  )}
+                </div>
+                <div className="phone-name">{p.name}</div>
+                <div className="phone-status">
+                  {p.status === "live" ? "Live" : "Coming soon"}
+                </div>
+              </div>
             );
 
             if (isDisabled) {
@@ -165,11 +159,7 @@ export default function HomePage() {
             }
 
             return (
-              <Tag
-                key={p.name}
-                {...(linkProps as any)}
-                className="phone-link"
-              >
+              <Tag key={p.name} {...linkProps} className="phone-link">
                 {inner}
               </Tag>
             );
@@ -177,7 +167,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* How LockScreened works */}
+      {/* How it works */}
       <section id="how" className="ls-how">
         <h2 className="ls-section-title">How LockScreened works</h2>
         <div className="how-grid">
@@ -241,8 +231,7 @@ export default function HomePage() {
       <style jsx>{`
         .ls-page {
           min-height: 100vh;
-          /* pull page content up compared to before */
-          padding: 40px 16px 72px;
+          padding: 40px 16px 72px; /* pulled up a bit */
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -254,9 +243,9 @@ export default function HomePage() {
           content: "";
           position: fixed;
           inset: 0;
-          background-image: url("/lockscreened-main-bg.png?v=1");
+          background-image: url("/lockscreened-main-bg.png");
           background-size: cover;
-          background-position: center calc(100% + 120px);
+          background-position: center bottom;
           background-repeat: no-repeat;
           z-index: -1;
         }
@@ -272,15 +261,14 @@ export default function HomePage() {
           width: 120px;
           height: auto;
           display: block;
-          filter: drop-shadow(0 0 10px rgba(15, 23, 42, 0.4));
         }
 
         .ls-hero {
-          /* move the hero block up so LOCKSCREENED aligns better with the logo */
-          margin-top: -20px;
+          margin-top: -10px; /* moves LOCKSCREENED closer to logo */
           max-width: 820px;
           text-align: center;
         }
+
         .ls-title {
           font-family: "Oswald", system-ui, -apple-system, Segoe UI, Roboto,
             Ubuntu, Cantarell, "Helvetica Neue", Arial;
@@ -291,16 +279,17 @@ export default function HomePage() {
           text-shadow: none;
           color: #111827;
         }
+
         .ls-subtitle {
           margin: 0;
           font-size: 16px;
           line-height: 1.6;
           color: #374151;
-          text-shadow: none;
         }
         .ls-subtitle + .ls-subtitle {
           margin-top: 4px;
         }
+
         .ls-body {
           margin: 18px auto 0;
           max-width: 720px;
@@ -308,6 +297,7 @@ export default function HomePage() {
           line-height: 1.7;
           color: #4b5563;
         }
+
         .ls-hero-actions {
           margin-top: 24px;
           display: flex;
@@ -315,6 +305,7 @@ export default function HomePage() {
           gap: 14px;
           flex-wrap: wrap;
         }
+
         .ls-btn {
           border-radius: 999px;
           padding: 10px 20px;
@@ -327,6 +318,7 @@ export default function HomePage() {
           transition: transform 0.18s ease, box-shadow 0.18s ease,
             background 0.18s ease, opacity 0.18s ease;
         }
+
         .ls-btn-primary {
           background: radial-gradient(
             120% 200% at 0% 0%,
@@ -345,10 +337,11 @@ export default function HomePage() {
             0 10px 24px rgba(0, 0, 0, 0.4),
             0 0 22px rgba(236, 72, 153, 0.7);
         }
+
         .ls-btn-ghost {
-          background: rgba(255, 255, 255, 0.8);
+          background: rgba(255, 255, 255, 0.9);
           color: #111827;
-          border: 1px solid rgba(17, 24, 39, 0.12);
+          border: 1px solid rgba(17, 24, 39, 0.1);
           box-shadow: 0 8px 16px rgba(15, 23, 42, 0.18);
         }
         .ls-btn-ghost:hover {
@@ -362,6 +355,7 @@ export default function HomePage() {
           width: 100%;
           text-align: center;
         }
+
         .ls-section-title {
           font-family: "Oswald", system-ui, -apple-system, Segoe UI, Roboto,
             Ubuntu, Cantarell, "Helvetica Neue", Arial;
@@ -370,8 +364,8 @@ export default function HomePage() {
           text-transform: uppercase;
           margin-bottom: 10px;
           color: #111827;
-          text-shadow: none;
         }
+
         .ls-section-copy {
           margin: 0 auto 18px;
           max-width: 620px;
@@ -386,12 +380,14 @@ export default function HomePage() {
           justify-items: center;
           margin-top: 12px;
         }
+
         .phone-link {
           text-decoration: none;
           color: inherit;
           display: flex;
           justify-content: center;
         }
+
         .phone-link-disabled {
           opacity: 0.7;
           cursor: default;
@@ -401,12 +397,7 @@ export default function HomePage() {
           width: 180px;
           padding: 14px 10px 16px;
           border-radius: 28px;
-          background: radial-gradient(
-              120% 200% at 0% 0%,
-              rgba(248, 136, 255, 0.12),
-              transparent 55%
-            ),
-            rgba(15, 23, 42, 0.95);
+          background: rgba(15, 23, 42, 0.95);
           box-shadow:
             0 14px 26px rgba(15, 23, 42, 0.85),
             0 0 0 1px rgba(148, 163, 184, 0.45);
@@ -445,12 +436,14 @@ export default function HomePage() {
           background: rgba(15, 23, 42, 0.95);
           box-shadow: 0 0 10px rgba(15, 23, 42, 0.6);
         }
+
         .pill-text {
           font-family: "VT323", monospace;
           font-size: 11px;
           letter-spacing: 0.12em;
           text-transform: uppercase;
         }
+
         .phone-name {
           font-size: 13px;
           margin-top: 2px;
@@ -494,26 +487,24 @@ export default function HomePage() {
           width: 100%;
           text-align: center;
         }
+
         .how-grid {
           margin-top: 18px;
           display: grid;
           grid-template-columns: repeat(3, minmax(0, 1fr));
           gap: 18px;
         }
+
         .how-card {
           padding: 18px 18px 20px;
           border-radius: 18px;
-          background: radial-gradient(
-              140% 200% at 0% 0%,
-              rgba(129, 140, 248, 0.22),
-              rgba(15, 23, 42, 0.96)
-            ),
-            rgba(15, 23, 42, 0.96);
+          background: rgba(15, 23, 42, 0.96);
           box-shadow:
             0 14px 28px rgba(15, 23, 42, 0.9),
             0 0 0 1px rgba(148, 163, 184, 0.45);
           text-align: left;
         }
+
         .how-step {
           width: 26px;
           height: 26px;
@@ -525,6 +516,7 @@ export default function HomePage() {
           border: 1px solid rgba(249, 250, 251, 0.9);
           margin-bottom: 10px;
         }
+
         .how-title {
           margin: 0 0 6px;
           font-size: 15px;
@@ -547,16 +539,19 @@ export default function HomePage() {
           margin-top: 48px;
           text-align: center;
         }
+
         .ls-footer-text {
           margin: 0 0 10px;
           font-size: 13px;
           color: #4b5563;
         }
+
         .ls-footer-links {
           display: flex;
           justify-content: center;
           gap: 10px;
         }
+
         .ls-footer-pill {
           padding: 6px 14px;
           border-radius: 999px;
@@ -568,6 +563,7 @@ export default function HomePage() {
           transition: background 0.18s ease, transform 0.18s ease,
             box-shadow 0.18s ease;
         }
+
         .ls-footer-pill:hover {
           background: #e5e7eb;
           box-shadow: 0 8px 18px rgba(15, 23, 42, 0.25);
@@ -579,12 +575,13 @@ export default function HomePage() {
             grid-template-columns: repeat(3, minmax(150px, 1fr));
           }
         }
+
         @media (max-width: 768px) {
           .ls-page {
             padding-top: 56px;
           }
           .ls-hero {
-            margin-top: -10px;
+            margin-top: -4px;
           }
           .how-grid {
             grid-template-columns: 1fr;
@@ -600,6 +597,7 @@ export default function HomePage() {
             width: 100px;
           }
         }
+
         @media (max-width: 480px) {
           .ls-logo {
             width: 90px;
