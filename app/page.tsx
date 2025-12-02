@@ -59,7 +59,7 @@ const PROJECTS: LockerProject[] = [
 export default function HomePage() {
   return (
     <main id="top" className="ls-page">
-      {/* Floating logo */}
+      {/* Floating logo (wallet comes from global layout, so no extra wallet here) */}
       <div className="ls-logo-floating">
         <img
           src="/lockscreened-logo.png"
@@ -241,11 +241,12 @@ export default function HomePage() {
       <style jsx>{`
         .ls-page {
           min-height: 100vh;
-          padding: 64px 16px 72px;
+          /* pull page content up compared to before */
+          padding: 40px 16px 72px;
           display: flex;
           flex-direction: column;
           align-items: center;
-          color: #111827; /* default dark text */
+          color: #111827;
           position: relative;
         }
 
@@ -275,7 +276,8 @@ export default function HomePage() {
         }
 
         .ls-hero {
-          margin-top: 12px;
+          /* move the hero block up so LOCKSCREENED aligns better with the logo */
+          margin-top: -20px;
           max-width: 820px;
           text-align: center;
         }
@@ -579,7 +581,10 @@ export default function HomePage() {
         }
         @media (max-width: 768px) {
           .ls-page {
-            padding-top: 72px;
+            padding-top: 56px;
+          }
+          .ls-hero {
+            margin-top: -10px;
           }
           .how-grid {
             grid-template-columns: 1fr;
