@@ -245,12 +245,14 @@ export default function HomePage() {
       <style jsx>{`
         .ls-page {
           min-height: 100vh;
-          padding: 64px 16px 72px;
+          /* slightly less top padding so everything shifts up */
+          padding: 56px 16px 72px;
           display: flex;
           flex-direction: column;
           align-items: center;
           color: #ffffff;
           position: relative;
+          z-index: 0;
         }
 
         .ls-page::before {
@@ -259,7 +261,7 @@ export default function HomePage() {
           inset: 0;
           background-image: url("/lockscreened-main-bg-2.png");
           background-size: cover;
-          background-position: center calc(100% + 120px);
+          background-position: center top;
           background-repeat: no-repeat;
           z-index: -1;
         }
@@ -279,13 +281,15 @@ export default function HomePage() {
         }
 
         .ls-hero {
-          margin-top: 110px;
+          /* pull hero up closer to the floating phone */
+          margin-top: 70px;
           max-width: 820px;
           text-align: center;
         }
 
         .ls-wordmark {
-          width: clamp(320px, 45vw, 620px);
+          /* ~50% larger than before */
+          width: clamp(540px, 60vw, 960px);
           display: block;
           margin: 0 auto 18px;
         }
