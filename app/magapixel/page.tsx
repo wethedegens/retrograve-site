@@ -31,6 +31,16 @@ function CountdownSmall({ targetIso }: { targetIso: string }) {
   diff -= minutes * 60000;
   const seconds = Math.floor(diff / 1000);
 
+  return (
+    <div className="cd">
+      <div className="cd-title">MAGAPIXEL LOCKSCREEN LAUNCH</div>
+      <div className="cd-pills">
+        <Pill v={days} label="DAYS" />
+        <Pill v={hours} label="HRS" />
+        <Pill v={minutes} label="MIN" />
+        <Pill v={seconds} label="SEC" />
+      </div>
+
       <style jsx>{`
         .cd {
           position: absolute;
