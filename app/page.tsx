@@ -245,8 +245,8 @@ export default function HomePage() {
       <style jsx>{`
         .ls-page {
           min-height: 100vh;
-          /* much less top padding so hero sits higher */
-          padding: 16px 16px 72px;
+          /* no top padding so content starts as high as possible */
+          padding: 0 16px 72px;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -280,8 +280,8 @@ export default function HomePage() {
         }
 
         .ls-hero {
-          /* sit almost in line with the floating logo */
-          margin-top: 8px;
+          /* pull hero up so it visually lines with floating logo */
+          margin-top: -18px;
           max-width: 820px;
           text-align: center;
         }
@@ -584,10 +584,10 @@ export default function HomePage() {
 
         @media (max-width: 768px) {
           .ls-page {
-            padding-top: 28px;
+            padding-top: 12px;
           }
           .ls-hero {
-            margin-top: 4px;
+            margin-top: -8px;
           }
           .phone-grid {
             grid-template-columns: repeat(2, minmax(150px, 1fr));
