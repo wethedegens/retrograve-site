@@ -252,7 +252,6 @@ export default function HomePage() {
           align-items: center;
           color: #ffffff;
           position: relative;
-          z-index: 0;
         }
 
         .ls-page::before {
@@ -288,7 +287,7 @@ export default function HomePage() {
         }
 
         .ls-wordmark {
-          /* ~50% larger than before */
+          /* ~50% larger than original */
           width: clamp(540px, 60vw, 960px);
           display: block;
           margin: 0 auto 18px;
