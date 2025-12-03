@@ -257,7 +257,7 @@ export default function HomePage() {
           content: "";
           position: fixed;
           inset: 0;
-          background-image: url("/lockscreened-main-bg-2.png");
+          background-image: url("/lockscreened-main-bg.png");
           background-size: cover;
           background-position: center calc(100% + 120px);
           background-repeat: no-repeat;
@@ -285,7 +285,7 @@ export default function HomePage() {
         }
 
         .ls-wordmark {
-          width: clamp(260px, 38vw, 540px);
+          width: clamp(320px, 45vw, 620px);
           display: block;
           margin: 0 auto 18px;
         }
@@ -539,6 +539,9 @@ export default function HomePage() {
         .ls-faq {
           margin-top: 48px;
           width: 100%;
+          max-width: 1120px;
+          margin-left: auto;
+          margin-right: auto;
           display: flex;
           justify-content: center;
         }
