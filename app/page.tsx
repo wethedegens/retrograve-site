@@ -245,8 +245,8 @@ export default function HomePage() {
       <style jsx>{`
         .ls-page {
           min-height: 100vh;
-          /* slightly less top padding so everything shifts up */
-          padding: 56px 16px 72px;
+          /* much less top padding so hero sits higher */
+          padding: 16px 16px 72px;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -267,7 +267,7 @@ export default function HomePage() {
 
         .ls-logo-floating {
           position: fixed;
-          top: 18px;
+          top: 16px;
           right: 20px;
           z-index: 30;
           pointer-events: none;
@@ -280,14 +280,13 @@ export default function HomePage() {
         }
 
         .ls-hero {
-          /* pull hero up closer to the floating phone */
-          margin-top: 70px;
+          /* sit almost in line with the floating logo */
+          margin-top: 8px;
           max-width: 820px;
           text-align: center;
         }
 
         .ls-wordmark {
-          /* ~50% larger than original */
           width: clamp(540px, 60vw, 960px);
           display: block;
           margin: 0 auto 18px;
@@ -362,7 +361,7 @@ export default function HomePage() {
         }
 
         .ls-partners {
-          margin-top: 40px;
+          margin-top: 32px;
           max-width: 1120px;
           width: 100%;
           text-align: center;
@@ -492,7 +491,7 @@ export default function HomePage() {
         }
 
         .ls-how {
-          margin-top: 48px;
+          margin-top: 40px;
           max-width: 1120px;
           width: 100%;
           text-align: center;
@@ -540,7 +539,7 @@ export default function HomePage() {
         }
 
         .ls-faq {
-          margin-top: 48px;
+          margin-top: 40px;
           width: 100%;
           max-width: 1120px;
           margin-left: auto;
@@ -575,7 +574,7 @@ export default function HomePage() {
             grid-template-columns: repeat(3, minmax(150px, 1fr));
           }
           .ls-logo-floating {
-            top: 16px;
+            top: 14px;
             right: 12px;
           }
           .ls-logo {
@@ -585,22 +584,22 @@ export default function HomePage() {
 
         @media (max-width: 768px) {
           .ls-page {
-            padding-top: 72px;
+            padding-top: 28px;
           }
           .ls-hero {
-            margin-top: 70px;
+            margin-top: 4px;
           }
           .phone-grid {
             grid-template-columns: repeat(2, minmax(150px, 1fr));
           }
           .ls-how {
-            margin-top: 40px;
+            margin-top: 32px;
           }
           .how-grid {
             grid-template-columns: 1fr;
           }
           .ls-logo-floating {
-            top: 12px;
+            top: 10px;
             right: 10px;
           }
           .ls-logo {
