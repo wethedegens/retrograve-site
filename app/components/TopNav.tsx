@@ -73,7 +73,8 @@ export default function TopNav() {
   return (
     <nav className="topnav">
       <Link href="/">HOME</Link>
-      <Link href="/my-retrograves">MY RETROGRAVES</Link>
+      {/* 🔽 changed this line to /retrogs */}
+      <Link href="/retrogs">MY RETROGRAVES</Link>
       <a
         href="https://discord.gg/mSNHRFdCkS"
         target="_blank"
