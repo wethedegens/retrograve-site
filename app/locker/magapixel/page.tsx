@@ -49,11 +49,11 @@ export default function MagapixelLockerPage() {
         // Rename + point to MAGApixel owner grid
         a.textContent = "MY MAGAPIXELS";
         a.setAttribute("href", "/retrogs");
-      } else if (label === "COMMUNITY" && MAGAPIXEL_DISCORD_URL !== "#") {
+      } else if (label === "COMMUNITY") {
         a.setAttribute("href", MAGAPIXEL_DISCORD_URL);
-      } else if (label === "COLLECT NOW" && MAGAPIXEL_MINT_URL !== "#") {
+      } else if (label === "COLLECT NOW") {
         a.setAttribute("href", MAGAPIXEL_MINT_URL);
-      } else if (label === "FOLLOW ON X" && MAGAPIXEL_X_URL !== "#") {
+      } else if (label === "FOLLOW ON X") {
         a.setAttribute("href", MAGAPIXEL_X_URL);
       }
     });
