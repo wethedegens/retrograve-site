@@ -9,6 +9,22 @@ import Roadmap from "../../components/Roadmap";
 import FAQ from "../../components/FAQ";
 import OgWLBanner from "../../components/OgWLBanner";
 
+/**
+ * 🔧 MAGAPIXEL PREVIEW IMAGES
+ * Make sure these files exist in /public/magapixel-lockscreens/
+ * and are your MAGApixel lockscreen PNGs.
+ */
+const MAGAPIXEL_DEMO_IMAGES = [
+  "/magapixel-lockscreens/lock-1.png",
+  "/magapixel-lockscreens/lock-2.png",
+  "/magapixel-lockscreens/lock-3.png",
+  "/magapixel-lockscreens/lock-4.png",
+];
+
+// 🔧 Social links for hero buttons
+const MAGAPIXEL_X_URL = "#"; // e.g. "https://x.com/MAGApixel_NFT"
+const MAGAPIXEL_DISCORD_URL = "#"; // e.g. "https://discord.gg/yourInviteCode"
+
 /** ===== Tiny, self-contained countdown (fixed-left, compact, below header) ===== */
 function CountdownSmall({ targetIso }: { targetIso: string }) {
   const target = new Date(targetIso);
@@ -156,16 +172,11 @@ function Pill({ v, label }: { v: number; label: string }) {
 export default function MagapixelLockerPage() {
   const SHOW_COUNTDOWN = true;
 
-  const demoImages = [
-    "/demo/1.png",
-    "/demo/2.png",
-    "/demo/3.png",
-    "/demo/4.png",
-    "/demo/5.png",
-    "/demo/6.png",
-  ];
+  // ✅ use MAGAPIXEL images instead of /demo/*
+  const demoImages = MAGAPIXEL_DEMO_IMAGES;
 
-  const bg: BgChoice = { kind: "color", value: "#3e2d75" };
+  // ✅ blue background behind the phone preview
+  const bg: BgChoice = { kind: "color", value: "#0078e9" };
 
   // Jan 1, 2026 12:00 PM PST (-08:00 on that date)
   const TARGET_PST = "2026-01-01T12:00:00-08:00";
@@ -179,6 +190,26 @@ export default function MagapixelLockerPage() {
         <p className="subtitle">
           Download your MAGApixel NFT with the perfect background—sized for any phone.
         </p>
+
+        <div className="hero-links">
+          <a
+            href={MAGAPIXEL_X_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="hero-link primary"
+          >
+            Follow MAGApixel on X
+          </a>
+          <a
+            href={MAGAPIXEL_DISCORD_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="hero-link"
+          >
+            Join MAGApixel Discord
+          </a>
+        </div>
+
         {SHOW_COUNTDOWN && <CountdownSmall targetIso={TARGET_PST} />}
       </section>
 
@@ -239,6 +270,51 @@ export default function MagapixelLockerPage() {
           color: #bda3ff;
           font-size: 15px;
           letter-spacing: 0.3px;
+        }
+
+        .hero-links {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.75rem;
+          justify-content: center;
+          margin-top: 4px;
+        }
+
+        .hero-link {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0.6rem 1.4rem;
+          border-radius: 999px;
+          font-size: 0.8rem;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+          border: 1px solid rgba(255, 255, 255, 0.35);
+          text-decoration: none;
+          color: #fbe9ff;
+          background: rgba(20, 8, 40, 0.75);
+          backdrop-filter: blur(6px);
+          transition: transform 0.12s ease, box-shadow 0.12s ease,
+            background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+        }
+
+        .hero-link.primary {
+          border-color: transparent;
+          background: linear-gradient(135deg, #f04b83, #ffb347);
+          color: #120016;
+          box-shadow: 0 0 24px rgba(240, 75, 131, 0.5);
+        }
+
+        .hero-link:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+          background: rgba(40, 16, 70, 0.9);
+        }
+
+        .hero-link.primary:hover {
+          box-shadow:
+            0 0 26px rgba(240, 75, 131, 0.8),
+            0 0 16px rgba(255, 179, 71, 0.8);
         }
 
         .showcase-wrap {
