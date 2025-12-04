@@ -8,7 +8,11 @@ export default function TopNav() {
   const path = usePathname();
 
   const isMiners = path.startsWith("/enchanted-miners");
-  const isMagapixel = path.startsWith("/locker/magapixel");
+
+  // ✅ Treat both the locker and the owner grid as MAGApixel pages
+  const isMagapixel =
+    path.startsWith("/locker/magapixel") || path.startsWith("/retrogs");
+
   const isRetrograve = path.startsWith("/retrograve");
 
   // ---- 1. Enchanted Miners Nav ----
@@ -70,12 +74,16 @@ export default function TopNav() {
     );
   }
 
-  // ---- 2. MAGApixel Nav ----
+  // ---- 2. MAGApixel Nav (locker + owner grid) ----
   if (isMagapixel) {
     return (
       <nav className="topnav">
+        {/* MAGApixel "home" is the locker page */}
         <Link href="/locker/magapixel">HOME</Link>
+
+        {/* Owner grid */}
         <Link href="/retrogs">MY MAGAPIXELS</Link>
+
         <a
           href="https://discord.gg/ZVGtHUpHfb"
           target="_blank"
@@ -111,6 +119,7 @@ export default function TopNav() {
           a {
             text-decoration: none;
             color: #fff;
+            /* MAGApixel-ish glow */
             text-shadow: 0 0 6px rgba(240, 75, 131, 0.75);
             transition: opacity 0.2s ease;
           }
@@ -129,7 +138,7 @@ export default function TopNav() {
     );
   }
 
-  // ---- 3. Default Nav (RetroGrave / everything else) ----
+  // ---- 3. Default RetroGrave Nav ----
   return (
     <nav className="topnav">
       <Link href="/">HOME</Link>
@@ -141,7 +150,11 @@ export default function TopNav() {
       >
         COMMUNITY
       </a>
-      <a href="https://magiceden.io" target="_blank" rel="noopener noreferrer">
+      <a
+        href="https://magiceden.io"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         COLLECT NOW
       </a>
       <a
