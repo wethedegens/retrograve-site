@@ -1,8 +1,6 @@
 // app/locker/magapixel/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-
 import PhoneShowcase from "../../components/PhoneShowcase";
 import type { BgChoice } from "../../components/Composer";
 import Roadmap from "../../components/Roadmap";
@@ -12,7 +10,6 @@ import OgWLBanner from "../../components/OgWLBanner";
 /**
  * 🔧 MAGAPIXEL PREVIEW IMAGES
  * Make sure these files exist in /public/magapixel-lockscreens/
- * and are your MAGApixel lockscreen PNGs.
  */
 const MAGAPIXEL_DEMO_IMAGES = [
   "/magapixel-lockscreens/lock-1.png",
@@ -25,161 +22,12 @@ const MAGAPIXEL_DEMO_IMAGES = [
 const MAGAPIXEL_X_URL = "#"; // e.g. "https://x.com/MAGApixel_NFT"
 const MAGAPIXEL_DISCORD_URL = "#"; // e.g. "https://discord.gg/yourInviteCode"
 
-/** ===== Tiny, self-contained countdown (fixed-left, compact, below header) ===== */
-function CountdownSmall({ targetIso }: { targetIso: string }) {
-  const target = new Date(targetIso);
-  const [now, setNow] = useState<Date | null>(null);
-
-  useEffect(() => {
-    setNow(new Date());
-    const id = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  if (!now) return null;
-
-  let diff = Math.max(0, target.getTime() - now.getTime());
-  const days = Math.floor(diff / 86400000);
-  diff -= days * 86400000;
-  const hours = Math.floor(diff / 3600000);
-  diff -= hours * 3600000;
-  const minutes = Math.floor(diff / 60000);
-  diff -= minutes * 60000;
-  const seconds = Math.floor(diff / 1000);
-
-  return (
-    <div className="cd">
-      <div className="cd-title">MAGAPIXEL LOCKSCREEN LAUNCH</div>
-      <div className="cd-pills">
-        <Pill v={days} label="DAYS" />
-        <Pill v={hours} label="HRS" />
-        <Pill v={minutes} label="MIN" />
-        <Pill v={seconds} label="SEC" />
-      </div>
-
-      <style jsx>{`
-        .cd {
-          position: absolute;
-          left: clamp(12px, 7vw, 140px);
-          top: 96px;
-          transform: scale(0.82);
-          transform-origin: left top;
-          background: rgba(22, 14, 35, 0.55);
-          backdrop-filter: blur(4px);
-          border-radius: 12px;
-          padding: 8px 10px;
-          box-shadow:
-            inset 0 0 0 1px rgba(183, 122, 255, 0.14),
-            0 10px 24px rgba(0, 0, 0, 0.35);
-          z-index: 4;
-        }
-        .cd-title {
-          font-family: "VT323", monospace;
-          color: #cdb8ff;
-          font-size: 11px;
-          letter-spacing: 0.06em;
-          margin-bottom: 6px;
-          white-space: nowrap;
-        }
-        .cd-pills {
-          display: flex;
-          gap: 8px;
-        }
-
-        @media (max-width: 1200px) {
-          .cd {
-            top: 90px;
-            transform: scale(0.8);
-          }
-        }
-        @media (max-width: 980px) {
-          .cd {
-            top: 84px;
-            transform: scale(0.78);
-          }
-        }
-        @media (max-width: 760px) {
-          .cd {
-            left: 12px;
-            top: 76px;
-            transform: scale(0.76);
-          }
-        }
-        @media (max-width: 560px) {
-          .cd {
-            top: 68px;
-            transform: scale(0.74);
-          }
-        }
-        @media (max-width: 420px) {
-          .cd {
-            display: none;
-          }
-        }
-      `}</style>
-    </div>
-  );
-}
-
-function Pill({ v, label }: { v: number; label: string }) {
-  const vv = String(v).padStart(2, "0");
-  return (
-    <>
-      <div className="pill" role="group" aria-label={label.toLowerCase()}>
-        <div className="num">{vv}</div>
-        <div className="txt">{label}</div>
-      </div>
-
-      <style jsx>{`
-        .pill {
-          min-width: 56px;
-          padding: 7px 9px;
-          border-radius: 10px;
-          background:
-            radial-gradient(
-              120% 200% at 80% 0%,
-              rgba(183, 122, 255, 0.24),
-              rgba(30, 12, 60, 0.18) 60%,
-              rgba(30, 12, 60, 0.1) 100%
-            ),
-            rgba(32, 18, 48, 0.5);
-          box-shadow:
-            inset 0 0 0 1px rgba(183, 122, 255, 0.22),
-            0 6px 14px rgba(0, 0, 0, 0.33);
-          display: grid;
-          justify-items: center;
-          gap: 2px;
-        }
-        .num {
-          font-family: "VT323", monospace;
-          font-size: 20px;
-          color: #fff;
-          line-height: 1;
-          text-shadow: 0 0 8px rgba(183, 122, 255, 0.7);
-        }
-        .txt {
-          font-size: 9px;
-          letter-spacing: 0.06em;
-          color: #cdb8ff;
-          opacity: 0.85;
-        }
-      `}</style>
-    </>
-  );
-}
-/** ===== End countdown ===== */
-
 export default function MagapixelLockerPage() {
-  const SHOW_COUNTDOWN = true;
-
-  // ✅ use MAGAPIXEL images instead of /demo/*
+  // MAGApixel preview images
   const demoImages = MAGAPIXEL_DEMO_IMAGES;
 
-  // ✅ blue background behind the phone preview
+  // MAGApixel blue background
   const bg: BgChoice = { kind: "color", value: "#0078e9" };
-
-  // Jan 1, 2026 12:00 PM PST (-08:00 on that date)
-  const TARGET_PST = "2026-01-01T12:00:00-08:00";
 
   return (
     <main className="home-wrap">
@@ -209,8 +57,6 @@ export default function MagapixelLockerPage() {
             Join MAGApixel Discord
           </a>
         </div>
-
-        {SHOW_COUNTDOWN && <CountdownSmall targetIso={TARGET_PST} />}
       </section>
 
       <div className="showcase-wrap">
