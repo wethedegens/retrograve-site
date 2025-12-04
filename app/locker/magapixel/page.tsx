@@ -21,9 +21,9 @@ const MAGAPIXEL_DEMO_IMAGES = [
 ];
 
 // 🔧 Fill these with your real URLs
-const MAGAPIXEL_X_URL = "https://x.com/MAGApixel_NFT"; // e.g. "https://x.com/MAGApixel_NFT"
-const MAGAPIXEL_DISCORD_URL = "#https://discord.gg/ZVGtHUpHfb"; // e.g. "https://discord.gg/ZVGtHUpHfb"
-const MAGAPIXEL_MINT_URL = "https://magiceden.us/marketplace/magapixel"; // e.g. Magic Eden / mint link
+const MAGAPIXEL_X_URL = "https://x.com/MAGApixel_NFT";
+const MAGAPIXEL_DISCORD_URL = "https://discord.gg/ZVGtHUpHfb";
+const MAGAPIXEL_MINT_URL = "https://magiceden.us/marketplace/magapixel";
 
 export default function MagapixelLockerPage() {
   // MAGApixel preview images
@@ -51,11 +51,11 @@ export default function MagapixelLockerPage() {
         // Rename + point to MAGApixel owner grid
         a.textContent = "MY MAGAPIXELS";
         a.setAttribute("href", "/retrogs");
-      } else if (label === "COMMUNITY" && MAGAPIXEL_DISCORD_URL !== "#") {
+      } else if (label === "COMMUNITY" && MAGAPIXEL_DISCORD_URL) {
         a.setAttribute("href", MAGAPIXEL_DISCORD_URL);
-      } else if (label === "COLLECT NOW" && MAGAPIXEL_MINT_URL !== "#") {
+      } else if (label === "COLLECT NOW" && MAGAPIXEL_MINT_URL) {
         a.setAttribute("href", MAGAPIXEL_MINT_URL);
-      } else if (label === "FOLLOW ON X" && MAGAPIXEL_X_URL !== "#") {
+      } else if (label === "FOLLOW ON X" && MAGAPIXEL_X_URL) {
         a.setAttribute("href", MAGAPIXEL_X_URL);
       }
     });
