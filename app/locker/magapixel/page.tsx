@@ -1,101 +1,137 @@
 // app/locker/magapixel/page.tsx
 "use client";
 
+import { useEffect } from "react";
+
 import PhoneShowcase from "../../components/PhoneShowcase";
 import type { BgChoice } from "../../components/Composer";
 import OgWLBanner from "../../components/OgWLBanner";
 
 /**
- * =============================
- *  MAGAPIXEL LOCKSCREEN LOCKER
- * =============================
+ * ================
+ *  PROJECT SWITCH
+ * ================
  *
- * 🔁 WHEN YOU DUPLICATE THIS FOR A NEW PROJECT:
- * - PROJECT_NAME: change all "MAGAPIXEL" labels
- * - PROJECT_BG:   change `MAGAPIXEL_BG_IMAGE`
- * - PHONE_FRAMES: change `MAGAPIXEL_DEMO_IMAGES`
- * - CTA_LINKS:    change URLs in `MAGAPIXEL_*_URL`
+ * When you DUPLICATE this file for another project, change:
+ *
+ * 1) PROJECT_SLUG           → route name under /locker/...
+ * 2) PROJECT_NAME           → headline + copy
+ * 3) PROJECT_BG_COLOR       → phone background color
+ * 4) PROJECT_LOCKER_BG      → full-page background image
+ * 5) PROJECT_X_URL          → X/Twitter link
+ * 6) PROJECT_DISCORD_URL    → Discord link
+ * 7) PROJECT_OWNER_GRID_URL → “My ______” page route
+ * 8) PROJECT_DEMO_IMAGES    → phone slideshow images
  */
 
-/** 🔧 PROJECT_BG: background image behind everything on this page */
-const MAGAPIXEL_BG_IMAGE = "/magapixel-bg.png";
-/**            ^^^^^^^^^^^^^
- * Put your art in /public and update this path if you change the file name.
- */
+// 1) & 2) PROJECT NAME / ROUTING
+// (slug is just the folder name; here it’s "magapixel")
+const PROJECT_NAME = "MAGAPIXEL";
 
-/** 🔧 PHONE_FRAMES: lockscreen preview images inside the phone */
-const MAGAPIXEL_DEMO_IMAGES = [
+// 3) Phone background color behind the NFT
+const PROJECT_BG_COLOR = "#0078e9";
+
+// 4) Page background image (goes in /public)
+const PROJECT_LOCKER_BG = "/magapixel-bg.png"; // 🔧 put your PNG/JPG here
+
+// 5) Social + mint links
+const PROJECT_X_URL = "https://x.com/MAGApixel_NFT";
+const PROJECT_DISCORD_URL = "https://discord.gg/ZVGtHUpHfb";
+const PROJECT_OWNER_GRID_URL = "/magapixel-nfts"; // “MY MAGAPIXELS” page
+
+// 8) Phone slideshow images (also in /public)
+const PROJECT_DEMO_IMAGES = [
   "/magapixel-lockscreens/lock-1.png",
   "/magapixel-lockscreens/lock-2.png",
   "/magapixel-lockscreens/lock-3.png",
   "/magapixel-lockscreens/lock-4.png",
 ];
 
-/** 🔧 CTA_LINKS: social + mint URLs */
-const MAGAPIXEL_X_URL = "https://x.com/MAGApixel_NFT";
-const MAGAPIXEL_DISCORD_URL = "https://discord.gg/ZVGtHUpHfb";
-const MAGAPIXEL_MINT_URL = "https://magiceden.us/marketplace/magapixel";
-
-/** 🔧 PHONE_BACKGROUND: color behind the art inside the phone frame */
-const MAGAPIXEL_PHONE_BG: BgChoice = { kind: "color", value: "#0078e9" };
-
 export default function MagapixelLockerPage() {
+  // Override top nav JUST for this locker page
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+
+    const anchors = Array.from(
+      document.querySelectorAll("nav a")
+    ) as HTMLAnchorElement[];
+
+    anchors.forEach((a) => {
+      const label = a.textContent?.trim().toUpperCase();
+      if (!label) return;
+
+      if (label === "HOME") {
+        a.setAttribute("href", "/locker/magapixel");
+      } else if (label === "MY RETROGRAVES") {
+        a.textContent = "MY MAGAPIXELS";
+        a.setAttribute("href", PROJECT_OWNER_GRID_URL);
+      } else if (label === "COMMUNITY") {
+        a.setAttribute("href", PROJECT_DISCORD_URL);
+      } else if (label === "COLLECT NOW") {
+        a.setAttribute("href", "https://magiceden.us/marketplace/magapixel");
+      } else if (label === "FOLLOW ON X") {
+        a.setAttribute("href", PROJECT_X_URL);
+      }
+    });
+  }, []);
+
+  const demoImages = PROJECT_DEMO_IMAGES;
+  const bg: BgChoice = { kind: "color", value: PROJECT_BG_COLOR };
+
   return (
-    <main className="magapixel-page">
+    <main className="home-wrap">
       <OgWLBanner />
 
       <section className="hero">
-        <h1 className="title">MAGAPIXEL LOCKSCREEN LOCKER</h1>
+        <h1 className="title">{PROJECT_NAME} LOCKSCREEN LOCKER</h1>
         <p className="subtitle">
-          Download your MAGApixel NFT with the perfect background—sized for any
-          phone.
+          Download your {PROJECT_NAME} NFT with the perfect background—sized for
+          any phone.
         </p>
 
         <div className="hero-links">
           <a
-            href={MAGAPIXEL_X_URL}
+            href={PROJECT_X_URL}
             target="_blank"
             rel="noreferrer"
             className="hero-link primary"
           >
-            FOLLOW MAGAPIXEL ON X
+            FOLLOW {PROJECT_NAME} ON X
           </a>
           <a
-            href={MAGAPIXEL_DISCORD_URL}
+            href={PROJECT_DISCORD_URL}
             target="_blank"
             rel="noreferrer"
             className="hero-link"
           >
-            JOIN MAGAPIXEL DISCORD
+            JOIN {PROJECT_NAME} DISCORD
           </a>
         </div>
       </section>
 
       <div className="showcase-wrap">
         <PhoneShowcase
-          images={MAGAPIXEL_DEMO_IMAGES}
+          images={demoImages}
           intervalMs={3000}
-          bg={MAGAPIXEL_PHONE_BG}
+          bg={bg}
           title="How it looks"
           showHint={false}
         />
       </div>
 
       <style jsx>{`
-        /* ===== PAGE BACKGROUND (PROJECT_BG) ===== */
-        .magapixel-page {
+        .home-wrap {
           min-height: 100vh;
-          padding: 2px 12px 48px;
           display: grid;
           gap: 20px;
           justify-items: center;
+          padding: 2px 12px 48px;
 
-          /* 🔧 PROJECT_BG:
-             Swap this image when you clone for a new project */
-          background:
-            radial-gradient(circle at top, rgba(255, 255, 255, 0.04), #000 55%),
-            url("${MAGAPIXEL_BG_IMAGE}") no-repeat center bottom;
+          /* 🔧 FULL-PAGE BACKGROUND (no dark overlay now) */
+          background-image: url("${PROJECT_LOCKER_BG}");
+          background-repeat: no-repeat;
           background-size: cover;
+          background-position: center bottom;
         }
 
         .hero {
@@ -129,6 +165,7 @@ export default function MagapixelLockerPage() {
           color: #ffd8ec;
           font-size: 15px;
           letter-spacing: 0.3px;
+          max-width: 560px;
         }
 
         .hero-links {
