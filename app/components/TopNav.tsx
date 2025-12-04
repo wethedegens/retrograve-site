@@ -9,9 +9,11 @@ export default function TopNav() {
 
   const isMiners = path.startsWith("/enchanted-miners");
 
-  // ✅ Treat both the locker and the owner grid as MAGApixel pages
+  // ✅ Treat both the locker and the new owner grid as MAGApixel pages.
   const isMagapixel =
-    path.startsWith("/locker/magapixel") || path.startsWith("/retrogs");
+    path.startsWith("/locker/magapixel") ||
+    path.startsWith("/magapixel-nfts") ||
+    path.startsWith("/retrogs"); // legacy alias still works
 
   const isRetrograve = path.startsWith("/retrograve");
 
@@ -82,7 +84,7 @@ export default function TopNav() {
         <Link href="/locker/magapixel">HOME</Link>
 
         {/* Owner grid */}
-        <Link href="/retrogs">MY MAGAPIXELS</Link>
+        <Link href="/magapixel-nfts">MY MAGAPIXELS</Link>
 
         <a
           href="https://discord.gg/ZVGtHUpHfb"
@@ -119,7 +121,7 @@ export default function TopNav() {
           a {
             text-decoration: none;
             color: #fff;
-            /* MAGApixel-ish glow */
+            /* MAGApixel glow */
             text-shadow: 0 0 6px rgba(240, 75, 131, 0.75);
             transition: opacity 0.2s ease;
           }
@@ -142,7 +144,7 @@ export default function TopNav() {
   return (
     <nav className="topnav">
       <Link href="/">HOME</Link>
-      <Link href="/retrogs">MY RETROGRAVES</Link>
+      <Link href="/retrograve">MY RETROGRAVES</Link>
       <a
         href="https://discord.gg/mSNHRFdCkS"
         target="_blank"
