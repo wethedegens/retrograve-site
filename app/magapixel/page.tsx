@@ -1,141 +1,406 @@
-// app/magapixel/page.tsx
+// app/locker/magapixel/page.tsx
 "use client";
 
-import Link from "next/link";
+import { useEffect, useState } from "react";
 
-export default function MagapixelLandingPage() {
+import PhoneShowcase from "../../components/PhoneShowcase";
+import type { BgChoice } from "../../components/Composer";
+import Roadmap from "../../components/Roadmap";
+import FAQ from "../../components/FAQ";
+import OgWLBanner from "../../components/OgWLBanner";
+
+/**
+ * 🔧 TODO: put your real MAGApixel preview images + links here
+ * These images should be 1440x3200 (or whatever your phone size is)
+ * and live in /public/magapixel-lockscreens/...
+ */
+const MAGAPIXEL_DEMO_IMAGES = [
+  "/magapixel-lockscreens/lock-1.png",
+  "/magapixel-lockscreens/lock-2.png",
+  "/magapixel-lockscreens/lock-3.png",
+  "/magapixel-lockscreens/lock-4.png",
+];
+
+const MAGAPIXEL_X_URL = "#"; // e.g. "https://x.com/MAGApixel_NFT
+"
+const MAGAPIXEL_DISCORD_URL = "#"; // e.g. "https://discord.gg/ZVGtHUpHfb";
+
+/** ===== Tiny, self-contained countdown (fixed-left, compact, below header) ===== */
+function CountdownSmall({ targetIso }: { targetIso: string }) {
+  const target = new Date(targetIso);
+  const [now, setNow] = useState<Date | null>(null);
+
+  useEffect(() => {
+    setNow(new Date());
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  if (!now) return null;
+
+  let diff = Math.max(0, target.getTime() - now.getTime());
+  const days = Math.floor(diff / 86400000);
+  diff -= days * 86400000;
+  const hours = Math.floor(diff / 3600000);
+  diff -= hours * 3600000;
+  const minutes = Math.floor(diff / 60000);
+  diff -= minutes * 60000;
+  const seconds = Math.floor(diff / 1000);
+
   return (
-    <main className="magapixel-landing">
-      <section className="magapixel-hero">
-        <div className="magapixel-hero-inner">
-          <h1 className="magapixel-title">MAGAPIXEL</h1>
-          <p className="magapixel-tagline">
-            Phone-native lock screens powered by the MAGApixel collection.
-          </p>
-
-          <p className="magapixel-body">
-            Connect your wallet to generate high-resolution lock screens from
-            the MAGApixel NFTs you already own. Swap backgrounds, export phone
-            wallpapers, and keep your favorite traits on display.
-          </p>
-
-          <div className="magapixel-cta-row">
-            <Link href="/locker/magapixel" className="magapixel-btn magapixel-btn-primary">
-              Open MAGApixel Locker
-            </Link>
-
-            <Link href="/retrogs" className="magapixel-btn magapixel-btn-secondary">
-              View MAGApixel owner grid
-            </Link>
-          </div>
-        </div>
-      </section>
+    <div className="cd">
+      <div className="cd-title">MAGAPIXEL LOCKSCREEN LAUNCH</div>
+      <div className="cd-pills">
+        <Pill v={days} label="DAYS" />
+        <Pill v={hours} label="HRS" />
+        <Pill v={minutes} label="MIN" />
+        <Pill v={seconds} label="SEC" />
+      </div>
 
       <style jsx>{`
-        .magapixel-landing {
-          min-height: calc(100vh - 80px);
+        .cd {
+          position: absolute;
+          left: clamp(12px, 7vw, 140px);
+          top: 96px;
+          transform: scale(0.82);
+          transform-origin: left top;
+          background: rgba(22, 14, 35, 0.55);
+          backdrop-filter: blur(4px);
+          border-radius: 12px;
+          padding: 8px 10px;
+          box-shadow:
+            inset 0 0 0 1px rgba(183, 122, 255, 0.14),
+            0 10px 24px rgba(0, 0, 0, 0.35);
+          z-index: 4;
+        }
+        .cd-title {
+          font-family: "VT323", monospace;
+          color: #ffc1de;
+          font-size: 11px;
+          letter-spacing: 0.06em;
+          margin-bottom: 6px;
+          white-space: nowrap;
+        }
+        .cd-pills {
           display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 4rem 1.5rem;
+          gap: 8px;
         }
 
-        .magapixel-hero {
-          max-width: 960px;
-          margin: 0 auto;
-        }
-
-        .magapixel-hero-inner {
-          text-align: left;
-        }
-
-        .magapixel-title {
-          font-size: 3rem;
-          letter-spacing: 0.18em;
-          text-transform: uppercase;
-          margin-bottom: 1rem;
-        }
-
-        .magapixel-tagline {
-          font-size: 1.1rem;
-          margin-bottom: 1.5rem;
-          opacity: 0.9;
-        }
-
-        .magapixel-body {
-          max-width: 640px;
-          font-size: 0.98rem;
-          line-height: 1.7;
-          margin-bottom: 2.5rem;
-          opacity: 0.9;
-        }
-
-        .magapixel-cta-row {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 1rem;
-        }
-
-        .magapixel-btn {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          padding: 0.85rem 1.8rem;
-          border-radius: 999px;
-          font-size: 0.9rem;
-          text-transform: uppercase;
-          letter-spacing: 0.12em;
-          border: 1px solid #f04b83;
-          text-decoration: none;
-          transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease,
-            color 0.12s ease, border-color 0.12s ease;
-        }
-
-        .magapixel-btn-primary {
-          background: linear-gradient(135deg, #f04b83, #ffb347);
-          color: #000;
-          box-shadow: 0 0 24px rgba(240, 75, 131, 0.4);
-        }
-
-        .magapixel-btn-primary:hover {
-          transform: translateY(-1px);
-          box-shadow: 0 0 32px rgba(240, 75, 131, 0.6);
-        }
-
-        .magapixel-btn-secondary {
-          background: transparent;
-          color: #f4e9ff;
-          border-color: rgba(244, 233, 255, 0.4);
-        }
-
-        .magapixel-btn-secondary:hover {
-          background: rgba(255, 255, 255, 0.06);
-        }
-
-        @media (max-width: 720px) {
-          .magapixel-title {
-            font-size: 2.3rem;
+        @media (max-width: 1200px) {
+          .cd {
+            top: 90px;
+            transform: scale(0.8);
           }
-
-          .magapixel-landing {
-            padding-top: 3rem;
+        }
+        @media (max-width: 980px) {
+          .cd {
+            top: 84px;
+            transform: scale(0.78);
           }
-
-          .magapixel-hero-inner {
-            text-align: left;
+        }
+        @media (max-width: 760px) {
+          .cd {
+            left: 12px;
+            top: 76px;
+            transform: scale(0.76);
           }
-
-          .magapixel-cta-row {
-            flex-direction: column;
-            align-items: flex-start;
+        }
+        @media (max-width: 560px) {
+          .cd {
+            top: 68px;
+            transform: scale(0.74);
           }
-
-          .magapixel-btn {
-            width: 100%;
-            justify-content: center;
+        }
+        @media (max-width: 420px) {
+          .cd {
+            display: none;
           }
         }
       `}</style>
+    </div>
+  );
+}
+
+function Pill({ v, label }: { v: number; label: string }) {
+  const vv = String(v).padStart(2, "0");
+  return (
+    <>
+      <div className="pill" role="group" aria-label={label.toLowerCase()}>
+        <div className="num">{vv}</div>
+        <div className="txt">{label}</div>
+      </div>
+
+      <style jsx>{`
+        .pill {
+          min-width: 56px;
+          padding: 7px 9px;
+          border-radius: 10px;
+          background:
+            radial-gradient(
+              120% 200% at 80% 0%,
+              rgba(240, 75, 131, 0.24),
+              rgba(30, 12, 60, 0.18) 60%,
+              rgba(30, 12, 60, 0.1) 100%
+            ),
+            rgba(32, 18, 48, 0.5);
+          box-shadow:
+            inset 0 0 0 1px rgba(240, 75, 131, 0.22),
+            0 6px 14px rgba(0, 0, 0, 0.33);
+          display: grid;
+          justify-items: center;
+          gap: 2px;
+        }
+        .num {
+          font-family: "VT323", monospace;
+          font-size: 20px;
+          color: #fff;
+          line-height: 1;
+          text-shadow: 0 0 8px rgba(240, 75, 131, 0.7);
+        }
+        .txt {
+          font-size: 9px;
+          letter-spacing: 0.06em;
+          color: #ffc1de;
+          opacity: 0.85;
+        }
+      `}</style>
+    </>
+  );
+}
+/** ===== End countdown ===== */
+
+export default function MagapixelLockerPage() {
+  const SHOW_COUNTDOWN = true;
+
+  // 🔧 Phone art (swap with your MAGApixel exports)
+  const demoImages = MAGAPIXEL_DEMO_IMAGES;
+
+  // 🔧 Background behind the phone (MAGApixel brand color)
+  const bg: BgChoice = { kind: "color", value: "#0078e9" };
+
+  // Jan 1, 2026 12:00 PM PST (-08:00 on that date)
+  const TARGET_PST = "2026-01-01T12:00:00-08:00";
+
+  return (
+    <main className="home-wrap">
+      <OgWLBanner />
+
+      <section className="hero">
+        <h1 className="title">MAGAPIXEL LOCKSCREEN LOCKER</h1>
+        <p className="subtitle">
+          Download your MAGApixel NFT with the perfect background—sized for any phone.
+        </p>
+
+        <div className="hero-links">
+          <a
+            href={MAGAPIXEL_X_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="hero-link primary"
+          >
+            Follow MAGApixel on X
+          </a>
+          <a
+            href={MAGAPIXEL_DISCORD_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="hero-link"
+          >
+            Join MAGApixel Discord
+          </a>
+        </div>
+
+        {SHOW_COUNTDOWN && <CountdownSmall targetIso={TARGET_PST} />}
+      </section>
+
+      <div className="showcase-wrap">
+        <PhoneShowcase
+          images={demoImages}
+          intervalMs={3000}
+          bg={bg}
+          title="How it looks"
+          showHint={false}
+        />
+      </div>
+
+      <ScrollHint targetId="roadmap" />
+
+      <section id="roadmap" className="roadmap-wrap">
+        <Roadmap />
+      </section>
+
+      <FAQ />
+
+      <style jsx>{`
+        .home-wrap {
+          display: grid;
+          gap: 20px;
+          justify-items: center;
+          padding: 2px 12px 48px;
+        }
+
+        .hero {
+          position: relative;
+          display: grid;
+          gap: 10px;
+          justify-items: center;
+          margin-top: 0;
+          width: 100%;
+        }
+
+        .title {
+          margin: 6px 0 0;
+          text-align: center;
+          font-family: "Oswald", system-ui, -apple-system, Segoe UI, Roboto,
+            Ubuntu, Cantarell, "Helvetica Neue", Arial;
+          font-weight: 800;
+          font-size: clamp(28px, 4.2vw, 56px);
+          letter-spacing: 1px;
+          color: #ffffff;
+          text-shadow:
+            0 0 8px rgba(240, 75, 131, 0.6),
+            0 0 18px rgba(240, 75, 131, 0.35);
+          line-height: 1.05;
+          white-space: nowrap;
+        }
+
+        .subtitle {
+          margin: 0;
+          text-align: center;
+          color: #ffd8ec;
+          font-size: 15px;
+          letter-spacing: 0.3px;
+          max-width: 560px;
+        }
+
+        .hero-links {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.75rem;
+          justify-content: center;
+          margin-top: 4px;
+        }
+
+        .hero-link {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0.6rem 1.4rem;
+          border-radius: 999px;
+          font-size: 0.8rem;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+          border: 1px solid rgba(255, 255, 255, 0.35);
+          text-decoration: none;
+          color: #fbe9ff;
+          background: rgba(20, 8, 40, 0.75);
+          backdrop-filter: blur(6px);
+          transition: transform 0.12s ease, box-shadow 0.12s ease,
+            background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+        }
+
+        .hero-link.primary {
+          border-color: transparent;
+          background: linear-gradient(135deg, #f04b83, #ffb347);
+          color: #120016;
+          box-shadow: 0 0 24px rgba(240, 75, 131, 0.5);
+        }
+
+        .hero-link:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+          background: rgba(40, 16, 70, 0.9);
+        }
+
+        .hero-link.primary:hover {
+          box-shadow:
+            0 0 26px rgba(240, 75, 131, 0.8),
+            0 0 16px rgba(255, 179, 71, 0.8);
+        }
+
+        .showcase-wrap {
+          margin-top: 10px;
+        }
+
+        @media (max-width: 420px) {
+          .title {
+            white-space: normal;
+            line-height: 1.1;
+            font-size: clamp(22px, 7vw, 34px);
+          }
+        }
+
+        .roadmap-wrap {
+          margin-top: -6px;
+        }
+      `}</style>
     </main>
+  );
+}
+
+function ScrollHint({ targetId }: { targetId: string }) {
+  return (
+    <>
+      <button
+        className="scroll-hint"
+        aria-label="Scroll to roadmap"
+        onClick={() => {
+          const el = document.getElementById(targetId);
+          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }}
+      >
+        <span className="chev" aria-hidden>
+          ▼
+        </span>
+      </button>
+
+      <style jsx>{`
+        .scroll-hint {
+          position: sticky;
+          top: 8px;
+          margin-top: -4px;
+          border: 0;
+          background: transparent;
+          cursor: pointer;
+          display: grid;
+          place-items: center;
+          width: 42px;
+          height: 28px;
+          opacity: 0.8;
+          transition: opacity 0.2s ease, transform 0.2s ease;
+          z-index: 5;
+        }
+        .scroll-hint:hover {
+          opacity: 1;
+          transform: translateY(-1px);
+        }
+        .chev {
+          font-family: "VT323", monospace;
+          font-size: 18px;
+          line-height: 1;
+          color: #ffffff;
+          text-shadow:
+            0 0 8px rgba(240, 75, 131, 0.65),
+            0 0 14px rgba(240, 75, 131, 0.45);
+          animation: pulse 1.8s ease-in-out infinite;
+        }
+        @keyframes pulse {
+          0%,
+          100% {
+            transform: translateY(0);
+            opacity: 0.85;
+          }
+          50% {
+            transform: translateY(4px);
+            opacity: 1;
+          }
+        }
+        @media (max-width: 420px) {
+          .scroll-hint {
+            display: none;
+          }
+        }
+      `}</style>
+    </>
   );
 }
