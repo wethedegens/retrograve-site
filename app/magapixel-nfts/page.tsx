@@ -1,7 +1,6 @@
 // app/magapixel-nfts/page.tsx
 "use client";
 
-import type { Metadata } from "next";
 import Showcase from "../components/Showcase";
 
 /**
@@ -17,10 +16,6 @@ import Showcase from "../components/Showcase";
  */
 
 const MAGAPIXEL_BG_IMAGE = "/magapixel-bg.png"; // 🔧 PROJECT_BG (same as locker)
-
-export const metadata: Metadata = {
-  title: "My MAGAPixels • MAGAPixel Locker",
-};
 
 export default function MagapixelOwnerGridPage() {
   return (
