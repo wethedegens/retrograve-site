@@ -21,8 +21,8 @@ const MAGAPIXEL_DEMO_IMAGES = [
   "/magapixel-lockscreens/lock-4.png",
 ];
 
-const MAGAPIXEL_X_URL = "#"; // e.g. "https://x.com/MAGApixel_NFT
-"
+// Social links for hero buttons
+const MAGAPIXEL_X_URL = "#"; // e.g. "https://x.com/MAGApixel_NFT"
 const MAGAPIXEL_DISCORD_URL = "#"; // e.g. "https://discord.gg/ZVGtHUpHfb";
 
 /** ===== Tiny, self-contained countdown (fixed-left, compact, below header) ===== */
