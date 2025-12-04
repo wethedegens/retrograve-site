@@ -1,4 +1,6 @@
 // app/magapixel-nfts/page.tsx
+"use client";
+
 import type { Metadata } from "next";
 import Showcase from "../components/Showcase";
 
