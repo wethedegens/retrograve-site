@@ -1,6 +1,8 @@
 // app/locker/magapixel/page.tsx
 "use client";
 
+import { useEffect } from "react";
+
 import PhoneShowcase from "../../components/PhoneShowcase";
 import type { BgChoice } from "../../components/Composer";
 import Roadmap from "../../components/Roadmap";
@@ -18,9 +20,10 @@ const MAGAPIXEL_DEMO_IMAGES = [
   "/magapixel-lockscreens/lock-4.png",
 ];
 
-// 🔧 Social links for hero buttons
-const MAGAPIXEL_X_URL = "#"; // e.g. "https://x.com/MAGApixel_NFT"
-const MAGAPIXEL_DISCORD_URL = "#"; // e.g. "https://discord.gg/yourInviteCode"
+// 🔧 Fill these with your real URLs
+const MAGAPIXEL_X_URL = "https://x.com/MAGApixel_NFT"; // e.g. "https://x.com/MAGApixel_NFT"
+const MAGAPIXEL_DISCORD_URL = "#https://discord.gg/ZVGtHUpHfb"; // e.g. "https://discord.gg/ZVGtHUpHfb"
+const MAGAPIXEL_MINT_URL = "https://magiceden.us/marketplace/magapixel"; // e.g. Magic Eden / mint link
 
 export default function MagapixelLockerPage() {
   // MAGApixel preview images
@@ -29,6 +32,35 @@ export default function MagapixelLockerPage() {
   // MAGApixel blue background
   const bg: BgChoice = { kind: "color", value: "#0078e9" };
 
+  // 🔁 Override the top nav ONLY on this page
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+
+    const anchors = Array.from(
+      document.querySelectorAll("nav a")
+    ) as HTMLAnchorElement[];
+
+    anchors.forEach((a) => {
+      const label = a.textContent?.trim().toUpperCase();
+      if (!label) return;
+
+      if (label === "HOME") {
+        // Home should keep you in the MAGApixel locker
+        a.setAttribute("href", "/locker/magapixel");
+      } else if (label === "MY RETROGRAVES") {
+        // Rename + point to MAGApixel owner grid
+        a.textContent = "MY MAGAPIXELS";
+        a.setAttribute("href", "/retrogs");
+      } else if (label === "COMMUNITY" && MAGAPIXEL_DISCORD_URL !== "#") {
+        a.setAttribute("href", MAGAPIXEL_DISCORD_URL);
+      } else if (label === "COLLECT NOW" && MAGAPIXEL_MINT_URL !== "#") {
+        a.setAttribute("href", MAGAPIXEL_MINT_URL);
+      } else if (label === "FOLLOW ON X" && MAGAPIXEL_X_URL !== "#") {
+        a.setAttribute("href", MAGAPIXEL_X_URL);
+      }
+    });
+  }, []);
+
   return (
     <main className="home-wrap">
       <OgWLBanner />
@@ -36,7 +68,8 @@ export default function MagapixelLockerPage() {
       <section className="hero">
         <h1 className="title">MAGAPIXEL LOCKSCREEN LOCKER</h1>
         <p className="subtitle">
-          Download your MAGApixel NFT with the perfect background—sized for any phone.
+          Download your MAGApixel NFT with the perfect background—sized for any
+          phone.
         </p>
 
         <div className="hero-links">
@@ -46,7 +79,7 @@ export default function MagapixelLockerPage() {
             rel="noreferrer"
             className="hero-link primary"
           >
-            Follow MAGApixel on X
+            FOLLOW MAGAPIXEL ON X
           </a>
           <a
             href={MAGAPIXEL_DISCORD_URL}
@@ -54,7 +87,7 @@ export default function MagapixelLockerPage() {
             rel="noreferrer"
             className="hero-link"
           >
-            Join MAGApixel Discord
+            JOIN MAGAPIXEL DISCORD
           </a>
         </div>
       </section>
