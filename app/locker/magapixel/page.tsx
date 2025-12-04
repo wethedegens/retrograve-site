@@ -7,30 +7,58 @@ import PhoneShowcase from "../../components/PhoneShowcase";
 import type { BgChoice } from "../../components/Composer";
 import OgWLBanner from "../../components/OgWLBanner";
 
-/**
- * 🔧 MAGAPIXEL PREVIEW IMAGES
- * Make sure these files exist in /public/magapixel-lockscreens/
- */
-const MAGAPIXEL_DEMO_IMAGES = [
+/* ---------------------------------------------------------------------------
+   🔧 PROJECT-SPECIFIC CONFIG (CHANGE THESE WHEN YOU DUPLICATE FOR A NEW PROJECT)
+   --------------------------------------------------------------------------- */
+
+// 1) 🔁 PROJECT SLUG + LABELS
+//    - "PROJECT_NAME" shows in the hero title + button text
+//    - "PROJECT_NFT_LABEL" is used for things like "MY MAGAPIXELS"
+const PROJECT_NAME = "MAGAPIXEL";
+const PROJECT_NFT_LABEL = "MAGAPIXELS";
+
+// 2) 🔁 ROUTES / PATHS
+//    - LOCKER_ROUTE: where this page lives (e.g. /locker/magapixel)
+//    - OWNER_GRID_ROUTE: where the "My ______" link should go
+const LOCKER_ROUTE = "/locker/magapixel";
+const OWNER_GRID_ROUTE = "/retrogs"; // MAGApixel owner grid route
+
+// 3) 🔁 PREVIEW IMAGES
+//    - These MUST exist in /public/... for the new project
+//    - For a new project: change folder + filenames as needed
+const DEMO_IMAGES = [
   "/magapixel-lockscreens/lock-1.png",
   "/magapixel-lockscreens/lock-2.png",
   "/magapixel-lockscreens/lock-3.png",
   "/magapixel-lockscreens/lock-4.png",
 ];
 
-// 🔧 Fill these with your real URLs
-const MAGAPIXEL_X_URL = "https://x.com/MAGApixel_NFT";
-const MAGAPIXEL_DISCORD_URL = "https://discord.gg/ZVGtHUpHfb";
-const MAGAPIXEL_MINT_URL = "https://magiceden.us/marketplace/magapixel";
+// 4) 🔁 BRAND COLORS
+//    - PHONE_BG_COLOR is the color behind the phone preview
+const PHONE_BG_COLOR = "#0078e9"; // MAGApixel blue
 
-export default function MagapixelLockerPage() {
-  // MAGApixel preview images
-  const demoImages = MAGAPIXEL_DEMO_IMAGES;
+// 5) 🔁 EXTERNAL LINKS
+//    - Update these per project (X / Discord / Mint page)
+const PROJECT_X_URL = "https://x.com/MAGApixel_NFT";
+const PROJECT_DISCORD_URL = "https://discord.gg/ZVGtHUpHfb";
+const PROJECT_MINT_URL = "https://magiceden.us/marketplace/magapixel";
 
-  // MAGApixel blue background
-  const bg: BgChoice = { kind: "color", value: "#0078e9" };
+/* ---------------------------------------------------------------------------
+   END OF CONFIG SECTION
+   Everything below this can usually stay the same when you duplicate the file.
+   Just make sure the CONFIG values above are updated for the new project.
+   --------------------------------------------------------------------------- */
+
+export default function ProjectLockerPage() {
+  // Preview images for this project
+  const demoImages = DEMO_IMAGES;
+
+  // Background behind the phone
+  const bg: BgChoice = { kind: "color", value: PHONE_BG_COLOR };
 
   // 🔁 Override the top nav ONLY on this page
+  //    When you duplicate:
+  //      - This logic can stay, it uses the CONFIG values above.
   useEffect(() => {
     if (typeof document === "undefined") return;
 
@@ -43,18 +71,18 @@ export default function MagapixelLockerPage() {
       if (!label) return;
 
       if (label === "HOME") {
-        // Home should keep you in the MAGApixel locker
-        a.setAttribute("href", "/locker/magapixel");
+        // Home should keep you in THIS project's locker
+        a.setAttribute("href", LOCKER_ROUTE);
       } else if (label === "MY RETROGRAVES") {
-        // Rename + point to MAGApixel owner grid
-        a.textContent = "MY MAGAPIXELS";
-        a.setAttribute("href", "/retrogs");
+        // Rename + point to this project's owner grid
+        a.textContent = `MY ${PROJECT_NFT_LABEL}`;
+        a.setAttribute("href", OWNER_GRID_ROUTE);
       } else if (label === "COMMUNITY") {
-        a.setAttribute("href", MAGAPIXEL_DISCORD_URL);
+        a.setAttribute("href", PROJECT_DISCORD_URL);
       } else if (label === "COLLECT NOW") {
-        a.setAttribute("href", MAGAPIXEL_MINT_URL);
+        a.setAttribute("href", PROJECT_MINT_URL);
       } else if (label === "FOLLOW ON X") {
-        a.setAttribute("href", MAGAPIXEL_X_URL);
+        a.setAttribute("href", PROJECT_X_URL);
       }
     });
   }, []);
@@ -64,32 +92,37 @@ export default function MagapixelLockerPage() {
       <OgWLBanner />
 
       <section className="hero">
-        <h1 className="title">MAGAPIXEL LOCKSCREEN LOCKER</h1>
+        {/* 🔁 Hero title uses PROJECT_NAME */}
+        <h1 className="title">{PROJECT_NAME} LOCKSCREEN LOCKER</h1>
+
+        {/* 🔁 Hero subtitle – change text when you duplicate */}
         <p className="subtitle">
-          Download your MAGApixel NFT with the perfect background—sized for any
-          phone.
+          Download your {PROJECT_NAME} NFT with the perfect background—sized for
+          any phone.
         </p>
 
+        {/* 🔁 Hero buttons – texts stay generic, URLs use CONFIG */}
         <div className="hero-links">
           <a
-            href={MAGAPIXEL_X_URL}
+            href={PROJECT_X_URL}
             target="_blank"
             rel="noreferrer"
             className="hero-link primary"
           >
-            FOLLOW MAGAPIXEL ON X
+            FOLLOW {PROJECT_NAME} ON X
           </a>
           <a
-            href={MAGAPIXEL_DISCORD_URL}
+            href={PROJECT_DISCORD_URL}
             target="_blank"
             rel="noreferrer"
             className="hero-link"
           >
-            JOIN MAGAPIXEL DISCORD
+            JOIN {PROJECT_NAME} DISCORD
           </a>
         </div>
       </section>
 
+      {/* 🔁 Phone preview area – usually no changes needed */}
       <div className="showcase-wrap">
         <PhoneShowcase
           images={demoImages}
