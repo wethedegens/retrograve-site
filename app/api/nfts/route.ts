@@ -28,7 +28,12 @@ function resolveHeliusRestBase() {
 }
 
 /** ----- DAS (JSON-RPC) single page fetch ----- */
-async function fetchDASPage(owner: string, endpoint: string, page: number, limit: number) {
+async function fetchDASPage(
+  owner: string,
+  endpoint: string,
+  page: number,
+  limit: number
+) {
   const body = {
     jsonrpc: "2.0",
     id: "retrograve-nfts",
@@ -45,7 +50,12 @@ async function fetchDASPage(owner: string, endpoint: string, page: number, limit
 }
 
 /** ----- Helius REST single page fetch (v0) ----- */
-async function fetchRestPage(owner: string, apiKey: string, page: number, limit: number) {
+async function fetchRestPage(
+  owner: string,
+  apiKey: string,
+  page: number,
+  limit: number
+) {
   const url = `${resolveHeliusRestBase()}/v0/addresses/${owner}/nfts?api-key=${apiKey}&pageNumber=${page}&pageSize=${limit}`;
   const resp = await fetch(url, { cache: "no-store" });
   return resp;
@@ -171,7 +181,9 @@ function adaptHeliusRestToDas(rest: any[]): DASAsset[] {
 /** ----- GET all pages from DAS; fall back to REST ----- */
 export async function POST(req: NextRequest) {
   try {
-    const { owner } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const owner = body?.owner as string | undefined;
+
     if (!owner || typeof owner !== "string") {
       return NextResponse.json({ error: "Missing owner" }, { status: 400 });
     }
@@ -189,11 +201,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const COLLECTION_ID = (process.env.NEXT_PUBLIC_COLLECTION_ID || "").trim();
-    const CREATOR_ALLOW = (process.env.NEXT_PUBLIC_CREATOR_ALLOWLIST || "").trim();
+    // ----- NEW: allow per-request filters, fallback to env -----
+    const bodyCollection =
+      typeof body.collection === "string" ? body.collection.trim() : "";
+    const bodyCreators =
+      Array.isArray(body.creators) && body.creators.length
+        ? body.creators.join(",")
+        : typeof body.creators === "string"
+        ? body.creators
+        : "";
 
-    console.log("CFG collection:", COLLECTION_ID || "(none)");
-    console.log("CFG creators:", CREATOR_ALLOW || "(none)");
+    const envCollection =
+      (process.env.NEXT_PUBLIC_COLLECTION_ID || "").trim() || "";
+    const envCreators =
+      (process.env.NEXT_PUBLIC_CREATOR_ALLOWLIST || "").trim() || "";
+
+    const effectiveCollection = (bodyCollection || envCollection).trim();
+    const effectiveCreators = (bodyCreators || envCreators).trim();
+
+    console.log(
+      "CFG collection:",
+      effectiveCollection || "(none)"
+    );
+    console.log("CFG creators:", effectiveCreators || "(none)");
 
     const ALL: DASAsset[] = [];
     const LIMIT = 500;
@@ -201,13 +231,19 @@ export async function POST(req: NextRequest) {
     let usedRpc = false;
     let lastStatus = 0;
 
+    // ----- DAS RPC -----
     if (rpcEndpoint) {
       usedRpc = true;
       for (let page = 1; page < 9999; page++) {
         const r = await fetchDASPage(owner, rpcEndpoint, page, LIMIT);
         lastStatus = r.status;
         if (!r.ok) {
-          console.error("DAS RPC page error:", page, r.status, await r.text());
+          console.error(
+            "DAS RPC page error:",
+            page,
+            r.status,
+            await r.text()
+          );
           break;
         }
         const j = await r.json();
@@ -218,6 +254,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // ----- REST fallback -----
     if (ALL.length === 0 && apiKey) {
       for (let page = 1; page < 9999; page++) {
         const rr = await fetchRestPage(owner, apiKey, page, LIMIT);
@@ -242,13 +279,17 @@ export async function POST(req: NextRequest) {
     }
 
     const nfts = normalizeAndFilter(ALL, {
-      collectionId: COLLECTION_ID,
-      creatorsCsv: CREATOR_ALLOW,
+      collectionId: effectiveCollection,
+      creatorsCsv: effectiveCreators,
     });
 
+    // IMPORTANT: keep the same shape { nfts } so MAGApixel keeps working
     return NextResponse.json({ nfts });
   } catch (e) {
     console.error("NFT fetch failed:", e);
-    return NextResponse.json({ error: "Failed to fetch NFTs" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch NFTs" },
+      { status: 500 }
+    );
   }
 }
