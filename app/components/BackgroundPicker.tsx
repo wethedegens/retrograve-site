@@ -2,28 +2,7 @@
 "use client";
 
 import React, { ChangeEvent } from "react";
-
-/**
- * Local BgChoice type for this picker.
- * - Supports the "color" variant.
- * - Supports "image" with either `value` or `image` field so it
- *   stays compatible with whatever Composer is using internally.
- */
-type BgChoice =
-  | {
-      kind: "color";
-      value: string;
-    }
-  | {
-      kind: "image";
-      value: string;
-      file?: File;
-    }
-  | {
-      kind: "image";
-      image: string;
-      file?: File;
-    };
+import type { BgChoice } from "./Composer";
 
 type Props = {
   value: BgChoice;
@@ -93,7 +72,7 @@ const SOLID_COLORS = ["#000000", "#111827", "#4b5563", "#9ca3af", "#f9fafb"];
 
 function BackgroundPicker({ value, onChange, project }: Props) {
   const isColor = value.kind === "color";
-  const currentColor = isColor ? (value as Extract<BgChoice, { kind: "color" }>).value : "";
+  const currentColor = isColor ? value.value : "";
 
   const palette = project === "miners" ? PRESET_MINERS : PRESET_MAGAPIXEL;
 
@@ -109,31 +88,30 @@ function BackgroundPicker({ value, onChange, project }: Props) {
     const file = e.target.files?.[0];
     if (!file) return;
     const url = URL.createObjectURL(file);
-    onChange({ kind: "image", value: url, file });
+
+    // image-variant wants `image`, not `value`
+    onChange({ kind: "image", image: url, file });
   };
 
   // Static PNGs from /public — we only really need the URL,
-  // but the "image" BgChoice variant may expect a File.
+  // but the "image" BgChoice variant also allows an optional File.
   const handleMinerImageClick = (src: string, index: number) => {
+    let file: File | undefined;
+
     try {
-      const file = new File([], `miner-wallpaper-${index + 1}.png`, {
+      file = new File([], `miner-wallpaper-${index + 1}.png`, {
         type: "image/png",
       });
-
-      onChange({
-        kind: "image",
-        value: src,
-        file,
-      });
     } catch {
-      // Very old / weird environments might not support new File().
-      // Fall back with a dummy cast so TS is satisfied.
-      onChange({
-        kind: "image",
-        value: src,
-        file: undefined as unknown as File,
-      });
+      // Older / odd environments: ignore File creation, URL is enough.
+      file = undefined;
     }
+
+    onChange({
+      kind: "image",
+      image: src,
+      file,
+    });
   };
 
   return (
@@ -218,9 +196,7 @@ function BackgroundPicker({ value, onChange, project }: Props) {
           >
             {MINER_IMAGE_BACKGROUNDS.map((src, idx) => {
               const active =
-                value.kind === "image" &&
-                // support both `value` and `image` fields
-                (((value as any).value ?? (value as any).image) === src);
+                value.kind === "image" && value.image === src;
 
               return (
                 <button
