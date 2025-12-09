@@ -8,7 +8,6 @@ import WalletGate from "../components/WalletGate";
 import NftGrid, { NFT } from "../components/NftGrid";
 
 // 🔐 Hard-coded Enchanted Miners filters
-// From the JSON you sent:
 const MINERS_COLLECTION = "GzhXjRxLXWkzW6vDVyHgbYmqW75xrfh4WvgVKQ8XA1su";
 const MINERS_CREATORS = [
   "9Ci6L43CmtaMaNEG1iTHEwvddYvSVG934gyb64EcYnw8",
@@ -79,8 +78,10 @@ export default function MyMinersPage() {
   function handlePick(nft: NFT) {
     if (!nft.id) return;
 
-    // ⬇️ THIS is the important part: send to the phone locker
-    router.push(`/locker?mint=${encodeURIComponent(nft.id)}`);
+    // 🔹 Tag this as a Miners locker so we can swap backgrounds
+    router.push(
+      `/locker?mint=${encodeURIComponent(nft.id)}&project=miners`
+    );
   }
 
   return (

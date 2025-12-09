@@ -1,179 +1,195 @@
+// app/components/BackgroundPicker.tsx
 "use client";
 
-import { useRef } from "react";
-import {
-  BACKGROUNDS,
-  type BackgroundConfig,
-} from "../backgroundsConfig";
+import React, { ChangeEvent } from "react";
 
 export type BgChoice =
   | { kind: "color"; value: string }
-  | { kind: "image"; file: File } // user-uploaded
-  | { kind: "preset"; id: string }; // new: one of your configured backgrounds
+  | { kind: "image"; value: string };
 
-const COLOR_SWATCHES = ["#2e2548", "#3e2d75", "#6a49b8", "#0e0e12", "#1b1a22"];
-
-export default function BackgroundPicker({
-  value,
-  onChange,
-}: {
-  value: BgChoice | null;
+type Props = {
+  value: BgChoice;
   onChange: (bg: BgChoice) => void;
-}) {
-  const fileRef = useRef<HTMLInputElement | null>(null);
+  // "magapixel" (default), "miners", or future projects
+  project?: string;
+};
 
-  const selectedPresetId =
-    value && value.kind === "preset" ? value.id : null;
-  const selectedColor =
-    value && value.kind === "color" ? value.value.toLowerCase() : null;
+// Darker / neon palette for MAGApixel / RetroGrave style
+const PRESET_MAGAPIXEL = [
+  "#3e2d75",
+  "#241b3e",
+  "#4b256d",
+  "#1f1f3a",
+  "#ff6b6b",
+  "#f7c948",
+  "#3b82f6",
+  "#10b981",
+];
 
-  const handlePresetClick = (bg: BackgroundConfig) => {
-    onChange({ kind: "preset", id: bg.id });
+// Softer, enchanted palette for ENCHANTED MINERS
+const PRESET_MINERS = [
+  "#fef3c7", // soft cream
+  "#bfdbfe", // light blue
+  "#bbf7d0", // mint
+  "#fecaca", // soft pink
+  "#e9d5ff", // lavender
+  "#fde68a", // yellow
+  "#a5f3fc", // aqua
+  "#fbcfe8", // rose
+];
+
+const SOLID_COLORS = ["#000000", "#111827", "#4b5563", "#9ca3af", "#f9fafb"];
+
+function BackgroundPicker({ value, onChange, project }: Props) {
+  const isColor = value.kind === "color";
+  const currentColor = isColor ? value.value : "";
+
+  const palette =
+    project === "miners"
+      ? PRESET_MINERS
+      : PRESET_MAGAPIXEL;
+
+  const handlePresetClick = (color: string) => {
+    onChange({ kind: "color", value: color });
+  };
+
+  const handleSolidClick = (color: string) => {
+    onChange({ kind: "color", value: color });
+  };
+
+  const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    onChange({ kind: "image", value: url });
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      {/* PRESET IMAGE BACKGROUNDS */}
-      <div>
+    <section>
+      <div style={{ marginBottom: 8 }}>
         <div
           style={{
             fontSize: 12,
             textTransform: "uppercase",
-            letterSpacing: "0.18em",
-            color: "#a9a9b6",
-            marginBottom: 6,
+            letterSpacing: "0.14em",
+            opacity: 0.8,
+            marginBottom: 4,
           }}
         >
-          Preset backgrounds
+          PRESET BACKGROUNDS
         </div>
         <div
           style={{
             display: "flex",
             gap: 8,
-            overflowX: "auto",
-            paddingBottom: 4,
+            alignItems: "center",
+            flexWrap: "wrap",
           }}
         >
-          {BACKGROUNDS.map((bg) => {
-            const isSelected = selectedPresetId === bg.id;
+          {palette.map((color) => {
+            const active = isColor && currentColor === color;
             return (
               <button
-                key={bg.id}
+                key={color}
                 type="button"
-                aria-label={bg.label}
-                onClick={() => handlePresetClick(bg)}
+                onClick={() => handlePresetClick(color)}
                 style={{
-                  position: "relative",
-                  width: 30,
-                  height: 30,
-                  borderRadius: 9999,
-                  border: isSelected
-                    ? "2px solid rgba(129, 199, 255, 0.9)"
-                    : "1px solid rgba(255,255,255,.25)",
+                  width: 22,
+                  height: 22,
+                  borderRadius: "999px",
+                  border: active ? "2px solid #ffffff" : "2px solid transparent",
                   padding: 0,
-                  background: "transparent",
+                  backgroundColor: "#111827",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                   cursor: "pointer",
-                  outline: "none",
-                  flexShrink: 0,
                 }}
               >
-                <div
+                <span
                   style={{
-                    position: "absolute",
-                    left: 2,
-                    top: 2,
-                    right: 2,
-                    bottom: 2,
-                    borderRadius: 9999,
-                    overflow: "hidden",
+                    width: 16,
+                    height: 16,
+                    borderRadius: "999px",
+                    background: color,
                   }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={bg.thumb}
-                    alt={bg.label}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      display: "block",
-                    }}
-                    loading="lazy"
-                  />
-                </div>
+                />
               </button>
             );
           })}
         </div>
-        <div style={{ fontSize: 11, color: "#8a8aa0", minHeight: 16 }}>
-          {selectedPresetId && (
-            <span>
-              Selected:{" "}
-              {BACKGROUNDS.find((b) => b.id === selectedPresetId)?.label ??
-                selectedPresetId}
-            </span>
-          )}
-        </div>
       </div>
 
-      {/* SIMPLE COLOR SWATCHES (what you already had) */}
-      <div>
+      <div style={{ marginTop: 12, marginBottom: 8 }}>
         <div
           style={{
             fontSize: 12,
             textTransform: "uppercase",
-            letterSpacing: "0.18em",
-            color: "#a9a9b6",
-            marginBottom: 6,
+            letterSpacing: "0.14em",
+            opacity: 0.8,
+            marginBottom: 4,
           }}
         >
-          Solid colors
+          SOLID COLORS
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          {COLOR_SWATCHES.map((hex) => (
-            <button
-              key={hex}
-              aria-label={`background ${hex}`}
-              onClick={() => onChange({ kind: "color", value: hex })}
-              style={{
-                width: 22,
-                height: 22,
-                borderRadius: 9999,
-                border: "1px solid rgba(255,255,255,.25)",
-                background: hex,
-                outline:
-                  selectedColor === hex.toLowerCase()
-                    ? "2px solid rgba(189,163,255,.9)"
-                    : "none",
-                cursor: "pointer",
-              }}
-            />
-          ))}
+        <div
+          style={{
+            display: "flex",
+            gap: 8,
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}
+        >
+          {SOLID_COLORS.map((color) => {
+            const active = isColor && currentColor === color;
+            return (
+              <button
+                key={color}
+                type="button"
+                onClick={() => handleSolidClick(color)}
+                style={{
+                  width: 18,
+                  height: 18,
+                  borderRadius: "999px",
+                  border: active ? "2px solid #ffffff" : "2px solid transparent",
+                  padding: 0,
+                  backgroundColor: "#111827",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                }}
+              >
+                <span
+                  style={{
+                    width: 12,
+                    height: 12,
+                    borderRadius: "999px",
+                    background: color,
+                  }}
+                />
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* UPLOAD AREA */}
-      <div>
+      <div style={{ marginTop: 12 }}>
         <div
           style={{
-            marginTop: 6,
             fontSize: 12,
-            color: "#a9a9b6",
+            textTransform: "uppercase",
+            letterSpacing: "0.14em",
+            opacity: 0.8,
+            marginBottom: 4,
           }}
         >
           Or upload a background
         </div>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          onChange={(e) => {
-            const f = e.target.files?.[0];
-            if (f) onChange({ kind: "image", file: f });
-          }}
-          style={{ marginTop: 8, fontSize: 12 }}
-        />
+        <input type="file" accept="image/*" onChange={handleUpload} />
       </div>
-    </div>
+    </section>
   );
 }
+
+export default BackgroundPicker;

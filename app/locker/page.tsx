@@ -1,5 +1,3 @@
-// TEMP: force deploy after restore
-
 // app/locker/page.tsx
 "use client";
 
@@ -31,6 +29,9 @@ function LockerInner() {
   const uri = sp.get("uri") || "";
   const devMode = sp.get("devbg") === "1";
 
+  // 🔹 project tag: "magapixel" | "miners" | whatever else later
+  const project = (sp.get("project") || "magapixel").toLowerCase();
+
   const imageParam = sp.get("image") || "";
   const nameParam = sp.get("name") || "";
 
@@ -52,7 +53,7 @@ function LockerInner() {
   });
 
   const [loading, setLoading] = useState(false);
-  const [hint, setHint] = useState<null | string>(null); // kept for DevBgTester hook-in
+  const [hint, setHint] = useState<null | string>(null);
 
   // keep bg in sync with initialBg
   useEffect(() => {
@@ -133,10 +134,12 @@ function LockerInner() {
     };
   }, [mint, uri, imageParam, nameParam]);
 
+  const gridHref = project === "miners" ? "/my-miners" : "/retrogs";
+
   return (
     <main style={{ padding: "18px 0 80px" }}>
       <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 18px" }}>
-        <a href="/retrogs" style={{ color: "#bda9ff", opacity: 0.85 }}>
+        <a href={gridHref} style={{ color: "#bda9ff", opacity: 0.85 }}>
           ← back to grid
         </a>
 
@@ -152,7 +155,11 @@ function LockerInner() {
         >
           {/* LEFT PANEL */}
           <div className="left-panel">
-            <BackgroundPicker value={bg || initialBg} onChange={setBg} />
+            <BackgroundPicker
+              value={bg || initialBg}
+              onChange={setBg}
+              project={project}
+            />
             <div style={{ height: 12 }} />
             <ExportButtons composerRef={composerRef} />
             <div style={{ height: 12 }} />
@@ -204,7 +211,6 @@ function LockerInner() {
                   zIndex: 1,
                 }}
               >
-                {/* Composer handles its own hint pill */}
                 <Composer ref={composerRef} nft={nft} bg={bg || initialBg} />
               </div>
             </div>
@@ -220,7 +226,6 @@ function LockerInner() {
 
       {/* RESPONSIVE LAYOUT */}
       <style jsx>{`
-        /* Default desktop: two columns, phone centered in right column */
         .phone-frame {
           margin-left: auto;
           margin-right: auto;
