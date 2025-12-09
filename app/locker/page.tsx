@@ -30,7 +30,7 @@ function LockerInner() {
   const uri = sp.get("uri") || "";
   const devMode = sp.get("devbg") === "1";
 
-  // 🔹 project tag: "magapixel" | "miners" | whatever else later
+  // "magapixel" (default) or "miners"
   const project = (sp.get("project") || "magapixel").toLowerCase();
 
   const imageParam = sp.get("image") || "";
@@ -43,7 +43,9 @@ function LockerInner() {
     []
   );
 
-  const [bg, setBg] = useState<BgChoice | null>(initialBg);
+  // Keep bg as a non-null BgChoice to make TS happy
+  const [bg, setBg] = useState<BgChoice>(initialBg);
+
   const [nft, setNft] = useState<SimpleNft | null>(() => {
     if (!mint && !imageParam) return null;
     return {
@@ -56,12 +58,12 @@ function LockerInner() {
   const [loading, setLoading] = useState(false);
   const [hint, setHint] = useState<null | string>(null);
 
-  // keep bg in sync with initialBg
+  // keep bg in sync with initialBg when it changes
   useEffect(() => {
     setBg(initialBg);
   }, [initialBg]);
 
-  // dev background tester (updates bg + optional hint text)
+  // dev background tester (updates hint, and resets bg when cleared)
   useEffect(() => {
     if (!devMode) return;
 
@@ -70,6 +72,8 @@ function LockerInner() {
       const url = ev.detail;
 
       if (url) {
+        // if you ever want devbg to override, you could:
+        // setBg({ kind: "image", value: url });
         setHint("Using dev background (local file)");
       } else {
         setBg(initialBg);
@@ -157,7 +161,7 @@ function LockerInner() {
           {/* LEFT PANEL */}
           <div className="left-panel">
             <BackgroundPicker
-              value={bg || initialBg}
+              value={bg}
               onChange={setBg}
               project={project}
             />
@@ -212,7 +216,7 @@ function LockerInner() {
                   zIndex: 1,
                 }}
               >
-                <Composer ref={composerRef} nft={nft} bg={bg || initialBg} />
+                <Composer ref={composerRef} nft={nft} bg={bg} />
               </div>
             </div>
           </div>

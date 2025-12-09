@@ -2,7 +2,28 @@
 "use client";
 
 import React, { ChangeEvent } from "react";
-import type { BgChoice } from "./Composer";
+
+/**
+ * Local BgChoice type for this picker.
+ * - Supports the "color" variant.
+ * - Supports "image" with either `value` or `image` field so it
+ *   stays compatible with whatever Composer is using internally.
+ */
+type BgChoice =
+  | {
+      kind: "color";
+      value: string;
+    }
+  | {
+      kind: "image";
+      value: string;
+      file?: File;
+    }
+  | {
+      kind: "image";
+      image: string;
+      file?: File;
+    };
 
 type Props = {
   value: BgChoice;
@@ -35,16 +56,46 @@ const PRESET_MINERS = [
   "#fbcfe8",
 ];
 
+// Static miner wallpaper images (phone-sized) living in /public/miners-bgs
+// ➜ Make sure these files exist: public/miners-bgs/bg-1.png ... bg-28.png
+const MINER_IMAGE_BACKGROUNDS: string[] = [
+  "/miners-bgs/bg-1.png",
+  "/miners-bgs/bg-2.png",
+  "/miners-bgs/bg-3.png",
+  "/miners-bgs/bg-4.png",
+  "/miners-bgs/bg-5.png",
+  "/miners-bgs/bg-6.png",
+  "/miners-bgs/bg-7.png",
+  "/miners-bgs/bg-8.png",
+  "/miners-bgs/bg-9.png",
+  "/miners-bgs/bg-10.png",
+  "/miners-bgs/bg-11.png",
+  "/miners-bgs/bg-12.png",
+  "/miners-bgs/bg-13.png",
+  "/miners-bgs/bg-14.png",
+  "/miners-bgs/bg-15.png",
+  "/miners-bgs/bg-16.png",
+  "/miners-bgs/bg-17.png",
+  "/miners-bgs/bg-18.png",
+  "/miners-bgs/bg-19.png",
+  "/miners-bgs/bg-20.png",
+  "/miners-bgs/bg-21.png",
+  "/miners-bgs/bg-22.png",
+  "/miners-bgs/bg-23.png",
+  "/miners-bgs/bg-24.png",
+  "/miners-bgs/bg-25.png",
+  "/miners-bgs/bg-26.png",
+  "/miners-bgs/bg-27.png",
+  "/miners-bgs/bg-28.png",
+];
+
 const SOLID_COLORS = ["#000000", "#111827", "#4b5563", "#9ca3af", "#f9fafb"];
 
 function BackgroundPicker({ value, onChange, project }: Props) {
   const isColor = value.kind === "color";
-  const currentColor = isColor ? value.value : "";
+  const currentColor = isColor ? (value as Extract<BgChoice, { kind: "color" }>).value : "";
 
-  const palette =
-    project === "miners"
-      ? PRESET_MINERS
-      : PRESET_MAGAPIXEL;
+  const palette = project === "miners" ? PRESET_MINERS : PRESET_MAGAPIXEL;
 
   const handlePresetClick = (color: string) => {
     onChange({ kind: "color", value: color });
@@ -61,9 +112,33 @@ function BackgroundPicker({ value, onChange, project }: Props) {
     onChange({ kind: "image", value: url, file });
   };
 
+  // Static PNGs from /public — we only really need the URL,
+  // but the "image" BgChoice variant may expect a File.
+  const handleMinerImageClick = (src: string, index: number) => {
+    try {
+      const file = new File([], `miner-wallpaper-${index + 1}.png`, {
+        type: "image/png",
+      });
+
+      onChange({
+        kind: "image",
+        value: src,
+        file,
+      });
+    } catch {
+      // Very old / weird environments might not support new File().
+      // Fall back with a dummy cast so TS is satisfied.
+      onChange({
+        kind: "image",
+        value: src,
+        file: undefined as unknown as File,
+      });
+    }
+  };
+
   return (
     <section>
-      {/* PRESET BACKGROUNDS */}
+      {/* PRESET BACKGROUNDS (COLOR PALETTE) */}
       <div style={{ marginBottom: 8 }}>
         <div
           style={{
@@ -117,6 +192,69 @@ function BackgroundPicker({ value, onChange, project }: Props) {
           })}
         </div>
       </div>
+
+      {/* MINER WALLPAPERS (PNG BACKGROUNDS FROM /public/miners-bgs) */}
+      {project === "miners" && (
+        <div style={{ marginTop: 12, marginBottom: 8 }}>
+          <div
+            style={{
+              fontSize: 12,
+              textTransform: "uppercase",
+              letterSpacing: "0.14em",
+              opacity: 0.8,
+              marginBottom: 4,
+            }}
+          >
+            MINER WALLPAPERS
+          </div>
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              alignItems: "center",
+              overflowX: "auto",
+              paddingBottom: 4,
+            }}
+          >
+            {MINER_IMAGE_BACKGROUNDS.map((src, idx) => {
+              const active =
+                value.kind === "image" &&
+                // support both `value` and `image` fields
+                (((value as any).value ?? (value as any).image) === src);
+
+              return (
+                <button
+                  key={src}
+                  type="button"
+                  onClick={() => handleMinerImageClick(src, idx)}
+                  style={{
+                    borderRadius: 10,
+                    border: active
+                      ? "2px solid #ffffff"
+                      : "2px solid transparent",
+                    padding: 0,
+                    backgroundColor: "transparent",
+                    cursor: "pointer",
+                    flex: "0 0 auto",
+                  }}
+                >
+                  <img
+                    src={src}
+                    alt={`Miner wallpaper ${idx + 1}`}
+                    style={{
+                      display: "block",
+                      width: 52,
+                      height: 92,
+                      objectFit: "cover",
+                      borderRadius: 8,
+                    }}
+                  />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* SOLID COLORS */}
       <div style={{ marginTop: 12, marginBottom: 8 }}>
