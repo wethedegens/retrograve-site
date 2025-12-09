@@ -1,3 +1,4 @@
+// app/my-miners/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,12 +7,13 @@ import { useRouter } from "next/navigation";
 import WalletGate from "../components/WalletGate";
 import NftGrid, { NFT } from "../components/NftGrid";
 
-const MINERS_COLLECTION =
-  process.env.NEXT_PUBLIC_MINERS_COLLECTION || "";
-const MINERS_CREATORS = (process.env.NEXT_PUBLIC_MINERS_CREATORS || "")
-  .split(",")
-  .map((s) => s.trim())
-  .filter(Boolean);
+// 🔐 Hard-coded Enchanted Miners filters
+// From the JSON you sent:
+const MINERS_COLLECTION = "GzhXjRxLXWkzW6vDVyHgbYmqW75xrfh4WvgVKQ8XA1su";
+const MINERS_CREATORS = [
+  "9Ci6L43CmtaMaNEG1iTHEwvddYvSVG934gyb64EcYnw8",
+  "GL9T6pujGvqYcZCR1g1rq2retkh1XekbGvNWMKrDhS6P",
+];
 
 type NftsResponse = {
   nfts: {
@@ -45,8 +47,8 @@ export default function MyMinersPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             owner,
-            collection: MINERS_COLLECTION || undefined,
-            creators: MINERS_CREATORS.length ? MINERS_CREATORS : undefined,
+            collection: MINERS_COLLECTION,
+            creators: MINERS_CREATORS,
           }),
         });
 
