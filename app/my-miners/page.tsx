@@ -78,7 +78,9 @@ export default function MyMinersPage() {
 
   function handlePick(nft: NFT) {
     if (!nft.id) return;
-    router.push(`/enchanted-miners?mint=${encodeURIComponent(nft.id)}`);
+
+    // ⬇️ THIS is the important part: send to the phone locker
+    router.push(`/locker?mint=${encodeURIComponent(nft.id)}`);
   }
 
   return (
