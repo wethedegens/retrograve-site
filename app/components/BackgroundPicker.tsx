@@ -2,10 +2,7 @@
 "use client";
 
 import React, { ChangeEvent } from "react";
-
-export type BgChoice =
-  | { kind: "color"; value: string }
-  | { kind: "image"; value: string };
+import type { BgChoice } from "./Composer";
 
 type Props = {
   value: BgChoice;
@@ -28,14 +25,14 @@ const PRESET_MAGAPIXEL = [
 
 // Softer, enchanted palette for ENCHANTED MINERS
 const PRESET_MINERS = [
-  "#fef3c7", // soft cream
-  "#bfdbfe", // light blue
-  "#bbf7d0", // mint
-  "#fecaca", // soft pink
-  "#e9d5ff", // lavender
-  "#fde68a", // yellow
-  "#a5f3fc", // aqua
-  "#fbcfe8", // rose
+  "#fef3c7",
+  "#bfdbfe",
+  "#bbf7d0",
+  "#fecaca",
+  "#e9d5ff",
+  "#fde68a",
+  "#a5f3fc",
+  "#fbcfe8",
 ];
 
 const SOLID_COLORS = ["#000000", "#111827", "#4b5563", "#9ca3af", "#f9fafb"];
@@ -61,11 +58,12 @@ function BackgroundPicker({ value, onChange, project }: Props) {
     const file = e.target.files?.[0];
     if (!file) return;
     const url = URL.createObjectURL(file);
-    onChange({ kind: "image", value: url });
+    onChange({ kind: "image", value: url, file });
   };
 
   return (
     <section>
+      {/* PRESET BACKGROUNDS */}
       <div style={{ marginBottom: 8 }}>
         <div
           style={{
@@ -120,6 +118,7 @@ function BackgroundPicker({ value, onChange, project }: Props) {
         </div>
       </div>
 
+      {/* SOLID COLORS */}
       <div style={{ marginTop: 12, marginBottom: 8 }}>
         <div
           style={{
@@ -174,6 +173,7 @@ function BackgroundPicker({ value, onChange, project }: Props) {
         </div>
       </div>
 
+      {/* UPLOAD */}
       <div style={{ marginTop: 12 }}>
         <div
           style={{

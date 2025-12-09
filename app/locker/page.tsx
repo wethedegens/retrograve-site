@@ -4,13 +4,14 @@
 import { useEffect, useMemo, useRef, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
-import BackgroundPicker, { BgChoice } from "../components/BackgroundPicker";
-import ExportButtons from "../components/ExportButtons";
+import BackgroundPicker from "../components/BackgroundPicker";
 import Composer, {
   type ComposerHandle,
   type SimpleNft,
   type MetaAttribute,
+  type BgChoice,
 } from "../components/Composer";
+import ExportButtons from "../components/ExportButtons";
 import ShareActions from "../components/ShareActions";
 import DevBgTester from "../components/DevBgTester";
 import ClientOnly from "../components/ClientOnly";
