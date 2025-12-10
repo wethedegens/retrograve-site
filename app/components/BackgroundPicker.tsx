@@ -11,31 +11,10 @@ type Props = {
   project?: string;
 };
 
-// Darker / neon palette for MAGApixel / RetroGrave style
-const PRESET_MAGAPIXEL = [
-  "#3e2d75",
-  "#241b3e",
-  "#4b256d",
-  "#1f1f3a",
-  "#ff6b6b",
-  "#f7c948",
-  "#3b82f6",
-  "#10b981",
-];
-
-// Softer, enchanted palette for ENCHANTED MINERS
-const PRESET_MINERS = [
-  "#fef3c7",
-  "#bfdbfe",
-  "#bbf7d0",
-  "#fecaca",
-  "#e9d5ff",
-  "#fde68a",
-  "#a5f3fc",
-  "#fbcfe8",
-];
-
-// Static miner wallpaper images (phone-sized) in /public/enchanted-miners/phone
+/**
+ * ENCHANTED MINERS: static phone-sized PNGs
+ * Folder: /public/enchanted-miners/phone/bg-1.png ... bg-28.png
+ */
 const MINER_IMAGE_BACKGROUNDS: string[] = [
   "/enchanted-miners/phone/bg-1.png",
   "/enchanted-miners/phone/bg-2.png",
@@ -65,22 +44,38 @@ const MINER_IMAGE_BACKGROUNDS: string[] = [
   "/enchanted-miners/phone/bg-28.png",
 ];
 
-const SOLID_COLORS = ["#000000", "#111827", "#4b5563", "#9ca3af", "#f9fafb"];
+/**
+ * MAGAPIXEL: background packs with phone / ipad / desktop / thumb
+ * Folder structure:
+ *   /public/backgrounds/<slug>/thumb.png
+ *   /public/backgrounds/<slug>/phone.png
+ * (we’ll use the phone size as the main wallpaper)
+ */
+const MAGAPIXEL_BACKGROUND_SLUGS: string[] = [
+  "austere-grey",
+  "bitcoined",
+  "black",
+  "bookcase-brown",
+  "in-the-vault",
+  "make-art-great-again",
+  "military-green",
+  "navy-blue",
+  "north-american-sky",
+  "out-at-night",
+  "patriotic",
+  "republican-red",
+  "sea-to-shining-sea",
+  "trump-international-golf-club",
+  "whitehouse-hallway",
+];
 
 function BackgroundPicker({ value, onChange, project }: Props) {
-  const isColor = value.kind === "color";
-  const currentColor = isColor ? (value as any).value : "";
+  const current = value as any;
 
-  const palette = project === "miners" ? PRESET_MINERS : PRESET_MAGAPIXEL;
+  const isActiveImage = (src: string) =>
+    current?.kind === "image" && current?.value === src;
 
-  const handlePresetClick = (color: string) => {
-    onChange({ kind: "color", value: color } as BgChoice);
-  };
-
-  const handleSolidClick = (color: string) => {
-    onChange({ kind: "color", value: color } as BgChoice);
-  };
-
+  /** Upload handler (works for both projects) */
   const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -88,7 +83,6 @@ function BackgroundPicker({ value, onChange, project }: Props) {
 
     const bg = {
       kind: "image",
-      image: url,
       value: url,
       file,
     } as any as BgChoice;
@@ -96,95 +90,56 @@ function BackgroundPicker({ value, onChange, project }: Props) {
     onChange(bg);
   };
 
-  // Miner wallpaper click → fetch PNG, wrap in File, send to Composer
-  const handleMinerImageClick = async (src: string, index: number) => {
+  /** Enchanted Miners: click one of the phone PNGs */
+  const handleMinerImageClick = (src: string, index: number) => {
+    let file: File;
     try {
-      const res = await fetch(src);
-      const blob = await res.blob();
-
-      const file = new File([blob], `miner-wallpaper-${index + 1}.png`, {
-        type: blob.type || "image/png",
+      file = new File([], `miner-wallpaper-${index + 1}.png`, {
+        type: "image/png",
       });
-
-      const bg = {
-        kind: "image",
-        image: src,
-        value: src,
-        file,
-      } as any as BgChoice;
-
-      onChange(bg);
-    } catch (err) {
-      console.error("Failed to load miner wallpaper", src, err);
+    } catch {
+      // Fallback for weird / old environments – satisfy TS with a dummy cast.
+      file = undefined as unknown as File;
     }
+
+    const bg = {
+      kind: "image",
+      value: src,
+      file,
+    } as any as BgChoice;
+
+    onChange(bg);
+  };
+
+  /** MAGApixel: use /backgrounds/<slug>/phone.png as wallpaper */
+  const handleMagapixelClick = (slug: string, index: number) => {
+    const phoneSrc = `/backgrounds/${slug}/phone.png`;
+
+    let file: File;
+    try {
+      file = new File([], `magapixel-bg-${slug}-${index + 1}.png`, {
+        type: "image/png",
+      });
+    } catch {
+      file = undefined as unknown as File;
+    }
+
+    const bg = {
+      kind: "image",
+      value: phoneSrc,
+      file,
+    } as any as BgChoice;
+
+    onChange(bg);
   };
 
   const isMiners = project === "miners";
 
   return (
     <section>
-      {/* PRESET BACKGROUNDS (MAGAPIXEL / NON-MINERS ONLY) */}
-      {!isMiners && (
-        <div style={{ marginBottom: 8 }}>
-          <div
-            style={{
-              fontSize: 12,
-              textTransform: "uppercase",
-              letterSpacing: "0.14em",
-              opacity: 0.8,
-              marginBottom: 4,
-            }}
-          >
-            PRESET BACKGROUNDS
-          </div>
-          <div
-            style={{
-              display: "flex",
-              gap: 8,
-              alignItems: "center",
-              flexWrap: "wrap",
-            }}
-          >
-            {palette.map((color) => {
-              const active = isColor && currentColor === color;
-              return (
-                <button
-                  key={color}
-                  type="button"
-                  onClick={() => handlePresetClick(color)}
-                  style={{
-                    width: 22,
-                    height: 22,
-                    borderRadius: "999px",
-                    border: active
-                      ? "2px solid #ffffff"
-                      : "2px solid transparent",
-                    padding: 0,
-                    backgroundColor: "#111827",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                  }}
-                >
-                  <span
-                    style={{
-                      width: 16,
-                      height: 16,
-                      borderRadius: "999px",
-                      background: color,
-                    }}
-                  />
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* MINER WALLPAPERS (MINERS ONLY) */}
+      {/* MINERS STRIP */}
       {isMiners && (
-        <div style={{ marginTop: 12, marginBottom: 8 }}>
+        <div style={{ marginBottom: 8 }}>
           <div
             style={{
               fontSize: 12,
@@ -206,16 +161,12 @@ function BackgroundPicker({ value, onChange, project }: Props) {
             }}
           >
             {MINER_IMAGE_BACKGROUNDS.map((src, idx) => {
-              const active =
-                (value as any).kind === "image" &&
-                (((value as any).image && (value as any).image === src) ||
-                  (value as any).value === src);
-
+              const active = isActiveImage(src);
               return (
                 <button
                   key={src}
                   type="button"
-                  onClick={() => void handleMinerImageClick(src, idx)}
+                  onClick={() => handleMinerImageClick(src, idx)}
                   style={{
                     borderRadius: 10,
                     border: active
@@ -245,9 +196,9 @@ function BackgroundPicker({ value, onChange, project }: Props) {
         </div>
       )}
 
-      {/* SOLID COLORS (MAGAPIXEL / NON-MINERS ONLY) */}
+      {/* MAGAPIXEL STRIP (default when not miners) */}
       {!isMiners && (
-        <div style={{ marginTop: 12, marginBottom: 8 }}>
+        <div style={{ marginBottom: 8 }}>
           <div
             style={{
               fontSize: 12,
@@ -257,44 +208,47 @@ function BackgroundPicker({ value, onChange, project }: Props) {
               marginBottom: 4,
             }}
           >
-            SOLID COLORS
+            MAGAPIXEL BACKGROUNDS
           </div>
           <div
             style={{
               display: "flex",
               gap: 8,
               alignItems: "center",
-              flexWrap: "wrap",
+              overflowX: "auto",
+              paddingBottom: 4,
             }}
           >
-            {SOLID_COLORS.map((color) => {
-              const active = isColor && currentColor === color;
+            {MAGAPIXEL_BACKGROUND_SLUGS.map((slug, idx) => {
+              const phoneSrc = `/backgrounds/${slug}/phone.png`;
+              const thumbSrc = `/backgrounds/${slug}/thumb.png`;
+              const active = isActiveImage(phoneSrc);
+
               return (
                 <button
-                  key={color}
+                  key={slug}
                   type="button"
-                  onClick={() => handleSolidClick(color)}
+                  onClick={() => handleMagapixelClick(slug, idx)}
                   style={{
-                    width: 18,
-                    height: 18,
-                    borderRadius: "999px",
+                    borderRadius: 10,
                     border: active
                       ? "2px solid #ffffff"
                       : "2px solid transparent",
                     padding: 0,
-                    backgroundColor: "#111827",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    backgroundColor: "transparent",
                     cursor: "pointer",
+                    flex: "0 0 auto",
                   }}
                 >
-                  <span
+                  <img
+                    src={thumbSrc}
+                    alt={slug}
                     style={{
-                      width: 12,
-                      height: 12,
-                      borderRadius: "999px",
-                      background: color,
+                      display: "block",
+                      width: 52,
+                      height: 92,
+                      objectFit: "cover",
+                      borderRadius: 8,
                     }}
                   />
                 </button>
@@ -304,7 +258,7 @@ function BackgroundPicker({ value, onChange, project }: Props) {
         </div>
       )}
 
-      {/* UPLOAD (SHARED) */}
+      {/* UPLOAD (shared) */}
       <div style={{ marginTop: 12 }}>
         <div
           style={{
