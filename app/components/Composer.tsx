@@ -225,7 +225,7 @@ const Composer = forwardRef<
       ctx.fillStyle = activeBg.value || "#2b2146";
       ctx.fillRect(0, 0, size.w, size.h);
     } else if (activeBg.kind === "image") {
-      // ✅ NEW: handle both static URLs and uploaded File blobs
+      // handle both static URLs and uploaded File blobs
       const anyBg = activeBg as any;
       const src: string | undefined = anyBg.image || anyBg.value;
 
@@ -410,6 +410,12 @@ const Composer = forwardRef<
           padding: 8px 8px 10px;
           gap: 4px;
         }
+
+        /* 🧹 Hide any unexpected extra direct children (like old BACK button) */
+        .phone-surface > :not(.phone-hint):not(.phone-canvas) {
+          display: none;
+        }
+
         .phone-hint {
           align-self: start;
           justify-self: center;
