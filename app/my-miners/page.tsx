@@ -31,7 +31,7 @@ export default function MyMinersPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 🔁 Override the top nav label "MY RETROGRAVES" → "MY MINERS"
+  // 🔁 Override top nav label
   useEffect(() => {
     if (typeof document === "undefined") return;
 
@@ -42,7 +42,6 @@ export default function MyMinersPage() {
     anchors.forEach((a) => {
       const label = a.textContent?.trim().toUpperCase();
       if (!label) return;
-
       if (label === "MY RETROGRAVES") {
         a.textContent = "MY MINERS";
         a.setAttribute("href", "/my-miners");
@@ -50,6 +49,20 @@ export default function MyMinersPage() {
     });
   }, []);
 
+  // ❌ REMOVE the global wallet button ON THIS PAGE ONLY
+  useEffect(() => {
+    const btn = document.querySelector(
+      ".wallet-adapter-button"
+    ) as HTMLElement | null;
+    if (btn) btn.style.display = "none";
+
+    return () => {
+      // Put it back when leaving the page
+      if (btn) btn.style.display = "";
+    };
+  }, []);
+
+  // Load Miners
   useEffect(() => {
     if (!publicKey) return;
 
@@ -70,9 +83,7 @@ export default function MyMinersPage() {
           }),
         });
 
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         const json = (await res.json()) as NftsResponse;
 
@@ -96,16 +107,18 @@ export default function MyMinersPage() {
 
   function handlePick(nft: NFT) {
     if (!nft.id) return;
-
-    // 🔹 Tag this as a Miners locker so we can swap backgrounds
-    router.push(
-      `/locker?mint=${encodeURIComponent(nft.id)}&project=miners`
-    );
+    router.push(`/locker?mint=${encodeURIComponent(nft.id)}&project=miners`);
   }
 
   return (
     <WalletGate>
-      <main style={{ padding: "32px 18px 48px" }}>
+      <main
+        style={{
+          padding: "32px 18px 48px",
+          minHeight: "100vh",
+          backgroundColor: "#960ad3", // 💜 SOLID BACKGROUND COLOR
+        }}
+      >
         <header style={{ marginBottom: "24px" }}>
           <h1
             style={{
@@ -122,12 +135,8 @@ export default function MyMinersPage() {
           </p>
         </header>
 
-        {!publicKey && (
-          <p>Connect your wallet to see your Enchanted Miners.</p>
-        )}
-
+        {!publicKey && <p>Connect your wallet to see your Enchanted Miners.</p>}
         {publicKey && loading && <p>Loading your Enchanted Miners...</p>}
-
         {publicKey && error && (
           <p style={{ color: "#ff6b6b" }}>{error}</p>
         )}
