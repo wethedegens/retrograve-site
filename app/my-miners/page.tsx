@@ -31,13 +31,11 @@ export default function MyMinersPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 🔁 Override the top nav label "MY RETROGRAVES" → "MY MINERS"
+  // 🔁 Fix navigation label
   useEffect(() => {
     if (typeof document === "undefined") return;
 
-    const anchors = Array.from(
-      document.querySelectorAll("nav a")
-    ) as HTMLAnchorElement[];
+    const anchors = Array.from(document.querySelectorAll("nav a")) as HTMLAnchorElement[];
 
     anchors.forEach((a) => {
       const label = a.textContent?.trim().toUpperCase();
@@ -50,21 +48,17 @@ export default function MyMinersPage() {
     });
   }, []);
 
-  // ❌ Hide the global wallet button ONLY on this page
+  // ❌ Hide wallet button only on this page
   useEffect(() => {
-    const btn = document.querySelector(
-      ".wallet-adapter-button"
-    ) as HTMLElement | null;
-
+    const btn = document.querySelector(".wallet-adapter-button") as HTMLElement | null;
     if (btn) btn.style.display = "none";
 
     return () => {
-      // Restore visibility when user leaves this page
       if (btn) btn.style.display = "";
     };
   }, []);
 
-  // 🔍 Fetch Miners
+  // 🔍 Load user's Miners
   useEffect(() => {
     if (!publicKey) return;
 
@@ -85,7 +79,9 @@ export default function MyMinersPage() {
           }),
         });
 
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
 
         const json = (await res.json()) as NftsResponse;
 
@@ -110,9 +106,7 @@ export default function MyMinersPage() {
   function handlePick(nft: NFT) {
     if (!nft.id) return;
 
-    router.push(
-      `/locker?mint=${encodeURIComponent(nft.id)}&project=miners`
-    );
+    router.push(`/locker?mint=${encodeURIComponent(nft.id)}&project=miners`);
   }
 
   return (
@@ -121,7 +115,7 @@ export default function MyMinersPage() {
         style={{
           padding: "32px 18px 48px",
           minHeight: "100vh",
-          backgroundImage: "url('/my-miners-bg.png')",
+          backgroundImage: "url('/my-miners-bg.png?v=3')", // Cache-buster ensures reload
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
@@ -138,20 +132,15 @@ export default function MyMinersPage() {
             MY MINERS
           </h1>
           <p style={{ marginTop: "4px", opacity: 0.8 }}>
-            Select an Enchanted Miner from your wallet to open it in the
-            lockscreen locker.
+            Select an Enchanted Miner from your wallet to open it in the lockscreen locker.
           </p>
         </header>
 
         {!publicKey && <p>Connect your wallet to see your Enchanted Miners.</p>}
         {publicKey && loading && <p>Loading your Enchanted Miners...</p>}
-        {publicKey && error && (
-          <p style={{ color: "#ff6b6b" }}>{error}</p>
-        )}
+        {publicKey && error && <p style={{ color: "#ff6b6b" }}>{error}</p>}
 
-        {publicKey && !loading && !error && (
-          <NftGrid nfts={nfts} onPick={handlePick} />
-        )}
+        {publicKey && !loading && !error && <NftGrid nfts={nfts} onPick={handlePick} />}
       </main>
     </WalletGate>
   );
