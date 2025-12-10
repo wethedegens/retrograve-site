@@ -71,9 +71,10 @@ const MAGAPIXEL_BACKGROUND_SLUGS: string[] = [
 
 function BackgroundPicker({ value, onChange, project }: Props) {
   const current = value as any;
+  const isMiners = project === "miners";
 
-  const isActiveImage = (src: string) =>
-    current?.kind === "image" && current?.value === src;
+  const isImageActive = (src: string) =>
+    current?.kind === "image" && current?.image === src;
 
   /** Upload handler (works for both projects) */
   const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
@@ -83,7 +84,7 @@ function BackgroundPicker({ value, onChange, project }: Props) {
 
     const bg = {
       kind: "image",
-      value: url,
+      image: url,
       file,
     } as any as BgChoice;
 
@@ -104,7 +105,7 @@ function BackgroundPicker({ value, onChange, project }: Props) {
 
     const bg = {
       kind: "image",
-      value: src,
+      image: src,
       file,
     } as any as BgChoice;
 
@@ -126,14 +127,12 @@ function BackgroundPicker({ value, onChange, project }: Props) {
 
     const bg = {
       kind: "image",
-      value: phoneSrc,
+      image: phoneSrc,
       file,
     } as any as BgChoice;
 
     onChange(bg);
   };
-
-  const isMiners = project === "miners";
 
   return (
     <section>
@@ -161,7 +160,7 @@ function BackgroundPicker({ value, onChange, project }: Props) {
             }}
           >
             {MINER_IMAGE_BACKGROUNDS.map((src, idx) => {
-              const active = isActiveImage(src);
+              const active = isImageActive(src);
               return (
                 <button
                   key={src}
@@ -222,7 +221,7 @@ function BackgroundPicker({ value, onChange, project }: Props) {
             {MAGAPIXEL_BACKGROUND_SLUGS.map((slug, idx) => {
               const phoneSrc = `/backgrounds/${slug}/phone.png`;
               const thumbSrc = `/backgrounds/${slug}/thumb.png`;
-              const active = isActiveImage(phoneSrc);
+              const active = isImageActive(phoneSrc);
 
               return (
                 <button
