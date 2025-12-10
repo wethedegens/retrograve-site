@@ -234,30 +234,41 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
           background: rgba(5, 0, 20, 0.88);
           backdrop-filter: blur(4px);
           display: flex;
-          align-items: center;
           justify-content: center;
+          align-items: flex-start; /* 🟣 start at top so header isn't clipped */
           z-index: 9999;
-          padding: 16px;
+          padding: 16px 16px 24px;
+          overflow-y: auto; /* 🟣 whole overlay scrolls on tiny screens */
         }
 
         .preview-inner {
+          position: relative;
           max-width: 480px;
           width: 100%;
+          margin-top: 16px;
           background: #161022;
           border-radius: 18px;
           border: 1px solid rgba(255, 255, 255, 0.15);
           box-shadow: 0 18px 44px rgba(0, 0, 0, 0.6);
-          padding: 16px;
+          padding: 12px 16px 16px;
           display: flex;
           flex-direction: column;
           gap: 12px;
           color: #f5e8ff;
+          max-height: calc(100vh - 48px); /* 🟣 card itself can scroll */
+          overflow-y: auto;
         }
 
         .preview-header {
+          position: sticky; /* 🟣 keep Go back locked at the top */
+          top: 0;
+          padding-bottom: 8px;
+          margin-bottom: 8px;
           display: flex;
           justify-content: flex-start;
-          margin-bottom: 4px;
+          background: #161022;
+          z-index: 1;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .preview-back {
@@ -330,7 +341,9 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
             padding: 10px 18px;
           }
           .preview-inner {
+            margin-top: 12px;
             max-width: 100%;
+            max-height: calc(100vh - 40px);
           }
           .preview-back {
             font-size: 12px;
