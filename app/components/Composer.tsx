@@ -411,9 +411,9 @@ const Composer = forwardRef<
           gap: 4px;
         }
 
-        /* 🧹 Hide any unexpected extra direct children (like old BACK button) */
-        .phone-surface > :not(.phone-hint):not(.phone-canvas) {
-          display: none;
+        /* 🔨 KILL any button that ever appears inside the phone frame */
+        .phone-frame button {
+          display: none !important;
         }
 
         .phone-hint {
