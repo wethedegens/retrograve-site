@@ -225,7 +225,7 @@ const Composer = forwardRef<
       ctx.fillStyle = activeBg.value || "#2b2146";
       ctx.fillRect(0, 0, size.w, size.h);
     } else if (activeBg.kind === "image") {
-      // ✅ handle both static URLs and uploaded File blobs
+      // ✅ NEW: handle both static URLs and uploaded File blobs
       const anyBg = activeBg as any;
       const src: string | undefined = anyBg.image || anyBg.value;
 
