@@ -14,9 +14,16 @@ import {
   type DeviceVariant,
 } from "../backgroundsConfig";
 
+// 🔹 BgChoice: now image backgrounds carry a URL (value/image),
+//     file is optional (for uploads) and NOT required anymore.
 export type BgChoice =
   | { kind: "color"; value: string }
-  | { kind: "image"; file: File }
+  | {
+      kind: "image";
+      value: string; // URL to the image (local object URL or /backgrounds/... path)
+      file?: File | null; // optional, mainly for uploads
+      image?: string; // optional alias, for older shapes
+    }
   | { kind: "preset"; id: string };
 
 export type MetaAttribute = {
@@ -206,7 +213,7 @@ const Composer = forwardRef<
     size: Size,
     device: DeviceVariant
   ) => {
-    // 1) Background: preset image, solid color, or uploaded image
+    // 1) Background: preset image, solid color, or uploaded/static image
     if (activeBg.kind === "preset") {
       const src = getBackgroundImagePath(activeBg.id, device);
       if (src) {
@@ -224,18 +231,29 @@ const Composer = forwardRef<
     } else if (activeBg.kind === "color") {
       ctx.fillStyle = activeBg.value || "#2b2146";
       ctx.fillRect(0, 0, size.w, size.h);
-    } else if (activeBg.kind === "image" && activeBg.file) {
-      const url = URL.createObjectURL(activeBg.file);
-      try {
-        const img = await loadImage(url);
-        const scale = Math.max(size.w / img.width, size.h / img.height);
-        const drawW = img.width * scale;
-        const drawH = img.height * scale;
-        const dx = (size.w - drawW) / 2;
-        const dy = size.h - drawH; // bottom align
-        ctx.drawImage(img, dx, dy, drawW, drawH);
-      } finally {
-        URL.revokeObjectURL(url);
+    } else if (activeBg.kind === "image") {
+      // 🔹 NEW: prefer the string URL passed from BackgroundPicker
+      const src =
+        (activeBg.value as string | undefined) ||
+        (activeBg.image as string | undefined);
+
+      if (src) {
+        setLoadingImg(true);
+        try {
+          const img = await loadImage(src);
+          const scale = Math.max(size.w / img.width, size.h / img.height);
+          const drawW = img.width * scale;
+          const drawH = img.height * scale;
+          const dx = (size.w - drawW) / 2;
+          const dy = size.h - drawH; // bottom align
+          ctx.drawImage(img, dx, dy, drawW, drawH);
+        } finally {
+          setLoadingImg(false);
+        }
+      } else {
+        // If somehow no URL is present, just fall back to a safe color.
+        ctx.fillStyle = "#2b2146";
+        ctx.fillRect(0, 0, size.w, size.h);
       }
     }
 
