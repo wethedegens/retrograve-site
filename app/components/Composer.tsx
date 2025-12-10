@@ -14,16 +14,9 @@ import {
   type DeviceVariant,
 } from "../backgroundsConfig";
 
-// 🔹 BgChoice: now image backgrounds carry a URL (value/image),
-//     file is optional (for uploads) and NOT required anymore.
 export type BgChoice =
   | { kind: "color"; value: string }
-  | {
-      kind: "image";
-      value: string; // URL to the image (local object URL or /backgrounds/... path)
-      file?: File | null; // optional, mainly for uploads
-      image?: string; // optional alias, for older shapes
-    }
+  | { kind: "image"; image: string; value?: string; file?: File | null }
   | { kind: "preset"; id: string };
 
 export type MetaAttribute = {
@@ -232,28 +225,30 @@ const Composer = forwardRef<
       ctx.fillStyle = activeBg.value || "#2b2146";
       ctx.fillRect(0, 0, size.w, size.h);
     } else if (activeBg.kind === "image") {
-      // 🔹 NEW: prefer the string URL passed from BackgroundPicker
-      const src =
-        (activeBg.value as string | undefined) ||
-        (activeBg.image as string | undefined);
+      // ✅ NEW: handle both static URLs and uploaded File blobs
+      const anyBg = activeBg as any;
+      const src: string | undefined = anyBg.image || anyBg.value;
 
-      if (src) {
-        setLoadingImg(true);
-        try {
-          const img = await loadImage(src);
-          const scale = Math.max(size.w / img.width, size.h / img.height);
-          const drawW = img.width * scale;
-          const drawH = img.height * scale;
-          const dx = (size.w - drawW) / 2;
-          const dy = size.h - drawH; // bottom align
-          ctx.drawImage(img, dx, dy, drawW, drawH);
-        } finally {
-          setLoadingImg(false);
+      setLoadingImg(true);
+      try {
+        if (src) {
+          // Static URL (MAGApixel / Miners / user-uploaded blob URL)
+          await drawBackgroundImageFromSrc(ctx, size, src);
+        } else if (anyBg.file instanceof File) {
+          // Fallback: if only a File exists, use it
+          const url = URL.createObjectURL(anyBg.file);
+          try {
+            await drawBackgroundImageFromSrc(ctx, size, url);
+          } finally {
+            URL.revokeObjectURL(url);
+          }
+        } else {
+          // Last resort: just fill with default color
+          ctx.fillStyle = "#2b2146";
+          ctx.fillRect(0, 0, size.w, size.h);
         }
-      } else {
-        // If somehow no URL is present, just fall back to a safe color.
-        ctx.fillStyle = "#2b2146";
-        ctx.fillRect(0, 0, size.w, size.h);
+      } finally {
+        setLoadingImg(false);
       }
     }
 
