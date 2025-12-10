@@ -133,6 +133,18 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
       {/* Overlay shown after export, everywhere (desktop + mobile) */}
       {previewUrl && (
         <div className="preview-overlay" onClick={closePreview}>
+          {/* NEW: easy “Go back” button in the top-left */}
+          <button
+            type="button"
+            className="preview-overlay-back"
+            onClick={(e) => {
+              e.stopPropagation();
+              closePreview();
+            }}
+          >
+            ← Go back
+          </button>
+
           <div
             className="preview-inner"
             onClick={(e) => e.stopPropagation()}
@@ -140,8 +152,8 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
             <div className="preview-text">
               <strong>{previewLabel}</strong>
               <div style={{ marginTop: 4 }}>
-                On mobile (including Phantom):{" "}
-                <b>tap and hold</b> the image to save it.
+                On mobile (including Phantom): <b>tap and hold</b> the image to
+                save it.
               </div>
               <div style={{ fontSize: 11, opacity: 0.8 }}>
                 On desktop: right-click → “Save image as…”.
@@ -225,6 +237,38 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
           padding: 16px;
         }
 
+        /* NEW: overlay back button (always visible, easy tap) */
+        .preview-overlay-back {
+          position: absolute;
+          top: 16px;
+          left: 16px;
+          z-index: 10000;
+          font-size: 13px;
+          padding: 6px 12px;
+          border-radius: 999px;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          background: rgba(0, 0, 0, 0.6);
+          color: #f5e8ff;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          backdrop-filter: blur(4px);
+          transition: background 0.15s ease, transform 0.08s ease,
+            box-shadow 0.15s ease;
+        }
+
+        .preview-overlay-back:hover {
+          background: rgba(0, 0, 0, 0.8);
+          transform: translateY(-1px);
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+        }
+
+        .preview-overlay-back:active {
+          transform: translateY(0);
+          box-shadow: none;
+        }
+
         .preview-inner {
           max-width: 480px;
           width: 100%;
@@ -283,6 +327,12 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
           }
           .preview-inner {
             max-width: 100%;
+          }
+          .preview-overlay-back {
+            top: 12px;
+            left: 12px;
+            font-size: 12px;
+            padding: 5px 11px;
           }
         }
       `}</style>
