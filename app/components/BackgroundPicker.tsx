@@ -89,27 +89,27 @@ function BackgroundPicker({ value, onChange, project }: Props) {
     if (!file) return;
     const url = URL.createObjectURL(file);
 
-    // image-variant wants `image`, not `value`
-    onChange({ kind: "image", image: url, file });
+    // BgChoice "image" variant uses `value` + `file`
+    onChange({ kind: "image", value: url, file });
   };
 
   // Static PNGs from /public — we only really need the URL,
-  // but the "image" BgChoice variant also allows an optional File.
+  // but the "image" BgChoice variant expects a File as well.
   const handleMinerImageClick = (src: string, index: number) => {
-    let file: File | undefined;
+    let file: File;
 
     try {
       file = new File([], `miner-wallpaper-${index + 1}.png`, {
         type: "image/png",
       });
     } catch {
-      // Older / odd environments: ignore File creation, URL is enough.
-      file = undefined;
+      // Fallback for weird / old environments – satisfy TS with a dummy cast.
+      file = undefined as unknown as File;
     }
 
     onChange({
       kind: "image",
-      image: src,
+      value: src,
       file,
     });
   };
@@ -196,7 +196,7 @@ function BackgroundPicker({ value, onChange, project }: Props) {
           >
             {MINER_IMAGE_BACKGROUNDS.map((src, idx) => {
               const active =
-                value.kind === "image" && value.image === src;
+                value.kind === "image" && value.value === src;
 
               return (
                 <button
