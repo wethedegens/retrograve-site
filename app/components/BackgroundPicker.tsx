@@ -35,8 +35,8 @@ const PRESET_MINERS = [
   "#fbcfe8",
 ];
 
-// Static miner wallpaper images (phone-sized) living in /public/miners-bgs
-// ➜ Make sure these files exist: public/miners-bgs/bg-1.png ... bg-28.png
+// Static miner wallpaper images (phone-sized) living in /public/enchanted-miners/phone
+// (You currently have these files in that folder.)
 const MINER_IMAGE_BACKGROUNDS: string[] = [
   "/enchanted-miners/phone/bg-1.png",
   "/enchanted-miners/phone/bg-2.png",
@@ -66,7 +66,6 @@ const MINER_IMAGE_BACKGROUNDS: string[] = [
   "/enchanted-miners/phone/bg-28.png",
 ];
 
-
 const SOLID_COLORS = ["#000000", "#111827", "#4b5563", "#9ca3af", "#f9fafb"];
 
 function BackgroundPicker({ value, onChange, project }: Props) {
@@ -88,7 +87,7 @@ function BackgroundPicker({ value, onChange, project }: Props) {
     if (!file) return;
     const url = URL.createObjectURL(file);
 
-    // Use the same shape we had working before: { kind: "image", value, file }
+    // Same shape Composer already knows how to handle
     const bg = {
       kind: "image",
       value: url,
@@ -98,26 +97,31 @@ function BackgroundPicker({ value, onChange, project }: Props) {
     onChange(bg);
   };
 
-  // Static PNGs from /public — we only really need the URL.
-  const handleMinerImageClick = (src: string, index: number) => {
-    let file: File;
-
+  // When you click a miner wallpaper:
+  // 1) Fetch the PNG from /public
+  // 2) Wrap it in a real File
+  // 3) Create an object URL
+  // 4) Send { kind: "image", value, file } to Composer
+  const handleMinerImageClick = async (src: string, index: number) => {
     try {
-      file = new File([], `miner-wallpaper-${index + 1}.png`, {
-        type: "image/png",
+      const res = await fetch(src);
+      const blob = await res.blob();
+
+      const file = new File([blob], `miner-wallpaper-${index + 1}.png`, {
+        type: blob.type || "image/png",
       });
-    } catch {
-      // Fallback for weird / old environments – satisfy TS with a dummy cast.
-      file = undefined as unknown as File;
+      const url = URL.createObjectURL(file);
+
+      const bg = {
+        kind: "image",
+        value: url,
+        file,
+      } as any as BgChoice;
+
+      onChange(bg);
+    } catch (err) {
+      console.error("Failed to load miner wallpaper", src, err);
     }
-
-    const bg = {
-      kind: "image",
-      value: src,
-      file,
-    } as any as BgChoice;
-
-    onChange(bg);
   };
 
   return (
@@ -177,7 +181,7 @@ function BackgroundPicker({ value, onChange, project }: Props) {
         </div>
       </div>
 
-      {/* MINER WALLPAPERS (PNG BACKGROUNDS FROM /public/miners-bgs) */}
+      {/* MINER WALLPAPERS (PNG BACKGROUNDS FROM /public/enchanted-miners/phone) */}
       {project === "miners" && (
         <div style={{ marginTop: 12, marginBottom: 8 }}>
           <div
@@ -209,7 +213,7 @@ function BackgroundPicker({ value, onChange, project }: Props) {
                 <button
                   key={src}
                   type="button"
-                  onClick={() => handleMinerImageClick(src, idx)}
+                  onClick={() => void handleMinerImageClick(src, idx)}
                   style={{
                     borderRadius: 10,
                     border: active
