@@ -177,336 +177,278 @@ async function drawBackgroundImageFromSrc(
   ctx.drawImage(img, dx, dy, drawW, drawH);
 }
 
-type ComposerProps = {
-  nft: SimpleNft | null;
-  bg: BgChoice | null;
-  /** Optional callback for a "Go back" action (e.g. close modal / go back to grid) */
-  onBack?: () => void;
-};
+const Composer = forwardRef<
+  ComposerHandle,
+  { nft: SimpleNft | null; bg: BgChoice | null }
+>(({ nft, bg }, ref) => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [loadingImg, setLoadingImg] = useState(false);
 
-const Composer = forwardRef<ComposerHandle, ComposerProps>(
-  ({ nft, bg, onBack }, ref) => {
-    const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const [loadingImg, setLoadingImg] = useState(false);
+  const previewScale = 0.58;
+  const activeBg = useMemo(
+    () => bg || ({ kind: "color", value: "#3e2d75" } as BgChoice),
+    [bg]
+  );
+  const previewSize: Size = useMemo(
+    () => ({
+      w: Math.round(1440 * previewScale),
+      h: Math.round(3200 * previewScale),
+    }),
+    []
+  );
 
-    const previewScale = 0.58;
-    const activeBg = useMemo(
-      () => bg || ({ kind: "color", value: "#3e2d75" } as BgChoice),
-      [bg]
-    );
-    const previewSize: Size = useMemo(
-      () => ({
-        w: Math.round(1440 * previewScale),
-        h: Math.round(3200 * previewScale),
-      }),
-      []
-    );
-
-    const handleBackClick = () => {
-      if (onBack) {
-        onBack();
-      } else if (typeof window !== "undefined") {
-        // Fallback: simple browser back if no handler is provided
-        window.history.back();
+  /**
+   * Core draw: background -> local layers (if any) -> OPTIONAL remote image
+   * Device tells us which background variant to use (phone/ipad/desktop).
+   */
+  const draw = async (
+    ctx: CanvasRenderingContext2D,
+    size: Size,
+    device: DeviceVariant
+  ) => {
+    // 1) Background: preset image, solid color, or uploaded/static image
+    if (activeBg.kind === "preset") {
+      const src = getBackgroundImagePath(activeBg.id, device);
+      if (src) {
+        setLoadingImg(true);
+        try {
+          await drawBackgroundImageFromSrc(ctx, size, src);
+        } finally {
+          setLoadingImg(false);
+        }
+      } else {
+        // fallback to default color if something's missing
+        ctx.fillStyle = "#2b2146";
+        ctx.fillRect(0, 0, size.w, size.h);
       }
-    };
+    } else if (activeBg.kind === "color") {
+      ctx.fillStyle = activeBg.value || "#2b2146";
+      ctx.fillRect(0, 0, size.w, size.h);
+    } else if (activeBg.kind === "image") {
+      // ✅ handle both static URLs and uploaded File blobs
+      const anyBg = activeBg as any;
+      const src: string | undefined = anyBg.image || anyBg.value;
 
-    /**
-     * Core draw: background -> local layers (if any) -> OPTIONAL remote image
-     * Device tells us which background variant to use (phone/ipad/desktop).
-     */
-    const draw = async (
-      ctx: CanvasRenderingContext2D,
-      size: Size,
-      device: DeviceVariant
-    ) => {
-      // 1) Background: preset image, solid color, or uploaded/static image
-      if (activeBg.kind === "preset") {
-        const src = getBackgroundImagePath(activeBg.id, device);
+      setLoadingImg(true);
+      try {
         if (src) {
-          setLoadingImg(true);
+          // Static URL (MAGApixel / Miners / user-uploaded blob URL)
+          await drawBackgroundImageFromSrc(ctx, size, src);
+        } else if (anyBg.file instanceof File) {
+          // Fallback: if only a File exists, use it
+          const url = URL.createObjectURL(anyBg.file);
           try {
-            await drawBackgroundImageFromSrc(ctx, size, src);
+            await drawBackgroundImageFromSrc(ctx, size, url);
           } finally {
-            setLoadingImg(false);
+            URL.revokeObjectURL(url);
           }
         } else {
-          // fallback to default color if something's missing
+          // Last resort: just fill with default color
           ctx.fillStyle = "#2b2146";
           ctx.fillRect(0, 0, size.w, size.h);
         }
-      } else if (activeBg.kind === "color") {
-        ctx.fillStyle = activeBg.value || "#2b2146";
-        ctx.fillRect(0, 0, size.w, size.h);
-      } else if (activeBg.kind === "image") {
-        // ✅ NEW: handle both static URLs and uploaded File blobs
-        const anyBg = activeBg as any;
-        const src: string | undefined = anyBg.image || anyBg.value;
-
-        setLoadingImg(true);
-        try {
-          if (src) {
-            // Static URL (MAGApixel / Miners / user-uploaded blob URL)
-            await drawBackgroundImageFromSrc(ctx, size, src);
-          } else if (anyBg.file instanceof File) {
-            // Fallback: if only a File exists, use it
-            const url = URL.createObjectURL(anyBg.file);
-            try {
-              await drawBackgroundImageFromSrc(ctx, size, url);
-            } finally {
-              URL.revokeObjectURL(url);
-            }
-          } else {
-            // Last resort: just fill with default color
-            ctx.fillStyle = "#2b2146";
-            ctx.fillRect(0, 0, size.w, size.h);
-          }
-        } finally {
-          setLoadingImg(false);
-        }
+      } finally {
+        setLoadingImg(false);
       }
+    }
 
-      // 2) NFT layers / remote image
-      const layeredMode = hasLayerTraits(nft?.attributes);
-      let drewLayers = false;
+    // 2) NFT layers / remote image
+    const layeredMode = hasLayerTraits(nft?.attributes);
+    let drewLayers = false;
 
-      // Try to draw local layers (Skin/Face/Body/Head/Glasses/Hand)
-      if (layeredMode) {
-        setLoadingImg(true);
-        try {
-          const imgs = await loadExistingLayersPerType(nft?.attributes);
-          if (imgs.length) {
-            const base = imgs[0];
-            const scale = Math.min(size.w / base.width, size.h / base.height);
-            const drawW = base.width * scale;
-            const drawH = base.height * scale;
-            const dx = (size.w - drawW) / 2;
-            const dy = size.h - drawH; // bottom align
-            ctx.imageSmoothingEnabled = false;
-            for (const li of imgs) {
-              ctx.drawImage(li, dx, dy, drawW, drawH);
-            }
-            drewLayers = true;
-          }
-        } finally {
-          setLoadingImg(false);
-        }
-      }
-
-      // Fallback: draw the remote NFT image ONLY if we are NOT in layered mode
-      if (!drewLayers && nft?.image && !layeredMode) {
-        setLoadingImg(true);
-        try {
-          const src = isHttpUrl(nft.image) ? proxyUrl(nft.image!) : nft.image!;
-          const img = await loadImage(src);
-          const scale = Math.min(size.w / img.width, size.h / img.height);
-          const drawW = img.width * scale;
-          const drawH = img.height * scale;
+    // Try to draw local layers (Skin/Face/Body/Head/Glasses/Hand)
+    if (layeredMode) {
+      setLoadingImg(true);
+      try {
+        const imgs = await loadExistingLayersPerType(nft?.attributes);
+        if (imgs.length) {
+          const base = imgs[0];
+          const scale = Math.min(size.w / base.width, size.h / base.height);
+          const drawW = base.width * scale;
+          const drawH = base.height * scale;
           const dx = (size.w - drawW) / 2;
-          const dy = size.h - drawH;
+          const dy = size.h - drawH; // bottom align
           ctx.imageSmoothingEnabled = false;
-          ctx.drawImage(img, dx, dy, drawW, drawH);
-        } finally {
-          setLoadingImg(false);
+          for (const li of imgs) {
+            ctx.drawImage(li, dx, dy, drawW, drawH);
+          }
+          drewLayers = true;
         }
+      } finally {
+        setLoadingImg(false);
       }
-    };
+    }
 
-    const renderPreview = async () => {
-      const c = canvasRef.current;
-      if (!c) return;
-      c.width = previewSize.w;
-      c.height = previewSize.h;
+    // Fallback: draw the remote NFT image ONLY if we are NOT in layered mode
+    if (!drewLayers && nft?.image && !layeredMode) {
+      setLoadingImg(true);
+      try {
+        const src = isHttpUrl(nft.image) ? proxyUrl(nft.image!) : nft.image!;
+        const img = await loadImage(src);
+        const scale = Math.min(size.w / img.width, size.h / img.height);
+        const drawW = img.width * scale;
+        const drawH = img.height * scale;
+        const dx = (size.w - drawW) / 2;
+        const dy = size.h - drawH;
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(img, dx, dy, drawW, drawH);
+      } finally {
+        setLoadingImg(false);
+      }
+    }
+  };
+
+  const renderPreview = async () => {
+    const c = canvasRef.current;
+    if (!c) return;
+    c.width = previewSize.w;
+    c.height = previewSize.h;
+    const ctx = c.getContext("2d");
+    if (!ctx) return;
+    ctx.clearRect(0, 0, c.width, c.height);
+    // For preview, we always use the phone variant
+    await draw(ctx, previewSize, "phone");
+  };
+
+  useEffect(() => {
+    renderPreview();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nft?.image, (nft?.attributes || []).length, activeBg]);
+
+  useImperativeHandle(ref, () => {
+    // Internal helper: render at any size and return a Blob
+    const doExportImage = async (
+      opts: ExportImageOptions
+    ): Promise<Blob | null> => {
+      const { width, height, format = "png", device = "phone" } = opts;
+      const c = document.createElement("canvas");
+      c.width = width;
+      c.height = height;
       const ctx = c.getContext("2d");
-      if (!ctx) return;
-      ctx.clearRect(0, 0, c.width, c.height);
-      // For preview, we always use the phone variant
-      await draw(ctx, previewSize, "phone");
+      if (!ctx) return null;
+
+      await draw(ctx, { w: width, h: height }, device);
+
+      const mime = format === "png" ? "image/png" : "image/png";
+      const blob = await new Promise<Blob | null>((res) =>
+        c.toBlob(res, mime)
+      );
+      return blob;
     };
 
-    useEffect(() => {
-      renderPreview();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [nft?.image, (nft?.attributes || []).length, activeBg]);
+    return {
+      exportImage: doExportImage,
 
-    useImperativeHandle(ref, () => {
-      // Internal helper: render at any size and return a Blob
-      const doExportImage = async (
-        opts: ExportImageOptions
-      ): Promise<Blob | null> => {
-        const { width, height, format = "png", device = "phone" } = opts;
-        const c = document.createElement("canvas");
-        c.width = width;
-        c.height = height;
-        const ctx = c.getContext("2d");
-        if (!ctx) return null;
+      // Backwards-compatible: still lets us trigger a direct download if we ever want.
+      async exportAt(size: ExportSize | keyof typeof PRESETS) {
+        const target: Size =
+          typeof size === "string"
+            ? PRESETS[size]
+            : { w: size.w, h: size.h };
 
-        await draw(ctx, { w: width, h: height }, device);
+        const blob = await doExportImage({
+          width: target.w,
+          height: target.h,
+          format: "png",
+          device: "phone",
+        });
+        if (!blob) return;
 
-        const mime = format === "png" ? "image/png" : "image/png";
-        const blob = await new Promise<Blob | null>((res) =>
-          c.toBlob(res, mime)
-        );
-        return blob;
-      };
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${(nft?.name || "nft").replace(
+          /\s+/g,
+          "_"
+        )}_${target.w}x${target.h}.png`;
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+    };
+  });
 
-      return {
-        exportImage: doExportImage,
-
-        // Backwards-compatible: still lets us trigger a direct download if we ever want.
-        async exportAt(size: ExportSize | keyof typeof PRESETS) {
-          const target: Size =
-            typeof size === "string"
-              ? PRESETS[size]
-              : { w: size.w, h: size.h };
-
-          const blob = await doExportImage({
-            width: target.w,
-            height: target.h,
-            format: "png",
-            device: "phone",
-          });
-          if (!blob) return;
-
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = `${(nft?.name || "nft").replace(
-            /\s+/g,
-            "_"
-          )}_${target.w}x${target.h}.png`;
-          a.click();
-          URL.revokeObjectURL(url);
-        },
-      };
-    });
-
-    return (
-      <div className="composer-wrap">
-        <button
-          type="button"
-          className="composer-back-btn"
-          onClick={handleBackClick}
-        >
-          ← Go back
-        </button>
-
-        <div className="phone-frame">
-          <div className="phone-surface">
-            <div className="phone-hint">
-              {loadingImg
-                ? "Loading image…"
-                : "Preview is scaled; exports are full size."}
-            </div>
-            <canvas
-              ref={canvasRef}
-              className="phone-canvas"
-              style={{ imageRendering: "pixelated" }}
-            />
+  return (
+    <div className="composer-wrap">
+      <div className="phone-frame">
+        <div className="phone-surface">
+          <div className="phone-hint">
+            {loadingImg
+              ? "Loading image…"
+              : "Preview is scaled; exports are full size."}
           </div>
+          <canvas
+            ref={canvasRef}
+            className="phone-canvas"
+            style={{ imageRendering: "pixelated" }}
+          />
         </div>
+      </div>
 
-        <style jsx>{`
+      <style jsx>{`
+        .composer-wrap {
+          display: grid;
+          gap: 10px;
+          justify-items: center;
+        }
+        .phone-frame {
+          position: relative;
+          width: 340px;
+          max-width: 88vw;
+          aspect-ratio: 9 / 19.5;
+          border-radius: 26px;
+          overflow: hidden;
+          box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
+          background: #221a33;
+        }
+        .phone-surface {
+          position: absolute;
+          inset: 0;
+          display: grid;
+          grid-template-rows: auto 1fr;
+          align-content: end;
+          justify-items: center;
+          padding: 8px 8px 10px;
+          gap: 4px;
+        }
+        .phone-hint {
+          align-self: start;
+          justify-self: center;
+          font-size: 11px;
+          color: #cfc2ff;
+          background: rgba(0, 0, 0, 0.35);
+          padding: 6px 8px;
+          border-radius: 999px;
+          backdrop-filter: blur(2px);
+          pointer-events: none;
+          user-select: none;
+          white-space: nowrap;
+        }
+        .phone-canvas {
+          width: 92%;
+          height: auto;
+        }
+
+        /* 📱 Mobile tweaks: make phone smaller + remove hint to free space */
+        @media (max-width: 768px) {
           .composer-wrap {
-            display: grid;
-            gap: 10px;
-            justify-items: center;
+            margin-bottom: 8px;
           }
-
-          .composer-back-btn {
-            align-self: start;
-            justify-self: flex-start;
-            font-size: 13px;
-            padding: 6px 12px;
-            border-radius: 999px;
-            border: 1px solid rgba(255, 255, 255, 0.16);
-            background: rgba(0, 0, 0, 0.45);
-            color: #f7f1ff;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            backdrop-filter: blur(4px);
-            transition: transform 0.08s ease, background 0.12s ease,
-              box-shadow 0.12s ease;
-          }
-
-          .composer-back-btn:hover {
-            transform: translateY(-1px);
-            background: rgba(0, 0, 0, 0.7);
-            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05);
-          }
-
-          .composer-back-btn:active {
-            transform: translateY(0);
-            box-shadow: none;
-          }
-
           .phone-frame {
-            position: relative;
-            width: 340px;
-            max-width: 88vw;
-            aspect-ratio: 9 / 19.5;
-            border-radius: 26px;
-            overflow: hidden;
-            box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
-            background: #221a33;
+            width: min(280px, 65vw);
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5);
           }
           .phone-surface {
-            position: absolute;
-            inset: 0;
-            display: grid;
-            grid-template-rows: auto 1fr;
-            align-content: end;
-            justify-items: center;
-            padding: 8px 8px 10px;
-            gap: 4px;
+            padding: 4px 4px 6px;
+            gap: 3px;
           }
           .phone-hint {
-            align-self: start;
-            justify-self: center;
-            font-size: 11px;
-            color: #cfc2ff;
-            background: rgba(0, 0, 0, 0.35);
-            padding: 6px 8px;
-            border-radius: 999px;
-            backdrop-filter: blur(2px);
-            pointer-events: none;
-            user-select: none;
-            white-space: nowrap;
+            display: none; /* free some vertical space on small screens */
           }
-          .phone-canvas {
-            width: 92%;
-            height: auto;
-          }
-
-          /* 📱 Mobile tweaks: make phone smaller + adjust spacing */
-          @media (max-width: 768px) {
-            .composer-wrap {
-              margin-bottom: 8px;
-              gap: 8px;
-            }
-            .composer-back-btn {
-              font-size: 12px;
-              padding: 5px 10px;
-            }
-            .phone-frame {
-              width: min(280px, 65vw);
-              box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5);
-            }
-            .phone-surface {
-              padding: 4px 4px 6px;
-              gap: 3px;
-            }
-            .phone-hint {
-              display: none; /* free some vertical space on small screens */
-            }
-          }
-        `}</style>
-      </div>
-    );
-  }
-);
+        }
+      `}</style>
+    </div>
+  );
+});
 
 Composer.displayName = "Composer";
 export default Composer;
