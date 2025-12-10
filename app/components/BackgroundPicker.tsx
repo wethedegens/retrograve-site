@@ -72,10 +72,9 @@ function BackgroundPicker({ value, onChange, project }: Props) {
   const current = value as any;
   const isMiners = project === "miners";
 
-  // Handle both shapes: { kind:"image", value: string } OR { kind:"image", image: string }
+  // ORIGINAL working runtime shape used `value` for image backgrounds.
   const isImageActive = (src: string) =>
-    current?.kind === "image" &&
-    (current?.image === src || current?.value === src);
+    current?.kind === "image" && current?.value === src;
 
   /** Upload handler (works for both projects) */
   const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
@@ -83,10 +82,9 @@ function BackgroundPicker({ value, onChange, project }: Props) {
     if (!file) return;
     const url = URL.createObjectURL(file);
 
-    // Set BOTH `image` and `value` so Composer is happy either way
+    // IMPORTANT: use { kind: "image", value, file } — this is what Composer expects.
     const bg = {
       kind: "image",
-      image: url,
       value: url,
       file,
     } as any as BgChoice;
@@ -107,7 +105,6 @@ function BackgroundPicker({ value, onChange, project }: Props) {
 
     const bg = {
       kind: "image",
-      image: src,
       value: src,
       file,
     } as any as BgChoice;
@@ -115,7 +112,7 @@ function BackgroundPicker({ value, onChange, project }: Props) {
     onChange(bg);
   };
 
-  /** MAGApixel: use /backgrounds/<slug>/phone.png as wallpaper */
+  /** MAGAPIXEL: use /backgrounds/<slug>/phone.png as wallpaper */
   const handleMagapixelClick = (slug: string, index: number) => {
     const phoneSrc = `/backgrounds/${slug}/phone.png`;
 
@@ -130,7 +127,6 @@ function BackgroundPicker({ value, onChange, project }: Props) {
 
     const bg = {
       kind: "image",
-      image: phoneSrc,
       value: phoneSrc,
       file,
     } as any as BgChoice;
