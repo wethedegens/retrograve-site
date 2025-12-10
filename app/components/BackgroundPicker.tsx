@@ -35,8 +35,7 @@ const PRESET_MINERS = [
   "#fbcfe8",
 ];
 
-// Static miner wallpaper images (phone-sized) living in /public/enchanted-miners/phone
-// (You currently have these files in that folder.)
+// Static miner wallpaper images (phone-sized) in /public/enchanted-miners/phone
 const MINER_IMAGE_BACKGROUNDS: string[] = [
   "/enchanted-miners/phone/bg-1.png",
   "/enchanted-miners/phone/bg-2.png",
@@ -87,9 +86,9 @@ function BackgroundPicker({ value, onChange, project }: Props) {
     if (!file) return;
     const url = URL.createObjectURL(file);
 
-    // Same shape Composer already knows how to handle
     const bg = {
       kind: "image",
+      image: url,
       value: url,
       file,
     } as any as BgChoice;
@@ -97,11 +96,7 @@ function BackgroundPicker({ value, onChange, project }: Props) {
     onChange(bg);
   };
 
-  // When you click a miner wallpaper:
-  // 1) Fetch the PNG from /public
-  // 2) Wrap it in a real File
-  // 3) Create an object URL
-  // 4) Send { kind: "image", value, file } to Composer
+  // Miner wallpaper click → fetch PNG, wrap in File, send to Composer
   const handleMinerImageClick = async (src: string, index: number) => {
     try {
       const res = await fetch(src);
@@ -110,11 +105,11 @@ function BackgroundPicker({ value, onChange, project }: Props) {
       const file = new File([blob], `miner-wallpaper-${index + 1}.png`, {
         type: blob.type || "image/png",
       });
-      const url = URL.createObjectURL(file);
 
       const bg = {
         kind: "image",
-        value: url,
+        image: src,
+        value: src,
         file,
       } as any as BgChoice;
 
@@ -124,65 +119,71 @@ function BackgroundPicker({ value, onChange, project }: Props) {
     }
   };
 
+  const isMiners = project === "miners";
+
   return (
     <section>
-      {/* PRESET BACKGROUNDS (COLOR PALETTE) */}
-      <div style={{ marginBottom: 8 }}>
-        <div
-          style={{
-            fontSize: 12,
-            textTransform: "uppercase",
-            letterSpacing: "0.14em",
-            opacity: 0.8,
-            marginBottom: 4,
-          }}
-        >
-          PRESET BACKGROUNDS
-        </div>
-        <div
-          style={{
-            display: "flex",
-            gap: 8,
-            alignItems: "center",
-            flexWrap: "wrap",
-          }}
-        >
-          {palette.map((color) => {
-            const active = isColor && currentColor === color;
-            return (
-              <button
-                key={color}
-                type="button"
-                onClick={() => handlePresetClick(color)}
-                style={{
-                  width: 22,
-                  height: 22,
-                  borderRadius: "999px",
-                  border: active ? "2px solid #ffffff" : "2px solid transparent",
-                  padding: 0,
-                  backgroundColor: "#111827",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                }}
-              >
-                <span
+      {/* PRESET BACKGROUNDS (MAGAPIXEL / NON-MINERS ONLY) */}
+      {!isMiners && (
+        <div style={{ marginBottom: 8 }}>
+          <div
+            style={{
+              fontSize: 12,
+              textTransform: "uppercase",
+              letterSpacing: "0.14em",
+              opacity: 0.8,
+              marginBottom: 4,
+            }}
+          >
+            PRESET BACKGROUNDS
+          </div>
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              alignItems: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            {palette.map((color) => {
+              const active = isColor && currentColor === color;
+              return (
+                <button
+                  key={color}
+                  type="button"
+                  onClick={() => handlePresetClick(color)}
                   style={{
-                    width: 16,
-                    height: 16,
+                    width: 22,
+                    height: 22,
                     borderRadius: "999px",
-                    background: color,
+                    border: active
+                      ? "2px solid #ffffff"
+                      : "2px solid transparent",
+                    padding: 0,
+                    backgroundColor: "#111827",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
                   }}
-                />
-              </button>
-            );
-          })}
+                >
+                  <span
+                    style={{
+                      width: 16,
+                      height: 16,
+                      borderRadius: "999px",
+                      background: color,
+                    }}
+                  />
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* MINER WALLPAPERS (PNG BACKGROUNDS FROM /public/enchanted-miners/phone) */}
-      {project === "miners" && (
+      {/* MINER WALLPAPERS (MINERS ONLY) */}
+      {isMiners && (
         <div style={{ marginTop: 12, marginBottom: 8 }}>
           <div
             style={{
@@ -207,7 +208,8 @@ function BackgroundPicker({ value, onChange, project }: Props) {
             {MINER_IMAGE_BACKGROUNDS.map((src, idx) => {
               const active =
                 (value as any).kind === "image" &&
-                (value as any).value === src;
+                (((value as any).image && (value as any).image === src) ||
+                  (value as any).value === src);
 
               return (
                 <button
@@ -243,62 +245,66 @@ function BackgroundPicker({ value, onChange, project }: Props) {
         </div>
       )}
 
-      {/* SOLID COLORS */}
-      <div style={{ marginTop: 12, marginBottom: 8 }}>
-        <div
-          style={{
-            fontSize: 12,
-            textTransform: "uppercase",
-            letterSpacing: "0.14em",
-            opacity: 0.8,
-            marginBottom: 4,
-          }}
-        >
-          SOLID COLORS
-        </div>
-        <div
-          style={{
-            display: "flex",
-            gap: 8,
-            alignItems: "center",
-            flexWrap: "wrap",
-          }}
-        >
-          {SOLID_COLORS.map((color) => {
-            const active = isColor && currentColor === color;
-            return (
-              <button
-                key={color}
-                type="button"
-                onClick={() => handleSolidClick(color)}
-                style={{
-                  width: 18,
-                  height: 18,
-                  borderRadius: "999px",
-                  border: active ? "2px solid #ffffff" : "2px solid transparent",
-                  padding: 0,
-                  backgroundColor: "#111827",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                }}
-              >
-                <span
+      {/* SOLID COLORS (MAGAPIXEL / NON-MINERS ONLY) */}
+      {!isMiners && (
+        <div style={{ marginTop: 12, marginBottom: 8 }}>
+          <div
+            style={{
+              fontSize: 12,
+              textTransform: "uppercase",
+              letterSpacing: "0.14em",
+              opacity: 0.8,
+              marginBottom: 4,
+            }}
+          >
+            SOLID COLORS
+          </div>
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              alignItems: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            {SOLID_COLORS.map((color) => {
+              const active = isColor && currentColor === color;
+              return (
+                <button
+                  key={color}
+                  type="button"
+                  onClick={() => handleSolidClick(color)}
                   style={{
-                    width: 12,
-                    height: 12,
+                    width: 18,
+                    height: 18,
                     borderRadius: "999px",
-                    background: color,
+                    border: active
+                      ? "2px solid #ffffff"
+                      : "2px solid transparent",
+                    padding: 0,
+                    backgroundColor: "#111827",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
                   }}
-                />
-              </button>
-            );
-          })}
+                >
+                  <span
+                    style={{
+                      width: 12,
+                      height: 12,
+                      borderRadius: "999px",
+                      background: color,
+                    }}
+                  />
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* UPLOAD */}
+      {/* UPLOAD (SHARED) */}
       <div style={{ marginTop: 12 }}>
         <div
           style={{
