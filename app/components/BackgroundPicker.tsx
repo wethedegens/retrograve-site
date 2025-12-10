@@ -49,7 +49,6 @@ const MINER_IMAGE_BACKGROUNDS: string[] = [
  * Folder structure:
  *   /public/backgrounds/<slug>/thumb.png
  *   /public/backgrounds/<slug>/phone.png
- * (we’ll use the phone size as the main wallpaper)
  */
 const MAGAPIXEL_BACKGROUND_SLUGS: string[] = [
   "austere-grey",
@@ -73,8 +72,10 @@ function BackgroundPicker({ value, onChange, project }: Props) {
   const current = value as any;
   const isMiners = project === "miners";
 
+  // Handle both shapes: { kind:"image", value: string } OR { kind:"image", image: string }
   const isImageActive = (src: string) =>
-    current?.kind === "image" && current?.image === src;
+    current?.kind === "image" &&
+    (current?.image === src || current?.value === src);
 
   /** Upload handler (works for both projects) */
   const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
@@ -82,9 +83,11 @@ function BackgroundPicker({ value, onChange, project }: Props) {
     if (!file) return;
     const url = URL.createObjectURL(file);
 
+    // Set BOTH `image` and `value` so Composer is happy either way
     const bg = {
       kind: "image",
       image: url,
+      value: url,
       file,
     } as any as BgChoice;
 
@@ -99,13 +102,13 @@ function BackgroundPicker({ value, onChange, project }: Props) {
         type: "image/png",
       });
     } catch {
-      // Fallback for weird / old environments – satisfy TS with a dummy cast.
       file = undefined as unknown as File;
     }
 
     const bg = {
       kind: "image",
       image: src,
+      value: src,
       file,
     } as any as BgChoice;
 
@@ -128,6 +131,7 @@ function BackgroundPicker({ value, onChange, project }: Props) {
     const bg = {
       kind: "image",
       image: phoneSrc,
+      value: phoneSrc,
       file,
     } as any as BgChoice;
 
