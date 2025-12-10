@@ -72,9 +72,9 @@ function BackgroundPicker({ value, onChange, project }: Props) {
   const current = value as any;
   const isMiners = project === "miners";
 
-  // ORIGINAL working runtime shape used `value` for image backgrounds.
+  // IMPORTANT: image variant uses `.image`, not `.value`
   const isImageActive = (src: string) =>
-    current?.kind === "image" && current?.value === src;
+    current?.kind === "image" && current?.image === src;
 
   /** Upload handler (works for both projects) */
   const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
@@ -82,10 +82,10 @@ function BackgroundPicker({ value, onChange, project }: Props) {
     if (!file) return;
     const url = URL.createObjectURL(file);
 
-    // IMPORTANT: use { kind: "image", value, file } — this is what Composer expects.
+    // Match BgChoice image shape: { kind: "image", image, file }
     const bg = {
       kind: "image",
-      value: url,
+      image: url,
       file,
     } as any as BgChoice;
 
@@ -105,7 +105,7 @@ function BackgroundPicker({ value, onChange, project }: Props) {
 
     const bg = {
       kind: "image",
-      value: src,
+      image: src,
       file,
     } as any as BgChoice;
 
@@ -127,7 +127,7 @@ function BackgroundPicker({ value, onChange, project }: Props) {
 
     const bg = {
       kind: "image",
-      value: phoneSrc,
+      image: phoneSrc,
       file,
     } as any as BgChoice;
 
