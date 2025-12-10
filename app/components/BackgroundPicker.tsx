@@ -72,16 +72,16 @@ const SOLID_COLORS = ["#000000", "#111827", "#4b5563", "#9ca3af", "#f9fafb"];
 
 function BackgroundPicker({ value, onChange, project }: Props) {
   const isColor = value.kind === "color";
-  const currentColor = isColor ? value.value : "";
+  const currentColor = isColor ? (value as any).value : "";
 
   const palette = project === "miners" ? PRESET_MINERS : PRESET_MAGAPIXEL;
 
   const handlePresetClick = (color: string) => {
-    onChange({ kind: "color", value: color });
+    onChange({ kind: "color", value: color } as BgChoice);
   };
 
   const handleSolidClick = (color: string) => {
-    onChange({ kind: "color", value: color });
+    onChange({ kind: "color", value: color } as BgChoice);
   };
 
   const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
@@ -89,12 +89,17 @@ function BackgroundPicker({ value, onChange, project }: Props) {
     if (!file) return;
     const url = URL.createObjectURL(file);
 
-    // BgChoice "image" variant uses `value` + `file`
-    onChange({ kind: "image", value: url, file });
+    // Use the same shape we had working before: { kind: "image", value, file }
+    const bg = {
+      kind: "image",
+      value: url,
+      file,
+    } as any as BgChoice;
+
+    onChange(bg);
   };
 
-  // Static PNGs from /public — we only really need the URL,
-  // but the "image" BgChoice variant expects a File as well.
+  // Static PNGs from /public — we only really need the URL.
   const handleMinerImageClick = (src: string, index: number) => {
     let file: File;
 
@@ -107,11 +112,13 @@ function BackgroundPicker({ value, onChange, project }: Props) {
       file = undefined as unknown as File;
     }
 
-    onChange({
+    const bg = {
       kind: "image",
       value: src,
       file,
-    });
+    } as any as BgChoice;
+
+    onChange(bg);
   };
 
   return (
@@ -196,7 +203,8 @@ function BackgroundPicker({ value, onChange, project }: Props) {
           >
             {MINER_IMAGE_BACKGROUNDS.map((src, idx) => {
               const active =
-                value.kind === "image" && value.value === src;
+                (value as any).kind === "image" &&
+                (value as any).value === src;
 
               return (
                 <button
