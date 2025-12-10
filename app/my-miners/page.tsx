@@ -31,7 +31,7 @@ export default function MyMinersPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 🔁 Override top nav label
+  // 🔁 Override the top nav label "MY RETROGRAVES" → "MY MINERS"
   useEffect(() => {
     if (typeof document === "undefined") return;
 
@@ -42,6 +42,7 @@ export default function MyMinersPage() {
     anchors.forEach((a) => {
       const label = a.textContent?.trim().toUpperCase();
       if (!label) return;
+
       if (label === "MY RETROGRAVES") {
         a.textContent = "MY MINERS";
         a.setAttribute("href", "/my-miners");
@@ -49,20 +50,21 @@ export default function MyMinersPage() {
     });
   }, []);
 
-  // ❌ REMOVE the global wallet button ON THIS PAGE ONLY
+  // ❌ Hide the global wallet button ONLY on this page
   useEffect(() => {
     const btn = document.querySelector(
       ".wallet-adapter-button"
     ) as HTMLElement | null;
+
     if (btn) btn.style.display = "none";
 
     return () => {
-      // Put it back when leaving the page
+      // Restore visibility when user leaves this page
       if (btn) btn.style.display = "";
     };
   }, []);
 
-  // Load Miners
+  // 🔍 Fetch Miners
   useEffect(() => {
     if (!publicKey) return;
 
@@ -107,7 +109,10 @@ export default function MyMinersPage() {
 
   function handlePick(nft: NFT) {
     if (!nft.id) return;
-    router.push(`/locker?mint=${encodeURIComponent(nft.id)}&project=miners`);
+
+    router.push(
+      `/locker?mint=${encodeURIComponent(nft.id)}&project=miners`
+    );
   }
 
   return (
@@ -116,7 +121,10 @@ export default function MyMinersPage() {
         style={{
           padding: "32px 18px 48px",
           minHeight: "100vh",
-          backgroundColor: "#960ad3", // 💜 SOLID BACKGROUND COLOR
+          backgroundImage: "url('/my-miners-bg.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
         }}
       >
         <header style={{ marginBottom: "24px" }}>
