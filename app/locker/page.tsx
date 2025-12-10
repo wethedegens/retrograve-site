@@ -61,19 +61,6 @@ function LockerInner() {
   // where "back" should send people if history.back() isn't available
   const gridHref = project === "miners" ? "/my-miners" : "/retrogs";
 
-  const handleBackClick = () => {
-    if (typeof window === "undefined") return;
-
-    // If user actually navigated here from somewhere, go back:
-    if (window.history.length > 1) {
-      window.history.back();
-      return;
-    }
-
-    // Fallback: send them to the appropriate grid page
-    window.location.href = gridHref;
-  };
-
   // keep bg in sync with initialBg when it changes
   useEffect(() => {
     setBg(initialBg);
@@ -228,15 +215,6 @@ function LockerInner() {
               >
                 <Composer ref={composerRef} nft={nft} bg={bg} />
               </div>
-
-              {/* 🔙 In-phone BACK BUTTON (Option A) */}
-              <button
-                type="button"
-                className="phone-back-btn"
-                onClick={handleBackClick}
-              >
-                ← Back
-              </button>
             </div>
           </div>
         </div>
@@ -253,30 +231,6 @@ function LockerInner() {
         .phone-frame {
           margin-left: auto;
           margin-right: auto;
-        }
-
-        .phone-back-btn {
-          position: absolute;
-          top: 8px;
-          left: 8px;
-          z-index: 2;
-          padding: 4px 10px;
-          border-radius: 999px;
-          border: 1px solid rgba(255, 255, 255, 0.7);
-          background: rgba(0, 0, 0, 0.55);
-          color: #f9fafb;
-          font-size: 11px;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          cursor: pointer;
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-        }
-
-        .phone-back-btn:hover {
-          background: rgba(0, 0, 0, 0.8);
-          border-color: #ffffff;
         }
 
         @media (max-width: 860px) {
