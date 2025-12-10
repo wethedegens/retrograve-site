@@ -31,6 +31,25 @@ export default function MyMinersPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // 🔁 Override the top nav label "MY RETROGRAVES" → "MY MINERS"
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+
+    const anchors = Array.from(
+      document.querySelectorAll("nav a")
+    ) as HTMLAnchorElement[];
+
+    anchors.forEach((a) => {
+      const label = a.textContent?.trim().toUpperCase();
+      if (!label) return;
+
+      if (label === "MY RETROGRAVES") {
+        a.textContent = "MY MINERS";
+        a.setAttribute("href", "/my-miners");
+      }
+    });
+  }, []);
+
   useEffect(() => {
     if (!publicKey) return;
 
