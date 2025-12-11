@@ -31,17 +31,20 @@ export default function MyMinersPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 🔁 Fix navigation label
+  // 🔁 Fix navigation label + force link to /my-miners
   useEffect(() => {
     if (typeof document === "undefined") return;
 
-    const anchors = Array.from(document.querySelectorAll("nav a")) as HTMLAnchorElement[];
+    const anchors = Array.from(
+      document.querySelectorAll("nav a")
+    ) as HTMLAnchorElement[];
 
     anchors.forEach((a) => {
       const label = a.textContent?.trim().toUpperCase();
       if (!label) return;
 
-      if (label === "MY RETROGRAVES") {
+      // Handle both old and new labels
+      if (label === "MY RETROGRAVES" || label === "MY MINERS") {
         a.textContent = "MY MINERS";
         a.setAttribute("href", "/my-miners");
       }
@@ -50,7 +53,9 @@ export default function MyMinersPage() {
 
   // ❌ Hide wallet button only on this page
   useEffect(() => {
-    const btn = document.querySelector(".wallet-adapter-button") as HTMLElement | null;
+    const btn = document.querySelector(
+      ".wallet-adapter-button"
+    ) as HTMLElement | null;
     if (btn) btn.style.display = "none";
 
     return () => {
@@ -106,7 +111,9 @@ export default function MyMinersPage() {
   function handlePick(nft: NFT) {
     if (!nft.id) return;
 
-    router.push(`/locker?mint=${encodeURIComponent(nft.id)}&project=miners`);
+    router.push(
+      `/locker?mint=${encodeURIComponent(nft.id)}&project=miners`
+    );
   }
 
   return (
@@ -132,15 +139,20 @@ export default function MyMinersPage() {
             MY MINERS
           </h1>
           <p style={{ marginTop: "4px", opacity: 0.8 }}>
-            Select an Enchanted Miner from your wallet to open it in the lockscreen locker.
+            Select an Enchanted Miner from your wallet to open it in the
+            lockscreen locker.
           </p>
         </header>
 
         {!publicKey && <p>Connect your wallet to see your Enchanted Miners.</p>}
         {publicKey && loading && <p>Loading your Enchanted Miners...</p>}
-        {publicKey && error && <p style={{ color: "#ff6b6b" }}>{error}</p>}
+        {publicKey && error && (
+          <p style={{ color: "#ff6b6b" }}>{error}</p>
+        )}
 
-        {publicKey && !loading && !error && <NftGrid nfts={nfts} onPick={handlePick} />}
+        {publicKey && !loading && !error && (
+          <NftGrid nfts={nfts} onPick={handlePick} />
+        )}
       </main>
     </WalletGate>
   );
