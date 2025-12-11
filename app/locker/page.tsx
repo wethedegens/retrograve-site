@@ -142,8 +142,22 @@ function LockerInner() {
     };
   }, [mint, uri, imageParam, nameParam]);
 
+  // ⭐ NEW: detect when we're on the Miners locker
+  const isMiners = project === "miners";
+
   return (
-    <main style={{ padding: "18px 0 80px" }}>
+    <main
+      style={{
+        padding: "18px 0 80px",
+        ...(isMiners
+          ? {
+              background: "#05020A", // solid dark background for Miners
+              backgroundImage: "none",
+              backgroundColor: "#05020A",
+            }
+          : {}),
+      }}
+    >
       <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 18px" }}>
         <a href={gridHref} style={{ color: "#bda9ff", opacity: 0.85 }}>
           ← back to grid
