@@ -7,23 +7,14 @@ export default function EnchantedMinersPage() {
   return (
     <main className="miners-wrapper">
       <section className="intro">
-        <h1
-          className="miners-title"
-          style={{ color: "#4a5a59" }} // stone color
-        >
+        <h1 className="miners-title">
           ENCHANTED MINERS LOCKSCREEN LOCKER
         </h1>
-        <p
-          className="miners-sub"
-          style={{ color: "#4a5a59" }} // stone color
-        >
+        <p className="miners-sub">
           Download your Enchanted Miners NFT with a perfectly tuned background—
           sized for any phone.
         </p>
       </section>
-
-      {/* You can add any static image or custom content here later if you
-          want a visual phone preview, without relying on PhoneShowcase. */}
 
       <FAQ />
 
@@ -42,11 +33,12 @@ export default function EnchantedMinersPage() {
           font-weight: 800;
           letter-spacing: 0.06em;
           margin-bottom: 8px;
+          color: #ff80b5;
         }
 
         .miners-sub {
           font-size: 15px;
-          opacity: 0.9;
+          opacity: 0.8;
           margin-bottom: 32px;
         }
 
