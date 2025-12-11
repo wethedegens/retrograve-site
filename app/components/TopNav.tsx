@@ -7,7 +7,9 @@ import { usePathname } from "next/navigation";
 export default function TopNav() {
   const path = usePathname();
 
-  const isMiners = path.startsWith("/enchanted-miners");
+  // ✅ Treat BOTH /enchanted-miners/* and /my-miners as Enchanted Miners pages
+  const isMiners =
+    path.startsWith("/enchanted-miners") || path.startsWith("/my-miners");
 
   // ✅ Treat both the locker and the new owner grid as MAGApixel pages.
   const isMagapixel =

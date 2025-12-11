@@ -31,26 +31,6 @@ export default function MyMinersPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 🔁 Fix navigation label + force link to /my-miners
-  useEffect(() => {
-    if (typeof document === "undefined") return;
-
-    const anchors = Array.from(
-      document.querySelectorAll("nav a")
-    ) as HTMLAnchorElement[];
-
-    anchors.forEach((a) => {
-      const label = a.textContent?.trim().toUpperCase();
-      if (!label) return;
-
-      // Handle both old and new labels
-      if (label === "MY RETROGRAVES" || label === "MY MINERS") {
-        a.textContent = "MY MINERS";
-        a.setAttribute("href", "/my-miners");
-      }
-    });
-  }, []);
-
   // ❌ Hide wallet button only on this page
   useEffect(() => {
     const btn = document.querySelector(
@@ -122,7 +102,7 @@ export default function MyMinersPage() {
         style={{
           padding: "32px 18px 48px",
           minHeight: "100vh",
-          backgroundImage: "url('/my-miners-bg.png?v=3')", // Cache-buster ensures reload
+          backgroundImage: "url('/my-miners-bg.png?v=3')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
