@@ -58,7 +58,7 @@ export default function TopNav() {
   if (isMagapixel) {
     return (
       <nav className="topnav">
-        {/* FIXED: Home now goes to RetroGrave homepage */}
+        {/* Home goes to RetroGrave homepage */}
         <Link href="/">HOME</Link>
 
         <Link href="/magapixel-nfts">MY MAGAPIXELS</Link>
@@ -129,38 +129,42 @@ export default function TopNav() {
 }
 
 /* ===========================================================
-   ⭐ Modern White Navigation Styles (Shared across all navs)
-   Clean, minimal, non-retro, professional look
+   ⭐ Modern White Navigation Styles (override old retro look)
 =========================================================== */
 const modernNavStyle = `
   .topnav {
     display: flex;
     gap: 28px;
-    font-family: "Inter", sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    letter-spacing: 0.01em;
     justify-content: center;
     margin-top: 22px;
     padding-bottom: 8px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter",
+      "Segoe UI", sans-serif !important;
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.01em !important;
   }
 
-  a {
-    text-decoration: none;
-    color: #ffffff;
-    opacity: 0.9;
-    transition: opacity 0.2s ease, transform 0.2s ease;
+  .topnav :global(a),
+  .topnav a {
+    text-decoration: none !important;
+    color: #ffffff !important;
+    opacity: 0.9 !important;
+    text-shadow: none !important;
+    text-transform: none !important;
+    transition: opacity 0.2s ease, transform 0.2s ease !important;
   }
 
-  a:hover {
-    opacity: 1;
-    transform: translateY(-1px);
+  .topnav :global(a:hover),
+  .topnav a:hover {
+    opacity: 1 !important;
+    transform: translateY(-1px) !important;
   }
 
   @media (max-width: 480px) {
     .topnav {
       gap: 16px;
-      font-size: 13px;
+      font-size: 13px !important;
     }
   }
 `;
