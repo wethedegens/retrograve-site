@@ -82,8 +82,8 @@ export default function TopNav() {
   if (isMagapixel) {
     return (
       <nav className="topnav">
-        {/* MAGApixel "home" is the locker page */}
-        <Link href="/locker/magapixel">HOME</Link>
+        {/* FIXED: MAGApixel HOME now goes to RetroGrave homepage */}
+        <Link href="/">HOME</Link>
 
         {/* Owner grid */}
         <Link href="/magapixel-nfts">MY MAGAPIXELS</Link>
