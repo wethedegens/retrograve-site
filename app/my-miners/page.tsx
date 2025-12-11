@@ -1,4 +1,4 @@
-// app/enchanted-miners/page.tsx
+// app/my-miners/page.tsx
 "use client";
 
 import PhoneShowcase from "../components/PhoneShowcase";
@@ -15,10 +15,8 @@ export default function EnchantedMinersPage() {
         </p>
       </section>
 
-      {/* PhoneShowcase expects a required `project` prop */}
-      {/* If your PhoneShowcase type only allows "retrograve" | "magapixel",
-          pick whichever matches your setup. */}
-      <PhoneShowcase project="retrograve" />
+      {/* PhoneShowcase does NOT accept any props */}
+      <PhoneShowcase />
 
       <FAQ />
 
