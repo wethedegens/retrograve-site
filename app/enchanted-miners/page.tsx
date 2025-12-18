@@ -4,7 +4,6 @@
 import { useEffect, useMemo, useState } from "react";
 
 export default function EnchantedMinersLandingPage() {
-  // Demo images in /public/demo/
   const demoImages = useMemo(
     () => [
       "/demo/enchanted-1.png",
@@ -17,48 +16,35 @@ export default function EnchantedMinersLandingPage() {
 
   const [idx, setIdx] = useState(0);
 
-  // Rotate every 3s
+  // rotate every 3 seconds
   useEffect(() => {
     if (!demoImages.length) return;
+
     const t = window.setInterval(() => {
       setIdx((p) => (p + 1) % demoImages.length);
     }, 3000);
+
     return () => window.clearInterval(t);
   }, [demoImages]);
-
-  // Force BODY background on this page only (beats globals)
-  useEffect(() => {
-    const body = document.body;
-
-    const prevBgColor = body.style.backgroundColor;
-    const prevBgImage = body.style.backgroundImage;
-    const prevBgRepeat = body.style.backgroundRepeat;
-    const prevBgPosition = body.style.backgroundPosition;
-    const prevBgSize = body.style.backgroundSize;
-    const prevBgAttachment = body.style.backgroundAttachment;
-
-    // cache-buster so you SEE the change instantly
-    body.style.backgroundColor = "#05020A";
-    body.style.backgroundImage = 'url("/enchanted-miners-bg.png?v=99")';
-    body.style.backgroundRepeat = "no-repeat";
-    body.style.backgroundPosition = "bottom center";
-    body.style.backgroundSize = "cover";
-    body.style.backgroundAttachment = "fixed";
-
-    return () => {
-      body.style.backgroundColor = prevBgColor;
-      body.style.backgroundImage = prevBgImage;
-      body.style.backgroundRepeat = prevBgRepeat;
-      body.style.backgroundPosition = prevBgPosition;
-      body.style.backgroundSize = prevBgSize;
-      body.style.backgroundAttachment = prevBgAttachment;
-    };
-  }, []);
 
   const activeSrc = demoImages[idx] || "";
 
   return (
-    <main className="miners-wrapper">
+    <main
+      className="miners-wrapper"
+      style={{
+        minHeight: "100vh",
+        paddingBottom: 80,
+
+        // ✅ THIS is the key: paint over globals body background
+        backgroundColor: "#05020A",
+        backgroundImage: "url('/enchanted-miners-bg.png?v=777')",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center",
+        backgroundSize: "cover",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <section className="intro">
         <h1 className="miners-title">ENCHANTED MINERS LOCKSCREEN LOCKER</h1>
         <p className="miners-sub">
@@ -66,7 +52,6 @@ export default function EnchantedMinersLandingPage() {
         </p>
       </section>
 
-      {/* Center phone with rotating images */}
       <section className="demo-wrap">
         <div className="phone-shell">
           <div className="phone-screen">
@@ -82,11 +67,6 @@ export default function EnchantedMinersLandingPage() {
       </section>
 
       <style jsx>{`
-        .miners-wrapper {
-          min-height: 100vh;
-          padding-bottom: 80px;
-        }
-
         .intro {
           text-align: center;
           margin-top: 40px;
@@ -144,7 +124,7 @@ export default function EnchantedMinersLandingPage() {
           user-select: none;
         }
 
-        /* ~25% smaller phone on small screens */
+        /* ~25% smaller on small screens */
         @media (max-width: 520px) {
           .miners-title {
             font-size: 30px;
