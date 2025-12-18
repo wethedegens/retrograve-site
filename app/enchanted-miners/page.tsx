@@ -16,6 +16,29 @@ export default function EnchantedMinersLandingPage() {
 
   const [idx, setIdx] = useState(0);
 
+  // ✅ Force this route's background to override globals (set CSS vars on <html>)
+  useEffect(() => {
+    const root = document.documentElement;
+
+    const prevBg = root.style.getPropertyValue("--page-bg");
+    const prevImg = root.style.getPropertyValue("--page-bg-image");
+
+    root.style.setProperty("--page-bg", "#05020A");
+    root.style.setProperty(
+      "--page-bg-image",
+      "url('/enchanted-miners-bg.png?v=777')"
+    );
+
+    return () => {
+      // restore whatever was there before
+      if (prevBg) root.style.setProperty("--page-bg", prevBg);
+      else root.style.removeProperty("--page-bg");
+
+      if (prevImg) root.style.setProperty("--page-bg-image", prevImg);
+      else root.style.removeProperty("--page-bg-image");
+    };
+  }, []);
+
   // rotate every 3 seconds
   useEffect(() => {
     if (!demoImages.length) return;
@@ -30,25 +53,12 @@ export default function EnchantedMinersLandingPage() {
   const activeSrc = demoImages[idx] || "";
 
   return (
-    <main
-      className="miners-wrapper"
-      style={{
-        minHeight: "100vh",
-        paddingBottom: 80,
-
-        // ✅ THIS is the key: paint over globals body background
-        backgroundColor: "#05020A",
-        backgroundImage: "url('/enchanted-miners-bg.png?v=777')",
-        backgroundRepeat: "no-repeat",
-        backgroundPosition: "center",
-        backgroundSize: "cover",
-        backgroundAttachment: "fixed",
-      }}
-    >
+    <main className="miners-wrapper">
       <section className="intro">
         <h1 className="miners-title">ENCHANTED MINERS LOCKSCREEN LOCKER</h1>
         <p className="miners-sub">
-          Download your Enchanted Miners NFT with a perfectly tuned background— sized for any phone.
+          Download your Enchanted Miners NFT with a perfectly tuned background—
+          sized for any phone.
         </p>
       </section>
 
@@ -67,6 +77,11 @@ export default function EnchantedMinersLandingPage() {
       </section>
 
       <style jsx>{`
+        .miners-wrapper {
+          min-height: 100vh;
+          padding-bottom: 80px;
+        }
+
         .intro {
           text-align: center;
           margin-top: 40px;
