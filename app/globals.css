@@ -1,7 +1,7 @@
 /* ========= Base page + background ========= */
 
 :root {
-  --page-bg: #111827; /* dark navy pulled from MAGApixel palette */
+  --page-bg: #111827; /* dark navy */
   --page-bg-image: url("/bg-retrograve.png"); /* default */
 }
 
@@ -21,7 +21,7 @@ body {
   background-image: var(--page-bg-image);
   background-repeat: no-repeat;
   background-position: bottom center;
-  background-size: cover;          /* ⬅️ was contain; now fills edge-to-edge */
+  background-size: cover;
   background-attachment: fixed;
   color: #eee;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue",
@@ -129,13 +129,13 @@ body {
 
 .site-nav{
   position: fixed;
-  top: 22px;               /* sits nicely below/around the logo area */
+  top: 22px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   gap: 26px;
   align-items: center;
-  z-index: 900;            /* below the wallet button */
+  z-index: 900;
   background: transparent;
   pointer-events: auto;
 }
@@ -170,7 +170,6 @@ body {
   box-shadow: inset 0 0 0 1px rgba(186,145,255,.35);
 }
 
-/* Small screens */
 @media (max-width: 680px){
   .site-nav{ gap: 16px; top: 18px; }
   .nav-pixel .nav-link{ font-size: 11px; letter-spacing: 1.5px; padding: 5px 6px; }
@@ -180,10 +179,9 @@ body {
 .bg-mountains {
   will-change: transform;
   transform: translateY(var(--parallax, 0px));
-  transition: transform 0.10s linear; /* smooths small jumps */
+  transition: transform 0.10s linear;
 }
 
-/* Accessibility: disable motion if requested */
 @media (prefers-reduced-motion: reduce) {
   .bg-mountains {
     transform: none !important;
