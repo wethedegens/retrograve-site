@@ -75,8 +75,6 @@ function LockerInner() {
       const url = ev.detail;
 
       if (url) {
-        // if you ever want devbg to override, you could:
-        // setBg({ kind: "image", value: url } as BgChoice);
         setHint("Using dev background (local file)");
       } else {
         setBg(initialBg);
@@ -142,7 +140,7 @@ function LockerInner() {
     };
   }, [mint, uri, imageParam, nameParam]);
 
-  // ⭐ NEW: detect when we're on the Miners locker
+  // ⭐ detect when we're on the Miners locker
   const isMiners = project === "miners";
 
   return (
@@ -151,9 +149,12 @@ function LockerInner() {
         padding: "18px 0 80px",
         ...(isMiners
           ? {
-              background: "#05020A", // solid dark background for Miners
-              backgroundImage: "none",
               backgroundColor: "#05020A",
+              backgroundImage: 'url("/enchanted-miners-bg.png")',
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "bottom center",
+              backgroundSize: "cover",
+              backgroundAttachment: "fixed",
             }
           : {}),
       }}
