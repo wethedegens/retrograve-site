@@ -16,29 +16,6 @@ export default function EnchantedMinersLandingPage() {
 
   const [idx, setIdx] = useState(0);
 
-  // ✅ Force this route's background to override globals (set CSS vars on <html>)
-  useEffect(() => {
-    const root = document.documentElement;
-
-    const prevBg = root.style.getPropertyValue("--page-bg");
-    const prevImg = root.style.getPropertyValue("--page-bg-image");
-
-    root.style.setProperty("--page-bg", "#05020A");
-    root.style.setProperty(
-      "--page-bg-image",
-      "url('/enchanted-miners-bg.png?v=777')"
-    );
-
-    return () => {
-      // restore whatever was there before
-      if (prevBg) root.style.setProperty("--page-bg", prevBg);
-      else root.style.removeProperty("--page-bg");
-
-      if (prevImg) root.style.setProperty("--page-bg-image", prevImg);
-      else root.style.removeProperty("--page-bg-image");
-    };
-  }, []);
-
   // rotate every 3 seconds
   useEffect(() => {
     if (!demoImages.length) return;
@@ -52,8 +29,85 @@ export default function EnchantedMinersLandingPage() {
 
   const activeSrc = demoImages[idx] || "";
 
+  // ✅ Hard override for THIS route:
+  // 1) Force body/html background to miners bg
+  // 2) Hide any global "mountains / bottom art" overlay that layout might be injecting
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+
+    const prevHtmlBg = html.style.backgroundImage;
+    const prevHtmlBgColor = html.style.backgroundColor;
+
+    const prevBodyBg = body.style.backgroundImage;
+    const prevBodyBgColor = body.style.backgroundColor;
+    const prevBodyBgSize = body.style.backgroundSize;
+    const prevBodyBgPos = body.style.backgroundPosition;
+    const prevBodyBgRep = body.style.backgroundRepeat;
+    const prevBodyBgAttach = body.style.backgroundAttachment;
+
+    // force html/body background (beats most normal CSS)
+    html.style.backgroundColor = "#05020A";
+    html.style.backgroundImage = "none";
+
+    body.style.backgroundColor = "#05020A";
+    body.style.backgroundImage = "url('/enchanted-miners-bg.png?v=999')";
+    body.style.backgroundRepeat = "no-repeat";
+    body.style.backgroundPosition = "center";
+    body.style.backgroundSize = "cover";
+    body.style.backgroundAttachment = "fixed";
+
+    return () => {
+      html.style.backgroundImage = prevHtmlBg;
+      html.style.backgroundColor = prevHtmlBgColor;
+
+      body.style.backgroundImage = prevBodyBg;
+      body.style.backgroundColor = prevBodyBgColor;
+      body.style.backgroundSize = prevBodyBgSize;
+      body.style.backgroundPosition = prevBodyBgPos;
+      body.style.backgroundRepeat = prevBodyBgRep;
+      body.style.backgroundAttachment = prevBodyBgAttach;
+    };
+  }, []);
+
   return (
     <main className="miners-wrapper">
+      {/* ✅ GLOBAL OVERRIDES (kills the retrograve mountains/logo overlay if layout injects it) */}
+      <style jsx global>{`
+        /* Force background (in case inline styles lose to something weird) */
+        html,
+        body {
+          background-color: #05020a !important;
+          background-image: url("/enchanted-miners-bg.png?v=999") !important;
+          background-repeat: no-repeat !important;
+          background-position: center !important;
+          background-size: cover !important;
+          background-attachment: fixed !important;
+        }
+
+        /*
+          Hide common "bottom art / mountains" wrappers.
+          One of these is almost certainly what you’re seeing.
+        */
+        .bg-mountains,
+        .bottom-art,
+        .bottomArt,
+        .retrograve-bottom,
+        .retrograve-footer,
+        .footer-art,
+        .mountains,
+        .mountain-wrap,
+        .mountains-wrap,
+        .parallax-mountains,
+        #bg-mountains,
+        #mountains {
+          display: none !important;
+          visibility: hidden !important;
+          opacity: 0 !important;
+          pointer-events: none !important;
+        }
+      `}</style>
+
       <section className="intro">
         <h1 className="miners-title">ENCHANTED MINERS LOCKSCREEN LOCKER</h1>
         <p className="miners-sub">
