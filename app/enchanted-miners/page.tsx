@@ -28,20 +28,34 @@ export default function EnchantedMinersPage() {
     return () => window.clearInterval(t);
   }, [demoImages]);
 
-  // Page-specific background (safe, reversible)
+  // HARD override body background so it cannot lose to globals.css
   useEffect(() => {
-    const root = document.documentElement;
+    const body = document.body;
 
-    const prevBg = getComputedStyle(root).getPropertyValue("--page-bg").trim();
-    const prevImg = getComputedStyle(root).getPropertyValue("--page-bg-image").trim();
+    // Save previous inline styles (only inline — safe restore)
+    const prevBgColor = body.style.backgroundColor;
+    const prevBgImage = body.style.backgroundImage;
+    const prevBgRepeat = body.style.backgroundRepeat;
+    const prevBgPosition = body.style.backgroundPosition;
+    const prevBgSize = body.style.backgroundSize;
+    const prevBgAttachment = body.style.backgroundAttachment;
 
-    // Keep base bg dark, swap the bg image just for this page
-    root.style.setProperty("--page-bg", prevBg || "#111827");
-    root.style.setProperty("--page-bg-image", 'url("/enchanted-miners-bg.png")');
+    // Force Enchanted Miners background from /public
+    body.style.backgroundColor = "#111827";
+    body.style.backgroundImage = 'url("/enchanted-miners-bg.png")';
+    body.style.backgroundRepeat = "no-repeat";
+    body.style.backgroundPosition = "bottom center";
+    body.style.backgroundSize = "cover";
+    body.style.backgroundAttachment = "fixed";
 
     return () => {
-      if (prevBg) root.style.setProperty("--page-bg", prevBg);
-      if (prevImg) root.style.setProperty("--page-bg-image", prevImg);
+      // Restore previous inline styles
+      body.style.backgroundColor = prevBgColor;
+      body.style.backgroundImage = prevBgImage;
+      body.style.backgroundRepeat = prevBgRepeat;
+      body.style.backgroundPosition = prevBgPosition;
+      body.style.backgroundSize = prevBgSize;
+      body.style.backgroundAttachment = prevBgAttachment;
     };
   }, []);
 
@@ -60,7 +74,6 @@ export default function EnchantedMinersPage() {
       <section className="demo-wrap" aria-label="Enchanted Miners demo previews">
         <div className="phone-shell">
           <div className="phone-screen">
-            {/* Using plain img keeps this ultra-stable and avoids Next/Image config */}
             <img
               key={activeSrc}
               src={activeSrc}
@@ -104,14 +117,13 @@ export default function EnchantedMinersPage() {
           padding: 8px 16px 40px;
         }
 
-        /* “Phone” shell (neutral, so it fits any brand) */
         .phone-shell {
           width: 360px;
           max-width: 92vw;
           border-radius: 34px;
           padding: 14px;
           background: rgba(255, 255, 255, 0.06);
-          border: 1px solid rgba(255, 255, 255, 0.10);
+          border: 1px solid rgba(255, 255, 255, 0.12);
           box-shadow: 0 18px 55px rgba(0, 0, 0, 0.55);
           backdrop-filter: blur(6px);
         }
@@ -133,14 +145,14 @@ export default function EnchantedMinersPage() {
           user-select: none;
         }
 
-        /* Smaller phone on small screens (about 25% smaller) */
+        /* Smaller phone on small screens (~25% smaller) */
         @media (max-width: 520px) {
           .miners-title {
             font-size: 30px;
           }
 
           .phone-shell {
-            width: 270px; /* ~25% smaller than 360 */
+            width: 270px;
             padding: 12px;
             border-radius: 30px;
           }
