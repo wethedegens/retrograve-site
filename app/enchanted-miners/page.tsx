@@ -3,8 +3,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-export default function EnchantedMinersPage() {
-  // Demo images (from /public/demo/)
+export default function EnchantedMinersLandingPage() {
+  // Demo images (must exist in /public/demo/)
   const demoImages = useMemo(
     () => [
       "/demo/enchanted-1.png",
@@ -28,11 +28,11 @@ export default function EnchantedMinersPage() {
     return () => window.clearInterval(t);
   }, [demoImages]);
 
-  // HARD override body background so it cannot lose to globals.css
+  // HARD override the BODY background for this page only
   useEffect(() => {
     const body = document.body;
 
-    // Save previous inline styles (only inline — safe restore)
+    // Save previous inline styles (so we restore cleanly when leaving page)
     const prevBgColor = body.style.backgroundColor;
     const prevBgImage = body.style.backgroundImage;
     const prevBgRepeat = body.style.backgroundRepeat;
@@ -41,7 +41,7 @@ export default function EnchantedMinersPage() {
     const prevBgAttachment = body.style.backgroundAttachment;
 
     // Force Enchanted Miners background from /public
-    body.style.backgroundColor = "#111827";
+    body.style.backgroundColor = "#05020A";
     body.style.backgroundImage = 'url("/enchanted-miners-bg.png")';
     body.style.backgroundRepeat = "no-repeat";
     body.style.backgroundPosition = "bottom center";
@@ -49,7 +49,6 @@ export default function EnchantedMinersPage() {
     body.style.backgroundAttachment = "fixed";
 
     return () => {
-      // Restore previous inline styles
       body.style.backgroundColor = prevBgColor;
       body.style.backgroundImage = prevBgImage;
       body.style.backgroundRepeat = prevBgRepeat;
@@ -88,6 +87,7 @@ export default function EnchantedMinersPage() {
       <style jsx>{`
         .miners-wrapper {
           padding-bottom: 80px;
+          min-height: 100vh;
         }
 
         .intro {
@@ -102,12 +102,14 @@ export default function EnchantedMinersPage() {
           letter-spacing: 0.06em;
           margin-bottom: 8px;
           color: #ffffff;
+          text-transform: uppercase;
         }
 
         .miners-sub {
           font-size: 15px;
           opacity: 0.85;
           margin-bottom: 32px;
+          color: #ffffff;
         }
 
         .demo-wrap {
@@ -145,7 +147,7 @@ export default function EnchantedMinersPage() {
           user-select: none;
         }
 
-        /* Smaller phone on small screens (~25% smaller) */
+        /* ~25% smaller on small screens */
         @media (max-width: 520px) {
           .miners-title {
             font-size: 30px;
