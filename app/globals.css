@@ -1,7 +1,7 @@
 /* ========= Base page + background ========= */
 
 :root {
-  --page-bg: #000;
+  --page-bg: #111827; /* dark navy pulled from MAGApixel palette */
 }
 
 *,
@@ -20,7 +20,7 @@ body {
   background-image: url("/bg-retrograve.png");
   background-repeat: no-repeat;
   background-position: bottom center;
-  background-size: cover;          /* ⬅️ was contain; now fills edge-to-edge */
+  background-size: cover;          /* ⬅️ fills edge-to-edge */
   background-attachment: fixed;
   color: #eee;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue",
@@ -128,13 +128,13 @@ body {
 
 .site-nav{
   position: fixed;
-  top: 22px;               /* sits nicely below/around the logo area */
+  top: 22px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   gap: 26px;
   align-items: center;
-  z-index: 900;            /* below the wallet button */
+  z-index: 900;
   background: transparent;
   pointer-events: auto;
 }
@@ -179,7 +179,7 @@ body {
 .bg-mountains {
   will-change: transform;
   transform: translateY(var(--parallax, 0px));
-  transition: transform 0.10s linear; /* smooths small jumps */
+  transition: transform 0.10s linear;
 }
 
 /* Accessibility: disable motion if requested */
@@ -189,6 +189,7 @@ body {
     transition: none !important;
   }
 }
+
 /* Kill the old in-phone back pill everywhere */
 .phone-back-btn {
   display: none !important;
