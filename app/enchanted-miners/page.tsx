@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 export default function EnchantedMinersLandingPage() {
-  // Demo images (must exist in /public/demo/)
+  // Demo images in /public/demo/
   const demoImages = useMemo(
     () => [
       "/demo/enchanted-1.png",
@@ -17,22 +17,19 @@ export default function EnchantedMinersLandingPage() {
 
   const [idx, setIdx] = useState(0);
 
-  // Rotate demo image every 3 seconds
+  // Rotate every 3s
   useEffect(() => {
     if (!demoImages.length) return;
-
     const t = window.setInterval(() => {
-      setIdx((prev) => (prev + 1) % demoImages.length);
+      setIdx((p) => (p + 1) % demoImages.length);
     }, 3000);
-
     return () => window.clearInterval(t);
   }, [demoImages]);
 
-  // HARD override the BODY background for this page only
+  // Force BODY background on this page only (beats globals)
   useEffect(() => {
     const body = document.body;
 
-    // Save previous inline styles (so we restore cleanly when leaving page)
     const prevBgColor = body.style.backgroundColor;
     const prevBgImage = body.style.backgroundImage;
     const prevBgRepeat = body.style.backgroundRepeat;
@@ -40,9 +37,9 @@ export default function EnchantedMinersLandingPage() {
     const prevBgSize = body.style.backgroundSize;
     const prevBgAttachment = body.style.backgroundAttachment;
 
-    // Force Enchanted Miners background from /public
+    // cache-buster so you SEE the change instantly
     body.style.backgroundColor = "#05020A";
-    body.style.backgroundImage = 'url("/enchanted-miners-bg.png")';
+    body.style.backgroundImage = 'url("/enchanted-miners-bg.png?v=99")';
     body.style.backgroundRepeat = "no-repeat";
     body.style.backgroundPosition = "bottom center";
     body.style.backgroundSize = "cover";
@@ -69,8 +66,8 @@ export default function EnchantedMinersLandingPage() {
         </p>
       </section>
 
-      {/* Center demo phone */}
-      <section className="demo-wrap" aria-label="Enchanted Miners demo previews">
+      {/* Center phone with rotating images */}
+      <section className="demo-wrap">
         <div className="phone-shell">
           <div className="phone-screen">
             <img
@@ -86,8 +83,8 @@ export default function EnchantedMinersLandingPage() {
 
       <style jsx>{`
         .miners-wrapper {
-          padding-bottom: 80px;
           min-height: 100vh;
+          padding-bottom: 80px;
         }
 
         .intro {
@@ -147,7 +144,7 @@ export default function EnchantedMinersLandingPage() {
           user-select: none;
         }
 
-        /* ~25% smaller on small screens */
+        /* ~25% smaller phone on small screens */
         @media (max-width: 520px) {
           .miners-title {
             font-size: 30px;
