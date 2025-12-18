@@ -1,7 +1,27 @@
 // app/enchanted-miners/page.tsx
 "use client";
 
+import { useEffect } from "react";
+
 export default function EnchantedMinersPage() {
+  useEffect(() => {
+    const root = document.documentElement;
+
+    // Save current values so we can restore them on unmount
+    const prevBg = getComputedStyle(root).getPropertyValue("--page-bg").trim();
+    const prevImg = getComputedStyle(root).getPropertyValue("--page-bg-image").trim();
+
+    // Override for Enchanted Miners page
+    root.style.setProperty("--page-bg", "#111827");
+    root.style.setProperty("--page-bg-image", 'url("/enchanted-miners-bg.png")');
+
+    return () => {
+      // Restore whatever was there before
+      if (prevBg) root.style.setProperty("--page-bg", prevBg);
+      if (prevImg) root.style.setProperty("--page-bg-image", prevImg);
+    };
+  }, []);
+
   return (
     <main className="miners-wrapper">
       <section className="intro">

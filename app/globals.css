@@ -2,6 +2,7 @@
 
 :root {
   --page-bg: #111827; /* dark navy pulled from MAGApixel palette */
+  --page-bg-image: url("/bg-retrograve.png"); /* default */
 }
 
 *,
@@ -17,10 +18,10 @@ html, body {
 body {
   min-height: 100vh;
   background-color: var(--page-bg);
-  background-image: url("/enchanted-miners-bg.png"); /* ⬅️ UPDATED */
+  background-image: var(--page-bg-image);
   background-repeat: no-repeat;
   background-position: bottom center;
-  background-size: cover;
+  background-size: cover;          /* ⬅️ was contain; now fills edge-to-edge */
   background-attachment: fixed;
   color: #eee;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue",
@@ -128,13 +129,13 @@ body {
 
 .site-nav{
   position: fixed;
-  top: 22px;
+  top: 22px;               /* sits nicely below/around the logo area */
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   gap: 26px;
   align-items: center;
-  z-index: 900;
+  z-index: 900;            /* below the wallet button */
   background: transparent;
   pointer-events: auto;
 }
@@ -175,11 +176,11 @@ body {
   .nav-pixel .nav-link{ font-size: 11px; letter-spacing: 1.5px; padding: 5px 6px; }
 }
 
-/* === RetroGrave / Miners parallax mountains === */
+/* === RetroGrave parallax for purple mountains === */
 .bg-mountains {
   will-change: transform;
   transform: translateY(var(--parallax, 0px));
-  transition: transform 0.10s linear;
+  transition: transform 0.10s linear; /* smooths small jumps */
 }
 
 /* Accessibility: disable motion if requested */
