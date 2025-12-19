@@ -46,12 +46,15 @@ const PROJECTS: LockerProject[] = [
     glow: "miners",
     preview: "/lockscreened-previews/miners.png",
   },
+
+  // ✅ UPDATED: New Client -> GAINZ (LIVE + CLICKABLE)
   {
-    name: "Client Project #1",
-    status: "coming",
-    label: "Coming soon",
-    lockerPath: "#",
-    glow: "client",
+    name: "GAINZ",
+    status: "live",
+    label: "Live",
+    lockerPath: "/my-GAINZ",
+    glow: "gainz",
+    // If you don't have a gainz preview yet, keep using client1.png for now
     preview: "/lockscreened-previews/client1.png",
   },
 ];
@@ -70,7 +73,6 @@ export default function HomePage() {
 
       {/* HERO */}
       <section className="ls-hero">
-        {/* New wordmark image */}
         <img
           src="/lockscreened-wordmark-1.png"
           alt="LockScreened wordmark"
@@ -126,11 +128,7 @@ export default function HomePage() {
             const isDisabled = p.status === "coming" || p.lockerPath === "#";
             const Tag = isDisabled ? "div" : Link;
 
-            const linkProps = isDisabled
-              ? {}
-              : {
-                  href: p.lockerPath,
-                };
+            const linkProps = isDisabled ? {} : { href: p.lockerPath };
 
             const inner = (
               <div className={`phone-frame glow-${p.glow}`}>
@@ -139,6 +137,7 @@ export default function HomePage() {
                     {p.status === "live" ? "LIVE" : "COMING SOON"}
                   </span>
                 </div>
+
                 <div className="phone-screen">
                   {p.preview && (
                     <img
@@ -148,6 +147,7 @@ export default function HomePage() {
                     />
                   )}
                 </div>
+
                 <div className="phone-name">{p.name}</div>
                 <div className="phone-status">
                   {p.status === "live" ? "Live" : "Coming soon"}
@@ -168,11 +168,7 @@ export default function HomePage() {
             }
 
             return (
-              <Tag
-                key={p.name}
-                {...(linkProps as any)}
-                className="phone-link"
-              >
+              <Tag key={p.name} {...(linkProps as any)} className="phone-link">
                 {inner}
               </Tag>
             );
@@ -245,7 +241,6 @@ export default function HomePage() {
       <style jsx>{`
         .ls-page {
           min-height: 100vh;
-          /* no top padding so content starts as high as possible */
           padding: 0 16px 72px;
           display: flex;
           flex-direction: column;
@@ -280,7 +275,6 @@ export default function HomePage() {
         }
 
         .ls-hero {
-          /* pull hero up so it visually lines with floating logo */
           margin-top: -18px;
           max-width: 820px;
           text-align: center;
@@ -484,10 +478,10 @@ export default function HomePage() {
             0 0 0 1px rgba(137, 255, 197, 0.7),
             0 18px 34px rgba(76, 219, 151, 0.6);
         }
-        .glow-client {
+        .glow-gainz {
           box-shadow:
-            0 0 0 1px rgba(119, 182, 255, 0.7),
-            0 18px 34px rgba(71, 140, 255, 0.6);
+            0 0 0 1px rgba(255, 255, 255, 0.55),
+            0 18px 34px rgba(0, 0, 0, 0.35);
         }
 
         .ls-how {

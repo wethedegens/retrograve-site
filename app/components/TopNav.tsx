@@ -4,298 +4,134 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+type NavConfig = {
+  myLabel: string;
+  myHref: string;
+  communityHref: string;
+  collectHref: string;
+  followHref: string;
+};
+
+function getNavConfig(pathname: string): NavConfig {
+  // ✅ GAINZ
+  if (pathname.startsWith("/my-GAINZ") || pathname.startsWith("/GAINZ")) {
+    return {
+      myLabel: "MY GAINZ",
+      myHref: "/my-GAINZ",
+      communityHref: "https://discord.gg/jzusygKuRH",
+      collectHref: "https://magiceden.us/marketplace/gainz_",
+      followHref: "https://x.com/GotmLabz",
+    };
+  }
+
+  // ✅ Enchanted Miners
+  if (
+    pathname.startsWith("/enchanted-miners") ||
+    pathname.includes("project=miners") ||
+    pathname.startsWith("/my-miners")
+  ) {
+    return {
+      myLabel: "MY MINERS",
+      myHref: "/my-miners",
+      communityHref: "/community",
+      collectHref: "https://magiceden.io/",
+      followHref: "https://x.com/",
+    };
+  }
+
+  // ✅ Default (RetroGrave)
+  return {
+    myLabel: "MY RETROGRAVES",
+    myHref: "/my-retrograves",
+    communityHref: "/community",
+    collectHref: "https://magiceden.io/",
+    followHref: "https://x.com/",
+  };
+}
+
 export default function TopNav() {
-  const path = usePathname();
+  const pathname = usePathname() || "/";
+  const cfg = getNavConfig(pathname);
 
-  // Treat BOTH /enchanted-miners/* and /my-miners as Enchanted Miners pages
-  const isMiners =
-    path.startsWith("/enchanted-miners") || path.startsWith("/my-miners");
-
-  // GAINZ pages
-  const isGainz = path.startsWith("/GAINZ") || path.startsWith("/my-GAINZ");
-
-  // MAGApixel pages
-  const isMagapixel =
-    path.startsWith("/locker/magapixel") ||
-    path.startsWith("/magapixel-nfts") ||
-    path.startsWith("/retrogs");
-
-  // RetroGrave pages
-  const isRetrograve = path.startsWith("/retrograve");
-
-  /* ---------------------------------------------------------
-     1) ENCHANTED MINERS NAV (inline styles so it DEFINITELY wins)
-  --------------------------------------------------------- */
-  if (isMiners) {
-    const baseLinkStyle = {
-      fontSize: "18px",
-      color: "#ffffff",
-      textDecoration: "none" as const,
-      opacity: 0.92,
-    };
-
-    const activeLinkStyle = {
-      ...baseLinkStyle,
-      textDecoration: "underline" as const,
-      textDecorationThickness: "2px",
-      textUnderlineOffset: "4px",
-      opacity: 1,
-    };
-
-    const isActive = (href: string) => path === href;
-
-    return (
-      <nav
-        className="topnav miners-nav"
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: "32px",
-          marginTop: "0px",
-          height: "72px",
-          alignItems: "center",
-          background: "rgba(0,0,0,0.65)",
-          fontFamily:
-            'system-ui, -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif',
-          fontWeight: 700,
-          letterSpacing: "0.04em",
-        }}
-      >
-        <Link href="/" style={isActive("/") ? activeLinkStyle : baseLinkStyle}>
-          HOME
-        </Link>
-
-        <Link
-          href="/my-miners"
-          style={isActive("/my-miners") ? activeLinkStyle : baseLinkStyle}
-        >
-          MY MINERS
-        </Link>
-
-        <a
-          href="https://discord.gg/C5MfNP7hek"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={baseLinkStyle}
-        >
-          COMMUNITY
-        </a>
-
-        <a
-          href="https://magiceden.us/marketplace/enchanted_miner"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={baseLinkStyle}
-        >
-          COLLECT NOW
-        </a>
-
-        <a
-          href="https://x.com/enchanted_nfts"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={baseLinkStyle}
-        >
-          FOLLOW ON X
-        </a>
-      </nav>
-    );
-  }
-
-  /* ---------------------------------------------------------
-     1b) GAINZ NAV (same structure as Enchanted, own links)
-  --------------------------------------------------------- */
-  if (isGainz) {
-    const baseLinkStyle = {
-      fontSize: "18px",
-      color: "#ffffff",
-      textDecoration: "none" as const,
-      opacity: 0.92,
-    };
-
-    const activeLinkStyle = {
-      ...baseLinkStyle,
-      textDecoration: "underline" as const,
-      textDecorationThickness: "2px",
-      textUnderlineOffset: "4px",
-      opacity: 1,
-    };
-
-    const isActive = (href: string) => path === href;
-
-    return (
-      <nav
-        className="topnav gainz-nav"
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: "32px",
-          marginTop: "0px",
-          height: "72px",
-          alignItems: "center",
-          background: "rgba(0,0,0,0.65)",
-          fontFamily:
-            'system-ui, -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif',
-          fontWeight: 700,
-          letterSpacing: "0.04em",
-        }}
-      >
-        <Link href="/" style={isActive("/") ? activeLinkStyle : baseLinkStyle}>
-          HOME
-        </Link>
-
-        <Link
-          href="/my-GAINZ"
-          style={isActive("/my-GAINZ") ? activeLinkStyle : baseLinkStyle}
-        >
-          MY GAINZ
-        </Link>
-
-        <a
-          href="https://discord.gg/jzusygKuRH"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={baseLinkStyle}
-        >
-          COMMUNITY
-        </a>
-
-        <a
-          href="https://magiceden.us/marketplace/gainz_"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={baseLinkStyle}
-        >
-          COLLECT NOW
-        </a>
-
-        <a
-          href="https://x.com/GotmLabz"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={baseLinkStyle}
-        >
-          FOLLOW ON X
-        </a>
-      </nav>
-    );
-  }
-
-  /* ---------------------------------------------------------
-     2) MAGAPIXEL NAV (unchanged for now)
-  --------------------------------------------------------- */
-  if (isMagapixel) {
-    return (
-      <nav className="topnav">
-        <Link href="/">HOME</Link>
-
-        <Link href="/magapixel-nfts">MY MAGAPIXELS</Link>
-
-        <a
-          href="https://discord.gg/ZVGtHUpHfb"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          COMMUNITY
-        </a>
-
-        <a
-          href="https://magiceden.us/marketplace/magapixel"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          COLLECT NOW
-        </a>
-
-        <a
-          href="https://x.com/MAGApixel_NFT"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          FOLLOW ON X
-        </a>
-
-        <style jsx>{`
-          .topnav {
-            display: flex;
-            gap: 24px;
-            font-family: "VT323", monospace;
-            font-size: 15px;
-            letter-spacing: 0.08em;
-            justify-content: center;
-            margin-top: 22px;
-          }
-          a {
-            text-decoration: none;
-            color: #fff;
-            text-shadow: 0 0 6px rgba(240, 75, 131, 0.75);
-            transition: opacity 0.2s ease;
-          }
-          a:hover {
-            opacity: 0.7;
-          }
-
-          @media (max-width: 480px) {
-            .topnav {
-              gap: 14px;
-              font-size: 12px;
-            }
-          }
-        `}</style>
-      </nav>
-    );
-  }
-
-  /* ---------------------------------------------------------
-     3) DEFAULT RETROGRAVE NAV (unchanged)
-  --------------------------------------------------------- */
   return (
-    <nav className="topnav">
-      <Link href="/">HOME</Link>
-      <Link href="/retrograve">MY RETROGRAVES</Link>
+    <nav className="topbar" aria-label="Top navigation">
+      <div className="topbar-inner">
+        <Link className="toplink" href="/">
+          HOME
+        </Link>
 
-      <a
-        href="https://discord.gg/mSNHRFdCkS"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        COMMUNITY
-      </a>
+        <Link className="toplink" href={cfg.myHref}>
+          {cfg.myLabel}
+        </Link>
 
-      <a href="https://magiceden.io" target="_blank" rel="noopener noreferrer">
-        COLLECT NOW
-      </a>
+        <Link className="toplink" href="/community">
+          COMMUNITY
+        </Link>
 
-      <a
-        href="https://x.com/RETROGRAVE_NFT"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        FOLLOW ON X
-      </a>
+        <a
+          className="toplink"
+          href={cfg.collectHref}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          COLLECT NOW
+        </a>
+
+        <a
+          className="toplink"
+          href={cfg.followHref}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          FOLLOW ON X
+        </a>
+      </div>
 
       <style jsx>{`
-        .topnav {
+        .topbar {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 64px;
           display: flex;
-          gap: 24px;
-          font-family: "VT323", monospace;
+          align-items: center;
+          justify-content: center;
+          background: rgba(0, 0, 0, 0.82);
+          backdrop-filter: blur(6px);
+          z-index: 50;
+        }
+
+        .topbar-inner {
+          width: 100%;
+          max-width: 1100px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 22px;
+          padding: 0 16px;
           font-size: 15px;
           letter-spacing: 0.08em;
-          justify-content: center;
-          margin-top: 22px;
+          text-transform: uppercase;
+          font-family: "VT323", monospace;
         }
-        a {
+
+        .toplink {
           text-decoration: none;
-          color: #fff;
-          text-shadow: 0 0 6px rgba(183, 122, 255, 0.75);
+          color: #ffffff; /* ✅ always white for legibility */
+          text-shadow: 0 0 6px rgba(0, 0, 0, 0.65);
           transition: opacity 0.2s ease;
         }
-        a:hover {
-          opacity: 0.7;
+
+        .toplink:hover {
+          opacity: 0.75;
         }
 
         @media (max-width: 480px) {
-          .topnav {
+          .topbar {
+            height: 58px;
+          }
+          .topbar-inner {
             gap: 14px;
             font-size: 12px;
           }
