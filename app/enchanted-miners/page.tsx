@@ -1,4 +1,3 @@
-// app/enchanted-miners/page.tsx
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -34,107 +33,99 @@ export default function EnchantedMinersLandingPage() {
       className="miners-wrapper"
       style={{
         minHeight: "100vh",
-        paddingBottom: 80,
+        paddingBottom: 60,
+
+        backgroundColor: "#05020A",
+        backgroundImage: "url('/enchanted-miners-bg.png')",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center",
+        backgroundSize: "cover",
+        backgroundAttachment: "fixed",
       }}
     >
-      {/* ✅ FORCE background for this route (overrides global RetroGrave background) */}
-      <style jsx global>{`
-        body.app-body {
-          background-color: #05020a !important;
-          background-image: url("/enchanted-miners-bg.png?v=999") !important;
-          background-repeat: no-repeat !important;
-          background-position: center !important;
-          background-size: cover !important;
-          background-attachment: fixed !important;
-        }
-
-        /* If any decorative mountain overlay exists, kill it on this route */
-        .bg-mountains,
-        .bottom-art,
-        .retrograve-bottom,
-        .mountains,
-        .parallax-mountains {
-          display: none !important;
-        }
-      `}</style>
-
+      {/* INTRO */}
       <section className="intro">
-        <h1 className="miners-title">ENCHANTED MINERS LOCKSCREEN LOCKER</h1>
+        <h1 className="miners-title">
+          ENCHANTED MINERS LOCKSCREEN LOCKER
+        </h1>
         <p className="miners-sub">
-          Download your Enchanted Miners NFT with a perfectly tuned background—
+          Download your Enchanted Miners NFT with a perfectly tuned background —
           sized for any phone.
         </p>
       </section>
 
-      {/* PHONE DEMO (rotates every 3 seconds) */}
+      {/* PHONE DEMO */}
       <section className="demo-wrap">
-        <div className="phone-shell" aria-label="Phone demo preview">
+        <div className="phone-shell">
           <div className="phone-screen">
-            {activeSrc ? (
-              <img
-                key={activeSrc}
-                src={activeSrc}
-                alt="Enchanted Miners lockscreen preview"
-                className="demo-img"
-                draggable={false}
-              />
-            ) : null}
+            <img
+              key={activeSrc}
+              src={activeSrc}
+              alt="Enchanted Miners lockscreen preview"
+              className="demo-img"
+              draggable={false}
+            />
           </div>
         </div>
       </section>
 
       <style jsx>{`
-        .miners-wrapper {
-          padding-top: 24px;
-        }
+        /* ---------------- INTRO ---------------- */
 
         .intro {
           text-align: center;
-          margin-top: 40px;
+          margin-top: 24px; /* moved UP */
           padding: 0 16px;
         }
 
         .miners-title {
-          font-size: 38px;
+          font-size: 36px;
           font-weight: 800;
           letter-spacing: 0.06em;
-          margin-bottom: 8px;
-          color: #ffffff;
+          margin-bottom: 10px;
           text-transform: uppercase;
+
+          /* Dark text that matches background art */
+          color: #1f3d2b;
+
+          /* subtle readability lift */
+          text-shadow: 0 2px 6px rgba(255, 255, 255, 0.35);
         }
 
         .miners-sub {
           font-size: 15px;
-          opacity: 0.85;
-          margin-bottom: 32px;
-          color: #ffffff;
+          max-width: 640px;
+          margin: 0 auto 28px;
+          color: #1f3d2b;
+          opacity: 0.9;
         }
+
+        /* ---------------- DEMO ---------------- */
 
         .demo-wrap {
           display: flex;
           justify-content: center;
           align-items: center;
-          padding: 8px 16px 40px;
+          padding: 0 16px 32px;
         }
 
         .phone-shell {
-          width: 360px;
-          max-width: 92vw;
-          border-radius: 34px;
-          padding: 14px;
-          background: rgba(255, 255, 255, 0.06);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          box-shadow: 0 18px 55px rgba(0, 0, 0, 0.55);
+          width: 270px; /* ~25% smaller */
+          max-width: 80vw;
+          border-radius: 30px;
+          padding: 12px;
+          background: rgba(255, 255, 255, 0.18);
+          border: 1px solid rgba(0, 0, 0, 0.08);
+          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
           backdrop-filter: blur(6px);
         }
 
         .phone-screen {
           width: 100%;
           aspect-ratio: 9 / 19.5;
-          border-radius: 26px;
+          border-radius: 22px;
           overflow: hidden;
           background: rgba(0, 0, 0, 0.45);
-          border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .demo-img {
@@ -143,23 +134,21 @@ export default function EnchantedMinersLandingPage() {
           object-fit: cover;
           display: block;
           user-select: none;
-          -webkit-user-drag: none;
         }
 
-        /* ~25% smaller on small screens */
+        /* ---------------- MOBILE ---------------- */
+
         @media (max-width: 520px) {
           .miners-title {
-            font-size: 30px;
+            font-size: 28px;
+          }
+
+          .miners-sub {
+            font-size: 14px;
           }
 
           .phone-shell {
-            width: 270px;
-            padding: 12px;
-            border-radius: 30px;
-          }
-
-          .phone-screen {
-            border-radius: 22px;
+            width: 230px;
           }
         }
       `}</style>
