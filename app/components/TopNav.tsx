@@ -1,4 +1,3 @@
-// app/components/TopNav.tsx
 "use client";
 
 import Link from "next/link";
@@ -17,16 +16,15 @@ export default function TopNav() {
     path.startsWith("/magapixel-nfts") ||
     path.startsWith("/retrogs");
 
-  // RetroGrave pages
-  const isRetrograve = path.startsWith("/retrograve");
-
-  /* ---------------------------------------------------------
-     1) ENCHANTED MINERS NAV (inline styles so it DEFINITELY wins)
-  --------------------------------------------------------- */
+  /* =========================================================
+     1) ENCHANTED MINERS NAV (COSMETIC ONLY)
+     ========================================================= */
   if (isMiners) {
+    const textColor = "#1f3d2b"; // SAME color as Enchanted Miners headline
+
     const baseLinkStyle = {
-      fontSize: "18px", // ~25% larger than 14–15px
-      color: "#222222",
+      fontSize: "16px",
+      color: textColor,
       textDecoration: "none" as const,
       opacity: 0.9,
     };
@@ -43,14 +41,23 @@ export default function TopNav() {
 
     return (
       <nav
-        className="topnav miners-nav"
+        className="miners-nav"
         style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "64px",
+
+          // 🔥 MATCH headline color
+          backgroundColor: textColor,
+
           display: "flex",
+          alignItems: "center", // vertical centering
           justifyContent: "center",
           gap: "32px",
-          marginTop: "24px",
-          fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif',
-          fontWeight: 600,
+
+          zIndex: 50,
         }}
       >
         <Link href="/" style={isActive("/") ? activeLinkStyle : baseLinkStyle}>
@@ -94,15 +101,13 @@ export default function TopNav() {
     );
   }
 
-  /* ---------------------------------------------------------
-     2) MAGAPIXEL NAV (unchanged for now)
-  --------------------------------------------------------- */
+  /* =========================================================
+     2) MAGAPIXEL NAV (UNCHANGED)
+     ========================================================= */
   if (isMagapixel) {
     return (
       <nav className="topnav">
-        {/* Home goes to RetroGrave root */}
         <Link href="/">HOME</Link>
-
         <Link href="/magapixel-nfts">MY MAGAPIXELS</Link>
 
         <a
@@ -142,32 +147,21 @@ export default function TopNav() {
           a {
             text-decoration: none;
             color: #fff;
-            /* MAGApixel glow */
             text-shadow: 0 0 6px rgba(240, 75, 131, 0.75);
-            transition: opacity 0.2s ease;
-          }
-          a:hover {
-            opacity: 0.7;
-          }
-
-          @media (max-width: 480px) {
-            .topnav {
-              gap: 14px;
-              font-size: 12px;
-            }
           }
         `}</style>
       </nav>
     );
   }
 
-  /* ---------------------------------------------------------
-     3) DEFAULT RETROGRAVE NAV (unchanged)
-  --------------------------------------------------------- */
+  /* =========================================================
+     3) DEFAULT RETROGRAVE NAV (UNCHANGED)
+     ========================================================= */
   return (
     <nav className="topnav">
       <Link href="/">HOME</Link>
       <Link href="/retrograve">MY RETROGRAVES</Link>
+
       <a
         href="https://discord.gg/mSNHRFdCkS"
         target="_blank"
@@ -175,13 +169,11 @@ export default function TopNav() {
       >
         COMMUNITY
       </a>
-      <a
-        href="https://magiceden.io"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+
+      <a href="https://magiceden.io" target="_blank" rel="noopener noreferrer">
         COLLECT NOW
       </a>
+
       <a
         href="https://x.com/RETROGRAVE_NFT"
         target="_blank"
@@ -204,17 +196,6 @@ export default function TopNav() {
           text-decoration: none;
           color: #fff;
           text-shadow: 0 0 6px rgba(183, 122, 255, 0.75);
-          transition: opacity 0.2s ease;
-        }
-        a:hover {
-          opacity: 0.7;
-        }
-
-        @media (max-width: 480px) {
-          .topnav {
-            gap: 14px;
-            font-size: 12px;
-          }
         }
       `}</style>
     </nav>
