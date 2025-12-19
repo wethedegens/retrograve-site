@@ -29,54 +29,17 @@ export default function EnchantedMinersLandingPage() {
 
   const activeSrc = demoImages[idx] || "";
 
-  // ✅ Hard override for THIS route:
-  // 1) Force body/html background to miners bg
-  // 2) Hide any global "mountains / bottom art" overlay that layout might be injecting
-  useEffect(() => {
-    const html = document.documentElement;
-    const body = document.body;
-
-    const prevHtmlBg = html.style.backgroundImage;
-    const prevHtmlBgColor = html.style.backgroundColor;
-
-    const prevBodyBg = body.style.backgroundImage;
-    const prevBodyBgColor = body.style.backgroundColor;
-    const prevBodyBgSize = body.style.backgroundSize;
-    const prevBodyBgPos = body.style.backgroundPosition;
-    const prevBodyBgRep = body.style.backgroundRepeat;
-    const prevBodyBgAttach = body.style.backgroundAttachment;
-
-    // force html/body background (beats most normal CSS)
-    html.style.backgroundColor = "#05020A";
-    html.style.backgroundImage = "none";
-
-    body.style.backgroundColor = "#05020A";
-    body.style.backgroundImage = "url('/enchanted-miners-bg.png?v=999')";
-    body.style.backgroundRepeat = "no-repeat";
-    body.style.backgroundPosition = "center";
-    body.style.backgroundSize = "cover";
-    body.style.backgroundAttachment = "fixed";
-
-    return () => {
-      html.style.backgroundImage = prevHtmlBg;
-      html.style.backgroundColor = prevHtmlBgColor;
-
-      body.style.backgroundImage = prevBodyBg;
-      body.style.backgroundColor = prevBodyBgColor;
-      body.style.backgroundSize = prevBodyBgSize;
-      body.style.backgroundPosition = prevBodyBgPos;
-      body.style.backgroundRepeat = prevBodyBgRep;
-      body.style.backgroundAttachment = prevBodyBgAttach;
-    };
-  }, []);
-
   return (
-    <main className="miners-wrapper">
-      {/* ✅ GLOBAL OVERRIDES (kills the retrograve mountains/logo overlay if layout injects it) */}
+    <main
+      className="miners-wrapper"
+      style={{
+        minHeight: "100vh",
+        paddingBottom: 80,
+      }}
+    >
+      {/* ✅ FORCE background for this route (overrides global RetroGrave background) */}
       <style jsx global>{`
-        /* Force background (in case inline styles lose to something weird) */
-        html,
-        body {
+        body.app-body {
           background-color: #05020a !important;
           background-image: url("/enchanted-miners-bg.png?v=999") !important;
           background-repeat: no-repeat !important;
@@ -85,26 +48,13 @@ export default function EnchantedMinersLandingPage() {
           background-attachment: fixed !important;
         }
 
-        /*
-          Hide common "bottom art / mountains" wrappers.
-          One of these is almost certainly what you’re seeing.
-        */
+        /* If any decorative mountain overlay exists, kill it on this route */
         .bg-mountains,
         .bottom-art,
-        .bottomArt,
         .retrograve-bottom,
-        .retrograve-footer,
-        .footer-art,
         .mountains,
-        .mountain-wrap,
-        .mountains-wrap,
-        .parallax-mountains,
-        #bg-mountains,
-        #mountains {
+        .parallax-mountains {
           display: none !important;
-          visibility: hidden !important;
-          opacity: 0 !important;
-          pointer-events: none !important;
         }
       `}</style>
 
@@ -116,24 +66,26 @@ export default function EnchantedMinersLandingPage() {
         </p>
       </section>
 
+      {/* PHONE DEMO (rotates every 3 seconds) */}
       <section className="demo-wrap">
-        <div className="phone-shell">
+        <div className="phone-shell" aria-label="Phone demo preview">
           <div className="phone-screen">
-            <img
-              key={activeSrc}
-              src={activeSrc}
-              alt="Enchanted Miners lockscreen preview"
-              className="demo-img"
-              draggable={false}
-            />
+            {activeSrc ? (
+              <img
+                key={activeSrc}
+                src={activeSrc}
+                alt="Enchanted Miners lockscreen preview"
+                className="demo-img"
+                draggable={false}
+              />
+            ) : null}
           </div>
         </div>
       </section>
 
       <style jsx>{`
         .miners-wrapper {
-          min-height: 100vh;
-          padding-bottom: 80px;
+          padding-top: 24px;
         }
 
         .intro {
@@ -191,6 +143,7 @@ export default function EnchantedMinersLandingPage() {
           object-fit: cover;
           display: block;
           user-select: none;
+          -webkit-user-drag: none;
         }
 
         /* ~25% smaller on small screens */

@@ -19,7 +19,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      {/* ✅ add a stable class so pages can override body background reliably */}
+      <body className="app-body">
         <Providers>
           <WalletGate>
             <RedirectOnConnect />
