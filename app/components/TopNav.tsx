@@ -7,35 +7,26 @@ import { usePathname } from "next/navigation";
 export default function TopNav() {
   const path = usePathname();
 
-  // ✅ Treat these routes as "Enchanted-style" partner pages (same clean nav look)
-  const isPartner = (p: string) =>
-    p.startsWith("/enchanted-miners") ||
-    p.startsWith("/my-miners") ||
-    p.startsWith("/gainz") ||
-    p.startsWith("/my-gainz");
-
-  // ✅ Enchanted Miners pages
+  // Treat BOTH /enchanted-miners/* and /my-miners as Enchanted Miners pages
   const isMiners =
     path.startsWith("/enchanted-miners") || path.startsWith("/my-miners");
 
-  // ✅ GAINZ pages
-  const isGainz = path.startsWith("/gainz") || path.startsWith("/my-gainz");
+  // GAINZ pages
+  const isGainz = path.startsWith("/GAINZ") || path.startsWith("/my-GAINZ");
 
-  // ✅ MAGApixel pages
+  // MAGApixel pages
   const isMagapixel =
     path.startsWith("/locker/magapixel") ||
     path.startsWith("/magapixel-nfts") ||
     path.startsWith("/retrogs");
 
-  // ✅ RetroGrave pages
+  // RetroGrave pages
   const isRetrograve = path.startsWith("/retrograve");
 
   /* ---------------------------------------------------------
-     1) PARTNER NAV (inline styles so it DEFINITELY wins)
-        - Enchanted Miners + GAINZ share the same clean layout
-        - Links swap depending on which partner you're on
+     1) ENCHANTED MINERS NAV (inline styles so it DEFINITELY wins)
   --------------------------------------------------------- */
-  if (isPartner(path)) {
+  if (isMiners) {
     const baseLinkStyle = {
       fontSize: "18px",
       color: "#222222",
@@ -53,37 +44,9 @@ export default function TopNav() {
 
     const isActive = (href: string) => path === href;
 
-    // Default partner values (Enchanted Miners)
-    let homeHref = "/";
-    let myHref = "/my-miners";
-    let myLabel = "MY MINERS";
-    let discordHref = "https://discord.gg/jzusygKuRH"; // <-- placeholder, overwritten below for Miners if needed
-    let marketHref = "https://magiceden.us/marketplace/enchanted_miner";
-    let xHref = "https://x.com/enchanted_nfts";
-
-    // If we're on GAINZ pages, swap in GAINZ links
-    if (isGainz) {
-      myHref = "/my-gainz";
-      myLabel = "MY GAINZ";
-      discordHref = "https://discord.gg/jzusygKuRH";
-      marketHref = "https://magiceden.us/marketplace/gainz_";
-      xHref = "https://x.com/GotmLabz";
-    }
-
-    // If we're on Enchanted Miners pages, keep Enchanted links (and you can set their discord here if you want)
-    if (isMiners) {
-      // If you have an Enchanted-specific discord, put it here:
-      // discordHref = "https://discord.gg/C5MfNP7hek";
-      discordHref = "https://discord.gg/C5MfNP7hek";
-      marketHref = "https://magiceden.us/marketplace/enchanted_miner";
-      xHref = "https://x.com/enchanted_nfts";
-      myHref = "/my-miners";
-      myLabel = "MY MINERS";
-    }
-
     return (
       <nav
-        className="topnav partner-nav"
+        className="topnav miners-nav"
         style={{
           display: "flex",
           justifyContent: "center",
@@ -94,16 +57,19 @@ export default function TopNav() {
           fontWeight: 600,
         }}
       >
-        <Link href={homeHref} style={isActive(homeHref) ? activeLinkStyle : baseLinkStyle}>
+        <Link href="/" style={isActive("/") ? activeLinkStyle : baseLinkStyle}>
           HOME
         </Link>
 
-        <Link href={myHref} style={isActive(myHref) ? activeLinkStyle : baseLinkStyle}>
-          {myLabel}
+        <Link
+          href="/my-miners"
+          style={isActive("/my-miners") ? activeLinkStyle : baseLinkStyle}
+        >
+          MY MINERS
         </Link>
 
         <a
-          href={discordHref}
+          href="https://discord.gg/C5MfNP7hek"
           target="_blank"
           rel="noopener noreferrer"
           style={baseLinkStyle}
@@ -112,7 +78,7 @@ export default function TopNav() {
         </a>
 
         <a
-          href={marketHref}
+          href="https://magiceden.us/marketplace/enchanted_miner"
           target="_blank"
           rel="noopener noreferrer"
           style={baseLinkStyle}
@@ -121,7 +87,7 @@ export default function TopNav() {
         </a>
 
         <a
-          href={xHref}
+          href="https://x.com/enchanted_nfts"
           target="_blank"
           rel="noopener noreferrer"
           style={baseLinkStyle}
@@ -133,7 +99,82 @@ export default function TopNav() {
   }
 
   /* ---------------------------------------------------------
-     2) MAGAPIXEL NAV (unchanged)
+     2) GAINZ NAV (separate project)
+  --------------------------------------------------------- */
+  if (isGainz) {
+    const baseLinkStyle = {
+      fontSize: "18px",
+      color: "#ffffff",
+      textDecoration: "none" as const,
+      opacity: 0.9,
+    };
+
+    const activeLinkStyle = {
+      ...baseLinkStyle,
+      textDecoration: "underline" as const,
+      textDecorationThickness: "2px",
+      textUnderlineOffset: "4px",
+      opacity: 1,
+    };
+
+    const isActive = (href: string) => path === href;
+
+    return (
+      <nav
+        className="topnav gainz-nav"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "32px",
+          marginTop: "24px",
+          fontFamily:
+            'system-ui, -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif',
+          fontWeight: 700,
+        }}
+      >
+        <Link href="/" style={isActive("/") ? activeLinkStyle : baseLinkStyle}>
+          HOME
+        </Link>
+
+        <Link
+          href="/my-GAINZ"
+          style={isActive("/my-GAINZ") ? activeLinkStyle : baseLinkStyle}
+        >
+          MY GAINZ
+        </Link>
+
+        <a
+          href="https://discord.gg/jzusygKuRH"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={baseLinkStyle}
+        >
+          COMMUNITY
+        </a>
+
+        <a
+          href="https://magiceden.us/marketplace/gainz_"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={baseLinkStyle}
+        >
+          COLLECT NOW
+        </a>
+
+        <a
+          href="https://x.com/GotmLabz"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={baseLinkStyle}
+        >
+          FOLLOW ON X
+        </a>
+      </nav>
+    );
+  }
+
+  /* ---------------------------------------------------------
+     3) MAGAPIXEL NAV (unchanged for now)
   --------------------------------------------------------- */
   if (isMagapixel) {
     return (
@@ -198,13 +239,12 @@ export default function TopNav() {
   }
 
   /* ---------------------------------------------------------
-     3) DEFAULT RETROGRAVE NAV (unchanged)
+     4) DEFAULT RETROGRAVE NAV (unchanged)
   --------------------------------------------------------- */
   return (
     <nav className="topnav">
       <Link href="/">HOME</Link>
       <Link href="/retrograve">MY RETROGRAVES</Link>
-
       <a
         href="https://discord.gg/mSNHRFdCkS"
         target="_blank"
@@ -212,11 +252,9 @@ export default function TopNav() {
       >
         COMMUNITY
       </a>
-
       <a href="https://magiceden.io" target="_blank" rel="noopener noreferrer">
         COLLECT NOW
       </a>
-
       <a
         href="https://x.com/RETROGRAVE_NFT"
         target="_blank"
