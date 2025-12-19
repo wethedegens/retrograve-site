@@ -77,7 +77,7 @@ export default function EnchantedMinersLandingPage() {
         .hero {
           max-width: 1100px;
           margin: 0 auto;
-          padding: 48px 24px 0; /* moved UP */
+          padding: 48px 24px 0;
           display: grid;
           grid-template-columns: 1.1fr 0.9fr;
           align-items: center;
@@ -116,19 +116,19 @@ export default function EnchantedMinersLandingPage() {
         }
 
         .phone-shell {
-          width: 260px; /* ~25% smaller */
-          border-radius: 30px;
-          padding: 12px;
+          width: 325px; /* ⬅️ 25% bigger */
+          border-radius: 34px;
+          padding: 14px;
           background: rgba(255, 255, 255, 0.18);
           border: 1px solid rgba(0, 0, 0, 0.08);
-          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
           backdrop-filter: blur(6px);
         }
 
         .phone-screen {
           width: 100%;
           aspect-ratio: 9 / 19.5;
-          border-radius: 22px;
+          border-radius: 26px;
           overflow: hidden;
           background: rgba(0, 0, 0, 0.45);
         }
@@ -166,7 +166,7 @@ export default function EnchantedMinersLandingPage() {
 
         @media (max-width: 480px) {
           .phone-shell {
-            width: 230px;
+            width: 270px; /* scaled mobile size */
           }
         }
       `}</style>
