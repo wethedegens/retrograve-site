@@ -17,7 +17,7 @@ export const PROJECTS: LockerProject[] = [
     tagline: "Phone-native lock screens for MAGApixel NFTs.",
     primaryColor: "#f04b83",
     accentColor: "#ffb347",
-    lockerPath: "/locker", // existing MAGApixel locker route
+    lockerPath: "/locker",
     status: "live",
   },
   {
@@ -26,7 +26,6 @@ export const PROJECTS: LockerProject[] = [
     tagline: "Legendary lock screens for RetroGraves.",
     primaryColor: "#a46bff",
     accentColor: "#6c4bff",
-    // external link straight to your RetroGrave locker page
     lockerPath: "https://retrograve.xyz/retrograve",
     status: "live",
   },
@@ -36,27 +35,27 @@ export const PROJECTS: LockerProject[] = [
     tagline: "Phone-native lock screens for MEOWGA NFTs (coming soon).",
     primaryColor: "#39d8ff",
     accentColor: "#00ffc3",
-    lockerPath: "/meowga", // placeholder; only used once status = "live"
+    lockerPath: "/meowga",
     status: "coming-soon",
   },
   {
     slug: "enchanted-miners",
     name: "Enchanted Miners",
-    tagline: "Enchanted Miners lockscreen engine (coming soon).",
+    tagline: "Enchanted Miners lockscreen engine.",
     primaryColor: "#25f2d0",
     accentColor: "#00a3ff",
-    lockerPath: "/enchanted-miners", // placeholder
-    status: "coming-soon",
+    lockerPath: "/enchanted-miners",
+    status: "live",
   },
 
-  // ✅ UPDATED: Client Project #1 → GAINZ
+  // ✅ REPLACED Client Project #1 with GAINZ (LIVE + clickable)
   {
     slug: "gainz",
     name: "GAINZ",
-    tagline: "Phone-native lock screens for GAINZ NFTs.",
-    primaryColor: "#00c6ff",
-    accentColor: "#0072ff",
-    lockerPath: "/GAINZ", // ✅ must match app/GAINZ/page.tsx exactly on Vercel
-    status: "live",       // ✅ makes the homepage phone tile clickable
+    tagline: "Custom lockscreen engine for GAINZ NFTs.",
+    primaryColor: "#8cff3a",
+    accentColor: "#00c6ff",
+    lockerPath: "/GAINZ", // <-- points to app/GAINZ/page.tsx
+    status: "live",
   },
 ];

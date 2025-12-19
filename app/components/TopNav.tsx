@@ -5,14 +5,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export default function TopNav() {
-  const path = usePathname();
+  const path = usePathname() || "";
 
   // Treat BOTH /enchanted-miners/* and /my-miners as Enchanted Miners pages
   const isMiners =
     path.startsWith("/enchanted-miners") || path.startsWith("/my-miners");
 
-  // GAINZ pages
-  const isGainz = path.startsWith("/GAINZ") || path.startsWith("/my-GAINZ");
+  // ✅ GAINZ pages (support multiple casing/paths just in case)
+  const isGainz =
+    path.startsWith("/GAINZ") ||
+    path.startsWith("/gainz") ||
+    path.startsWith("/my-GAINZ") ||
+    path.startsWith("/my-gainz");
 
   // MAGApixel pages
   const isMagapixel =
@@ -24,14 +28,17 @@ export default function TopNav() {
   const isRetrograve = path.startsWith("/retrograve");
 
   /* ---------------------------------------------------------
-     1) ENCHANTED MINERS NAV (inline styles so it DEFINITELY wins)
+     1) ENCHANTED MINERS NAV
+     - Readable on light background
+     - Cosmetic-only
   --------------------------------------------------------- */
   if (isMiners) {
     const baseLinkStyle = {
       fontSize: "18px",
-      color: "#222222",
+      color: "#ffffff",
       textDecoration: "none" as const,
-      opacity: 0.9,
+      opacity: 0.92,
+      textShadow: "0 2px 10px rgba(0,0,0,0.55)",
     };
 
     const activeLinkStyle = {
@@ -51,10 +58,13 @@ export default function TopNav() {
           display: "flex",
           justifyContent: "center",
           gap: "32px",
-          marginTop: "24px",
+          padding: "18px 16px",
+          marginTop: "0px",
           fontFamily:
             'system-ui, -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif',
-          fontWeight: 600,
+          fontWeight: 700,
+          // This keeps the “top black portion” looking intentional, but doesn’t touch globals
+          background: "rgba(0,0,0,0.55)",
         }}
       >
         <Link href="/" style={isActive("/") ? activeLinkStyle : baseLinkStyle}>
@@ -99,14 +109,15 @@ export default function TopNav() {
   }
 
   /* ---------------------------------------------------------
-     2) GAINZ NAV (separate project)
+     1b) GAINZ NAV (separate cosmetics later; safe placeholder now)
   --------------------------------------------------------- */
   if (isGainz) {
     const baseLinkStyle = {
       fontSize: "18px",
       color: "#ffffff",
       textDecoration: "none" as const,
-      opacity: 0.9,
+      opacity: 0.92,
+      textShadow: "0 2px 10px rgba(0,0,0,0.55)",
     };
 
     const activeLinkStyle = {
@@ -126,10 +137,12 @@ export default function TopNav() {
           display: "flex",
           justifyContent: "center",
           gap: "32px",
-          marginTop: "24px",
+          padding: "18px 16px",
+          marginTop: "0px",
           fontFamily:
             'system-ui, -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif',
           fontWeight: 700,
+          background: "rgba(0,0,0,0.55)",
         }}
       >
         <Link href="/" style={isActive("/") ? activeLinkStyle : baseLinkStyle}>
@@ -137,10 +150,10 @@ export default function TopNav() {
         </Link>
 
         <Link
-          href="/my-GAINZ"
-          style={isActive("/my-GAINZ") ? activeLinkStyle : baseLinkStyle}
+          href="/GAINZ"
+          style={isActive("/GAINZ") || isActive("/gainz") ? activeLinkStyle : baseLinkStyle}
         >
-          MY GAINZ
+          GAINZ
         </Link>
 
         <a
@@ -174,36 +187,23 @@ export default function TopNav() {
   }
 
   /* ---------------------------------------------------------
-     3) MAGAPIXEL NAV (unchanged for now)
+     2) MAGAPIXEL NAV (unchanged)
   --------------------------------------------------------- */
   if (isMagapixel) {
     return (
       <nav className="topnav">
         <Link href="/">HOME</Link>
-
         <Link href="/magapixel-nfts">MY MAGAPIXELS</Link>
 
-        <a
-          href="https://discord.gg/ZVGtHUpHfb"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a href="https://discord.gg/ZVGtHUpHfb" target="_blank" rel="noopener noreferrer">
           COMMUNITY
         </a>
 
-        <a
-          href="https://magiceden.us/marketplace/magapixel"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a href="https://magiceden.us/marketplace/magapixel" target="_blank" rel="noopener noreferrer">
           COLLECT NOW
         </a>
 
-        <a
-          href="https://x.com/MAGApixel_NFT"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a href="https://x.com/MAGApixel_NFT" target="_blank" rel="noopener noreferrer">
           FOLLOW ON X
         </a>
 
@@ -226,7 +226,6 @@ export default function TopNav() {
           a:hover {
             opacity: 0.7;
           }
-
           @media (max-width: 480px) {
             .topnav {
               gap: 14px;
@@ -239,27 +238,22 @@ export default function TopNav() {
   }
 
   /* ---------------------------------------------------------
-     4) DEFAULT RETROGRAVE NAV (unchanged)
+     3) DEFAULT RETROGRAVE NAV (unchanged)
   --------------------------------------------------------- */
   return (
     <nav className="topnav">
       <Link href="/">HOME</Link>
       <Link href="/retrograve">MY RETROGRAVES</Link>
-      <a
-        href="https://discord.gg/mSNHRFdCkS"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+
+      <a href="https://discord.gg/mSNHRFdCkS" target="_blank" rel="noopener noreferrer">
         COMMUNITY
       </a>
+
       <a href="https://magiceden.io" target="_blank" rel="noopener noreferrer">
         COLLECT NOW
       </a>
-      <a
-        href="https://x.com/RETROGRAVE_NFT"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+
+      <a href="https://x.com/RETROGRAVE_NFT" target="_blank" rel="noopener noreferrer">
         FOLLOW ON X
       </a>
 
@@ -282,7 +276,6 @@ export default function TopNav() {
         a:hover {
           opacity: 0.7;
         }
-
         @media (max-width: 480px) {
           .topnav {
             gap: 14px;
