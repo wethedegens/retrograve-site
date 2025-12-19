@@ -1,14 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 export default function TopNav() {
   const path = usePathname();
+  const sp = useSearchParams();
 
-  // Treat BOTH /enchanted-miners/* and /my-miners as Enchanted Miners pages
+  // Detect miners locker via query param: /locker?....&project=miners
+  const projectParam = (sp.get("project") || "").toLowerCase();
+  const isMinersLocker = path.startsWith("/locker") && projectParam === "miners";
+
+  // Treat BOTH /enchanted-miners/* and /my-miners AND /locker?project=miners as Enchanted Miners pages
   const isMiners =
-    path.startsWith("/enchanted-miners") || path.startsWith("/my-miners");
+    path.startsWith("/enchanted-miners") ||
+    path.startsWith("/my-miners") ||
+    isMinersLocker;
 
   // MAGApixel pages
   const isMagapixel =
@@ -20,8 +27,8 @@ export default function TopNav() {
      1) ENCHANTED MINERS NAV (COSMETIC ONLY)
      ========================================================= */
   if (isMiners) {
-    const barColor = "#1f3d2b"; // green bar (matches headline tone)
-    const textColor = "#ffffff"; // ✅ WHITE text for contrast
+    const barColor = "#1f3d2b"; // green bar
+    const textColor = "#ffffff"; // white text
 
     const baseLinkStyle = {
       fontSize: "16px",
@@ -49,15 +56,11 @@ export default function TopNav() {
           left: 0,
           width: "100%",
           height: "64px",
-
-          // ✅ GREEN BAR
           backgroundColor: barColor,
-
           display: "flex",
-          alignItems: "center", // vertical centering
+          alignItems: "center",
           justifyContent: "center",
           gap: "32px",
-
           zIndex: 50,
         }}
       >
@@ -109,6 +112,7 @@ export default function TopNav() {
     return (
       <nav className="topnav">
         <Link href="/">HOME</Link>
+
         <Link href="/magapixel-nfts">MY MAGAPIXELS</Link>
 
         <a
@@ -150,6 +154,16 @@ export default function TopNav() {
             color: #fff;
             text-shadow: 0 0 6px rgba(240, 75, 131, 0.75);
           }
+          a:hover {
+            opacity: 0.7;
+          }
+
+          @media (max-width: 480px) {
+            .topnav {
+              gap: 14px;
+              font-size: 12px;
+            }
+          }
         `}</style>
       </nav>
     );
@@ -162,7 +176,6 @@ export default function TopNav() {
     <nav className="topnav">
       <Link href="/">HOME</Link>
       <Link href="/retrograve">MY RETROGRAVES</Link>
-
       <a
         href="https://discord.gg/mSNHRFdCkS"
         target="_blank"
@@ -170,11 +183,9 @@ export default function TopNav() {
       >
         COMMUNITY
       </a>
-
       <a href="https://magiceden.io" target="_blank" rel="noopener noreferrer">
         COLLECT NOW
       </a>
-
       <a
         href="https://x.com/RETROGRAVE_NFT"
         target="_blank"
@@ -197,6 +208,17 @@ export default function TopNav() {
           text-decoration: none;
           color: #fff;
           text-shadow: 0 0 6px rgba(183, 122, 255, 0.75);
+          transition: opacity 0.2s ease;
+        }
+        a:hover {
+          opacity: 0.7;
+        }
+
+        @media (max-width: 480px) {
+          .topnav {
+            gap: 14px;
+            font-size: 12px;
+          }
         }
       `}</style>
     </nav>
