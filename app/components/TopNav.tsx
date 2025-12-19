@@ -20,7 +20,8 @@ export default function TopNav() {
      1) ENCHANTED MINERS NAV (COSMETIC ONLY)
      ========================================================= */
   if (isMiners) {
-    const textColor = "#1f3d2b"; // SAME color as Enchanted Miners headline
+    const barColor = "#1f3d2b"; // green bar (matches headline tone)
+    const textColor = "#ffffff"; // ✅ WHITE text for contrast
 
     const baseLinkStyle = {
       fontSize: "16px",
@@ -49,8 +50,8 @@ export default function TopNav() {
           width: "100%",
           height: "64px",
 
-          // 🔥 MATCH headline color
-          backgroundColor: textColor,
+          // ✅ GREEN BAR
+          backgroundColor: barColor,
 
           display: "flex",
           alignItems: "center", // vertical centering
