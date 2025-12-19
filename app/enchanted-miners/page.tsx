@@ -34,84 +34,89 @@ export default function EnchantedMinersLandingPage() {
       style={{
         minHeight: "100vh",
         paddingBottom: 60,
-
-        backgroundColor: "#05020A",
         backgroundImage: "url('/enchanted-miners-bg.png')",
         backgroundRepeat: "no-repeat",
         backgroundPosition: "center",
         backgroundSize: "cover",
-        backgroundAttachment: "fixed",
       }}
     >
-      {/* INTRO */}
-      <section className="intro">
-        <h1 className="miners-title">
-          ENCHANTED MINERS LOCKSCREEN LOCKER
-        </h1>
-        <p className="miners-sub">
-          Download your Enchanted Miners NFT with a perfectly tuned background —
-          sized for any phone.
-        </p>
-      </section>
+      {/* HERO */}
+      <section className="hero">
+        {/* LEFT: TEXT */}
+        <div className="hero-text">
+          <h1 className="miners-title">
+            ENCHANTED MINERS
+            <br />
+            LOCKSCREEN LOCKER
+          </h1>
+          <p className="miners-sub">
+            Download your Enchanted Miners NFT with a perfectly tuned background —
+            sized for any phone.
+          </p>
+        </div>
 
-      {/* PHONE DEMO */}
-      <section className="demo-wrap">
-        <div className="phone-shell">
-          <div className="phone-screen">
-            <img
-              key={activeSrc}
-              src={activeSrc}
-              alt="Enchanted Miners lockscreen preview"
-              className="demo-img"
-              draggable={false}
-            />
+        {/* RIGHT: PHONE */}
+        <div className="hero-phone">
+          <div className="phone-shell">
+            <div className="phone-screen">
+              <img
+                key={activeSrc}
+                src={activeSrc}
+                alt="Enchanted Miners lockscreen preview"
+                className="demo-img"
+                draggable={false}
+              />
+            </div>
           </div>
         </div>
       </section>
 
       <style jsx>{`
-        /* ---------------- INTRO ---------------- */
+        /* ---------------- HERO LAYOUT ---------------- */
 
-        .intro {
-          text-align: center;
-          margin-top: 24px; /* moved UP */
-          padding: 0 16px;
+        .hero {
+          max-width: 1100px;
+          margin: 0 auto;
+          padding: 48px 24px 0; /* moved UP */
+          display: grid;
+          grid-template-columns: 1.1fr 0.9fr;
+          align-items: center;
+          gap: 48px;
+        }
+
+        /* ---------------- TEXT ---------------- */
+
+        .hero-text {
+          text-align: left;
         }
 
         .miners-title {
-          font-size: 36px;
+          font-size: 38px;
           font-weight: 800;
           letter-spacing: 0.06em;
-          margin-bottom: 10px;
+          margin-bottom: 14px;
           text-transform: uppercase;
-
-          /* Dark text that matches background art */
           color: #1f3d2b;
-
-          /* subtle readability lift */
           text-shadow: 0 2px 6px rgba(255, 255, 255, 0.35);
         }
 
         .miners-sub {
           font-size: 15px;
-          max-width: 640px;
-          margin: 0 auto 28px;
+          max-width: 520px;
           color: #1f3d2b;
           opacity: 0.9;
+          line-height: 1.5;
         }
 
-        /* ---------------- DEMO ---------------- */
+        /* ---------------- PHONE ---------------- */
 
-        .demo-wrap {
+        .hero-phone {
           display: flex;
           justify-content: center;
-          align-items: center;
-          padding: 0 16px 32px;
         }
 
         .phone-shell {
-          width: 270px; /* ~25% smaller */
-          max-width: 80vw;
+          width: 260px; /* ~25% smaller */
           border-radius: 30px;
           padding: 12px;
           background: rgba(255, 255, 255, 0.18);
@@ -138,15 +143,28 @@ export default function EnchantedMinersLandingPage() {
 
         /* ---------------- MOBILE ---------------- */
 
-        @media (max-width: 520px) {
+        @media (max-width: 820px) {
+          .hero {
+            grid-template-columns: 1fr;
+            gap: 32px;
+            padding-top: 32px;
+            text-align: center;
+          }
+
+          .hero-text {
+            text-align: center;
+          }
+
           .miners-title {
-            font-size: 28px;
+            font-size: 30px;
           }
 
           .miners-sub {
-            font-size: 14px;
+            margin: 0 auto;
           }
+        }
 
+        @media (max-width: 480px) {
           .phone-shell {
             width: 230px;
           }
