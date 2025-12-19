@@ -48,13 +48,15 @@ export const PROJECTS: LockerProject[] = [
     lockerPath: "/enchanted-miners", // placeholder
     status: "coming-soon",
   },
+
+  // ✅ UPDATED: Client Project #1 → GAINZ
   {
-    slug: "client-1",
-    name: "Client Project #1",
-    tagline: "Custom lockscreen engine for partner NFTs.",
+    slug: "gainz",
+    name: "GAINZ",
+    tagline: "Phone-native lock screens for GAINZ NFTs.",
     primaryColor: "#00c6ff",
     accentColor: "#0072ff",
-    lockerPath: "/client-1-locker", // placeholder
-    status: "coming-soon",
+    lockerPath: "/GAINZ", // ✅ must match app/GAINZ/page.tsx exactly on Vercel
+    status: "live",       // ✅ makes the homepage phone tile clickable
   },
 ];
