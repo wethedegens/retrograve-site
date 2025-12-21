@@ -13,20 +13,19 @@ type Props = {
 
 /**
  * BackgroundPicker
- * - Supports different projects with separate folders.
- *
- * Folder conventions (recommended):
- *  - Enchanted Miners: /public/enchanted-miners/phone/bg-1.png ... bg-28.png
- *  - GAINZ:            /public/gainz/phone/bg-1.png ... bg-N.png
- *  - MAGApixel:        (optional) wire later if you want presets
+ * - Project-scoped preset backgrounds
+ * - SAFE for MAGApixel (no presets applied)
  */
 
-// ✅ Helper: create stable IDs for each project
+// ✅ Stable ID helper (Composer expects `id`)
 function makePresetId(projectKey: string, idx1Based: number) {
   return `${projectKey}-bg-${idx1Based}`;
 }
 
-// ✅ Enchanted Miners backgrounds (static list)
+/* ---------------------------
+   ENCHANTED MINERS
+--------------------------- */
+
 const MINER_IMAGE_BACKGROUNDS: string[] = [
   "/enchanted-miners/phone/bg-1.png",
   "/enchanted-miners/phone/bg-2.png",
@@ -58,15 +57,21 @@ const MINER_IMAGE_BACKGROUNDS: string[] = [
   "/enchanted-miners/phone/bg-28.png",
 ];
 
-// ✅ GAINZ backgrounds (generated list)
-// Change GAINZ_BG_COUNT to however many you have.
+/* ---------------------------
+   GAINZ
+--------------------------- */
+
 const GAINZ_BG_COUNT = 20;
-const GAINZ_IMAGE_BACKGROUNDS: string[] = Array.from(
+
+const GAINZ_IMAGE_BACKGROUNDS = Array.from(
   { length: GAINZ_BG_COUNT },
   (_, i) => `/gainz/phone/bg-${i + 1}.png`
 );
 
-// ✅ Decide which list to use
+/* ---------------------------
+   Project switch
+--------------------------- */
+
 function getBgList(project?: string): { key: string; urls: string[] } {
   const p = (project || "magapixel").toLowerCase();
 
@@ -78,26 +83,29 @@ function getBgList(project?: string): { key: string; urls: string[] } {
     return { key: "gainz", urls: GAINZ_IMAGE_BACKGROUNDS };
   }
 
-  // Default: MAGApixel (you can wire in its folder later if needed)
+  // MAGApixel (no presets)
   return { key: "magapixel", urls: [] };
 }
 
-export default function BackgroundPicker({ value, onChange, project }: Props) {
+export default function BackgroundPicker({
+  value,
+  onChange,
+  project,
+}: Props) {
   const { key: projectKey, urls } = getBgList(project);
 
   const isUsingPreset =
-    value?.kind === "preset" && value?.presetId?.startsWith(projectKey);
+    value?.kind === "preset" && value.id.startsWith(projectKey);
 
-  const selectedId = isUsingPreset ? value.presetId : "";
+  const selectedId = isUsingPreset ? value.id : "";
 
   return (
     <div className="bg-picker">
-      {/* If a project has no preset backgrounds yet, show a helpful note */}
       {!urls.length ? (
         <div className="bg-empty">
           <p className="bg-empty-title">Backgrounds</p>
           <p className="bg-empty-text">
-            No preset backgrounds configured for <b>{projectKey}</b> yet.
+            No preset backgrounds configured for <b>{projectKey}</b>.
           </p>
         </div>
       ) : (
@@ -108,20 +116,19 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
             className="bg-select"
             value={selectedId}
             onChange={(e) => {
-              const presetId = e.target.value;
+              const id = e.target.value;
+              if (!id) return;
 
-              // If user chooses blank, do nothing (or switch to "none")
-              if (!presetId) return;
+              const idxStr = id.split("-bg-")[1];
+              const idx = Math.max(1, parseInt(idxStr || "1", 10));
+              const url = urls[idx - 1];
 
-              const idxStr = presetId.split("-bg-")[1] || "1";
-              const idx = Math.max(1, parseInt(idxStr, 10) || 1);
-
-              const url = urls[idx - 1] || urls[0];
+              if (!url) return;
 
               onChange({
                 kind: "preset",
-                presetId,
-                url,
+                id,
+                project: projectKey as any,
               });
             }}
           >
@@ -149,8 +156,8 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
           letter-spacing: 0.08em;
           text-transform: uppercase;
           font-size: 12px;
-          opacity: 0.9;
           margin-bottom: 8px;
+          opacity: 0.9;
         }
 
         .bg-select {
@@ -160,7 +167,6 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
           background: rgba(0, 0, 0, 0.45);
           color: #fff;
           padding: 10px 12px;
-          outline: none;
         }
 
         .bg-empty {
@@ -176,7 +182,6 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
           letter-spacing: 0.08em;
           text-transform: uppercase;
           font-size: 12px;
-          opacity: 0.9;
         }
 
         .bg-empty-text {
