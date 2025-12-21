@@ -3,11 +3,12 @@
 
 import React, { ChangeEvent } from "react";
 import type { BgChoice } from "./Composer";
+import { makeGainzPresetId } from "../backgroundsConfig";
 
 type Props = {
   value: BgChoice;
   onChange: (bg: BgChoice) => void;
-  // "magapixel" (default), "miners", or future projects
+  // "magapixel" (default), "miners", "gainz"
   project?: string;
 };
 
@@ -68,15 +69,45 @@ const MAGAPIXEL_BACKGROUND_SLUGS: string[] = [
   "whitehouse-hallway",
 ];
 
+/**
+ * GAINZ:
+ * You have device variants in:
+ *  /public/GAINZ/GAINZ/phone/phone-<slug>.png
+ * We'll use the phone image as the thumbnail in the picker,
+ * and select a PRESET so exports can switch to ipad/desktop automatically.
+ */
+const GAINZ_BACKGROUND_SLUGS: string[] = [
+  "blue",
+  "blue-star",
+  "burgundy",
+  "emerald",
+  "galaxy",
+  "gray",
+  "green",
+  "nebula",
+  "orbs",
+  "purple",
+  "red",
+  "steel",
+  "steel2",
+  "street",
+  "trench",
+];
+
 function BackgroundPicker({ value, onChange, project }: Props) {
   const current = value as any;
+
   const isMiners = project === "miners";
+  const isGainz = project === "gainz";
 
   // IMPORTANT: image variant uses `.image`, not `.value`
   const isImageActive = (src: string) =>
     current?.kind === "image" && current?.image === src;
 
-  /** Upload handler (works for both projects) */
+  const isPresetActive = (presetId: string) =>
+    current?.kind === "preset" && current?.id === presetId;
+
+  /** Upload handler (works for all projects) */
   const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -134,6 +165,17 @@ function BackgroundPicker({ value, onChange, project }: Props) {
     onChange(bg);
   };
 
+  /** GAINZ: select a preset id so exports can switch device variants */
+  const handleGainzClick = (slug: string) => {
+    const presetId = makeGainzPresetId(slug);
+    const bg = {
+      kind: "preset",
+      id: presetId,
+    } as BgChoice;
+
+    onChange(bg);
+  };
+
   return (
     <section>
       {/* MINERS STRIP */}
@@ -168,9 +210,7 @@ function BackgroundPicker({ value, onChange, project }: Props) {
                   onClick={() => handleMinerImageClick(src, idx)}
                   style={{
                     borderRadius: 10,
-                    border: active
-                      ? "2px solid #ffffff"
-                      : "2px solid transparent",
+                    border: active ? "2px solid #ffffff" : "2px solid transparent",
                     padding: 0,
                     backgroundColor: "transparent",
                     cursor: "pointer",
@@ -195,8 +235,68 @@ function BackgroundPicker({ value, onChange, project }: Props) {
         </div>
       )}
 
-      {/* MAGAPIXEL STRIP (default when not miners) */}
-      {!isMiners && (
+      {/* GAINZ STRIP */}
+      {isGainz && (
+        <div style={{ marginBottom: 8 }}>
+          <div
+            style={{
+              fontSize: 12,
+              textTransform: "uppercase",
+              letterSpacing: "0.14em",
+              opacity: 0.8,
+              marginBottom: 4,
+            }}
+          >
+            GAINZ BACKGROUNDS
+          </div>
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              alignItems: "center",
+              overflowX: "auto",
+              paddingBottom: 4,
+            }}
+          >
+            {GAINZ_BACKGROUND_SLUGS.map((slug) => {
+              const presetId = makeGainzPresetId(slug);
+              const thumbSrc = `/GAINZ/GAINZ/phone/phone-${slug}.png`;
+              const active = isPresetActive(presetId);
+
+              return (
+                <button
+                  key={slug}
+                  type="button"
+                  onClick={() => handleGainzClick(slug)}
+                  style={{
+                    borderRadius: 10,
+                    border: active ? "2px solid #ffffff" : "2px solid transparent",
+                    padding: 0,
+                    backgroundColor: "transparent",
+                    cursor: "pointer",
+                    flex: "0 0 auto",
+                  }}
+                >
+                  <img
+                    src={thumbSrc}
+                    alt={slug}
+                    style={{
+                      display: "block",
+                      width: 52,
+                      height: 92,
+                      objectFit: "cover",
+                      borderRadius: 8,
+                    }}
+                  />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* MAGAPIXEL STRIP (default when not miners/gainz) */}
+      {!isMiners && !isGainz && (
         <div style={{ marginBottom: 8 }}>
           <div
             style={{
@@ -230,9 +330,7 @@ function BackgroundPicker({ value, onChange, project }: Props) {
                   onClick={() => handleMagapixelClick(slug, idx)}
                   style={{
                     borderRadius: 10,
-                    border: active
-                      ? "2px solid #ffffff"
-                      : "2px solid transparent",
+                    border: active ? "2px solid #ffffff" : "2px solid transparent",
                     padding: 0,
                     backgroundColor: "transparent",
                     cursor: "pointer",
