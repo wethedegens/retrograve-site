@@ -1,21 +1,32 @@
-// app/components/BackgroundPicker.tsx
 "use client";
 
-import React, { ChangeEvent } from "react";
+import React from "react";
 import type { BgChoice } from "./Composer";
-import { makeGainzPresetId } from "../backgroundsConfig";
 
 type Props = {
   value: BgChoice;
   onChange: (bg: BgChoice) => void;
+
   // "magapixel" (default), "miners", "gainz"
   project?: string;
 };
 
 /**
- * ENCHANTED MINERS: static phone-sized PNGs
- * Folder: /public/enchanted-miners/phone/bg-1.png ... bg-28.png
+ * BackgroundPicker
+ * - Supports different projects with separate folders.
+ *
+ * Folder conventions (recommended):
+ *  - Enchanted Miners: /public/enchanted-miners/phone/bg-1.png ... bg-28.png
+ *  - GAINZ:            /public/gainz/phone/bg-1.png ... bg-N.png
+ *  - MAGApixel:        (optional) wire later if you want presets
  */
+
+// ✅ Helper: create stable IDs for each project
+function makePresetId(projectKey: string, idx1Based: number) {
+  return `${projectKey}-bg-${idx1Based}`;
+}
+
+// ✅ Enchanted Miners backgrounds (static list)
 const MINER_IMAGE_BACKGROUNDS: string[] = [
   "/enchanted-miners/phone/bg-1.png",
   "/enchanted-miners/phone/bg-2.png",
@@ -27,10 +38,12 @@ const MINER_IMAGE_BACKGROUNDS: string[] = [
   "/enchanted-miners/phone/bg-8.png",
   "/enchanted-miners/phone/bg-9.png",
   "/enchanted-miners/phone/bg-10.png",
+  "/enchanted-miners/phone/bg-11.png",
   "/enchanted-miners/phone/bg-12.png",
   "/enchanted-miners/phone/bg-13.png",
   "/enchanted-miners/phone/bg-14.png",
   "/enchanted-miners/phone/bg-15.png",
+  "/enchanted-miners/phone/bg-16.png",
   "/enchanted-miners/phone/bg-17.png",
   "/enchanted-miners/phone/bg-18.png",
   "/enchanted-miners/phone/bg-19.png",
@@ -45,333 +58,133 @@ const MINER_IMAGE_BACKGROUNDS: string[] = [
   "/enchanted-miners/phone/bg-28.png",
 ];
 
-/**
- * MAGAPIXEL: background packs with phone / ipad / desktop / thumb
- * Folder structure:
- *   /public/backgrounds/<slug>/thumb.png
- *   /public/backgrounds/<slug>/phone.png
- */
-const MAGAPIXEL_BACKGROUND_SLUGS: string[] = [
-  "austere-grey",
-  "bitcoined",
-  "black",
-  "bookcase-brown",
-  "in-the-vault",
-  "make-art-great-again",
-  "military-green",
-  "navy-blue",
-  "north-american-sky",
-  "out-at-night",
-  "patriotic",
-  "republican-red",
-  "sea-to-shining-sea",
-  "trump-international-golf-club",
-  "whitehouse-hallway",
-];
+// ✅ GAINZ backgrounds (generated list)
+// Change GAINZ_BG_COUNT to however many you have.
+const GAINZ_BG_COUNT = 20;
+const GAINZ_IMAGE_BACKGROUNDS: string[] = Array.from(
+  { length: GAINZ_BG_COUNT },
+  (_, i) => `/gainz/phone/bg-${i + 1}.png`
+);
 
-/**
- * GAINZ:
- * You have device variants in:
- *  /public/GAINZ/GAINZ/phone/phone-<slug>.png
- * We'll use the phone image as the thumbnail in the picker,
- * and select a PRESET so exports can switch to ipad/desktop automatically.
- */
-const GAINZ_BACKGROUND_SLUGS: string[] = [
-  "blue",
-  "blue-star",
-  "burgundy",
-  "emerald",
-  "galaxy",
-  "gray",
-  "green",
-  "nebula",
-  "orbs",
-  "purple",
-  "red",
-  "steel",
-  "steel2",
-  "street",
-  "trench",
-];
+// ✅ Decide which list to use
+function getBgList(project?: string): { key: string; urls: string[] } {
+  const p = (project || "magapixel").toLowerCase();
 
-function BackgroundPicker({ value, onChange, project }: Props) {
-  const current = value as any;
+  if (p === "miners" || p === "enchanted-miners") {
+    return { key: "miners", urls: MINER_IMAGE_BACKGROUNDS };
+  }
 
-  const isMiners = project === "miners";
-  const isGainz = project === "gainz";
+  if (p === "gainz") {
+    return { key: "gainz", urls: GAINZ_IMAGE_BACKGROUNDS };
+  }
 
-  // IMPORTANT: image variant uses `.image`, not `.value`
-  const isImageActive = (src: string) =>
-    current?.kind === "image" && current?.image === src;
-
-  const isPresetActive = (presetId: string) =>
-    current?.kind === "preset" && current?.id === presetId;
-
-  /** Upload handler (works for all projects) */
-  const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-
-    // Match BgChoice image shape: { kind: "image", image, file }
-    const bg = {
-      kind: "image",
-      image: url,
-      file,
-    } as any as BgChoice;
-
-    onChange(bg);
-  };
-
-  /** Enchanted Miners: click one of the phone PNGs */
-  const handleMinerImageClick = (src: string, index: number) => {
-    let file: File;
-    try {
-      file = new File([], `miner-wallpaper-${index + 1}.png`, {
-        type: "image/png",
-      });
-    } catch {
-      file = undefined as unknown as File;
-    }
-
-    const bg = {
-      kind: "image",
-      image: src,
-      file,
-    } as any as BgChoice;
-
-    onChange(bg);
-  };
-
-  /** MAGAPIXEL: use /backgrounds/<slug>/phone.png as wallpaper */
-  const handleMagapixelClick = (slug: string, index: number) => {
-    const phoneSrc = `/backgrounds/${slug}/phone.png`;
-
-    let file: File;
-    try {
-      file = new File([], `magapixel-bg-${slug}-${index + 1}.png`, {
-        type: "image/png",
-      });
-    } catch {
-      file = undefined as unknown as File;
-    }
-
-    const bg = {
-      kind: "image",
-      image: phoneSrc,
-      file,
-    } as any as BgChoice;
-
-    onChange(bg);
-  };
-
-  /** GAINZ: select a preset id so exports can switch device variants */
-  const handleGainzClick = (slug: string) => {
-    const presetId = makeGainzPresetId(slug);
-    const bg = {
-      kind: "preset",
-      id: presetId,
-    } as BgChoice;
-
-    onChange(bg);
-  };
-
-  return (
-    <section>
-      {/* MINERS STRIP */}
-      {isMiners && (
-        <div style={{ marginBottom: 8 }}>
-          <div
-            style={{
-              fontSize: 12,
-              textTransform: "uppercase",
-              letterSpacing: "0.14em",
-              opacity: 0.8,
-              marginBottom: 4,
-            }}
-          >
-            MINER WALLPAPERS
-          </div>
-          <div
-            style={{
-              display: "flex",
-              gap: 8,
-              alignItems: "center",
-              overflowX: "auto",
-              paddingBottom: 4,
-            }}
-          >
-            {MINER_IMAGE_BACKGROUNDS.map((src, idx) => {
-              const active = isImageActive(src);
-              return (
-                <button
-                  key={src}
-                  type="button"
-                  onClick={() => handleMinerImageClick(src, idx)}
-                  style={{
-                    borderRadius: 10,
-                    border: active ? "2px solid #ffffff" : "2px solid transparent",
-                    padding: 0,
-                    backgroundColor: "transparent",
-                    cursor: "pointer",
-                    flex: "0 0 auto",
-                  }}
-                >
-                  <img
-                    src={src}
-                    alt={`Miner wallpaper ${idx + 1}`}
-                    style={{
-                      display: "block",
-                      width: 52,
-                      height: 92,
-                      objectFit: "cover",
-                      borderRadius: 8,
-                    }}
-                  />
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* GAINZ STRIP */}
-      {isGainz && (
-        <div style={{ marginBottom: 8 }}>
-          <div
-            style={{
-              fontSize: 12,
-              textTransform: "uppercase",
-              letterSpacing: "0.14em",
-              opacity: 0.8,
-              marginBottom: 4,
-            }}
-          >
-            GAINZ BACKGROUNDS
-          </div>
-          <div
-            style={{
-              display: "flex",
-              gap: 8,
-              alignItems: "center",
-              overflowX: "auto",
-              paddingBottom: 4,
-            }}
-          >
-            {GAINZ_BACKGROUND_SLUGS.map((slug) => {
-              const presetId = makeGainzPresetId(slug);
-              const thumbSrc = `/GAINZ/GAINZ/phone/phone-${slug}.png`;
-              const active = isPresetActive(presetId);
-
-              return (
-                <button
-                  key={slug}
-                  type="button"
-                  onClick={() => handleGainzClick(slug)}
-                  style={{
-                    borderRadius: 10,
-                    border: active ? "2px solid #ffffff" : "2px solid transparent",
-                    padding: 0,
-                    backgroundColor: "transparent",
-                    cursor: "pointer",
-                    flex: "0 0 auto",
-                  }}
-                >
-                  <img
-                    src={thumbSrc}
-                    alt={slug}
-                    style={{
-                      display: "block",
-                      width: 52,
-                      height: 92,
-                      objectFit: "cover",
-                      borderRadius: 8,
-                    }}
-                  />
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* MAGAPIXEL STRIP (default when not miners/gainz) */}
-      {!isMiners && !isGainz && (
-        <div style={{ marginBottom: 8 }}>
-          <div
-            style={{
-              fontSize: 12,
-              textTransform: "uppercase",
-              letterSpacing: "0.14em",
-              opacity: 0.8,
-              marginBottom: 4,
-            }}
-          >
-            MAGAPIXEL BACKGROUNDS
-          </div>
-          <div
-            style={{
-              display: "flex",
-              gap: 8,
-              alignItems: "center",
-              overflowX: "auto",
-              paddingBottom: 4,
-            }}
-          >
-            {MAGAPIXEL_BACKGROUND_SLUGS.map((slug, idx) => {
-              const phoneSrc = `/backgrounds/${slug}/phone.png`;
-              const thumbSrc = `/backgrounds/${slug}/thumb.png`;
-              const active = isImageActive(phoneSrc);
-
-              return (
-                <button
-                  key={slug}
-                  type="button"
-                  onClick={() => handleMagapixelClick(slug, idx)}
-                  style={{
-                    borderRadius: 10,
-                    border: active ? "2px solid #ffffff" : "2px solid transparent",
-                    padding: 0,
-                    backgroundColor: "transparent",
-                    cursor: "pointer",
-                    flex: "0 0 auto",
-                  }}
-                >
-                  <img
-                    src={thumbSrc}
-                    alt={slug}
-                    style={{
-                      display: "block",
-                      width: 52,
-                      height: 92,
-                      objectFit: "cover",
-                      borderRadius: 8,
-                    }}
-                  />
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* UPLOAD (shared) */}
-      <div style={{ marginTop: 12 }}>
-        <div
-          style={{
-            fontSize: 12,
-            textTransform: "uppercase",
-            letterSpacing: "0.14em",
-            opacity: 0.8,
-            marginBottom: 4,
-          }}
-        >
-          Or upload a background
-        </div>
-        <input type="file" accept="image/*" onChange={handleUpload} />
-      </div>
-    </section>
-  );
+  // Default: MAGApixel (you can wire in its folder later if needed)
+  return { key: "magapixel", urls: [] };
 }
 
-export default BackgroundPicker;
+export default function BackgroundPicker({ value, onChange, project }: Props) {
+  const { key: projectKey, urls } = getBgList(project);
+
+  const isUsingPreset =
+    value?.kind === "preset" && value?.presetId?.startsWith(projectKey);
+
+  const selectedId = isUsingPreset ? value.presetId : "";
+
+  return (
+    <div className="bg-picker">
+      {/* If a project has no preset backgrounds yet, show a helpful note */}
+      {!urls.length ? (
+        <div className="bg-empty">
+          <p className="bg-empty-title">Backgrounds</p>
+          <p className="bg-empty-text">
+            No preset backgrounds configured for <b>{projectKey}</b> yet.
+          </p>
+        </div>
+      ) : (
+        <>
+          <label className="bg-label">Backgrounds</label>
+
+          <select
+            className="bg-select"
+            value={selectedId}
+            onChange={(e) => {
+              const presetId = e.target.value;
+
+              // If user chooses blank, do nothing (or switch to "none")
+              if (!presetId) return;
+
+              const idxStr = presetId.split("-bg-")[1] || "1";
+              const idx = Math.max(1, parseInt(idxStr, 10) || 1);
+
+              const url = urls[idx - 1] || urls[0];
+
+              onChange({
+                kind: "preset",
+                presetId,
+                url,
+              });
+            }}
+          >
+            <option value="">Choose a background…</option>
+            {urls.map((_, i) => {
+              const id = makePresetId(projectKey, i + 1);
+              return (
+                <option key={id} value={id}>
+                  {projectKey.toUpperCase()} BG {i + 1}
+                </option>
+              );
+            })}
+          </select>
+        </>
+      )}
+
+      <style jsx>{`
+        .bg-picker {
+          width: 100%;
+        }
+
+        .bg-label {
+          display: block;
+          font-family: "VT323", monospace;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          font-size: 12px;
+          opacity: 0.9;
+          margin-bottom: 8px;
+        }
+
+        .bg-select {
+          width: 100%;
+          border-radius: 12px;
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          background: rgba(0, 0, 0, 0.45);
+          color: #fff;
+          padding: 10px 12px;
+          outline: none;
+        }
+
+        .bg-empty {
+          border: 1px dashed rgba(255, 255, 255, 0.2);
+          border-radius: 12px;
+          padding: 12px;
+          background: rgba(0, 0, 0, 0.25);
+        }
+
+        .bg-empty-title {
+          margin: 0 0 6px;
+          font-family: "VT323", monospace;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          font-size: 12px;
+          opacity: 0.9;
+        }
+
+        .bg-empty-text {
+          margin: 0;
+          font-size: 13px;
+          opacity: 0.8;
+        }
+      `}</style>
+    </div>
+  );
+}
