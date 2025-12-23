@@ -1,4 +1,3 @@
-// app/locker/magapixel/page.tsx
 "use client";
 
 import { useEffect } from "react";
@@ -14,13 +13,13 @@ import OgWLBanner from "../../components/OgWLBanner";
  *
  * When you DUPLICATE this file for another project, change:
  *
- * 1) PROJECT_NAME           → headline + copy
- * 2) PROJECT_BG_COLOR       → phone background color
- * 3) PROJECT_LOCKER_BG      → full-page background image
- * 4) PROJECT_X_URL          → X/Twitter link
- * 5) PROJECT_DISCORD_URL    → Discord link
- * 6) PROJECT_OWNER_GRID_URL → “My ______” page route
- * 7) PROJECT_DEMO_IMAGES    → phone slideshow images
+ * 1) PROJECT_NAME
+ * 2) PROJECT_BG_COLOR
+ * 3) PROJECT_LOCKER_BG
+ * 4) PROJECT_X_URL
+ * 5) PROJECT_DISCORD_URL
+ * 6) PROJECT_OWNER_GRID_URL
+ * 7) PROJECT_DEMO_IMAGES
  */
 
 // 1) PROJECT NAME
@@ -29,7 +28,7 @@ const PROJECT_NAME = "MAGAPIXEL";
 // 2) Phone background color behind the NFT
 const PROJECT_BG_COLOR = "#0078e9";
 
-// 3) Page background image (goes in /public)
+// 3) Page background image (in /public)
 const PROJECT_LOCKER_BG = "/magapixel-bg.png";
 
 // 4) Social + mint links
@@ -37,7 +36,7 @@ const PROJECT_X_URL = "https://x.com/MAGApixel_NFT";
 const PROJECT_DISCORD_URL = "https://discord.gg/ZVGtHUpHfb";
 const PROJECT_OWNER_GRID_URL = "/magapixel-nfts";
 
-// 7) Phone slideshow images (also in /public)
+// 7) Phone slideshow images
 const PROJECT_DEMO_IMAGES = [
   "/magapixel-lockscreens/lock-1.png",
   "/magapixel-lockscreens/lock-2.png",
@@ -46,7 +45,7 @@ const PROJECT_DEMO_IMAGES = [
 ];
 
 export default function MagapixelLockerPage() {
-  // ✅ Override top nav JUST for this locker page (keeps magapixel links correct)
+  // ✅ Nav override ONLY for Magapixel locker
   useEffect(() => {
     if (typeof document === "undefined") return;
 
@@ -66,14 +65,16 @@ export default function MagapixelLockerPage() {
       } else if (label === "COMMUNITY") {
         a.setAttribute("href", PROJECT_DISCORD_URL);
       } else if (label === "COLLECT NOW") {
-        a.setAttribute("href", "https://magiceden.us/marketplace/magapixel");
+        a.setAttribute(
+          "href",
+          "https://magiceden.us/marketplace/magapixel"
+        );
       } else if (label === "FOLLOW ON X") {
         a.setAttribute("href", PROJECT_X_URL);
       }
     });
   }, []);
 
-  const demoImages = PROJECT_DEMO_IMAGES;
   const bg: BgChoice = { kind: "color", value: PROJECT_BG_COLOR };
 
   return (
@@ -90,7 +91,7 @@ export default function MagapixelLockerPage() {
     >
       <OgWLBanner />
 
-      {/* HERO (Enchanted-style layout) */}
+      {/* HERO */}
       <section className="hero">
         {/* LEFT: TEXT */}
         <div className="hero-text">
@@ -128,18 +129,20 @@ export default function MagapixelLockerPage() {
 
         {/* RIGHT: PHONE */}
         <div className="hero-phone">
-          <PhoneShowcase
-            images={demoImages}
-            intervalMs={3000}
-            bg={bg}
-            title="" // ✅ no "How it looks" label (cleaner like Enchanted)
-            showHint={false}
-          />
+          <div className="phone-scale">
+            <PhoneShowcase
+              images={PROJECT_DEMO_IMAGES}
+              intervalMs={3000}
+              bg={bg}
+              title=""
+              showHint={false}
+            />
+          </div>
         </div>
       </section>
 
       <style jsx>{`
-        /* ---------------- HERO LAYOUT (like Enchanted) ---------------- */
+        /* ---------------- HERO LAYOUT ---------------- */
 
         .hero {
           max-width: 1100px;
@@ -166,10 +169,10 @@ export default function MagapixelLockerPage() {
           letter-spacing: 0.06em;
           text-transform: uppercase;
           color: #ffffff;
+          line-height: 1.05;
           text-shadow:
             0 2px 10px rgba(0, 0, 0, 0.45),
             0 0 18px rgba(240, 75, 131, 0.35);
-          line-height: 1.05;
         }
 
         .mp-sub {
@@ -203,7 +206,7 @@ export default function MagapixelLockerPage() {
           background: rgba(20, 8, 40, 0.72);
           backdrop-filter: blur(6px);
           transition: transform 0.12s ease, box-shadow 0.12s ease,
-            background 0.12s ease, border-color 0.12s ease;
+            background 0.12s ease;
         }
 
         .hero-link.primary {
@@ -219,17 +222,16 @@ export default function MagapixelLockerPage() {
           background: rgba(40, 16, 70, 0.86);
         }
 
-        .hero-link.primary:hover {
-          box-shadow:
-            0 0 26px rgba(240, 75, 131, 0.65),
-            0 0 16px rgba(255, 179, 71, 0.6);
-        }
-
-        /* ---------------- PHONE ---------------- */
+        /* ---------------- PHONE SCALE ---------------- */
 
         .hero-phone {
           display: flex;
           justify-content: center;
+        }
+
+        .phone-scale {
+          transform: scale(1.18);
+          transform-origin: top center;
         }
 
         /* ---------------- MOBILE ---------------- */
@@ -257,11 +259,19 @@ export default function MagapixelLockerPage() {
           .mp-sub {
             margin: 0 auto;
           }
+
+          .phone-scale {
+            transform: scale(1.05);
+          }
         }
 
         @media (max-width: 420px) {
           .mp-title {
             font-size: 28px;
+          }
+
+          .phone-scale {
+            transform: scale(0.98);
           }
         }
       `}</style>
