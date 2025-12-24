@@ -69,13 +69,21 @@ export default function Showcase() {
       )}
 
       {loading && <p style={{ margin: "0 18px 16px" }}>Loading your NFTs…</p>}
-      {error && <p className="error" style={{ margin: "0 18px 16px" }}>{error}</p>}
+      {error && (
+        <p className="error" style={{ margin: "0 18px 16px" }}>
+          {error}
+        </p>
+      )}
 
       {publicKey && !loading && (
         <NftGrid
           nfts={nfts}
           onPick={(n) => {
-            window.location.href = `/locker?mint=${n.id}`;
+            if (!n?.id) return;
+            // ✅ Force Magapixel project mode so locker loads Magapixel traits/backgrounds
+            window.location.href = `/locker?mint=${encodeURIComponent(
+              n.id
+            )}&project=magapixel`;
           }}
         />
       )}
