@@ -12,10 +12,10 @@ import { usePathname, useSearchParams } from "next/navigation";
  * Because this is fixed + viewport-wide, it can "win" visually on pages
  * even if those pages set their own background.
  *
- * This version AUTO-HIDES on Enchanted Miners routes:
+ * This version AUTO-HIDES on:
+ *  - /locker (the composer/assembler page) ✅
  *  - /enchanted-miners
  *  - /my-miners
- *  - /locker?project=miners (optional, but included)
  *
  * Usage:
  *   <BottomArt src="/bg-retrograve.png" />
@@ -24,30 +24,36 @@ export default function BottomArt({
   src = "/bg-retrograve.png",
   alt = "RetroGrave background",
   hideOnMiners = true,
+  hideOnLocker = true,
 }: {
   src?: string;
   alt?: string;
   hideOnMiners?: boolean;
+  hideOnLocker?: boolean;
 }) {
   const pathname = usePathname();
   const sp = useSearchParams();
 
   // Determine if we should hide this art on this route
   const shouldHide = useMemo(() => {
-    if (!hideOnMiners) return false;
-
     const p = (pathname || "").toLowerCase();
     const project = (sp?.get("project") || "").toLowerCase();
+
+    // ✅ Always hide on the composer/assembler
+    // This page should control its own per-project backgrounds.
+    if (hideOnLocker && p === "/locker") return true;
+
+    if (!hideOnMiners) return false;
 
     // Enchanted Miners pages
     if (p.startsWith("/enchanted-miners")) return true;
     if (p.startsWith("/my-miners")) return true;
 
-    // Optional: hide on the locker when it's the miners project
+    // Optional: (kept) hide on the locker when it's the miners project
     if (p === "/locker" && project === "miners") return true;
 
     return false;
-  }, [hideOnMiners, pathname, sp]);
+  }, [hideOnLocker, hideOnMiners, pathname, sp]);
 
   const [mounted, setMounted] = useState(false);
   const [host, setHost] = useState<HTMLDivElement | null>(null);
