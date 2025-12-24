@@ -42,10 +42,16 @@ export default function MagapixelOwnerGridPage() {
         .magapixel-grid-page {
           min-height: 100vh;
           padding: 24px 0 80px;
+
+          /* IMPORTANT:
+             Background layers are painted TOP → BOTTOM in the order they’re listed.
+             So we put the IMAGE first (top), then the gradient behind it (bottom),
+             otherwise the gradient can cover/hide the image. */
           background:
-            radial-gradient(circle at top, rgba(255, 255, 255, 0.04), #000 55%),
-            url("${MAGAPIXEL_BG_IMAGE}") no-repeat center bottom;
-          background-size: cover;
+            url(${MAGAPIXEL_BG_IMAGE}) no-repeat center bottom,
+            radial-gradient(circle at top, rgba(255, 255, 255, 0.06), #000 55%);
+
+          background-size: cover, cover;
         }
 
         .inner {
