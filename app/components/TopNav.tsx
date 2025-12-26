@@ -1,24 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 export default function TopNav() {
   const path = usePathname();
-  const sp = useSearchParams();
 
-  // Query param project detection for /locker pages
-  const lockerProject = (sp.get("project") || "").toLowerCase();
+  // Read query string safely WITHOUT useSearchParams (avoids prerender/build issues)
+  const lockerProject =
+    typeof window !== "undefined"
+      ? (new URLSearchParams(window.location.search).get("project") || "").toLowerCase()
+      : "";
 
   // Treat BOTH /enchanted-miners/* and /my-miners as Enchanted Miners pages
-  // Also treat /locker?project=miners as miners
   const isMiners =
     path.startsWith("/enchanted-miners") ||
     path.startsWith("/my-miners") ||
     (path === "/locker" && lockerProject === "miners");
 
   // MAGApixel pages
-  // Also treat /locker?project=magapixel as magapixel
   const isMagapixel =
     path.startsWith("/locker/magapixel") ||
     path.startsWith("/magapixel-nfts") ||
