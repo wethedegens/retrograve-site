@@ -1,23 +1,29 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 export default function TopNav() {
   const path = usePathname();
+  const sp = useSearchParams();
+
+  // Query param project detection for /locker pages
+  const lockerProject = (sp.get("project") || "").toLowerCase();
 
   // Treat BOTH /enchanted-miners/* and /my-miners as Enchanted Miners pages
+  // Also treat /locker?project=miners as miners
   const isMiners =
     path.startsWith("/enchanted-miners") ||
     path.startsWith("/my-miners") ||
-    (path.startsWith("/locker") && path.includes("project=miners"));
+    (path === "/locker" && lockerProject === "miners");
 
   // MAGApixel pages
+  // Also treat /locker?project=magapixel as magapixel
   const isMagapixel =
     path.startsWith("/locker/magapixel") ||
     path.startsWith("/magapixel-nfts") ||
     path.startsWith("/retrogs") ||
-    (path.startsWith("/locker") && path.includes("project=magapixel"));
+    (path === "/locker" && lockerProject === "magapixel");
 
   // RetroGrave pages
   const isRetrograve = path.startsWith("/retrograve") || path.startsWith("/retrogs");
@@ -100,7 +106,7 @@ export default function TopNav() {
           })}
         </nav>
 
-        {/* Spacer — transparent so no black bar */}
+        {/* Spacer — transparent so no black bar (background must live behind this) */}
         <div style={{ height: 64, background: "transparent" }} />
       </>
     );
