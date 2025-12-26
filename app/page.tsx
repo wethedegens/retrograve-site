@@ -47,12 +47,12 @@ const PROJECTS: LockerProject[] = [
     preview: "/lockscreened-previews/miners.png",
   },
   {
-    name: "Client Project #1",
+    name: "Gainz",
     status: "coming",
     label: "Coming soon",
     lockerPath: "#",
     glow: "client",
-    preview: "/lockscreened-previews/client1.png",
+    preview: "/lockscreened-previews/gainz-final.png",
   },
 ];
 
@@ -168,11 +168,7 @@ export default function HomePage() {
             }
 
             return (
-              <Tag
-                key={p.name}
-                {...(linkProps as any)}
-                className="phone-link"
-              >
+              <Tag key={p.name} {...(linkProps as any)} className="phone-link">
                 {inner}
               </Tag>
             );

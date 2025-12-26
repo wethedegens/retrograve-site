@@ -38,10 +38,7 @@ function LockerInner() {
 
   const composerRef = useRef<ComposerHandle | null>(null);
 
-  const initialBg = useMemo<BgChoice>(
-    () => ({ kind: "color", value: "#3e2d75" }),
-    []
-  );
+  const initialBg = useMemo<BgChoice>(() => ({ kind: "color", value: "#3e2d75" }), []);
 
   // Keep bg as a non-null BgChoice to make TS happy
   const [bg, setBg] = useState<BgChoice>(initialBg);
@@ -111,9 +108,7 @@ function LockerInner() {
         setLoading(true);
         const qs = new URLSearchParams({ mint });
         if (uri) qs.set("uri", uri);
-        const r = await fetch(`/api/nft-by-mint?${qs.toString()}`, {
-          cache: "no-store",
-        });
+        const r = await fetch(`/api/nft-by-mint?${qs.toString()}`, { cache: "no-store" });
         const j = (await r.json()) as NftFetchResp;
 
         if (!cancelled) {
@@ -140,13 +135,15 @@ function LockerInner() {
     };
   }, [mint, uri, imageParam, nameParam]);
 
-  // ⭐ detect when we're on the Miners locker
   const isMiners = project === "miners";
+  const isMagapixel = project === "magapixel";
 
   return (
     <main
       style={{
         padding: "18px 0 80px",
+
+        // ✅ Miners gets the floral background
         ...(isMiners
           ? {
               backgroundColor: "#05020A",
@@ -157,10 +154,25 @@ function LockerInner() {
               backgroundAttachment: "fixed",
             }
           : {}),
+
+        // ✅ MAGApixel gets a simple brand color (no black / no RG mountains)
+        ...(isMagapixel
+          ? {
+              backgroundColor: "#0078e9",
+              backgroundImage: "none",
+            }
+          : {}),
       }}
     >
       <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 18px" }}>
-        <a href={gridHref} style={{ color: "#bda9ff", opacity: 0.85 }}>
+        <a
+          href={gridHref}
+          style={{
+            color: isMagapixel ? "#ffffff" : "#bda9ff",
+            opacity: 0.9,
+            textShadow: isMagapixel ? "0 2px 10px rgba(0,0,0,0.25)" : "none",
+          }}
+        >
           ← back to grid
         </a>
 
@@ -187,6 +199,13 @@ function LockerInner() {
                 onUsing={(msg) => setHint(msg)}
               />
             </ClientOnly>
+
+            {/* optional small hint line (kept harmless) */}
+            {hint && (
+              <p style={{ marginTop: 10, fontSize: 12, opacity: 0.9, color: "#ffffff" }}>
+                {hint}
+              </p>
+            )}
           </div>
 
           {/* RIGHT PANEL — PHONE PREVIEW */}

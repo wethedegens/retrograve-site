@@ -1,43 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 export default function TopNav() {
   const path = usePathname();
-  const sp = useSearchParams();
-
-  // ✅ On /locker we MUST read ?project=... from search params (usePathname has no query)
-  const isLocker = path.startsWith("/locker");
-  const lockerProject = isLocker
-    ? (sp.get("project") || "magapixel").toLowerCase()
-    : "";
 
   // Treat BOTH /enchanted-miners/* and /my-miners as Enchanted Miners pages
-  // PLUS /locker?project=miners
   const isMiners =
     path.startsWith("/enchanted-miners") ||
     path.startsWith("/my-miners") ||
-    (isLocker && lockerProject === "miners");
+    (path.startsWith("/locker") && path.includes("project=miners"));
 
-  // MAGApixel pages (plus /locker?project=magapixel OR default /locker)
+  // MAGApixel pages
   const isMagapixel =
     path.startsWith("/locker/magapixel") ||
     path.startsWith("/magapixel-nfts") ||
     path.startsWith("/retrogs") ||
-    (isLocker && (lockerProject === "magapixel" || lockerProject === ""));
+    (path.startsWith("/locker") && path.includes("project=magapixel"));
 
-  // RetroGrave pages (plus /locker?project=retrograve)
-  const isRetrograve =
-    path.startsWith("/retrograve") ||
-    path.startsWith("/retrogs") ||
-    (isLocker && lockerProject === "retrograve");
+  // RetroGrave pages
+  const isRetrograve = path.startsWith("/retrograve") || path.startsWith("/retrogs");
 
   const isActiveExact = (href: string) => path === href;
-  const isActiveStarts = (href: string) =>
-    path === href || path.startsWith(href + "/");
+  const isActiveStarts = (href: string) => path === href || path.startsWith(href + "/");
 
-  // Shared fixed-bar styles
+  // Shared fixed-bar styles (Miners format)
   const FixedBar = ({
     barColor,
     textColor,
@@ -68,8 +56,7 @@ export default function TopNav() {
 
     const pickStyle = (href: string, mode?: "exact" | "starts") => {
       if (!mode) return baseLinkStyle;
-      const active =
-        mode === "exact" ? isActiveExact(href) : isActiveStarts(href);
+      const active = mode === "exact" ? isActiveExact(href) : isActiveStarts(href);
       return active ? activeLinkStyle : baseLinkStyle;
     };
 
@@ -93,11 +80,7 @@ export default function TopNav() {
           {links.map((l) => {
             if (l.type === "link") {
               return (
-                <Link
-                  key={l.label}
-                  href={l.href}
-                  style={pickStyle(l.href, l.active)}
-                >
+                <Link key={l.label} href={l.href} style={pickStyle(l.href, l.active)}>
                   {l.label}
                 </Link>
               );
@@ -117,7 +100,7 @@ export default function TopNav() {
           })}
         </nav>
 
-        {/* Spacer (kept). The body background for /locker is now set by app/locker/page.tsx */}
+        {/* Spacer — transparent so no black bar */}
         <div style={{ height: 64, background: "transparent" }} />
       </>
     );
@@ -156,18 +139,9 @@ export default function TopNav() {
         textColor="#ffffff"
         links={[
           { type: "link", label: "HOME", href: "/", active: "exact" },
-          {
-            type: "link",
-            label: "MY MAGAPIXELS",
-            href: "/magapixel-nfts",
-            active: "exact",
-          },
+          { type: "link", label: "MY MAGAPIXELS", href: "/magapixel-nfts", active: "exact" },
           { type: "a", label: "COMMUNITY", href: "https://discord.gg/ZVGtHUpHfb" },
-          {
-            type: "a",
-            label: "COLLECT NOW",
-            href: "https://magiceden.us/marketplace/magapixel",
-          },
+          { type: "a", label: "COLLECT NOW", href: "https://magiceden.us/marketplace/magapixel" },
           { type: "a", label: "FOLLOW ON X", href: "https://x.com/MAGApixel_NFT" },
         ]}
       />
@@ -184,12 +158,7 @@ export default function TopNav() {
         textColor="#ffffff"
         links={[
           { type: "link", label: "HOME", href: "/", active: "exact" },
-          {
-            type: "link",
-            label: "MY RETROGRAVES",
-            href: "/retrograve",
-            active: "starts",
-          },
+          { type: "link", label: "MY RETROGRAVES", href: "/retrograve", active: "starts" },
           { type: "a", label: "COMMUNITY", href: "https://discord.gg/mSNHRFdCkS" },
           { type: "a", label: "COLLECT NOW", href: "https://magiceden.io" },
           { type: "a", label: "FOLLOW ON X", href: "https://x.com/RETROGRAVE_NFT" },
