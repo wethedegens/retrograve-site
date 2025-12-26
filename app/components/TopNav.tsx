@@ -1,22 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 export default function TopNav() {
   const path = usePathname();
+  const sp = useSearchParams();
+
+  // ✅ On /locker, project is in querystring (usePathname does NOT include it)
+  const lockerProject = path.startsWith("/locker")
+    ? (sp.get("project") || "").toLowerCase()
+    : "";
 
   // Treat BOTH /enchanted-miners/* and /my-miners as Enchanted Miners pages
+  // ✅ Also include /locker?project=miners
   const isMiners =
     path.startsWith("/enchanted-miners") ||
     path.startsWith("/my-miners") ||
-    (path.startsWith("/locker") && path.includes("project=miners"));
+    lockerProject === "miners";
 
+  // MAGApixel pages
+  // ✅ Also include /locker?project=magapixel
   const isMagapixel =
     path.startsWith("/locker/magapixel") ||
     path.startsWith("/magapixel-nfts") ||
     path.startsWith("/retrogs") ||
-    (path.startsWith("/locker") && path.includes("project=magapixel"));
+    lockerProject === "magapixel";
 
   // RetroGrave pages
   const isRetrograve = path.startsWith("/retrograve") || path.startsWith("/retrogs");
@@ -24,7 +33,7 @@ export default function TopNav() {
   const isActiveExact = (href: string) => path === href;
   const isActiveStarts = (href: string) => path === href || path.startsWith(href + "/");
 
-  // Shared fixed-bar styles (Miners format)
+  // Shared fixed-bar styles
   const FixedBar = ({
     barColor,
     textColor,
@@ -99,8 +108,8 @@ export default function TopNav() {
           })}
         </nav>
 
-        {/* Spacer — MUST be transparent so we don't see a colored block */}
-        <div style={{ height: 64, background: "transparent" }} />
+        {/* ✅ Spacer matches the bar color so no black seam shows through */}
+        <div style={{ height: 64, backgroundColor: barColor }} />
       </>
     );
   };

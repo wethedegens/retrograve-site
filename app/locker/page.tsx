@@ -1,3 +1,4 @@
+// app/locker/page.tsx
 "use client";
 
 import { useEffect, useMemo, useRef, useState, Suspense } from "react";
@@ -140,9 +141,9 @@ function LockerInner() {
   return (
     <main
       style={{
-        padding: "18px 0 80px",
+        // ✅ remove the extra top padding that can create a black seam under the fixed nav
+        padding: "0 0 80px",
 
-        // ✅ Miners gets the floral background
         ...(isMiners
           ? {
               backgroundColor: "#05020A",
@@ -154,20 +155,20 @@ function LockerInner() {
             }
           : {}),
 
-        // ✅ MAGApixel gets your public image + fallback brand blue
         ...(isMagapixel
           ? {
+              // ✅ uses your public image (must be committed + deployed)
               backgroundColor: "#0078e9",
               backgroundImage: 'url("/bg-ovaloffice.png")',
               backgroundRepeat: "no-repeat",
-              backgroundPosition: "center top",
+              backgroundPosition: "center",
               backgroundSize: "cover",
               backgroundAttachment: "fixed",
             }
           : {}),
       }}
     >
-      <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 18px" }}>
+      <section style={{ maxWidth: 1200, margin: "0 auto", padding: "18px 18px 0" }}>
         <a
           href={gridHref}
           style={{
