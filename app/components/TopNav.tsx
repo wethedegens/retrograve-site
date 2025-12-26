@@ -2,38 +2,45 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 export default function TopNav() {
   const path = usePathname();
   const sp = useSearchParams();
 
-  // IMPORTANT:
-  // usePathname() does NOT include ?query params
-  // so we must read project from useSearchParams()
-  const projectParam = (sp.get("project") || "").toLowerCase();
+  // ✅ Prevent content from hiding under the fixed nav WITHOUT a visible spacer bar
+  useEffect(() => {
+    const prev = document.body.style.paddingTop;
+    document.body.style.paddingTop = "64px";
+    return () => {
+      document.body.style.paddingTop = prev;
+    };
+  }, []);
 
-  // Tune this once, affects bar + spacer
-  const NAV_H = 52;
+  // ✅ Query param project on /locker?project=...
+  const projectParam = (sp.get("project") || "").toLowerCase();
+  const isLockerRoute = path === "/locker" || path.startsWith("/locker/");
 
   // Treat BOTH /enchanted-miners/* and /my-miners as Enchanted Miners pages
   const isMiners =
     path.startsWith("/enchanted-miners") ||
     path.startsWith("/my-miners") ||
-    (path.startsWith("/locker") && projectParam === "miners");
+    (isLockerRoute && projectParam === "miners");
 
+  // MAGApixel pages
   const isMagapixel =
     path.startsWith("/locker/magapixel") ||
     path.startsWith("/magapixel-nfts") ||
     path.startsWith("/retrogs") ||
-    (path.startsWith("/locker") && projectParam === "magapixel");
+    (isLockerRoute && projectParam === "magapixel");
 
   // RetroGrave pages
-  const isRetrograve = path.startsWith("/retrograve");
+  const isRetrograve = path.startsWith("/retrograve") || path.startsWith("/retrogs");
 
   const isActiveExact = (href: string) => path === href;
   const isActiveStarts = (href: string) => path === href || path.startsWith(href + "/");
 
-  // Shared fixed-bar styles (Miners format)
+  // Shared fixed-bar styles
   const FixedBar = ({
     barColor,
     textColor,
@@ -69,49 +76,43 @@ export default function TopNav() {
     };
 
     return (
-      <>
-        <nav
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: `${NAV_H}px`,
-            backgroundColor: barColor,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "32px",
-            zIndex: 50,
-          }}
-        >
-          {links.map((l) => {
-            if (l.type === "link") {
-              return (
-                <Link key={l.label} href={l.href} style={pickStyle(l.href, l.active)}>
-                  {l.label}
-                </Link>
-              );
-            }
-
+      <nav
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "64px",
+          backgroundColor: barColor,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "32px",
+          zIndex: 50,
+        }}
+      >
+        {links.map((l) => {
+          if (l.type === "link") {
             return (
-              <a
-                key={l.label}
-                href={l.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={baseLinkStyle}
-              >
+              <Link key={l.label} href={l.href} style={pickStyle(l.href, l.active)}>
                 {l.label}
-              </a>
+              </Link>
             );
-          })}
-        </nav>
+          }
 
-        {/* Spacer so content doesn't hide behind fixed nav
-            MATCH the bar color to avoid a black line showing through */}
-        <div style={{ height: NAV_H, backgroundColor: barColor }} />
-      </>
+          return (
+            <a
+              key={l.label}
+              href={l.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={baseLinkStyle}
+            >
+              {l.label}
+            </a>
+          );
+        })}
+      </nav>
     );
   };
 
