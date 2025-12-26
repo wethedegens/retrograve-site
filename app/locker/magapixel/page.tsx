@@ -1,3 +1,4 @@
+// app/locker/magapixel/page.tsx
 "use client";
 
 import { useEffect } from "react";
@@ -11,15 +12,10 @@ import OgWLBanner from "../../components/OgWLBanner";
  *  PROJECT SWITCH
  * ================
  *
- * When you DUPLICATE this file for another project, change:
- *
- * 1) PROJECT_NAME
- * 2) PROJECT_BG_COLOR
- * 3) PROJECT_LOCKER_BG
- * 4) PROJECT_X_URL
- * 5) PROJECT_DISCORD_URL
- * 6) PROJECT_OWNER_GRID_URL
- * 7) PROJECT_DEMO_IMAGES
+ * Cosmetic-only updates:
+ * - Make MAGApixel locker hero match Enchanted locker “homescreen” vibe
+ * - Page-scoped nav color override (#af232a)
+ * - NO changes to shared components or fetching logic
  */
 
 // 1) PROJECT NAME
@@ -45,7 +41,7 @@ const PROJECT_DEMO_IMAGES = [
 ];
 
 export default function MagapixelLockerPage() {
-  // ✅ Nav override ONLY for Magapixel locker
+  // ✅ Nav override ONLY for Magapixel locker (links)
   useEffect(() => {
     if (typeof document === "undefined") return;
 
@@ -65,10 +61,7 @@ export default function MagapixelLockerPage() {
       } else if (label === "COMMUNITY") {
         a.setAttribute("href", PROJECT_DISCORD_URL);
       } else if (label === "COLLECT NOW") {
-        a.setAttribute(
-          "href",
-          "https://magiceden.us/marketplace/magapixel"
-        );
+        a.setAttribute("href", "https://magiceden.us/marketplace/magapixel");
       } else if (label === "FOLLOW ON X") {
         a.setAttribute("href", PROJECT_X_URL);
       }
@@ -102,8 +95,8 @@ export default function MagapixelLockerPage() {
           </h1>
 
           <p className="mp-sub">
-            Download your {PROJECT_NAME} NFT with the perfect background — sized
-            for any phone.
+            Download your {PROJECT_NAME} NFT with a perfectly tuned background —
+            sized for any phone.
           </p>
 
           <div className="hero-links">
@@ -141,17 +134,30 @@ export default function MagapixelLockerPage() {
         </div>
       </section>
 
+      {/* ✅ PAGE-SCOPED NAV COLOR (COSMETIC ONLY) */}
+      <style jsx global>{`
+        nav {
+          background: #af232a !important;
+        }
+        nav a {
+          color: rgba(255, 255, 255, 0.92) !important;
+        }
+        nav a:hover {
+          color: #ffffff !important;
+        }
+      `}</style>
+
       <style jsx>{`
         /* ---------------- HERO LAYOUT ---------------- */
 
         .hero {
           max-width: 1100px;
           margin: 0 auto;
-          padding: 48px 24px 0;
+          padding: 54px 24px 0;
           display: grid;
-          grid-template-columns: 1.1fr 0.9fr;
+          grid-template-columns: 1.05fr 0.95fr;
           align-items: center;
-          gap: 48px;
+          gap: 56px;
         }
 
         /* ---------------- TEXT ---------------- */
@@ -164,15 +170,13 @@ export default function MagapixelLockerPage() {
           margin: 0 0 14px;
           font-family: "Oswald", system-ui, -apple-system, Segoe UI, Roboto,
             Ubuntu, Cantarell, "Helvetica Neue", Arial;
-          font-size: 42px;
+          font-size: 44px;
           font-weight: 900;
-          letter-spacing: 0.06em;
+          letter-spacing: 0.075em;
           text-transform: uppercase;
           color: #ffffff;
-          line-height: 1.05;
-          text-shadow:
-            0 2px 10px rgba(0, 0, 0, 0.45),
-            0 0 18px rgba(240, 75, 131, 0.35);
+          line-height: 1.04;
+          text-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
         }
 
         .mp-sub {
@@ -180,8 +184,8 @@ export default function MagapixelLockerPage() {
           font-size: 15px;
           max-width: 520px;
           color: rgba(255, 255, 255, 0.92);
-          line-height: 1.5;
-          text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+          line-height: 1.55;
+          text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
         }
 
         .hero-links {
@@ -195,31 +199,32 @@ export default function MagapixelLockerPage() {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          padding: 0.65rem 1.4rem;
+          padding: 0.68rem 1.45rem;
           border-radius: 999px;
           font-size: 0.8rem;
           text-transform: uppercase;
           letter-spacing: 0.12em;
           border: 1px solid rgba(255, 255, 255, 0.35);
           text-decoration: none;
-          color: #fbe9ff;
-          background: rgba(20, 8, 40, 0.72);
+          color: #ffffff;
+          background: rgba(0, 0, 0, 0.38);
           backdrop-filter: blur(6px);
           transition: transform 0.12s ease, box-shadow 0.12s ease,
             background 0.12s ease;
         }
 
+        /* Keep the same button vibe, just slightly “cleaner” */
         .hero-link.primary {
-          border-color: transparent;
-          background: linear-gradient(135deg, #f04b83, #ffb347);
-          color: #120016;
-          box-shadow: 0 10px 30px rgba(240, 75, 131, 0.35);
+          border-color: rgba(255, 255, 255, 0.22);
+          background: rgba(255, 255, 255, 0.85);
+          color: #111;
+          box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
         }
 
         .hero-link:hover {
           transform: translateY(-1px);
-          box-shadow: 0 12px 26px rgba(0, 0, 0, 0.38);
-          background: rgba(40, 16, 70, 0.86);
+          box-shadow: 0 14px 28px rgba(0, 0, 0, 0.32);
+          background: rgba(0, 0, 0, 0.48);
         }
 
         /* ---------------- PHONE SCALE ---------------- */
@@ -229,9 +234,11 @@ export default function MagapixelLockerPage() {
           justify-content: center;
         }
 
+        /* Enchanted “homescreen” feel: slightly less oversized than before */
         .phone-scale {
-          transform: scale(1.18);
+          transform: scale(1.08);
           transform-origin: top center;
+          filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.35));
         }
 
         /* ---------------- MOBILE ---------------- */
@@ -261,7 +268,7 @@ export default function MagapixelLockerPage() {
           }
 
           .phone-scale {
-            transform: scale(1.05);
+            transform: scale(1.02);
           }
         }
 
