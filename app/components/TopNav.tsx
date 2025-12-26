@@ -104,14 +104,14 @@ export default function TopNav() {
           })}
         </nav>
 
-        {/* Spacer so page content doesn’t hide under fixed nav */}
-        <div style={{ height: 64 }} />
+        {/* Spacer — transparent so no black bar */}
+        <div style={{ height: 64, background: "transparent" }} />
       </>
     );
   };
 
   /* =========================================================
-     1) ENCHANTED MINERS NAV (FIXED BAR)
+     1) ENCHANTED MINERS NAV
      ========================================================= */
   if (isMiners) {
     return (
@@ -134,7 +134,7 @@ export default function TopNav() {
   }
 
   /* =========================================================
-     2) MAGAPIXEL NAV (MATCH MINERS FORMAT)
+     2) MAGAPIXEL NAV
      ========================================================= */
   if (isMagapixel) {
     return (
@@ -142,12 +142,7 @@ export default function TopNav() {
         barColor="#af232a"
         textColor="#ffffff"
         links={[
-          {
-            type: "link",
-            label: "HOME",
-            href: "/locker/magapixel", // ✅ FIXED
-            active: "exact",
-          },
+          { type: "link", label: "HOME", href: "/", active: "exact" }, // ✅ FIXED
           {
             type: "link",
             label: "MY MAGAPIXELS",
