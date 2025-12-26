@@ -1,32 +1,43 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 export default function TopNav() {
   const path = usePathname();
+  const sp = useSearchParams();
+
+  // ✅ On /locker we MUST read ?project=... from search params (usePathname has no query)
+  const isLocker = path.startsWith("/locker");
+  const lockerProject = isLocker
+    ? (sp.get("project") || "magapixel").toLowerCase()
+    : "";
 
   // Treat BOTH /enchanted-miners/* and /my-miners as Enchanted Miners pages
+  // PLUS /locker?project=miners
   const isMiners =
-  path.startsWith("/enchanted-miners") ||
-  path.startsWith("/my-miners") ||
-  (path.startsWith("/locker") && path.includes("project=miners"));
+    path.startsWith("/enchanted-miners") ||
+    path.startsWith("/my-miners") ||
+    (isLocker && lockerProject === "miners");
 
-  // MAGApixel pages
+  // MAGApixel pages (plus /locker?project=magapixel OR default /locker)
   const isMagapixel =
     path.startsWith("/locker/magapixel") ||
     path.startsWith("/magapixel-nfts") ||
-    path.startsWith("/retrogs");
+    path.startsWith("/retrogs") ||
+    (isLocker && (lockerProject === "magapixel" || lockerProject === ""));
 
-  // RetroGrave pages
+  // RetroGrave pages (plus /locker?project=retrograve)
   const isRetrograve =
-    path.startsWith("/retrograve") || path.startsWith("/retrogs");
+    path.startsWith("/retrograve") ||
+    path.startsWith("/retrogs") ||
+    (isLocker && lockerProject === "retrograve");
 
   const isActiveExact = (href: string) => path === href;
   const isActiveStarts = (href: string) =>
     path === href || path.startsWith(href + "/");
 
-  // Shared fixed-bar styles (Miners format)
+  // Shared fixed-bar styles
   const FixedBar = ({
     barColor,
     textColor,
@@ -106,7 +117,7 @@ export default function TopNav() {
           })}
         </nav>
 
-        {/* Spacer — transparent so no black bar */}
+        {/* Spacer (kept). The body background for /locker is now set by app/locker/page.tsx */}
         <div style={{ height: 64, background: "transparent" }} />
       </>
     );
@@ -144,7 +155,7 @@ export default function TopNav() {
         barColor="#af232a"
         textColor="#ffffff"
         links={[
-          { type: "link", label: "HOME", href: "/", active: "exact" }, // ✅ FIXED
+          { type: "link", label: "HOME", href: "/", active: "exact" },
           {
             type: "link",
             label: "MY MAGAPIXELS",
