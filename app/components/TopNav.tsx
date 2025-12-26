@@ -16,18 +16,33 @@ export default function TopNav() {
     path.startsWith("/magapixel-nfts") ||
     path.startsWith("/retrogs");
 
-  /* =========================================================
-     1) ENCHANTED MINERS NAV (COSMETIC ONLY)
-     ========================================================= */
-  if (isMiners) {
-    const barColor = "#1f3d2b"; // green bar (matches headline tone)
-    const textColor = "#ffffff"; // ✅ WHITE text for contrast
+  // RetroGrave pages
+  const isRetrograve =
+    path.startsWith("/retrograve") || path.startsWith("/retrogs");
 
+  const isActiveExact = (href: string) => path === href;
+  const isActiveStarts = (href: string) =>
+    path === href || path.startsWith(href + "/");
+
+  // Shared fixed-bar styles (Miners format)
+  const FixedBar = ({
+    barColor,
+    textColor,
+    links,
+  }: {
+    barColor: string;
+    textColor: string;
+    links: Array<
+      | { type: "link"; label: string; href: string; active?: "exact" | "starts" }
+      | { type: "a"; label: string; href: string }
+    >;
+  }) => {
     const baseLinkStyle = {
       fontSize: "16px",
       color: textColor,
       textDecoration: "none" as const,
       opacity: 0.9,
+      letterSpacing: "0.06em",
     };
 
     const activeLinkStyle = {
@@ -38,167 +53,151 @@ export default function TopNav() {
       opacity: 1,
     };
 
-    const isActive = (href: string) => path === href;
+    const pickStyle = (href: string, mode?: "exact" | "starts") => {
+      if (!mode) return baseLinkStyle;
+      const active =
+        mode === "exact" ? isActiveExact(href) : isActiveStarts(href);
+      return active ? activeLinkStyle : baseLinkStyle;
+    };
 
     return (
-      <nav
-        className="miners-nav"
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "64px",
-
-          // ✅ GREEN BAR
-          backgroundColor: barColor,
-
-          display: "flex",
-          alignItems: "center", // vertical centering
-          justifyContent: "center",
-          gap: "32px",
-
-          zIndex: 50,
-        }}
-      >
-        <Link href="/" style={isActive("/") ? activeLinkStyle : baseLinkStyle}>
-          HOME
-        </Link>
-
-        <Link
-          href="/my-miners"
-          style={isActive("/my-miners") ? activeLinkStyle : baseLinkStyle}
+      <>
+        <nav
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "64px",
+            backgroundColor: barColor,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "32px",
+            zIndex: 50,
+          }}
         >
-          MY MINERS
-        </Link>
+          {links.map((l) => {
+            if (l.type === "link") {
+              return (
+                <Link
+                  key={l.label}
+                  href={l.href}
+                  style={pickStyle(l.href, l.active)}
+                >
+                  {l.label}
+                </Link>
+              );
+            }
 
-        <a
-          href="https://discord.gg/C5MfNP7hek"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={baseLinkStyle}
-        >
-          COMMUNITY
-        </a>
+            return (
+              <a
+                key={l.label}
+                href={l.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={baseLinkStyle}
+              >
+                {l.label}
+              </a>
+            );
+          })}
+        </nav>
 
-        <a
-          href="https://magiceden.us/marketplace/enchanted_miner"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={baseLinkStyle}
-        >
-          COLLECT NOW
-        </a>
+        {/* Spacer so page content doesn’t hide under fixed nav */}
+        <div style={{ height: 64 }} />
+      </>
+    );
+  };
 
-        <a
-          href="https://x.com/enchanted_nfts"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={baseLinkStyle}
-        >
-          FOLLOW ON X
-        </a>
-      </nav>
+  /* =========================================================
+     1) ENCHANTED MINERS NAV (FIXED BAR)
+     ========================================================= */
+  if (isMiners) {
+    return (
+      <FixedBar
+        barColor="#1f3d2b"
+        textColor="#ffffff"
+        links={[
+          { type: "link", label: "HOME", href: "/", active: "exact" },
+          { type: "link", label: "MY MINERS", href: "/my-miners", active: "exact" },
+          { type: "a", label: "COMMUNITY", href: "https://discord.gg/C5MfNP7hek" },
+          {
+            type: "a",
+            label: "COLLECT NOW",
+            href: "https://magiceden.us/marketplace/enchanted_miner",
+          },
+          { type: "a", label: "FOLLOW ON X", href: "https://x.com/enchanted_nfts" },
+        ]}
+      />
     );
   }
 
   /* =========================================================
-     2) MAGAPIXEL NAV (UNCHANGED)
+     2) MAGAPIXEL NAV (MATCH MINERS FORMAT)
      ========================================================= */
   if (isMagapixel) {
     return (
-      <nav className="topnav">
-        <Link href="/">HOME</Link>
-        <Link href="/magapixel-nfts">MY MAGAPIXELS</Link>
-
-        <a
-          href="https://discord.gg/ZVGtHUpHfb"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          COMMUNITY
-        </a>
-
-        <a
-          href="https://magiceden.us/marketplace/magapixel"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          COLLECT NOW
-        </a>
-
-        <a
-          href="https://x.com/MAGApixel_NFT"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          FOLLOW ON X
-        </a>
-
-        <style jsx>{`
-          .topnav {
-            display: flex;
-            gap: 24px;
-            font-family: "VT323", monospace;
-            font-size: 15px;
-            letter-spacing: 0.08em;
-            justify-content: center;
-            margin-top: 22px;
-          }
-          a {
-            text-decoration: none;
-            color: #fff;
-            text-shadow: 0 0 6px rgba(240, 75, 131, 0.75);
-          }
-        `}</style>
-      </nav>
+      <FixedBar
+        barColor="#af232a"
+        textColor="#ffffff"
+        links={[
+          {
+            type: "link",
+            label: "HOME",
+            href: "/locker/magapixel", // ✅ FIXED
+            active: "exact",
+          },
+          {
+            type: "link",
+            label: "MY MAGAPIXELS",
+            href: "/magapixel-nfts",
+            active: "exact",
+          },
+          { type: "a", label: "COMMUNITY", href: "https://discord.gg/ZVGtHUpHfb" },
+          {
+            type: "a",
+            label: "COLLECT NOW",
+            href: "https://magiceden.us/marketplace/magapixel",
+          },
+          { type: "a", label: "FOLLOW ON X", href: "https://x.com/MAGApixel_NFT" },
+        ]}
+      />
     );
   }
 
   /* =========================================================
-     3) DEFAULT RETROGRAVE NAV (UNCHANGED)
+     3) RETROGRAVE NAV
+     ========================================================= */
+  if (isRetrograve) {
+    return (
+      <FixedBar
+        barColor="#0b0b0f"
+        textColor="#ffffff"
+        links={[
+          { type: "link", label: "HOME", href: "/", active: "exact" },
+          {
+            type: "link",
+            label: "MY RETROGRAVES",
+            href: "/retrograve",
+            active: "starts",
+          },
+          { type: "a", label: "COMMUNITY", href: "https://discord.gg/mSNHRFdCkS" },
+          { type: "a", label: "COLLECT NOW", href: "https://magiceden.io" },
+          { type: "a", label: "FOLLOW ON X", href: "https://x.com/RETROGRAVE_NFT" },
+        ]}
+      />
+    );
+  }
+
+  /* =========================================================
+     4) DEFAULT
      ========================================================= */
   return (
-    <nav className="topnav">
-      <Link href="/">HOME</Link>
-      <Link href="/retrograve">MY RETROGRAVES</Link>
-
-      <a
-        href="https://discord.gg/mSNHRFdCkS"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        COMMUNITY
-      </a>
-
-      <a href="https://magiceden.io" target="_blank" rel="noopener noreferrer">
-        COLLECT NOW
-      </a>
-
-      <a
-        href="https://x.com/RETROGRAVE_NFT"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        FOLLOW ON X
-      </a>
-
-      <style jsx>{`
-        .topnav {
-          display: flex;
-          gap: 24px;
-          font-family: "VT323", monospace;
-          font-size: 15px;
-          letter-spacing: 0.08em;
-          justify-content: center;
-          margin-top: 22px;
-        }
-        a {
-          text-decoration: none;
-          color: #fff;
-          text-shadow: 0 0 6px rgba(183, 122, 255, 0.75);
-        }
-      `}</style>
-    </nav>
+    <FixedBar
+      barColor="#0b0b0f"
+      textColor="#ffffff"
+      links={[{ type: "link", label: "HOME", href: "/", active: "exact" }]}
+    />
   );
 }
