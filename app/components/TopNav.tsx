@@ -1,43 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 
 export default function TopNav() {
   const path = usePathname();
 
-  // Read query string safely WITHOUT useSearchParams (avoids prerender/build issues)
-  const [lockerProject, setLockerProject] = useState<string>("");
-
-  useEffect(() => {
-    const read = () => {
-      const p =
-        typeof window !== "undefined"
-          ? (new URLSearchParams(window.location.search).get("project") || "").toLowerCase()
-          : "";
-      setLockerProject(p);
-    };
-
-    read();
-
-    // Also update if user navigates via back/forward
-    window.addEventListener("popstate", read);
-    return () => window.removeEventListener("popstate", read);
-  }, []);
-
   // Treat BOTH /enchanted-miners/* and /my-miners as Enchanted Miners pages
   const isMiners =
     path.startsWith("/enchanted-miners") ||
     path.startsWith("/my-miners") ||
-    (path === "/locker" && lockerProject === "miners");
+    (path.startsWith("/locker") && path.includes("project=miners"));
 
-  // MAGApixel pages
   const isMagapixel =
     path.startsWith("/locker/magapixel") ||
     path.startsWith("/magapixel-nfts") ||
     path.startsWith("/retrogs") ||
-    (path === "/locker" && lockerProject === "magapixel");
+    (path.startsWith("/locker") && path.includes("project=magapixel"));
 
   // RetroGrave pages
   const isRetrograve = path.startsWith("/retrograve") || path.startsWith("/retrogs");
@@ -46,88 +25,85 @@ export default function TopNav() {
   const isActiveStarts = (href: string) => path === href || path.startsWith(href + "/");
 
   // Shared fixed-bar styles (Miners format)
-  const FixedBar = useMemo(() => {
-    return function FixedBarInner({
-      barColor,
-      textColor,
-      links,
-    }: {
-      barColor: string;
-      textColor: string;
-      links: Array<
-        | { type: "link"; label: string; href: string; active?: "exact" | "starts" }
-        | { type: "a"; label: string; href: string }
-      >;
-    }) {
-      const baseLinkStyle = {
-        fontSize: "16px",
-        color: textColor,
-        textDecoration: "none" as const,
-        opacity: 0.9,
-        letterSpacing: "0.06em",
-      };
-
-      const activeLinkStyle = {
-        ...baseLinkStyle,
-        textDecoration: "underline" as const,
-        textDecorationThickness: "2px",
-        textUnderlineOffset: "4px",
-        opacity: 1,
-      };
-
-      const pickStyle = (href: string, mode?: "exact" | "starts") => {
-        if (!mode) return baseLinkStyle;
-        const active = mode === "exact" ? isActiveExact(href) : isActiveStarts(href);
-        return active ? activeLinkStyle : baseLinkStyle;
-      };
-
-      return (
-        <>
-          <nav
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "64px",
-              backgroundColor: barColor,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "32px",
-              zIndex: 50,
-            }}
-          >
-            {links.map((l) => {
-              if (l.type === "link") {
-                return (
-                  <Link key={l.label} href={l.href} style={pickStyle(l.href, l.active)}>
-                    {l.label}
-                  </Link>
-                );
-              }
-
-              return (
-                <a
-                  key={l.label}
-                  href={l.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={baseLinkStyle}
-                >
-                  {l.label}
-                </a>
-              );
-            })}
-          </nav>
-
-          {/* Spacer — MATCH nav color so no black strip shows through */}
-          <div style={{ height: 40, backgroundColor: barColor }} />
-
-        </>
-      );
+  const FixedBar = ({
+    barColor,
+    textColor,
+    links,
+  }: {
+    barColor: string;
+    textColor: string;
+    links: Array<
+      | { type: "link"; label: string; href: string; active?: "exact" | "starts" }
+      | { type: "a"; label: string; href: string }
+    >;
+  }) => {
+    const baseLinkStyle = {
+      fontSize: "16px",
+      color: textColor,
+      textDecoration: "none" as const,
+      opacity: 0.9,
+      letterSpacing: "0.06em",
     };
-  }, [path]);
+
+    const activeLinkStyle = {
+      ...baseLinkStyle,
+      textDecoration: "underline" as const,
+      textDecorationThickness: "2px",
+      textUnderlineOffset: "4px",
+      opacity: 1,
+    };
+
+    const pickStyle = (href: string, mode?: "exact" | "starts") => {
+      if (!mode) return baseLinkStyle;
+      const active = mode === "exact" ? isActiveExact(href) : isActiveStarts(href);
+      return active ? activeLinkStyle : baseLinkStyle;
+    };
+
+    return (
+      <>
+        <nav
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "64px",
+            backgroundColor: barColor,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "32px",
+            zIndex: 50,
+          }}
+        >
+          {links.map((l) => {
+            if (l.type === "link") {
+              return (
+                <Link key={l.label} href={l.href} style={pickStyle(l.href, l.active)}>
+                  {l.label}
+                </Link>
+              );
+            }
+
+            return (
+              <a
+                key={l.label}
+                href={l.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={baseLinkStyle}
+              >
+                {l.label}
+              </a>
+            );
+          })}
+        </nav>
+
+        {/* Spacer — MUST be transparent so we don't see a colored block */}
+        <div style={{ height: 64, background: "transparent" }} />
+      </>
+    );
+  };
 
   /* =========================================================
      1) ENCHANTED MINERS NAV
