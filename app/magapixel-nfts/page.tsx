@@ -1,4 +1,3 @@
-// app/magapixel-nfts/page.tsx
 "use client";
 
 import Showcase from "../components/Showcase";
@@ -8,10 +7,10 @@ import Showcase from "../components/Showcase";
  *  MAGAPIXEL OWNER GRID
  * =====================
  *
- * Cosmetic-only alignment to match Enchanted Miners styling:
- * - Similar padding / header sizing / layout vibe
- * - Scoped nav bar color for THIS page only (#af232a)
- * - No changes to Showcase logic or NFT fetching
+ * Cosmetic-only fixes:
+ * - Remove black gap caused by fixed TopNav spacer
+ * - Match Enchanted-style vertical alignment
+ * - NO changes to Showcase logic or NFT fetching
  */
 
 const MAGAPIXEL_BG_IMAGE = "/magapixel-bg.png";
@@ -41,17 +40,21 @@ export default function MagapixelOwnerGridPage() {
       <style jsx>{`
         .magapixel-grid-page {
           min-height: 100vh;
-          padding: 32px 18px 48px;
+
+          /* ⬅ cancel TopNav spacer */
+          margin-top: -64px;
+          padding: 0 18px 48px;
 
           background-image: url(${MAGAPIXEL_BG_IMAGE});
           background-size: cover;
-          background-position: center;
+          background-position: center top;
           background-repeat: no-repeat;
         }
 
         .inner {
           max-width: 1200px;
           margin: 0 auto;
+          padding-top: 32px; /* controlled spacing inside background */
         }
 
         .back-row {
@@ -93,7 +96,7 @@ export default function MagapixelOwnerGridPage() {
         }
       `}</style>
 
-      {/* ✅ PAGE-SCOPED NAV COSMETICS ONLY (removed when you leave this route) */}
+      {/* MAGAPIXEL NAV COLOR — page scoped */}
       <style jsx global>{`
         nav {
           background: #af232a !important;
