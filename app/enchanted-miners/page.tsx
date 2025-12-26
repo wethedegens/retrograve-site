@@ -33,6 +33,7 @@ export default function EnchantedMinersLandingPage() {
       className="miners-wrapper"
       style={{
         minHeight: "100vh",
+        marginTop: "-64px", // ✅ cancels TopNav spacer (removes black bar)
         paddingBottom: 60,
         backgroundImage: "url('/enchanted-miners-bg.png')",
         backgroundRepeat: "no-repeat",
@@ -50,8 +51,8 @@ export default function EnchantedMinersLandingPage() {
             LOCKSCREEN LOCKER
           </h1>
           <p className="miners-sub">
-            Download your Enchanted Miners NFT with a perfectly tuned background —
-            sized for any phone.
+            Download your Enchanted Miners NFT with a perfectly tuned background
+            — sized for any phone.
           </p>
         </div>
 

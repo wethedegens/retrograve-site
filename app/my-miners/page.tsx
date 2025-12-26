@@ -112,15 +112,14 @@ export default function MyMinersPage() {
     if (!nft.id) return;
 
     // 🔹 Tag this as a Miners locker so we can swap backgrounds
-    router.push(
-      `/locker?mint=${encodeURIComponent(nft.id)}&project=miners`
-    );
+    router.push(`/locker?mint=${encodeURIComponent(nft.id)}&project=miners`);
   }
 
   return (
     <WalletGate>
       <main
         style={{
+          marginTop: "-64px", // ✅ cancels TopNav spacer (removes black bar)
           padding: "32px 18px 48px",
           minHeight: "100vh",
           backgroundImage: "url('/my-miners-bg.png?v=3')",
@@ -145,15 +144,11 @@ export default function MyMinersPage() {
           </p>
         </header>
 
-        {!publicKey && (
-          <p>Connect your wallet to see your Enchanted Miners.</p>
-        )}
+        {!publicKey && <p>Connect your wallet to see your Enchanted Miners.</p>}
 
         {publicKey && loading && <p>Loading your Enchanted Miners...</p>}
 
-        {publicKey && error && (
-          <p style={{ color: "#ff6b6b" }}>{error}</p>
-        )}
+        {publicKey && error && <p style={{ color: "#ff6b6b" }}>{error}</p>}
 
         {publicKey && !loading && !error && (
           <NftGrid nfts={nfts} onPick={handlePick} />
