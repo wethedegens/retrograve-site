@@ -38,7 +38,10 @@ function LockerInner() {
 
   const composerRef = useRef<ComposerHandle | null>(null);
 
-  const initialBg = useMemo<BgChoice>(() => ({ kind: "color", value: "#3e2d75" }), []);
+  const initialBg = useMemo<BgChoice>(
+    () => ({ kind: "color", value: "#3e2d75" }),
+    []
+  );
 
   // Keep bg as a non-null BgChoice to make TS happy
   const [bg, setBg] = useState<BgChoice>(initialBg);
@@ -108,7 +111,9 @@ function LockerInner() {
         setLoading(true);
         const qs = new URLSearchParams({ mint });
         if (uri) qs.set("uri", uri);
-        const r = await fetch(`/api/nft-by-mint?${qs.toString()}`, { cache: "no-store" });
+        const r = await fetch(`/api/nft-by-mint?${qs.toString()}`, {
+          cache: "no-store",
+        });
         const j = (await r.json()) as NftFetchResp;
 
         if (!cancelled) {
@@ -155,11 +160,15 @@ function LockerInner() {
             }
           : {}),
 
-        // ✅ MAGApixel gets a simple brand color (no black / no RG mountains)
+        // ✅ MAGApixel uses your image from /public
         ...(isMagapixel
           ? {
-              backgroundColor: "#0078e9",
-              backgroundImage: "none",
+              backgroundColor: "#0078e9", // fallback while image loads
+              backgroundImage: 'url("/bg-ovaloffice.png")',
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center",
+              backgroundSize: "cover",
+              backgroundAttachment: "fixed",
             }
           : {}),
       }}
@@ -202,7 +211,14 @@ function LockerInner() {
 
             {/* optional small hint line (kept harmless) */}
             {hint && (
-              <p style={{ marginTop: 10, fontSize: 12, opacity: 0.9, color: "#ffffff" }}>
+              <p
+                style={{
+                  marginTop: 10,
+                  fontSize: 12,
+                  opacity: 0.9,
+                  color: "#ffffff",
+                }}
+              >
                 {hint}
               </p>
             )}
