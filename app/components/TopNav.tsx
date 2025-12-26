@@ -7,33 +7,33 @@ export default function TopNav() {
   const path = usePathname();
   const sp = useSearchParams();
 
-  // ✅ On /locker, project is in querystring (usePathname does NOT include it)
-  const lockerProject = path.startsWith("/locker")
-    ? (sp.get("project") || "").toLowerCase()
-    : "";
+  // IMPORTANT:
+  // usePathname() does NOT include ?query params
+  // so we must read project from useSearchParams()
+  const projectParam = (sp.get("project") || "").toLowerCase();
+
+  // Tune this once, affects bar + spacer
+  const NAV_H = 52;
 
   // Treat BOTH /enchanted-miners/* and /my-miners as Enchanted Miners pages
-  // ✅ Also include /locker?project=miners
   const isMiners =
     path.startsWith("/enchanted-miners") ||
     path.startsWith("/my-miners") ||
-    lockerProject === "miners";
+    (path.startsWith("/locker") && projectParam === "miners");
 
-  // MAGApixel pages
-  // ✅ Also include /locker?project=magapixel
   const isMagapixel =
     path.startsWith("/locker/magapixel") ||
     path.startsWith("/magapixel-nfts") ||
     path.startsWith("/retrogs") ||
-    lockerProject === "magapixel";
+    (path.startsWith("/locker") && projectParam === "magapixel");
 
   // RetroGrave pages
-  const isRetrograve = path.startsWith("/retrograve") || path.startsWith("/retrogs");
+  const isRetrograve = path.startsWith("/retrograve");
 
   const isActiveExact = (href: string) => path === href;
   const isActiveStarts = (href: string) => path === href || path.startsWith(href + "/");
 
-  // Shared fixed-bar styles
+  // Shared fixed-bar styles (Miners format)
   const FixedBar = ({
     barColor,
     textColor,
@@ -76,7 +76,7 @@ export default function TopNav() {
             top: 0,
             left: 0,
             width: "100%",
-            height: "64px",
+            height: `${NAV_H}px`,
             backgroundColor: barColor,
             display: "flex",
             alignItems: "center",
@@ -108,8 +108,9 @@ export default function TopNav() {
           })}
         </nav>
 
-        {/* ✅ Spacer matches the bar color so no black seam shows through */}
-        <div style={{ height: 64, backgroundColor: barColor }} />
+        {/* Spacer so content doesn't hide behind fixed nav
+            MATCH the bar color to avoid a black line showing through */}
+        <div style={{ height: NAV_H, backgroundColor: barColor }} />
       </>
     );
   };
