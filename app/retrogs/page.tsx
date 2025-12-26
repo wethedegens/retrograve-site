@@ -1,24 +1,14 @@
 // app/retrogs/page.tsx
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
+import Showcase from "../components/Showcase";
 
 /**
  * MAGAPIXEL OWNER GRID PAGE
  * Wraps the generic <Showcase /> with MAGApixel-specific text.
- *
- * IMPORTANT:
- * Showcase uses wallet-adapter (browser-only). During Vercel build/prerender,
- * SSR can crash. We load it client-only via dynamic import (ssr:false).
  */
 
-const Showcase = dynamic(() => import("../components/Showcase"), {
-  ssr: false,
-  loading: () => (
-    <p style={{ margin: "16px 0", opacity: 0.85 }}>
-      Loading wallet tools…
-    </p>
-  ),
-});
+// ✅ IMPORTANT: prevent Next from trying to prerender this at build time
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "My MAGAPixels • MAGAPixel Locker",
@@ -53,7 +43,7 @@ export default function MagapixelOwnerGridPage() {
           MAGAPIXEL · <span style={{ letterSpacing: ".03em" }}>owner view</span>
         </p>
 
-        {/* Wallet connect + fetch + grid (client-only) */}
+        {/* Wallet connect + fetch + grid */}
         <Showcase />
       </section>
     </main>
