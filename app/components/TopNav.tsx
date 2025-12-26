@@ -122,7 +122,8 @@ export default function TopNav() {
           </nav>
 
           {/* Spacer — MATCH nav color so no black strip shows through */}
-          <div style={{ height: 64, backgroundColor: barColor }} />
+          <div style={{ height: 40, backgroundColor: barColor }} />
+
         </>
       );
     };
