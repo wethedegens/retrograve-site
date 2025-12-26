@@ -8,91 +8,103 @@ import Showcase from "../components/Showcase";
  *  MAGAPIXEL OWNER GRID
  * =====================
  *
- * Shows all MAGApixel NFTs owned by the connected wallet.
- *
- * 🔁 WHEN YOU DUPLICATE FOR ANOTHER PROJECT:
- * - PROJECT_NAME: change headings + text
- * - PROJECT_BG:   change `MAGAPIXEL_BG_IMAGE`
+ * Cosmetic-only alignment to match Enchanted Miners styling:
+ * - Similar padding / header sizing / layout vibe
+ * - Scoped nav bar color for THIS page only (#af232a)
+ * - No changes to Showcase logic or NFT fetching
  */
 
-const MAGAPIXEL_BG_IMAGE = "/magapixel-bg.png"; // 🔧 PROJECT_BG (same as locker)
+const MAGAPIXEL_BG_IMAGE = "/magapixel-bg.png";
 
 export default function MagapixelOwnerGridPage() {
   return (
     <main className="magapixel-grid-page">
-      <section className="inner">
-        {/* 🔙 Back link to the MAGApixel locker */}
+      <div className="inner">
         <p className="back-row">
           <a href="/locker/magapixel" className="back-link">
             ← BACK TO MAGAPIXEL LOCKER
           </a>
         </p>
 
-        <h1 className="page-title">MAGAPIXELS</h1>
+        <header className="page-header">
+          <h1 className="page-title">MY MAGAPIXELS</h1>
+          <p className="page-subtitle">
+            Select a MAGAPIXEL from your wallet to open it in the lockscreen
+            locker.
+          </p>
+        </header>
 
-        <p className="subtitle">
-          MAGAPIXEL · <span className="owner-tag">owner view</span>
-        </p>
-
-        {/* Wallet connect + fetch + grid */}
+        {/* Wallet connect + fetch + grid (unchanged) */}
         <Showcase />
-      </section>
+      </div>
 
       <style jsx>{`
         .magapixel-grid-page {
           min-height: 100vh;
-          padding: 24px 0 80px;
+          padding: 32px 18px 48px;
 
-          /* IMPORTANT:
-             Background layers are painted TOP → BOTTOM in the order they’re listed.
-             So we put the IMAGE first (top), then the gradient behind it (bottom),
-             otherwise the gradient can cover/hide the image. */
-          background:
-            url(${MAGAPIXEL_BG_IMAGE}) no-repeat center bottom,
-            radial-gradient(circle at top, rgba(255, 255, 255, 0.06), #000 55%);
-
-          background-size: cover, cover;
+          background-image: url(${MAGAPIXEL_BG_IMAGE});
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
         }
 
         .inner {
           max-width: 1200px;
           margin: 0 auto;
-          padding: 0 18px;
         }
 
         .back-row {
-          margin: 0 0 10px;
+          margin: 0 0 16px;
         }
 
         .back-link {
           font-family: "VT323", monospace;
-          font-size: 13px;
+          font-size: 14px;
           letter-spacing: 0.08em;
           text-decoration: none;
-          color: #bda3ff;
-          opacity: 0.8;
+          color: rgba(255, 255, 255, 0.85);
+          opacity: 0.85;
         }
 
         .back-link:hover {
           opacity: 1;
         }
 
+        .page-header {
+          margin-bottom: 24px;
+        }
+
         .page-title {
-          margin: 0 0 8px;
-          font-family: "Oswald", system-ui, -apple-system, Segoe UI, Roboto,
-            Ubuntu, Cantarell, "Helvetica Neue", Arial;
-          font-weight: 700;
-          font-size: 26px;
+          margin: 0;
+          font-size: 32px;
           letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: #ffffff;
+          text-shadow: 0 2px 18px rgba(0, 0, 0, 0.35);
         }
 
-        .subtitle {
-          opacity: 0.8;
-          margin: 0 0 24px;
+        .page-subtitle {
+          margin: 6px 0 0;
+          opacity: 0.85;
+          color: rgba(255, 255, 255, 0.92);
+          text-shadow: 0 2px 18px rgba(0, 0, 0, 0.35);
+          max-width: 560px;
+        }
+      `}</style>
+
+      {/* ✅ PAGE-SCOPED NAV COSMETICS ONLY (removed when you leave this route) */}
+      <style jsx global>{`
+        nav {
+          background: #af232a !important;
         }
 
-        .owner-tag {
-          letter-spacing: 0.03em;
+        nav a {
+          color: rgba(255, 255, 255, 0.9) !important;
+        }
+
+        nav a:hover {
+          color: #ffffff !important;
         }
       `}</style>
     </main>
