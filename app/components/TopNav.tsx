@@ -8,7 +8,9 @@ export default function TopNav() {
 
   // Treat BOTH /enchanted-miners/* and /my-miners as Enchanted Miners pages
   const isMiners =
-    path.startsWith("/enchanted-miners") || path.startsWith("/my-miners");
+  path.startsWith("/enchanted-miners") ||
+  path.startsWith("/my-miners") ||
+  (path.startsWith("/locker") && path.includes("project=miners"));
 
   // MAGApixel pages
   const isMagapixel =
