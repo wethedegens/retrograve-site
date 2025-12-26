@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import LockscreenedFAQ from "./components/LockscreenedFAQ";
+export const dynamic = "force-dynamic";
 
 type LockerProject = {
   name: string;

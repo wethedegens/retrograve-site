@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+export const dynamic = "force-dynamic";
 
 export default function EnchantedMinersLandingPage() {
   const demoImages = useMemo(

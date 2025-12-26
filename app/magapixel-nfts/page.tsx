@@ -1,6 +1,7 @@
 "use client";
 
 import Showcase from "../components/Showcase";
+export const dynamic = "force-dynamic";
 
 /**
  * =====================

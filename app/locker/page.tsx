@@ -3,6 +3,7 @@
 
 import { useEffect, useMemo, useRef, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+export const dynamic = "force-dynamic";
 
 import BackgroundPicker from "../components/BackgroundPicker";
 import Composer, {
