@@ -86,8 +86,10 @@ export default function EnchantedMinersPage() {
       className="miners-wrapper"
       style={{
         minHeight: "100vh",
+
+        // ✅ use paddingTop instead of marginTop so the background fills behind the fixed nav
         padding: "18px 0 80px",
-        marginTop: 64,
+        paddingTop: 64,
 
         // ✅ Keep miners page background independent from RetroGrave
         backgroundImage: `url(${ENCHANTED_MINERS_BG_IMAGE})`,
@@ -110,11 +112,7 @@ export default function EnchantedMinersPage() {
 
         {loading && <p style={{ opacity: 0.85 }}>Loading...</p>}
 
-        {error && (
-          <p style={{ opacity: 0.9, color: "#ffb3b3" }}>
-            {error}
-          </p>
-        )}
+        {error && <p style={{ opacity: 0.9, color: "#ffb3b3" }}>{error}</p>}
 
         {!loading && !error && miners.length === 0 && (
           <p style={{ opacity: 0.85 }}>No Enchanted Miners found.</p>
@@ -123,12 +121,12 @@ export default function EnchantedMinersPage() {
         {!loading && !error && miners.length > 0 && (
           <NftGrid
             nfts={miners}
-            // ✅ required by your NftGrid props
             onPick={(nft) => {
-              // Send to the existing locker page
               const mint = nft.id || "";
               const uri = nft.uri ? encodeURIComponent(nft.uri) : "";
-              router.push(`/locker?mint=${mint}${uri ? `&uri=${uri}` : ""}&project=miners`);
+              router.push(
+                `/locker?mint=${mint}${uri ? `&uri=${uri}` : ""}&project=miners`
+              );
             }}
           />
         )}
