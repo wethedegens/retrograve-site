@@ -43,7 +43,6 @@ const PROJECTS: LockerProject[] = [
     name: "Enchanted Miners",
     status: "live",
     label: "Live",
-    // ✅ THIS MUST GO TO THE MINERS HOME PAGE (NOT THE GRID)
     lockerPath: "/enchanted-miners",
     glow: "miners",
     preview: "/lockscreened-previews/miners.png",
@@ -61,6 +60,9 @@ const PROJECTS: LockerProject[] = [
 export default function HomePage() {
   return (
     <main id="top" className="ls-page">
+      {/* ✅ Spacer for fixed nav (nav height is 64px) */}
+      <div className="topnav-spacer" />
+
       {/* Floating phone logo in top-right */}
       <div className="ls-logo-floating">
         <img
@@ -72,7 +74,6 @@ export default function HomePage() {
 
       {/* HERO */}
       <section className="ls-hero">
-        {/* New wordmark image */}
         <img
           src="/lockscreened-wordmark-1.png"
           alt="LockScreened wordmark"
@@ -130,7 +131,6 @@ export default function HomePage() {
             const inner = (
               <div
                 className={`phone-frame glow-${p.glow}`}
-                // ✅ extra safety: if anything inside gets weird, force route
                 onClick={(e) => {
                   if (isDisabled) return;
                   e.preventDefault();
@@ -258,10 +258,7 @@ export default function HomePage() {
       <style jsx>{`
         .ls-page {
           min-height: 100vh;
-
-          /* ✅ FIX: clear the fixed TopNav so hero never tucks under it */
-          padding: 88px 16px 72px;
-
+          padding: 0 16px 72px;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -269,11 +266,18 @@ export default function HomePage() {
           position: relative;
         }
 
-        /* ✅ FIX: when buttons scroll to sections, keep headings below fixed nav */
+        /* ✅ This is the reliable fixed-nav offset */
+        .topnav-spacer {
+          height: 64px;
+          width: 100%;
+          flex: 0 0 auto;
+        }
+
+        /* ✅ keep anchor scroll targets below fixed nav */
         #projects,
         #how,
         #faq {
-          scroll-margin-top: 88px;
+          scroll-margin-top: 72px;
         }
 
         .ls-page::before {
@@ -302,7 +306,6 @@ export default function HomePage() {
         }
 
         .ls-hero {
-          /* ✅ FIX: remove negative margin that was pulling content under header */
           margin-top: 0;
           max-width: 820px;
           text-align: center;
@@ -596,13 +599,10 @@ export default function HomePage() {
         }
 
         @media (max-width: 768px) {
-          .ls-page {
-            padding-top: 80px;
-          }
           #projects,
           #how,
           #faq {
-            scroll-margin-top: 80px;
+            scroll-margin-top: 84px;
           }
           .phone-grid {
             grid-template-columns: repeat(2, minmax(150px, 1fr));
