@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
-
 import NftGrid, { type NFT } from "../components/NftGrid";
 
+// ✅ Enchanted Miners collection (your real one)
 const ENCHANTED_MINERS_COLLECTION = "GzhXjRxLXWkzW6vDVyHgbYmqW75xrfh4WvgVKQ8XA1su";
 
 export default function EnchantedMinersPage() {
@@ -19,7 +19,6 @@ export default function EnchantedMinersPage() {
     if (!owner) {
       setMiners([]);
       setError(null);
-      setLoading(false);
       return;
     }
 
@@ -35,8 +34,6 @@ export default function EnchantedMinersPage() {
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             owner,
-            // ✅ If your API supports it, great.
-            // If it ignores it, it won't hurt anything.
             collection: ENCHANTED_MINERS_COLLECTION,
           }),
           cache: "no-store",
@@ -48,7 +45,6 @@ export default function EnchantedMinersPage() {
         }
 
         const data = (await r.json()) as NFT[];
-
         if (!cancelled) setMiners(Array.isArray(data) ? data : []);
       } catch (e: any) {
         if (!cancelled) setError(e?.message || "Failed to load miners");
@@ -67,9 +63,7 @@ export default function EnchantedMinersPage() {
   return (
     <main style={{ padding: "18px 0 80px", marginTop: 64 }}>
       <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 18px" }}>
-        <h1 style={{ margin: "8px 0", fontSize: 28, letterSpacing: "0.04em" }}>
-          MY MINERS
-        </h1>
+        <h1 style={{ margin: "8px 0", fontSize: 28, letterSpacing: "0.04em" }}>MY MINERS</h1>
 
         <p style={{ margin: 0, opacity: 0.75 }}>
           Showing Enchanted Miners owned by your connected wallet.
@@ -77,11 +71,8 @@ export default function EnchantedMinersPage() {
 
         <div style={{ height: 16 }} />
 
-        {loading && <p style={{ opacity: 0.8 }}>Loading…</p>}
-
-        {error && (
-          <p style={{ opacity: 0.9, color: "#ffb3b3" }}>{error}</p>
-        )}
+        {loading && <p style={{ opacity: 0.85 }}>Loading…</p>}
+        {error && <p style={{ opacity: 0.9, color: "#ffb3b3" }}>{error}</p>}
 
         {!loading && !error && <NftGrid nfts={miners} />}
       </section>
