@@ -1,7 +1,6 @@
 // app/enchanted-miners/page.tsx
 "use client";
 
-import Link from "next/link";
 import PhoneShowcase from "../components/PhoneShowcase";
 
 export default function EnchantedMinersLandingPage() {
@@ -22,17 +21,12 @@ export default function EnchantedMinersLandingPage() {
           <h2 className="lp-subtitle">LOCKSCREEN LOCKER</h2>
 
           <p className="lp-copy">
-            Phone-native wallpapers for Enchanted Miners.
+            <span className="lp-copy-strong">Phone-native wallpapers</span> for
+            Enchanted Miners.
             <br />
             Connect your wallet, pick a Miner, swap backgrounds, and export for
             any device.
           </p>
-
-          <div className="lp-actions">
-            <Link className="lp-btn lp-btn-primary" href="/enchanted-miners-nfts">
-              ENTER (VIEW MY MINERS)
-            </Link>
-          </div>
         </div>
 
         {/* RIGHT */}
@@ -65,14 +59,22 @@ export default function EnchantedMinersLandingPage() {
         .lp-inner {
           max-width: 1200px;
           margin: 0 auto;
+
           display: grid;
-          grid-template-columns: 1.1fr 0.9fr;
+          grid-template-columns: 1fr 520px; /* left + fixed phone column */
           gap: 28px;
+
+          /* ✅ aligns the LEFT block vertically with the PHONE block */
           align-items: center;
+          min-height: calc(100vh - 64px - 80px); /* roughly center in viewport */
         }
 
         .lp-left {
           max-width: 640px;
+
+          /* ✅ visually center the text against the phone */
+          margin-left: clamp(0px, 3vw, 28px);
+          transform: translateY(10px);
         }
 
         .lp-title {
@@ -105,39 +107,11 @@ export default function EnchantedMinersLandingPage() {
           color: rgba(20, 35, 24, 0.7);
         }
 
-        .lp-actions {
-          margin-top: 16px;
-          display: flex;
-          gap: 10px;
-          flex-wrap: wrap;
-          align-items: center;
-        }
-
-        .lp-btn {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          height: 34px;
-          padding: 0 14px;
-          border-radius: 999px;
-          font-size: 11px;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          text-decoration: none;
-          border: 1px solid rgba(20, 35, 24, 0.25);
-          color: rgba(20, 35, 24, 0.85);
-          background: rgba(255, 255, 255, 0.35);
-          backdrop-filter: blur(6px);
-        }
-
-        .lp-btn-primary {
-          background: rgba(20, 35, 24, 0.9);
-          color: rgba(255, 255, 255, 0.95);
-          border: 1px solid rgba(20, 35, 24, 0.9);
-        }
-
-        .lp-btn-primary:hover {
-          transform: translateY(-1px);
+        /* ✅ bold + slightly larger for “Phone-native wallpapers” */
+        .lp-copy-strong {
+          font-weight: 900;
+          font-size: 14px;
+          color: rgba(20, 35, 24, 0.88);
         }
 
         .lp-right {
@@ -145,7 +119,7 @@ export default function EnchantedMinersLandingPage() {
           justify-content: center;
         }
 
-        /* ✅ same sizing/positioning as magapixel */
+        /* phone sizing/positioning */
         .phone-shell {
           transform: translateY(22px) scale(0.7);
           transform-origin: top center;
@@ -156,14 +130,15 @@ export default function EnchantedMinersLandingPage() {
           .lp-inner {
             grid-template-columns: 1fr;
             text-align: center;
+            min-height: auto;
             padding-top: 8px;
           }
+
           .lp-left {
             margin: 0 auto;
+            transform: translateY(0);
           }
-          .lp-actions {
-            justify-content: center;
-          }
+
           .phone-shell {
             transform: translateY(10px) scale(0.75);
           }
