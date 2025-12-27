@@ -216,7 +216,7 @@ export default function HomePage() {
         }
 
         .roadmap-wrap {
-          margin-top: 12px; /* ⬆️ bring roadmap up */
+          margin-top: 4px; /* ⬆️ bring roadmap up */
         }
 
         @media (max-width: 520px) {
