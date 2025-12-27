@@ -1,89 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useMemo } from "react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 export type NavLink = {
   type: "link" | "a";
   label: string;
   href: string;
-
-  // active behavior for internal routes
   active?: "starts" | "exact";
 };
 
-type FixedBarProps = {
+export type FixedBarProps = {
   links: NavLink[];
+  /** optional: if you ever want to hide wallet on a specific page */
+  showWallet?: boolean;
 };
 
-function isActive(pathname: string, href: string, mode: NavLink["active"]) {
-  if (!mode) return false;
-  if (mode === "exact") return pathname === href;
-  return pathname.startsWith(href);
-}
-
-/**
- * FixedBar
- * - Single source of truth for TopNav styling
- * - DO NOT pass barColor/textColor props (we keep styling here)
- */
-export default function FixedBar({ links }: FixedBarProps) {
-  const pathname = usePathname();
-
-  const rendered = useMemo(() => {
-    return links.map((l) => {
-      const active =
-        l.type === "link" ? isActive(pathname, l.href, l.active) : false;
-
-      const baseStyle: React.CSSProperties = {
-        color: "rgba(255,255,255,0.82)",
-        textDecoration: "none",
-        fontSize: 13,
-        fontWeight: 700,
-        letterSpacing: "0.12em",
-        textTransform: "uppercase",
-        padding: "8px 10px",
-        borderRadius: 10,
-        transition: "all 120ms ease",
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 6,
-      };
-
-      const activeStyle: React.CSSProperties = active
-        ? {
-            color: "#fff",
-            background: "rgba(255,255,255,0.08)",
-          }
-        : {};
-
-      if (l.type === "a") {
-        return (
-          <a
-            key={l.label}
-            href={l.href}
-            target="_blank"
-            rel="noreferrer"
-            style={{ ...baseStyle, ...activeStyle }}
-          >
-            {l.label}
-          </a>
-        );
-      }
-
-      return (
-        <Link
-          key={l.label}
-          href={l.href}
-          style={{ ...baseStyle, ...activeStyle }}
-        >
-          {l.label}
-        </Link>
-      );
-    });
-  }, [links, pathname]);
-
+export default function FixedBar({ links, showWallet = true }: FixedBarProps) {
   return (
     <nav
       aria-label="Top navigation"
@@ -93,30 +26,89 @@ export default function FixedBar({ links }: FixedBarProps) {
         left: 0,
         width: "100%",
         height: 64,
-        zIndex: 50,
+        zIndex: 9999,
         display: "flex",
         alignItems: "center",
-        justifyContent: "center",
         gap: 18,
         padding: "0 14px",
-        background: "rgba(11,11,15,0.65)",
-        backdropFilter: "blur(12px)",
-
-        // IMPORTANT: removes that black divider line
-        borderBottom: "none",
+        backgroundColor: "rgba(11, 11, 15, 0.85)",
+        backdropFilter: "blur(10px)",
+        borderBottom: "1px solid rgba(255,255,255,0.10)",
       }}
     >
       <div
         style={{
+          maxWidth: 1200,
+          margin: "0 auto",
+          width: "100%",
           display: "flex",
           alignItems: "center",
-          gap: 10,
-          flexWrap: "wrap",
-          justifyContent: "center",
-          maxWidth: 1200,
+          gap: 18,
         }}
       >
-        {rendered}
+        {/* LEFT LINKS */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 18,
+            flexWrap: "wrap",
+          }}
+        >
+          {links.map((l) => {
+            const isInternal = l.type === "link";
+            const commonStyle: React.CSSProperties = {
+              color: "rgba(255,255,255,0.88)",
+              textDecoration: "none",
+              fontSize: 12,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              padding: "10px 10px",
+              borderRadius: 999,
+              lineHeight: 1,
+            };
+
+            if (isInternal) {
+              return (
+                <Link key={l.href} href={l.href} style={commonStyle}>
+                  {l.label}
+                </Link>
+              );
+            }
+
+            return (
+              <a
+                key={l.href}
+                href={l.href}
+                target="_blank"
+                rel="noreferrer"
+                style={commonStyle}
+              >
+                {l.label}
+              </a>
+            );
+          })}
+        </div>
+
+        {/* RIGHT WALLET */}
+        <div
+          style={{
+            marginLeft: "auto",
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            // ✅ explicitly NOT hidden / blurred
+            opacity: 1,
+            visibility: "visible",
+            filter: "none",
+          }}
+        >
+          {showWallet ? (
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <WalletMultiButton />
+            </div>
+          ) : null}
+        </div>
       </div>
     </nav>
   );
