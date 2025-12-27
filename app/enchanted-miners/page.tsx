@@ -75,7 +75,7 @@ export default function EnchantedMinersLandingPage() {
 
           /* pull text UP to match phone’s visual center */
           position: relative;
-          top: -60px;
+          top: -85px;
 
           margin-left: clamp(0px, 3vw, 28px);
         }
