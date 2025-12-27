@@ -1,3 +1,4 @@
+// app/locker/magapixel/page.tsx
 "use client";
 
 import { useEffect } from "react";
@@ -6,190 +7,159 @@ import PhoneShowcase from "../../components/PhoneShowcase";
 import type { BgChoice } from "../../components/Composer";
 import OgWLBanner from "../../components/OgWLBanner";
 
-// =================
-// PROJECT CONFIG
-// =================
-
-const PROJECT_NAME = "MAGAPIXEL";
-const PROJECT_BG_COLOR = "#0078e9";
-const PROJECT_LOCKER_BG = "/magapixel-bg.png";
-
-const PROJECT_X_URL = "https://x.com/MAGApixel_NFT";
-const PROJECT_DISCORD_URL = "https://discord.gg/ZVGtHUpHfb";
-const PROJECT_OWNER_GRID_URL = "/magapixel-nfts";
-
-const PROJECT_DEMO_IMAGES = [
-  "/magapixel-lockscreens/lock-1.png",
-  "/magapixel-lockscreens/lock-2.png",
-  "/magapixel-lockscreens/lock-3.png",
-  "/magapixel-lockscreens/lock-4.png",
-];
-
 export default function MagapixelLockerPage() {
   useEffect(() => {
-    if (typeof document === "undefined") return;
-
-    const anchors = Array.from(
-      document.querySelectorAll("nav a")
-    ) as HTMLAnchorElement[];
-
-    anchors.forEach((a) => {
-      const label = a.textContent?.trim().toUpperCase();
-      if (!label) return;
-
-      if (label === "HOME") {
-        a.setAttribute("href", "/");
-      } else if (label === "MY MAGAPIXELS") {
-        a.setAttribute("href", PROJECT_OWNER_GRID_URL);
-      } else if (label === "COMMUNITY") {
-        a.setAttribute("href", PROJECT_DISCORD_URL);
-      } else if (label === "COLLECT NOW") {
-        a.setAttribute(
-          "href",
-          "https://magiceden.us/marketplace/magapixel"
-        );
-      } else if (label === "FOLLOW ON X") {
-        a.setAttribute("href", PROJECT_X_URL);
-      }
-    });
+    document.documentElement.style.setProperty("--page-bg", "#111827");
+    document.documentElement.style.setProperty(
+      "--page-bg-image",
+      "url(/bg-retrograve.png)"
+    );
+    return () => {
+      document.documentElement.style.removeProperty("--page-bg");
+      document.documentElement.style.removeProperty("--page-bg-image");
+    };
   }, []);
 
-  const bg: BgChoice = { kind: "color", value: PROJECT_BG_COLOR };
-
   return (
-    <main
-      className="mp-wrapper"
-      style={{
-        minHeight: "100vh",
-        paddingBottom: 60,
-        backgroundImage: `url("${PROJECT_LOCKER_BG}")`,
-        backgroundRepeat: "no-repeat",
-        backgroundPosition: "center bottom",
-        backgroundSize: "cover",
-      }}
-    >
-      <OgWLBanner />
+    <main className="lp-wrap">
+      <section className="lp-inner">
+        <div className="lp-left">
+          <OgWLBanner />
 
-      <section className="hero">
-        <div className="hero-text">
-          <h1 className="mp-title">
-            {PROJECT_NAME}
+          <h1 className="lp-title">
+            MAGAPIXEL
             <br />
             LOCKSCREEN LOCKER
           </h1>
 
-          <p className="mp-sub">
-            Download your {PROJECT_NAME} NFT with a perfectly tuned background —
-            sized for any phone.
+          <p className="lp-sub">
+            Download your MAGAPIXEL NFT with a perfectly tuned background — sized
+            for any phone.
           </p>
 
-          <div className="hero-links">
+          <div className="lp-actions">
             <a
-              href={PROJECT_X_URL}
+              className="lp-btn lp-btn-primary"
+              href="https://x.com/RETROGRAVE_NFT"
               target="_blank"
               rel="noreferrer"
-              className="hero-link primary"
             >
-              FOLLOW {PROJECT_NAME} ON X
+              FOLLOW MAGAPIXEL ON X
             </a>
 
             <a
-              href={PROJECT_DISCORD_URL}
+              className="lp-btn lp-btn-ghost"
+              href="https://discord.gg/mSNHRFdCkS"
               target="_blank"
               rel="noreferrer"
-              className="hero-link"
             >
-              JOIN {PROJECT_NAME} DISCORD
+              JOIN MAGAPIXEL DISCORD
             </a>
           </div>
         </div>
 
-        <div className="hero-phone">
-          <div className="phone-scale">
-            <PhoneShowcase
-              images={PROJECT_DEMO_IMAGES}
-              intervalMs={3000}
-              bg={bg}
-              title=""
-              showHint={false}
-            />
+        <div className="lp-right">
+          {/* ✅ Phone is now 30% smaller and pushed down slightly */}
+          <div className="phone-shell">
+            <PhoneShowcase project="magapixel" />
           </div>
         </div>
       </section>
 
       <style jsx>{`
-        .hero {
-          max-width: 1100px;
-          margin: -64px auto 0; /* ⬅ cancels TopNav spacer */
-          padding: 0 24px 0;
+        .lp-wrap {
+          min-height: 100vh;
+          padding: 18px 18px 80px;
+          padding-top: 64px; /* fixed nav space */
+        }
+
+        .lp-inner {
+          max-width: 1200px;
+          margin: 0 auto;
           display: grid;
           grid-template-columns: 1.05fr 0.95fr;
+          gap: 28px;
           align-items: center;
-          gap: 48px;
         }
 
-        .hero-text {
-          text-align: left;
-        }
-
-        .mp-title {
-          margin: 0 0 14px;
-          font-family: "Oswald", system-ui, sans-serif;
-          font-size: 44px;
-          font-weight: 900;
-          letter-spacing: 0.075em;
-          text-transform: uppercase;
-          color: #ffffff;
-        }
-
-        .mp-sub {
-          font-size: 15px;
-          max-width: 520px;
+        .lp-left {
           color: rgba(255, 255, 255, 0.92);
         }
 
-        .hero-links {
-          display: flex;
-          gap: 0.75rem;
+        .lp-title {
+          margin: 10px 0 10px;
+          font-size: clamp(34px, 4vw, 56px);
+          line-height: 1.02;
+          letter-spacing: 0.04em;
+          font-weight: 800;
+          text-transform: uppercase;
+        }
+
+        .lp-sub {
+          margin: 0;
+          max-width: 520px;
+          opacity: 0.82;
+          font-size: 13px;
+          line-height: 1.6;
+        }
+
+        .lp-actions {
           margin-top: 16px;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
         }
 
-        .hero-link {
-          padding: 0.65rem 1.4rem;
+        .lp-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          height: 36px;
+          padding: 0 14px;
           border-radius: 999px;
-          font-size: 0.8rem;
-          letter-spacing: 0.12em;
-          border: 1px solid rgba(255, 255, 255, 0.35);
           text-decoration: none;
-          color: #fff;
-          background: rgba(0, 0, 0, 0.45);
+          font-size: 12px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          border: 1px solid rgba(255, 255, 255, 0.18);
+          color: rgba(255, 255, 255, 0.9);
+          background: rgba(0, 0, 0, 0.28);
+          backdrop-filter: blur(8px);
         }
 
-        .hero-link.primary {
+        .lp-btn-primary {
           background: rgba(255, 255, 255, 0.9);
-          color: #111;
+          color: rgba(20, 20, 24, 0.92);
+          border: 1px solid rgba(255, 255, 255, 0.65);
         }
 
-        .hero-phone {
+        .lp-btn-ghost:hover,
+        .lp-btn-primary:hover {
+          transform: translateY(-1px);
+        }
+
+        .lp-right {
           display: flex;
           justify-content: center;
         }
 
-        /* 🔥 EXACT MATCH WITH ENCHANTED */
-        .phone-scale {
-          transform: scale(1);
+        /* ✅ This is the only cosmetic change you requested */
+        .phone-shell {
+          transform: scale(0.7); /* ~30% smaller */
           transform-origin: top center;
+          margin-top: 22px; /* push down a bit */
         }
 
-        @media (max-width: 820px) {
-          .hero {
+        @media (max-width: 900px) {
+          .lp-inner {
             grid-template-columns: 1fr;
-            text-align: center;
-            gap: 32px;
+            gap: 18px;
           }
-
-          .hero-links {
+          .lp-right {
             justify-content: center;
+          }
+          .phone-shell {
+            margin-top: 10px;
           }
         }
       `}</style>

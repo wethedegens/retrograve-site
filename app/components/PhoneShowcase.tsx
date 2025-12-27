@@ -1,36 +1,95 @@
 // app/components/PhoneShowcase.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
+type ProjectKey = "magapixel" | "retrograve" | "miners";
 
 type PhoneShowcaseProps = {
-  images: string[];
+  /**
+   * ✅ Backward compatible:
+   * - Old mode: pass images directly
+   * - New mode: pass project / projectKey and we pick defaults
+   */
+  images?: string[];
+
+  /** ✅ New mode (preferred) */
+  projectKey?: ProjectKey;
+
+  /** ✅ Alias for older landing pages you may have */
+  project?: ProjectKey;
+
   intervalMs?: number;
+
+  /** Optional background config (kept as-is) */
   bg?: any; // BgChoice-like
+
   title?: string;
   showHint?: boolean;
+
+  /** Optional sizing tweaks (lets you do "30% smaller" safely) */
+  maxWidthPx?: number; // default 360
+  widthVw?: number; // default 80
 };
 
 export default function PhoneShowcase({
   images,
+  projectKey,
+  project,
   intervalMs = 3000,
   bg,
   title = "How it looks",
   showHint = true,
+  maxWidthPx = 360,
+  widthVw = 80,
 }: PhoneShowcaseProps) {
   const [index, setIndex] = useState(0);
 
+  // ✅ Resolve project key (supports either prop)
+  const resolvedProject: ProjectKey | null = useMemo(() => {
+    const p = (projectKey || project || "").toLowerCase();
+    if (p === "magapixel") return "magapixel";
+    if (p === "retrograve") return "retrograve";
+    if (p === "miners") return "miners";
+    return null;
+  }, [projectKey, project]);
+
+  // ✅ Default images per project (uses files you already have in /public)
+  const resolvedImages: string[] = useMemo(() => {
+    if (Array.isArray(images) && images.length > 0) return images;
+
+    if (resolvedProject === "magapixel") {
+      return ["/lockscreened-previews/magapixel.png"];
+    }
+
+    if (resolvedProject === "retrograve") {
+      return ["/lockscreened-previews/retrograve.png"];
+    }
+
+    if (resolvedProject === "miners") {
+      return ["/lockscreened-previews/miners.png"];
+    }
+
+    return [];
+  }, [images, resolvedProject]);
+
   useEffect(() => {
-    if (!images || images.length === 0) return;
+    // reset index when images change
+    setIndex(0);
+  }, [resolvedImages.join("|")]);
+
+  useEffect(() => {
+    if (!resolvedImages || resolvedImages.length === 0) return;
 
     const id = window.setInterval(() => {
-      setIndex((i) => (i + 1) % images.length);
+      setIndex((i) => (i + 1) % resolvedImages.length);
     }, intervalMs);
 
     return () => window.clearInterval(id);
-  }, [images, intervalMs]);
+  }, [resolvedImages, intervalMs]);
 
-  const current = images && images.length > 0 ? images[index] : null;
+  const current =
+    resolvedImages && resolvedImages.length > 0 ? resolvedImages[index] : null;
 
   // ✅ Correct BgChoice handling:
   // - image backgrounds use bg.image
@@ -64,7 +123,7 @@ export default function PhoneShowcase({
         <div
           style={{
             position: "relative",
-            width: "min(360px, 80vw)",
+            width: `min(${maxWidthPx}px, ${widthVw}vw)`,
             aspectRatio: "9 / 19.5",
             borderRadius: 26,
             overflow: "hidden",
