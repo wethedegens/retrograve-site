@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import NftGrid, { type NFT } from "../components/NftGrid";
 
-// ✅ Put your real Enchanted Miners collection address here
+// ✅ Enchanted Miners collection address
 const MINERS_COLLECTION = "GzhXjRxLXWkzW6vDVyHgbYmqW75xrfh4WvgVKQ8XA1su";
 
 // Optional creator fallback (leave empty if you don’t need it)
@@ -67,7 +67,6 @@ export default function EnchantedMinersPage() {
   const owner = publicKey?.toBase58() || "";
   const isConnected = !!owner;
 
-  // ====== Grid state (only used when connected) ======
   const [all, setAll] = useState<NFT[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -122,7 +121,7 @@ export default function EnchantedMinersPage() {
     return (all as any[]).filter(isMinerNft) as unknown as NFT[];
   }, [all]);
 
-  // ====== NOT CONNECTED: LANDING PAGE ======
+  // ===== NOT CONNECTED: Landing =====
   if (!isConnected) {
     return (
       <main
@@ -145,33 +144,12 @@ export default function EnchantedMinersPage() {
             Connect your wallet to view your Miners and export perfect phone lock
             screens.
           </p>
-
-          <div style={{ height: 18 }} />
-
-          <div
-            style={{
-              width: "min(420px, 92vw)",
-              aspectRatio: "9 / 19.5",
-              borderRadius: 26,
-              overflow: "hidden",
-              boxShadow: "0 18px 44px rgba(0,0,0,0.45)",
-              background: "rgba(0,0,0,0.15)",
-              display: "grid",
-              placeItems: "center",
-            }}
-          >
-            <img
-              src="/enchanted-miners-preview.png"
-              alt="Enchanted Miners preview"
-              style={{ width: "100%", height: "100%", objectFit: "contain" }}
-            />
-          </div>
         </section>
       </main>
     );
   }
 
-  // ====== CONNECTED: OWNER GRID ======
+  // ===== CONNECTED: Owner Grid =====
   return (
     <main style={{ padding: "18px 0 80px" }}>
       <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 18px" }}>
