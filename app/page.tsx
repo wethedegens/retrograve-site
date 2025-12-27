@@ -43,6 +43,7 @@ const PROJECTS: LockerProject[] = [
     name: "Enchanted Miners",
     status: "live",
     label: "Live",
+    // ✅ THIS MUST GO TO THE MINERS HOME PAGE (NOT THE GRID)
     lockerPath: "/enchanted-miners",
     glow: "miners",
     preview: "/lockscreened-previews/miners.png",
@@ -125,30 +126,44 @@ export default function HomePage() {
         <div className="phone-grid">
           {PROJECTS.map((p) => {
             const isDisabled = p.status === "coming" || p.lockerPath === "#";
-            const Tag = isDisabled ? "div" : Link;
-
-            const linkProps = isDisabled
-              ? {}
-              : {
-                  href: p.lockerPath,
-                };
 
             const inner = (
-              <div className={`phone-frame glow-${p.glow}`}>
+              <div
+                className={`phone-frame glow-${p.glow}`}
+                // ✅ extra safety: if anything inside gets weird, force route
+                onClick={(e) => {
+                  if (isDisabled) return;
+                  // If a nested element tries to hijack click, this keeps it consistent
+                  e.preventDefault();
+                  window.location.href = p.lockerPath;
+                }}
+                role={isDisabled ? undefined : "button"}
+                tabIndex={isDisabled ? -1 : 0}
+                onKeyDown={(e) => {
+                  if (isDisabled) return;
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    window.location.href = p.lockerPath;
+                  }
+                }}
+              >
                 <div className="phone-pill">
                   <span className="pill-text">
                     {p.status === "live" ? "LIVE" : "COMING SOON"}
                   </span>
                 </div>
+
                 <div className="phone-screen">
                   {p.preview && (
                     <img
                       src={p.preview}
                       alt={`${p.name} preview`}
                       className="phone-preview"
+                      draggable={false}
                     />
                   )}
                 </div>
+
                 <div className="phone-name">{p.name}</div>
                 <div className="phone-status">
                   {p.status === "live" ? "Live" : "Coming soon"}
@@ -168,10 +183,11 @@ export default function HomePage() {
               );
             }
 
+            // ✅ still keep Link for proper Next routing, but inner onClick is a failsafe
             return (
-              <Tag key={p.name} {...(linkProps as any)} className="phone-link">
+              <Link key={p.name} href={p.lockerPath} className="phone-link">
                 {inner}
-              </Tag>
+              </Link>
             );
           })}
         </div>
@@ -189,6 +205,7 @@ export default function HomePage() {
               wallet to view eligible NFTs from that collection.
             </p>
           </article>
+
           <article className="how-card">
             <div className="how-step">2</div>
             <h3 className="how-title">Swap backgrounds in real time</h3>
@@ -197,6 +214,7 @@ export default function HomePage() {
               upload your own. Everything renders at exact device pixels.
             </p>
           </article>
+
           <article className="how-card">
             <div className="how-step">3</div>
             <h3 className="how-title">Export for phone, tablet, or desktop</h3>
@@ -242,7 +260,6 @@ export default function HomePage() {
       <style jsx>{`
         .ls-page {
           min-height: 100vh;
-          /* no top padding so content starts as high as possible */
           padding: 0 16px 72px;
           display: flex;
           flex-direction: column;
@@ -277,7 +294,6 @@ export default function HomePage() {
         }
 
         .ls-hero {
-          /* pull hero up so it visually lines with floating logo */
           margin-top: -18px;
           max-width: 820px;
           text-align: center;
@@ -294,10 +310,6 @@ export default function HomePage() {
           font-size: 16px;
           line-height: 1.6;
           color: #1e1e24;
-        }
-
-        .ls-subtitle + .ls-subtitle {
-          margin-top: 2px;
         }
 
         .ls-body {
@@ -386,6 +398,7 @@ export default function HomePage() {
           justify-items: center;
           margin-top: 12px;
         }
+
         .phone-link {
           text-decoration: none;
           color: inherit;
@@ -414,6 +427,7 @@ export default function HomePage() {
           flex-direction: column;
           align-items: center;
           gap: 10px;
+          cursor: pointer;
         }
 
         .phone-screen {
@@ -436,6 +450,8 @@ export default function HomePage() {
           object-fit: cover;
           object-position: bottom;
           display: block;
+          user-select: none;
+          pointer-events: none; /* ✅ prevents image from hijacking click */
         }
 
         .phone-pill {
