@@ -1,84 +1,89 @@
-// app/components/TopNav.tsx
 "use client";
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
-type ActiveMode = "exact" | "starts";
-type NavItem =
-  | { type: "link"; label: string; href: string; active?: ActiveMode }
-  | { type: "a"; label: string; href: string };
-
-function safeLower(s: string | null | undefined) {
-  return (s || "").trim().toLowerCase();
-}
-
 export default function TopNav() {
-  const path = usePathname() || "";
+  const path = usePathname();
   const sp = useSearchParams();
 
-  const projectFromLockerPath = useMemo(() => {
-    if (!path.startsWith("/locker/")) return "";
-    const parts = path.split("/").filter(Boolean);
-    return safeLower(parts[1] || "");
-  }, [path]);
-
-  const [project, setProject] = useState<string>("");
+  // ✅ Fallback: read query params from window after mount
+  const [projectFromWindow, setProjectFromWindow] = useState("");
 
   useEffect(() => {
-    const fromSp = safeLower(sp.get("project"));
-
-    let fromWindow = "";
     try {
-      const u = new URL(window.location.href);
-      fromWindow = safeLower(u.searchParams.get("project"));
-    } catch {}
+      const qs = new URLSearchParams(window.location.search);
+      setProjectFromWindow((qs.get("project") || "").toLowerCase());
+    } catch {
+      setProjectFromWindow("");
+    }
+    // rerun when search params change
+  }, [sp]);
 
-    setProject(fromSp || fromWindow || projectFromLockerPath || "");
-  }, [sp, projectFromLockerPath]);
+  const project = useMemo(() => {
+    const p1 = (sp.get("project") || "").toLowerCase();
+    const p2 = (projectFromWindow || "").toLowerCase();
+    return p1 || p2;
+  }, [sp, projectFromWindow]);
+
+  // Treat BOTH /enchanted-miners/* and /my-miners as Enchanted Miners pages
+  // Also support /locker?project=miners
+  const isMiners =
+    path.startsWith("/enchanted-miners") ||
+    path.startsWith("/my-miners") ||
+    (path.startsWith("/locker") && project === "miners");
+
+  // MAGApixel pages
+  // Also support /locker?project=magapixel
+  const isMagapixel =
+    path.startsWith("/locker/magapixel") ||
+    path.startsWith("/magapixel-nfts") ||
+    (path.startsWith("/locker") && project === "magapixel");
+
+  // RetroGrave pages
+  const isRetrograve = path.startsWith("/retrograve") || path.startsWith("/retrogs");
 
   const isActiveExact = (href: string) => path === href;
   const isActiveStarts = (href: string) => path === href || path.startsWith(href + "/");
 
-  const INTERNAL: NavItem[] = [
-    { type: "link", label: "HOME", href: "/", active: "exact" },
-    { type: "link", label: "MY MAGAPIXELS", href: "/magapixel-nfts", active: "exact" },
-    { type: "link", label: "MY MINERS", href: "/my-miners", active: "exact" },
-    { type: "link", label: "MY RETROGRAVES", href: "/retrograve", active: "starts" },
-  ];
+  // Shared fixed-bar styles
+  const FixedBar = ({
+    barColor,
+    textColor,
+    links,
+  }: {
+    barColor: string;
+    textColor: string;
+    links: Array<
+      | { type: "link"; label: string; href: string; active?: "exact" | "starts" }
+      | { type: "a"; label: string; href: string }
+    >;
+  }) => {
+    const baseLinkStyle = {
+      fontSize: "16px",
+      color: textColor,
+      textDecoration: "none" as const,
+      opacity: 0.9,
+      letterSpacing: "0.06em",
+      fontFamily: "VT323, monospace",
+    };
 
-  const baseLinkStyle = {
-    fontSize: "16px",
-    color: "#ffffff",
-    textDecoration: "none" as const,
-    opacity: 0.95,
-    letterSpacing: "0.08em",
-    whiteSpace: "nowrap" as const,
-    fontFamily: "VT323, monospace",
-  };
+    const activeLinkStyle = {
+      ...baseLinkStyle,
+      textDecoration: "underline" as const,
+      textDecorationThickness: "2px",
+      textUnderlineOffset: "4px",
+      opacity: 1,
+    };
 
-  const activeLinkStyle = {
-    ...baseLinkStyle,
-    textDecoration: "underline" as const,
-    textDecorationThickness: "2px",
-    textUnderlineOffset: "4px",
-    opacity: 1,
-  };
+    const pickStyle = (href: string, mode?: "exact" | "starts") => {
+      if (!mode) return baseLinkStyle;
+      const active = mode === "exact" ? isActiveExact(href) : isActiveStarts(href);
+      return active ? activeLinkStyle : baseLinkStyle;
+    };
 
-  const styleFor = (item: NavItem) => {
-    if (item.type !== "link") return baseLinkStyle;
-    const mode = item.active;
-    const active = mode
-      ? mode === "exact"
-        ? isActiveExact(item.href)
-        : isActiveStarts(item.href)
-      : false;
-    return active ? activeLinkStyle : baseLinkStyle;
-  };
-
-  return (
-    <>
+    return (
       <nav
         style={{
           position: "fixed",
@@ -86,46 +91,108 @@ export default function TopNav() {
           left: 0,
           width: "100%",
           height: "64px",
-
-          // ✅ IMPOSSIBLE TO MISS (TEMP)
-          background: "linear-gradient(90deg, #00ff9d, #00a3ff, #b400ff)",
-
+          backgroundColor: barColor,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          gap: "22px",
-          padding: "0 14px",
-          zIndex: 9999,
-          borderBottom: "none",
+          gap: "32px",
+          zIndex: 50,
         }}
       >
-        {INTERNAL.map((l) => (
-          <Link key={l.label} href={l.href} style={styleFor(l)}>
-            {l.label}
-          </Link>
-        ))}
-      </nav>
+        {links.map((l) => {
+          if (l.type === "link") {
+            return (
+              <Link key={l.label} href={l.href} style={pickStyle(l.href, l.active)}>
+                {l.label}
+              </Link>
+            );
+          }
 
-      {/* ✅ DEBUG LINE — TEMP */}
-      <div
-        style={{
-          position: "fixed",
-          top: 64,
-          left: 0,
-          width: "100%",
-          zIndex: 9999,
-          fontSize: 12,
-          fontFamily: "VT323, monospace",
-          letterSpacing: "0.08em",
-          color: "#fff",
-          background: "rgba(0,0,0,0.55)",
-          padding: "4px 10px",
-          textAlign: "center",
-          pointerEvents: "none",
-        }}
-      >
-        DEBUG NAV • path: {path} • project: {project || "(none)"}
-      </div>
-    </>
+          return (
+            <a
+              key={l.label}
+              href={l.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={baseLinkStyle}
+            >
+              {l.label}
+            </a>
+          );
+        })}
+      </nav>
+    );
+  };
+
+  /* =========================================================
+     1) ENCHANTED MINERS NAV
+     ========================================================= */
+  if (isMiners) {
+    return (
+      <FixedBar
+        barColor="#1f3d2b"
+        textColor="#ffffff"
+        links={[
+          { type: "link", label: "HOME", href: "/", active: "exact" },
+          { type: "link", label: "MY MINERS", href: "/my-miners", active: "exact" },
+          { type: "a", label: "COMMUNITY", href: "https://discord.gg/C5MfNP7hek" },
+          {
+            type: "a",
+            label: "COLLECT NOW",
+            href: "https://magiceden.us/marketplace/enchanted_miner",
+          },
+          { type: "a", label: "FOLLOW ON X", href: "https://x.com/enchanted_nfts" },
+        ]}
+      />
+    );
+  }
+
+  /* =========================================================
+     2) MAGAPIXEL NAV
+     ========================================================= */
+  if (isMagapixel) {
+    return (
+      <FixedBar
+        barColor="#af232a"
+        textColor="#ffffff"
+        links={[
+          { type: "link", label: "HOME", href: "/", active: "exact" },
+          { type: "link", label: "MY MAGAPIXELS", href: "/magapixel-nfts", active: "exact" },
+          { type: "a", label: "COMMUNITY", href: "https://discord.gg/ZVGtHUpHfb" },
+          { type: "a", label: "COLLECT NOW", href: "https://magiceden.us/marketplace/magapixel" },
+          { type: "a", label: "FOLLOW ON X", href: "https://x.com/MAGApixel_NFT" },
+        ]}
+      />
+    );
+  }
+
+  /* =========================================================
+     3) RETROGRAVE NAV
+     ========================================================= */
+  if (isRetrograve) {
+    return (
+      <FixedBar
+        barColor="#0b0b0f"
+        textColor="#ffffff"
+        links={[
+          { type: "link", label: "HOME", href: "/", active: "exact" },
+          { type: "link", label: "MY RETROGRAVES", href: "/retrograve", active: "starts" },
+          { type: "a", label: "COMMUNITY", href: "https://discord.gg/mSNHRFdCkS" },
+          { type: "a", label: "COLLECT NOW", href: "https://magiceden.io" },
+          { type: "a", label: "FOLLOW ON X", href: "https://x.com/RETROGRAVE_NFT" },
+        ]}
+      />
+    );
+  }
+
+  /* =========================================================
+     4) DEFAULT
+     ========================================================= */
+  return (
+    <FixedBar
+      barColor="#0b0b0f"
+      textColor="#ffffff"
+      links={[{ type: "link", label: "HOME", href: "/", active: "exact" }]}
+    />
   );
 }
