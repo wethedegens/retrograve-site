@@ -57,7 +57,7 @@ function LockerInner() {
   const [hint, setHint] = useState<null | string>(null);
 
   // where "back" should send people if history.back() isn't available
-  const gridHref = project === "miners" ? "/my-miners" : "/retrogs";
+  const gridHref = project === "miners" ? "/my-miners" : "/magapixel-nfts";
 
   // keep bg in sync with initialBg when it changes
   useEffect(() => {
