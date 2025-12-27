@@ -1,4 +1,3 @@
-// app/components/TopNav.tsx
 "use client";
 
 import FixedBar from "./Header";
@@ -21,16 +20,13 @@ type NavLink =
     };
 
 export default function TopNav({ project }: { project: TopNavProject }) {
-  const baseLinks: NavLink[] = [
-    { type: "link", label: "HOME", href: "/", active: "exact" },
-  ];
+  const baseLinks: NavLink[] = [{ type: "link", label: "HOME", href: "/", active: "exact" }];
 
-  // ✅ MINERS NAV
   if (project === "miners") {
     const links: NavLink[] = [
       ...baseLinks,
-      // ✅ point to the LANDING page (not the grid)
-      { type: "link", label: "MY MINERS", href: "/my-miners", active: "starts" },
+      // ✅ miners grid page
+      { type: "link", label: "MY MINERS", href: "/enchanted-miners-nfts", active: "starts" },
       {
         type: "a",
         label: "COMMUNITY",
@@ -57,7 +53,6 @@ export default function TopNav({ project }: { project: TopNavProject }) {
     return <FixedBar links={links as any} />;
   }
 
-  // ✅ MAGAPIXEL NAV
   if (project === "magapixel") {
     const links: NavLink[] = [
       ...baseLinks,
@@ -88,7 +83,6 @@ export default function TopNav({ project }: { project: TopNavProject }) {
     return <FixedBar links={links as any} />;
   }
 
-  // ✅ RETROGRAVE DEFAULT NAV
   const links: NavLink[] = [
     ...baseLinks,
     { type: "link", label: "MY RETROGRAVES", href: "/retrograve", active: "starts" },
