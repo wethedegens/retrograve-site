@@ -3,97 +3,47 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-type ProjectKey = "magapixel" | "retrograve" | "miners";
-
 type PhoneShowcaseProps = {
-  /**
-   * ✅ Backward compatible:
-   * - Old mode: pass images directly
-   * - New mode: pass project / projectKey and we pick defaults
-   */
-  images?: string[];
-
-  /** ✅ New mode (preferred) */
-  projectKey?: ProjectKey;
-
-  /** ✅ Alias for older landing pages you may have */
-  project?: ProjectKey;
-
+  images: string[];
   intervalMs?: number;
-
-  /** Optional background config (kept as-is) */
   bg?: any; // BgChoice-like
-
   title?: string;
   showHint?: boolean;
 
-  /** Optional sizing tweaks (lets you do "30% smaller" safely) */
-  maxWidthPx?: number; // default 360
-  widthVw?: number; // default 80
+  // ✅ NEW: cover fills the phone, contain letterboxes
+  fit?: "cover" | "contain";
 };
 
 export default function PhoneShowcase({
   images,
-  projectKey,
-  project,
   intervalMs = 3000,
   bg,
   title = "How it looks",
   showHint = true,
-  maxWidthPx = 360,
-  widthVw = 80,
+  fit = "cover",
 }: PhoneShowcaseProps) {
+  const safeImages = useMemo(() => (Array.isArray(images) ? images : []), [images]);
   const [index, setIndex] = useState(0);
 
-  // ✅ Resolve project key (supports either prop)
-  const resolvedProject: ProjectKey | null = useMemo(() => {
-    const p = (projectKey || project || "").toLowerCase();
-    if (p === "magapixel") return "magapixel";
-    if (p === "retrograve") return "retrograve";
-    if (p === "miners") return "miners";
-    return null;
-  }, [projectKey, project]);
-
-  // ✅ Default images per project (uses files you already have in /public)
-  const resolvedImages: string[] = useMemo(() => {
-    if (Array.isArray(images) && images.length > 0) return images;
-
-    if (resolvedProject === "magapixel") {
-      return ["/lockscreened-previews/magapixel.png"];
-    }
-
-    if (resolvedProject === "retrograve") {
-      return ["/lockscreened-previews/retrograve.png"];
-    }
-
-    if (resolvedProject === "miners") {
-      return ["/lockscreened-previews/miners.png"];
-    }
-
-    return [];
-  }, [images, resolvedProject]);
-
+  // Reset index if images change
   useEffect(() => {
-    // reset index when images change
     setIndex(0);
-  }, [resolvedImages.join("|")]);
+  }, [safeImages.length]);
 
+  // ✅ Auto-cycle only when there are 2+ images
   useEffect(() => {
-    if (!resolvedImages || resolvedImages.length === 0) return;
+    if (!safeImages || safeImages.length <= 1) return;
 
     const id = window.setInterval(() => {
-      setIndex((i) => (i + 1) % resolvedImages.length);
+      setIndex((i) => (i + 1) % safeImages.length);
     }, intervalMs);
 
     return () => window.clearInterval(id);
-  }, [resolvedImages, intervalMs]);
+  }, [safeImages, intervalMs]);
 
-  const current =
-    resolvedImages && resolvedImages.length > 0 ? resolvedImages[index] : null;
+  const current = safeImages.length > 0 ? safeImages[index] : null;
 
-  // ✅ Correct BgChoice handling:
-  // - image backgrounds use bg.image
-  // - color backgrounds use bg.value
+  // ✅ BgChoice handling
   const bgStyle =
     bg && bg.kind === "image" && bg.image
       ? {
@@ -109,21 +59,23 @@ export default function PhoneShowcase({
         };
 
   return (
-    <section style={{ padding: "32px 0" }}>
-      <div style={{ textAlign: "center", marginBottom: 16 }}>
-        <h2 style={{ fontSize: 20, margin: 0 }}>{title}</h2>
-        {showHint && (
-          <p style={{ fontSize: 13, opacity: 0.7, marginTop: 4 }}>
-            Preview cycling through a few examples.
-          </p>
-        )}
-      </div>
+    <section style={{ padding: 0 }}>
+      {title ? (
+        <div style={{ textAlign: "center", marginBottom: 16 }}>
+          <h2 style={{ fontSize: 20, margin: 0 }}>{title}</h2>
+          {showHint && safeImages.length > 1 ? (
+            <p style={{ fontSize: 13, opacity: 0.7, marginTop: 4 }}>
+              Preview cycling through a few examples.
+            </p>
+          ) : null}
+        </div>
+      ) : null}
 
       <div style={{ display: "flex", justifyContent: "center" }}>
         <div
           style={{
             position: "relative",
-            width: `min(${maxWidthPx}px, ${widthVw}vw)`,
+            width: "min(360px, 80vw)",
             aspectRatio: "9 / 19.5",
             borderRadius: 26,
             overflow: "hidden",
@@ -132,14 +84,16 @@ export default function PhoneShowcase({
           }}
         >
           {current ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={current}
               alt="Lock screen preview"
               style={{
                 width: "100%",
                 height: "100%",
-                objectFit: "contain",
+                objectFit: fit, // ✅ cover fills the phone
                 imageRendering: "pixelated",
+                display: "block",
               }}
             />
           ) : (

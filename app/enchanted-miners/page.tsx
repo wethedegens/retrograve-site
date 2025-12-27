@@ -5,9 +5,13 @@ import Link from "next/link";
 import PhoneShowcase from "../components/PhoneShowcase";
 
 export default function EnchantedMinersLandingPage() {
-  // ✅ Use an existing image you already have in /public
-  // This is just a preview image for the PHONE on the landing page
-  const previewImages = ["/lockscreened-previews/miners.png"];
+  // ✅ Your real demo images in /public/demo/
+  const previewImages = [
+    "/demo/enchanted-1.png",
+    "/demo/enchanted-2.png",
+    "/demo/enchanted-3.png",
+    "/demo/enchanted-4.png",
+  ];
 
   return (
     <main className="lp-wrap">
@@ -20,54 +24,26 @@ export default function EnchantedMinersLandingPage() {
           <p className="lp-copy">
             Phone-native wallpapers for Enchanted Miners.
             <br />
-            Connect your wallet, pick a Miner, swap backgrounds, and export for any device.
+            Connect your wallet, pick a Miner, swap backgrounds, and export for
+            any device.
           </p>
 
           <div className="lp-actions">
-            {/* ✅ “Enter” should go to the GRID page (your miners NFT picker) */}
             <Link className="lp-btn lp-btn-primary" href="/enchanted-miners-nfts">
               ENTER (VIEW MY MINERS)
             </Link>
-
-            <a
-              className="lp-btn lp-btn-ghost"
-              href="https://discord.gg/mSNHRFdCkS"
-              target="_blank"
-              rel="noreferrer"
-            >
-              COMMUNITY
-            </a>
-
-            <a
-              className="lp-btn lp-btn-ghost"
-              href="https://magiceden.io"
-              target="_blank"
-              rel="noreferrer"
-            >
-              COLLECT NOW
-            </a>
-
-            <a
-              className="lp-btn lp-btn-ghost"
-              href="https://x.com/RETROGRAVE_NFT"
-              target="_blank"
-              rel="noreferrer"
-            >
-              FOLLOW ON X
-            </a>
           </div>
         </div>
 
         {/* RIGHT */}
         <div className="lp-right">
-          {/* ✅ Phone smaller + slightly pushed down like the “old” look */}
           <div className="phone-shell">
             <PhoneShowcase
               images={previewImages}
-              intervalMs={3500}
+              intervalMs={3000}
               title=""
               showHint={false}
-              // optional background behind the preview inside the phone
+              fit="cover"
               bg={{ kind: "color", value: "#6a2cff" }}
             />
           </div>
@@ -160,7 +136,6 @@ export default function EnchantedMinersLandingPage() {
           border: 1px solid rgba(20, 35, 24, 0.9);
         }
 
-        .lp-btn-ghost:hover,
         .lp-btn-primary:hover {
           transform: translateY(-1px);
         }
@@ -170,9 +145,9 @@ export default function EnchantedMinersLandingPage() {
           justify-content: center;
         }
 
-        /* ✅ This is the key: “old look” = smaller phone + pushed down */
+        /* ✅ same sizing/positioning as magapixel */
         .phone-shell {
-          transform: translateY(22px) scale(0.7); /* ~30% smaller */
+          transform: translateY(22px) scale(0.7);
           transform-origin: top center;
           filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.22));
         }
