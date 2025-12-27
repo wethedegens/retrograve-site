@@ -1,31 +1,24 @@
-// app/components/TopNavWrapper.tsx
 "use client";
 
 import { useMemo } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import TopNav from "./TopNav";
 
-/**
- * TopNavWrapper
- * - Detects which "project context" we are in based on:
- *   1) locker query param ?project=
- *   2) pathname prefixes
- * - Then tells <TopNav /> which internal link to show.
- */
+export type TopNavProject = "retrograve" | "magapixel" | "miners";
+
 export default function TopNavWrapper() {
-  const pathname = usePathname() || "";
+  const pathname = usePathname() || "/";
   const sp = useSearchParams();
 
-  const project = useMemo<"miners" | "magapixel" | "retrograve">(() => {
-    // 1) URL query override (locker pages)
-    const q = (sp?.get("project") || "").toLowerCase();
-    if (q === "miners" || q === "enchanted-miners") return "miners";
-    if (q === "magapixel" || q === "maga" || q === "magapixels")
-      return "magapixel";
-    if (q === "retrograve" || q === "retrogs") return "retrograve";
+  const project = useMemo<TopNavProject>(() => {
+    const qp = (sp?.get("project") || "").toLowerCase();
 
-    // 2) Pathname detection (non-locker pages)
-    // Miners routes
+    // ✅ If URL explicitly says project=mines/miners, trust it.
+    if (qp === "miners" || qp === "mines") return "miners";
+    if (qp === "magapixel" || qp === "maga") return "magapixel";
+    if (qp === "retrograve" || qp === "retro") return "retrograve";
+
+    // ✅ Miners routes
     if (
       pathname.startsWith("/enchanted-miners") ||
       pathname.startsWith("/my-miners")
@@ -33,24 +26,26 @@ export default function TopNavWrapper() {
       return "miners";
     }
 
-    // MAGApixel routes
+    // ✅ Magapixel routes
     if (
       pathname.startsWith("/locker/magapixel") ||
-      pathname.startsWith("/magapixel-nfts")
+      pathname.startsWith("/magapixel-nfts") ||
+      pathname.startsWith("/magapixel")
     ) {
       return "magapixel";
     }
 
-    // RetroGrave routes
-    if (pathname.startsWith("/retrogs") || pathname.startsWith("/retrograve")) {
+    // ✅ RetroGrave routes
+    if (pathname.startsWith("/retrograve") || pathname.startsWith("/retrogs")) {
       return "retrograve";
     }
 
-    // 3) Locker base route fallback:
-    // If you're on /locker with no ?project=, default to magapixel (your current behavior).
+    // ✅ Special case: base /locker page with query mint/uri (your composer route)
+    // If it starts with /locker and no project param, keep your current behavior:
+    // default to magapixel.
     if (pathname.startsWith("/locker")) return "magapixel";
 
-    // 4) Default site identity
+    // Default site identity
     return "retrograve";
   }, [pathname, sp]);
 

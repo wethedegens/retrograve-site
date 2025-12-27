@@ -1,20 +1,41 @@
-// app/components/TopNav.tsx
-"use client";
+import FixedBar, { type NavLink } from "./Header";
+import type { TopNavProject } from "./TopNavWrapper";
 
-import FixedBar from "./TopNavWrapper"; // if your FixedBar is actually in another file, keep your original import
-// ^ If this line is wrong in your project, keep whatever import you already had for FixedBar.
+export default function TopNav({ project }: { project: TopNavProject }) {
+  const baseLinks: NavLink[] = [{ type: "link", label: "HOME", href: "/", active: "exact" }];
 
-type NavLink =
-  | { type: "link"; label: string; href: string; active?: "exact" | "starts" }
-  | { type: "a"; label: string; href: string };
+  // ===== MINERS NAV =====
+  if (project === "miners") {
+    const links: NavLink[] = [
+      ...baseLinks,
+      { type: "link", label: "MY MINERS", href: "/enchanted-miners", active: "starts" },
+      { type: "a", label: "COMMUNITY", href: "https://discord.gg/mSNHRFdCkS" },
+      { type: "a", label: "COLLECT NOW", href: "https://magiceden.io" },
+      { type: "a", label: "FOLLOW ON X", href: "https://x.com/RETROGRAVE_NFT" },
+    ];
 
-export default function TopNav() {
-  // ✅ Always keep internal links correct
+    return <FixedBar barColor="#0b0b0f" textColor="#ffffff" links={links} />;
+  }
+
+  // ===== MAGAPIXEL NAV =====
+  if (project === "magapixel") {
+    const links: NavLink[] = [
+      ...baseLinks,
+      { type: "link", label: "MY MAGAPIXELS", href: "/magapixel-nfts", active: "starts" },
+      { type: "a", label: "COMMUNITY", href: "https://discord.gg/mSNHRFdCkS" },
+      { type: "a", label: "COLLECT NOW", href: "https://magiceden.io" },
+      { type: "a", label: "FOLLOW ON X", href: "https://x.com/RETROGRAVE_NFT" },
+    ];
+
+    return <FixedBar barColor="#0b0b0f" textColor="#ffffff" links={links} />;
+  }
+
+  // ===== RETROGRAVE NAV (DEFAULT) =====
   const links: NavLink[] = [
-    { type: "link", label: "HOME", href: "/", active: "exact" },
-    { type: "link", label: "MY MINERS", href: "/enchanted-miners", active: "starts" },
+    ...baseLinks,
+    { type: "link", label: "MY RETROGRAVES", href: "/retrograve", active: "starts" },
     { type: "a", label: "COMMUNITY", href: "https://discord.gg/mSNHRFdCkS" },
-    { type: "link", label: "COLLECT NOW", href: "/collect", active: "starts" },
+    { type: "a", label: "COLLECT NOW", href: "https://magiceden.io" },
     { type: "a", label: "FOLLOW ON X", href: "https://x.com/RETROGRAVE_NFT" },
   ];
 
