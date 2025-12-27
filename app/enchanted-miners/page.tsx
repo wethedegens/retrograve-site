@@ -4,9 +4,10 @@
 import { useEffect, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useRouter } from "next/navigation";
-import NftGrid, { type NFT } from "../components/NftGrid";
+import NftGrid, { NFT } from "../components/NftGrid";
 
 const ENCHANTED_MINERS_COLLECTION = "GzhXjRxLXWkzW6vDVyHgbYmqW75xrfh4WvgVKQ8XA1su";
+const ENCHANTED_MINERS_BG_IMAGE = "/enchanted-miners-bg.png";
 
 export default function EnchantedMinersPage() {
   const { publicKey } = useWallet();
@@ -36,39 +37,66 @@ export default function EnchantedMinersPage() {
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             owner,
+            // ✅ send both keys for compatibility (API uses `collection`, but this doesn't hurt)
             collection: ENCHANTED_MINERS_COLLECTION,
+            collectionId: ENCHANTED_MINERS_COLLECTION,
           }),
           cache: "no-store",
         });
 
+        const data = await r.json().catch(() => null);
+
         if (!r.ok) {
-          const msg = await r.text().catch(() => String(r.status));
+          const msg =
+            (data && (data.error || data.message)) ||
+            (typeof data === "string" ? data : "") ||
+            `Request failed (${r.status})`;
           throw new Error(msg);
         }
 
-        const data = await r.json();
-        if (!cancelled) setMiners(Array.isArray(data) ? data : []);
+        // ✅ IMPORTANT: API returns { nfts }, not an array
+        const list: NFT[] = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.nfts)
+          ? data.nfts
+          : [];
+
+        if (!cancelled) {
+          setMiners(list);
+        }
       } catch (e: any) {
-        if (!cancelled) setError(e?.message || "Failed to load miners");
+        if (!cancelled) {
+          setError(e?.message || "Failed to load miners");
+          setMiners([]);
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
     }
 
     loadMiners();
+
     return () => {
       cancelled = true;
     };
   }, [publicKey]);
 
-  function handlePick(n: NFT) {
-    // ✅ Option A: send into the main locker by mint id
-    // (if you’d rather do nothing for now, replace this with: return;)
-    router.push(`/locker?mint=${encodeURIComponent(n.id)}`);
-  }
-
   return (
-    <main style={{ padding: "18px 0 80px", marginTop: 64 }}>
+    <main
+      className="miners-wrapper"
+      style={{
+        minHeight: "100vh",
+        padding: "18px 0 80px",
+        marginTop: 64,
+
+        // ✅ Keep miners page background independent from RetroGrave
+        backgroundImage: `url(${ENCHANTED_MINERS_BG_IMAGE})`,
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center center",
+        backgroundSize: "cover",
+        backgroundAttachment: "fixed",
+      }}
+    >
       <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 18px" }}>
         <h1 style={{ margin: "8px 0", fontSize: 28, letterSpacing: "0.04em" }}>
           MY MINERS
@@ -80,15 +108,29 @@ export default function EnchantedMinersPage() {
 
         <div style={{ height: 16 }} />
 
-        {loading && <p style={{ opacity: 0.85 }}>Loading…</p>}
-        {error && <p style={{ opacity: 0.9, color: "#ffb3b3" }}>{error}</p>}
+        {loading && <p style={{ opacity: 0.85 }}>Loading...</p>}
+
+        {error && (
+          <p style={{ opacity: 0.9, color: "#ffb3b3" }}>
+            {error}
+          </p>
+        )}
 
         {!loading && !error && miners.length === 0 && (
           <p style={{ opacity: 0.85 }}>No Enchanted Miners found.</p>
         )}
 
         {!loading && !error && miners.length > 0 && (
-          <NftGrid nfts={miners} onPick={handlePick} />
+          <NftGrid
+            nfts={miners}
+            // ✅ required by your NftGrid props
+            onPick={(nft) => {
+              // Send to the existing locker page
+              const mint = nft.id || "";
+              const uri = nft.uri ? encodeURIComponent(nft.uri) : "";
+              router.push(`/locker?mint=${mint}${uri ? `&uri=${uri}` : ""}`);
+            }}
+          />
         )}
       </section>
     </main>
