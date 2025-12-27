@@ -14,15 +14,9 @@ export type NavLink = {
 
 export type FixedBarProps = {
   links: NavLink[];
-  barColor?: string;
-  textColor?: string;
 };
 
-export function FixedBar({
-  links,
-  barColor = "rgba(0,0,0,0.65)",
-  textColor = "#ffffff",
-}: FixedBarProps) {
+export function FixedBar({ links }: FixedBarProps) {
   const pathname = usePathname();
 
   function isActive(l: NavLink) {
@@ -43,11 +37,14 @@ export function FixedBar({
         height: 64,
         zIndex: 50,
 
-        // ✅ more like your old look
-        backgroundColor: barColor,
+        // ✅ closer to your original bar
+        backgroundColor: "rgba(0,0,0,0.55)",
         backdropFilter: "blur(10px)",
         WebkitBackdropFilter: "blur(10px)",
-        borderBottom: "1px solid rgba(255,255,255,0.10)",
+
+        // ✅ REMOVE the “black line”
+        borderBottom: "none",
+        boxShadow: "none",
       }}
     >
       <div
@@ -62,22 +59,25 @@ export function FixedBar({
           position: "relative",
         }}
       >
-        {/* ✅ Links centered */}
-        <div style={{ display: "flex", alignItems: "center", gap: 26 }}>
+        {/* Center links */}
+        <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
           {links.map((l) => {
             const active = isActive(l);
 
             const commonStyle: React.CSSProperties = {
-              fontSize: 13,
-              letterSpacing: "0.10em",
+              fontSize: 14,
+              fontWeight: 700,
+
+              // ✅ less “spaced out” than before
+              letterSpacing: "0.06em",
               textTransform: "uppercase",
+
               textDecoration: "none",
-              color: textColor,
-              opacity: active ? 1 : 0.9,
+              color: "#ffffff",
+              opacity: active ? 1 : 0.88,
+
               paddingBottom: 4,
-              borderBottom: active
-                ? `2px solid ${textColor}`
-                : "2px solid transparent",
+              borderBottom: active ? "2px solid #ffffff" : "2px solid transparent",
               whiteSpace: "nowrap",
             };
 
@@ -103,7 +103,7 @@ export function FixedBar({
           })}
         </div>
 
-        {/* ✅ Wallet button pinned right like your old layout */}
+        {/* Wallet button pinned right */}
         <div style={{ position: "absolute", right: 18 }}>
           <WalletMultiButton />
         </div>
