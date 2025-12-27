@@ -148,7 +148,7 @@ export default function HomePage() {
         <CountdownSmall targetIso={TARGET_PST} />
       </section>
 
-      {/* SHOWCASE */}
+      {/* SHOWCASE (collapsed height) */}
       <div className="showcase-wrap">
         <div className="phone-shell">
           <PhoneShowcase
@@ -162,6 +162,7 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* ROADMAP */}
       <section id="roadmap" className="roadmap-wrap">
         <Roadmap />
       </section>
@@ -172,11 +173,7 @@ export default function HomePage() {
         .home-wrap {
           display: grid;
           justify-items: center;
-
-          /* ✅ reduce overall vertical spacing between blocks */
-          gap: 4px;
-
-          /* keep it under the fixed top nav */
+          gap: 0px;
           padding: 40px 12px 48px;
         }
 
@@ -206,40 +203,53 @@ export default function HomePage() {
           font-size: 15px;
         }
 
+        /* ✅ KEY FIX:
+           PhoneShowcase likely reserves extra vertical space.
+           We "collapse" the container by controlling height and absolutely positioning the phone. */
         .showcase-wrap {
-          margin-top: 0px;
+          position: relative;
+          width: 100%;
           display: flex;
           justify-content: center;
-          width: 100%;
+
+          /* roughly the visible phone height area after scale(0.7)
+             (tweakable, but this removes the giant dead space) */
+          height: 520px;
+
+          margin-top: 6px;
         }
 
-        /* ✅ THIS is the main fix: pull phone UP so Roadmap sits closer */
         .phone-shell {
-          transform: translateY(-6px) scale(0.7);
+          position: absolute;
+          top: 0;
+          left: 50%;
+          transform: translateX(-50%) translateY(-6px) scale(0.7);
           transform-origin: top center;
           filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.35));
         }
 
-        /* ✅ Bring Roadmap (and everything after) MUCH closer to phone */
+        /* ✅ Now roadmap can sit right under the collapsed phone area */
         .roadmap-wrap {
-          margin-top: -44px;
           width: 100%;
           display: flex;
           justify-content: center;
+
+          margin-top: -10px;
+          padding-top: 0;
         }
 
-        /* optional: FAQ also gets pulled up slightly */
-        :global(#faq),
-        :global(.faq-wrap) {
-          margin-top: -10px;
+        @media (max-width: 900px) {
+          .showcase-wrap {
+            height: 560px;
+          }
+          .phone-shell {
+            transform: translateX(-50%) translateY(-4px) scale(0.78);
+          }
         }
 
         @media (max-width: 520px) {
-          .phone-shell {
-            transform: translateY(-2px) scale(0.78);
-          }
-          .roadmap-wrap {
-            margin-top: -22px;
+          .showcase-wrap {
+            height: 520px;
           }
         }
       `}</style>
