@@ -13,7 +13,10 @@ type MinerNft = {
 
 const ENCHANTED_MINERS_COLLECTION = "GzhXjRxLXWkzW6vDVyHgbYmqW75xrfh4WvgVKQ8XA1su";
 
-// ✅ where the locker lives (your existing route)
+// ✅ put your background image back here:
+const MINERS_BG_IMAGE = "/enchanted-miners-bg.png"; // <-- this was your old one
+const MINERS_BG_COLOR = "#111827";
+
 function lockerHref(mint: string) {
   const sp = new URLSearchParams();
   sp.set("mint", mint);
@@ -23,14 +26,12 @@ function lockerHref(mint: string) {
 
 export default function EnchantedMinersPage() {
   const { publicKey } = useWallet();
-
   const owner = publicKey?.toBase58() || "";
 
   const [miners, setMiners] = useState<MinerNft[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // ✅ simple responsive grid style (no dependency on NftGrid.tsx props)
   const gridStyle = useMemo<React.CSSProperties>(
     () => ({
       display: "grid",
@@ -73,7 +74,6 @@ export default function EnchantedMinersPage() {
 
         const data = (await r.json()) as any[];
 
-        // normalize into what we need for the grid
         const parsed: MinerNft[] = (Array.isArray(data) ? data : [])
           .map((x) => ({
             mint: String(x?.mint || x?.id || ""),
@@ -103,7 +103,15 @@ export default function EnchantedMinersPage() {
       style={{
         minHeight: "100vh",
         padding: "18px 0 80px",
-        marginTop: 64, // ✅ keeps under fixed top nav
+        marginTop: 64,
+
+        // ✅ RESTORE BACKGROUND
+        backgroundColor: MINERS_BG_COLOR,
+        backgroundImage: `url(${MINERS_BG_IMAGE})`,
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center center",
+        backgroundSize: "cover",
+        backgroundAttachment: "fixed",
       }}
     >
       <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 18px" }}>

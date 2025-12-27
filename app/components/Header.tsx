@@ -20,7 +20,7 @@ export type FixedBarProps = {
 
 export function FixedBar({
   links,
-  barColor = "#0b0b0f",
+  barColor = "rgba(0,0,0,0.65)",
   textColor = "#ffffff",
 }: FixedBarProps) {
   const pathname = usePathname();
@@ -42,37 +42,42 @@ export function FixedBar({
         width: "100%",
         height: 64,
         zIndex: 50,
+
+        // ✅ more like your old look
         backgroundColor: barColor,
-        color: textColor,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 28,
-        padding: "0 14px",
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
+        borderBottom: "1px solid rgba(255,255,255,0.10)",
       }}
     >
       <div
         style={{
-          width: "min(1200px, 100%)",
+          maxWidth: 1200,
+          margin: "0 auto",
+          height: "100%",
+          padding: "0 18px",
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
-          gap: 12,
+          justifyContent: "center",
+          position: "relative",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 22 }}>
+        {/* ✅ Links centered */}
+        <div style={{ display: "flex", alignItems: "center", gap: 26 }}>
           {links.map((l) => {
             const active = isActive(l);
 
             const commonStyle: React.CSSProperties = {
               fontSize: 13,
-              letterSpacing: "0.08em",
+              letterSpacing: "0.10em",
               textTransform: "uppercase",
               textDecoration: "none",
               color: textColor,
               opacity: active ? 1 : 0.9,
-              borderBottom: active ? `2px solid ${textColor}` : "2px solid transparent",
-              paddingBottom: 6,
+              paddingBottom: 4,
+              borderBottom: active
+                ? `2px solid ${textColor}`
+                : "2px solid transparent",
               whiteSpace: "nowrap",
             };
 
@@ -98,7 +103,8 @@ export function FixedBar({
           })}
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        {/* ✅ Wallet button pinned right like your old layout */}
+        <div style={{ position: "absolute", right: 18 }}>
           <WalletMultiButton />
         </div>
       </div>
@@ -106,7 +112,6 @@ export function FixedBar({
   );
 }
 
-// Default export kept (so anything importing Header still works)
 export default function Header(props: FixedBarProps) {
   return <FixedBar {...props} />;
 }
