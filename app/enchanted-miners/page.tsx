@@ -1,41 +1,33 @@
 // app/enchanted-miners/page.tsx
 "use client";
 
-import { useEffect } from "react";
+import Link from "next/link";
 import PhoneShowcase from "../components/PhoneShowcase";
 
 export default function EnchantedMinersLandingPage() {
-  useEffect(() => {
-    // Optional: if you want miners to force their own page bg vars globally
-    document.documentElement.style.setProperty("--page-bg", "#0b0b0f");
-    document.documentElement.style.setProperty(
-      "--page-bg-image",
-      "url(/enchanted-miners-bg.png)"
-    );
-
-    return () => {
-      document.documentElement.style.removeProperty("--page-bg");
-      document.documentElement.style.removeProperty("--page-bg-image");
-    };
-  }, []);
+  // ✅ Use an existing image you already have in /public
+  // This is just a preview image for the PHONE on the landing page
+  const previewImages = ["/lockscreened-previews/miners.png"];
 
   return (
     <main className="lp-wrap">
       <section className="lp-inner">
+        {/* LEFT */}
         <div className="lp-left">
           <h1 className="lp-title">ENCHANTED MINERS</h1>
+          <h2 className="lp-subtitle">LOCKSCREEN LOCKER</h2>
 
-          <p className="lp-sub">
+          <p className="lp-copy">
             Phone-native wallpapers for Enchanted Miners.
             <br />
-            Connect your wallet, view your Miners, and export for any device.
+            Connect your wallet, pick a Miner, swap backgrounds, and export for any device.
           </p>
 
           <div className="lp-actions">
-            {/* ✅ send users to the miners grid (your “view my miners” area) */}
-            <a className="lp-btn lp-btn-primary" href="/my-miners">
+            {/* ✅ “Enter” should go to the GRID page (your miners NFT picker) */}
+            <Link className="lp-btn lp-btn-primary" href="/enchanted-miners-nfts">
               ENTER (VIEW MY MINERS)
-            </a>
+            </Link>
 
             <a
               className="lp-btn lp-btn-ghost"
@@ -66,10 +58,18 @@ export default function EnchantedMinersLandingPage() {
           </div>
         </div>
 
+        {/* RIGHT */}
         <div className="lp-right">
-          {/* ✅ Phone is now 30% smaller and pushed down slightly */}
+          {/* ✅ Phone smaller + slightly pushed down like the “old” look */}
           <div className="phone-shell">
-            <PhoneShowcase project="miners" />
+            <PhoneShowcase
+              images={previewImages}
+              intervalMs={3500}
+              title=""
+              showHint={false}
+              // optional background behind the preview inside the phone
+              bg={{ kind: "color", value: "#6a2cff" }}
+            />
           </div>
         </div>
       </section>
@@ -79,66 +79,85 @@ export default function EnchantedMinersLandingPage() {
           min-height: 100vh;
           padding: 18px 18px 80px;
           padding-top: 64px; /* fixed nav space */
+          background-image: url("/enchanted-miners-bg.png");
+          background-repeat: no-repeat;
+          background-position: center center;
+          background-size: cover;
+          background-attachment: fixed;
         }
 
         .lp-inner {
           max-width: 1200px;
           margin: 0 auto;
           display: grid;
-          grid-template-columns: 1.05fr 0.95fr;
+          grid-template-columns: 1.1fr 0.9fr;
           gap: 28px;
           align-items: center;
         }
 
         .lp-left {
-          color: rgba(255, 255, 255, 0.92);
+          max-width: 640px;
         }
 
         .lp-title {
-          margin: 0 0 10px;
-          font-size: clamp(34px, 4vw, 56px);
-          line-height: 1.02;
-          letter-spacing: 0.04em;
-          font-weight: 800;
+          margin: 0;
+          font-size: 46px;
+          letter-spacing: 0.06em;
           text-transform: uppercase;
+          font-weight: 900;
+          line-height: 1.05;
+          color: rgba(20, 35, 24, 0.92);
+          text-shadow: 0 6px 28px rgba(0, 0, 0, 0.08);
         }
 
-        .lp-sub {
-          margin: 0;
-          max-width: 520px;
-          opacity: 0.82;
+        .lp-subtitle {
+          margin: 8px 0 0;
+          font-size: 34px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          font-weight: 900;
+          line-height: 1.05;
+          color: rgba(20, 35, 24, 0.92);
+          text-shadow: 0 6px 28px rgba(0, 0, 0, 0.08);
+        }
+
+        .lp-copy {
+          margin: 14px 0 0;
           font-size: 13px;
           line-height: 1.6;
+          max-width: 520px;
+          color: rgba(20, 35, 24, 0.7);
         }
 
         .lp-actions {
           margin-top: 16px;
           display: flex;
-          flex-wrap: wrap;
           gap: 10px;
+          flex-wrap: wrap;
+          align-items: center;
         }
 
         .lp-btn {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          height: 36px;
+          height: 34px;
           padding: 0 14px;
           border-radius: 999px;
-          text-decoration: none;
-          font-size: 12px;
+          font-size: 11px;
           letter-spacing: 0.12em;
           text-transform: uppercase;
-          border: 1px solid rgba(255, 255, 255, 0.18);
-          color: rgba(255, 255, 255, 0.9);
-          background: rgba(0, 0, 0, 0.28);
-          backdrop-filter: blur(8px);
+          text-decoration: none;
+          border: 1px solid rgba(20, 35, 24, 0.25);
+          color: rgba(20, 35, 24, 0.85);
+          background: rgba(255, 255, 255, 0.35);
+          backdrop-filter: blur(6px);
         }
 
         .lp-btn-primary {
-          background: rgba(255, 255, 255, 0.9);
-          color: rgba(20, 20, 24, 0.92);
-          border: 1px solid rgba(255, 255, 255, 0.65);
+          background: rgba(20, 35, 24, 0.9);
+          color: rgba(255, 255, 255, 0.95);
+          border: 1px solid rgba(20, 35, 24, 0.9);
         }
 
         .lp-btn-ghost:hover,
@@ -151,23 +170,39 @@ export default function EnchantedMinersLandingPage() {
           justify-content: center;
         }
 
-        /* ✅ Same requested cosmetic change */
+        /* ✅ This is the key: “old look” = smaller phone + pushed down */
         .phone-shell {
-          transform: scale(0.7); /* ~30% smaller */
+          transform: translateY(22px) scale(0.7); /* ~30% smaller */
           transform-origin: top center;
-          margin-top: 22px; /* push down a bit */
+          filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.22));
         }
 
-        @media (max-width: 900px) {
+        @media (max-width: 980px) {
           .lp-inner {
             grid-template-columns: 1fr;
-            gap: 18px;
+            text-align: center;
+            padding-top: 8px;
           }
-          .lp-right {
+          .lp-left {
+            margin: 0 auto;
+          }
+          .lp-actions {
             justify-content: center;
           }
           .phone-shell {
-            margin-top: 10px;
+            transform: translateY(10px) scale(0.75);
+          }
+        }
+
+        @media (max-width: 520px) {
+          .lp-title {
+            font-size: 34px;
+          }
+          .lp-subtitle {
+            font-size: 24px;
+          }
+          .phone-shell {
+            transform: translateY(6px) scale(0.78);
           }
         }
       `}</style>

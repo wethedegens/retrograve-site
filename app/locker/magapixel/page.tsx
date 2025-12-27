@@ -1,40 +1,22 @@
 // app/locker/magapixel/page.tsx
 "use client";
 
-import { useEffect } from "react";
-
 import PhoneShowcase from "../../components/PhoneShowcase";
-import type { BgChoice } from "../../components/Composer";
-import OgWLBanner from "../../components/OgWLBanner";
 
-export default function MagapixelLockerPage() {
-  useEffect(() => {
-    document.documentElement.style.setProperty("--page-bg", "#111827");
-    document.documentElement.style.setProperty(
-      "--page-bg-image",
-      "url(/bg-retrograve.png)"
-    );
-    return () => {
-      document.documentElement.style.removeProperty("--page-bg");
-      document.documentElement.style.removeProperty("--page-bg-image");
-    };
-  }, []);
+export default function MagapixelLandingPage() {
+  // ✅ Use an existing MAGApixel preview image you already ship in /public
+  const previewImages = ["/lockscreened-previews/magapixel.png"];
 
   return (
     <main className="lp-wrap">
       <section className="lp-inner">
+        {/* LEFT */}
         <div className="lp-left">
-          <OgWLBanner />
+          <h1 className="lp-title">MAGAPIXEL</h1>
+          <h2 className="lp-subtitle">LOCKSCREEN LOCKER</h2>
 
-          <h1 className="lp-title">
-            MAGAPIXEL
-            <br />
-            LOCKSCREEN LOCKER
-          </h1>
-
-          <p className="lp-sub">
-            Download your MAGAPIXEL NFT with a perfectly tuned background — sized
-            for any phone.
+          <p className="lp-copy">
+            Download your MAGAPIXEL NFT with a perfectly tuned background — sized for any phone.
           </p>
 
           <div className="lp-actions">
@@ -58,10 +40,16 @@ export default function MagapixelLockerPage() {
           </div>
         </div>
 
+        {/* RIGHT */}
         <div className="lp-right">
-          {/* ✅ Phone is now 30% smaller and pushed down slightly */}
           <div className="phone-shell">
-            <PhoneShowcase project="magapixel" />
+            <PhoneShowcase
+              images={previewImages}
+              intervalMs={3500}
+              title=""
+              showHint={false}
+              bg={{ kind: "color", value: "#2a2f3a" }}
+            />
           </div>
         </div>
       </section>
@@ -71,66 +59,85 @@ export default function MagapixelLockerPage() {
           min-height: 100vh;
           padding: 18px 18px 80px;
           padding-top: 64px; /* fixed nav space */
+          background-image: url("/magapixel-bg.png");
+          background-repeat: no-repeat;
+          background-position: center center;
+          background-size: cover;
+          background-attachment: fixed;
         }
 
         .lp-inner {
           max-width: 1200px;
           margin: 0 auto;
           display: grid;
-          grid-template-columns: 1.05fr 0.95fr;
+          grid-template-columns: 1.1fr 0.9fr;
           gap: 28px;
           align-items: center;
         }
 
         .lp-left {
-          color: rgba(255, 255, 255, 0.92);
+          max-width: 640px;
         }
 
         .lp-title {
-          margin: 10px 0 10px;
-          font-size: clamp(34px, 4vw, 56px);
-          line-height: 1.02;
-          letter-spacing: 0.04em;
-          font-weight: 800;
+          margin: 0;
+          font-size: 46px;
+          letter-spacing: 0.06em;
           text-transform: uppercase;
+          font-weight: 900;
+          line-height: 1.05;
+          color: rgba(255, 255, 255, 0.92);
+          text-shadow: 0 10px 34px rgba(0, 0, 0, 0.35);
         }
 
-        .lp-sub {
-          margin: 0;
-          max-width: 520px;
-          opacity: 0.82;
+        .lp-subtitle {
+          margin: 8px 0 0;
+          font-size: 34px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          font-weight: 900;
+          line-height: 1.05;
+          color: rgba(255, 255, 255, 0.9);
+          text-shadow: 0 10px 34px rgba(0, 0, 0, 0.35);
+        }
+
+        .lp-copy {
+          margin: 14px 0 0;
           font-size: 13px;
           line-height: 1.6;
+          max-width: 520px;
+          color: rgba(255, 255, 255, 0.7);
         }
 
         .lp-actions {
           margin-top: 16px;
           display: flex;
-          flex-wrap: wrap;
           gap: 10px;
+          flex-wrap: wrap;
+          align-items: center;
         }
 
         .lp-btn {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          height: 36px;
+          height: 34px;
           padding: 0 14px;
           border-radius: 999px;
-          text-decoration: none;
-          font-size: 12px;
+          font-size: 11px;
           letter-spacing: 0.12em;
           text-transform: uppercase;
-          border: 1px solid rgba(255, 255, 255, 0.18);
-          color: rgba(255, 255, 255, 0.9);
-          background: rgba(0, 0, 0, 0.28);
-          backdrop-filter: blur(8px);
+          text-decoration: none;
+          border: 1px solid rgba(255, 255, 255, 0.25);
+          color: rgba(255, 255, 255, 0.88);
+          background: rgba(0, 0, 0, 0.25);
+          backdrop-filter: blur(6px);
         }
 
         .lp-btn-primary {
           background: rgba(255, 255, 255, 0.9);
-          color: rgba(20, 20, 24, 0.92);
-          border: 1px solid rgba(255, 255, 255, 0.65);
+          color: rgba(10, 10, 14, 0.9);
+          border: 1px solid rgba(255, 255, 255, 0.9);
         }
 
         .lp-btn-ghost:hover,
@@ -143,23 +150,39 @@ export default function MagapixelLockerPage() {
           justify-content: center;
         }
 
-        /* ✅ This is the only cosmetic change you requested */
+        /* ✅ requested: phone down a bit + 30% smaller */
         .phone-shell {
-          transform: scale(0.7); /* ~30% smaller */
+          transform: translateY(22px) scale(0.7);
           transform-origin: top center;
-          margin-top: 22px; /* push down a bit */
+          filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.35));
         }
 
-        @media (max-width: 900px) {
+        @media (max-width: 980px) {
           .lp-inner {
             grid-template-columns: 1fr;
-            gap: 18px;
+            text-align: center;
+            padding-top: 8px;
           }
-          .lp-right {
+          .lp-left {
+            margin: 0 auto;
+          }
+          .lp-actions {
             justify-content: center;
           }
           .phone-shell {
-            margin-top: 10px;
+            transform: translateY(10px) scale(0.75);
+          }
+        }
+
+        @media (max-width: 520px) {
+          .lp-title {
+            font-size: 34px;
+          }
+          .lp-subtitle {
+            font-size: 24px;
+          }
+          .phone-shell {
+            transform: translateY(6px) scale(0.78);
           }
         }
       `}</style>
