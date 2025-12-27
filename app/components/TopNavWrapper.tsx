@@ -1,3 +1,4 @@
+// app/components/TopNavWrapper.tsx
 "use client";
 
 import { useMemo } from "react";
@@ -18,7 +19,6 @@ function inferProjectFromRoute(
 
   // Miners routes (landing + grid)
   if (p.startsWith("/enchanted-miners")) return "miners";
-  if (p.startsWith("/enchanted-miners-nfts")) return "miners";
   if (p.startsWith("/my-miners")) return "miners";
 
   // Generic locker route: uses ?project=
@@ -32,10 +32,10 @@ function inferProjectFromRoute(
 
   // Magapixel
   if (p.startsWith("/magapixel-nfts")) return "magapixel";
+  if (p.startsWith("/retrogs")) return "magapixel"; // legacy MAGApixel grid path
 
   // Retrograve
   if (p.startsWith("/retrograve")) return "retrograve";
-  if (p.startsWith("/retrogs")) return "magapixel"; // your MAGApixel grid path
 
   return "retrograve";
 }
