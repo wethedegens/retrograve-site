@@ -133,7 +133,6 @@ export default function HomePage() {
                 // ✅ extra safety: if anything inside gets weird, force route
                 onClick={(e) => {
                   if (isDisabled) return;
-                  // If a nested element tries to hijack click, this keeps it consistent
                   e.preventDefault();
                   window.location.href = p.lockerPath;
                 }}
@@ -183,7 +182,6 @@ export default function HomePage() {
               );
             }
 
-            // ✅ still keep Link for proper Next routing, but inner onClick is a failsafe
             return (
               <Link key={p.name} href={p.lockerPath} className="phone-link">
                 {inner}
@@ -260,12 +258,22 @@ export default function HomePage() {
       <style jsx>{`
         .ls-page {
           min-height: 100vh;
-          padding: 0 16px 72px;
+
+          /* ✅ FIX: clear the fixed TopNav so hero never tucks under it */
+          padding: 88px 16px 72px;
+
           display: flex;
           flex-direction: column;
           align-items: center;
           color: #ffffff;
           position: relative;
+        }
+
+        /* ✅ FIX: when buttons scroll to sections, keep headings below fixed nav */
+        #projects,
+        #how,
+        #faq {
+          scroll-margin-top: 88px;
         }
 
         .ls-page::before {
@@ -294,7 +302,8 @@ export default function HomePage() {
         }
 
         .ls-hero {
-          margin-top: -18px;
+          /* ✅ FIX: remove negative margin that was pulling content under header */
+          margin-top: 0;
           max-width: 820px;
           text-align: center;
         }
@@ -348,14 +357,12 @@ export default function HomePage() {
             #c736ff 100%
           );
           color: #fff;
-          box-shadow:
-            0 0 14px rgba(255, 122, 217, 0.75),
+          box-shadow: 0 0 14px rgba(255, 122, 217, 0.75),
             0 14px 32px rgba(0, 0, 0, 0.55);
         }
         .ls-btn-primary:hover {
           transform: translateY(-1px) scale(1.03);
-          box-shadow:
-            0 0 18px rgba(255, 122, 217, 0.95),
+          box-shadow: 0 0 18px rgba(255, 122, 217, 0.95),
             0 18px 40px rgba(0, 0, 0, 0.7);
         }
         .ls-btn-ghost {
@@ -420,8 +427,7 @@ export default function HomePage() {
               transparent 55%
             ),
             rgba(10, 6, 26, 0.96);
-          box-shadow:
-            0 14px 26px rgba(0, 0, 0, 0.7),
+          box-shadow: 0 14px 26px rgba(0, 0, 0, 0.7),
             0 0 0 1px rgba(200, 160, 255, 0.22);
           display: flex;
           flex-direction: column;
@@ -451,7 +457,7 @@ export default function HomePage() {
           object-position: bottom;
           display: block;
           user-select: none;
-          pointer-events: none; /* ✅ prevents image from hijacking click */
+          pointer-events: none;
         }
 
         .phone-pill {
@@ -478,28 +484,23 @@ export default function HomePage() {
         }
 
         .glow-magapixel {
-          box-shadow:
-            0 0 0 1px rgba(255, 142, 153, 0.6),
+          box-shadow: 0 0 0 1px rgba(255, 142, 153, 0.6),
             0 18px 34px rgba(242, 79, 115, 0.55);
         }
         .glow-retrograve {
-          box-shadow:
-            0 0 0 1px rgba(182, 133, 255, 0.65),
+          box-shadow: 0 0 0 1px rgba(182, 133, 255, 0.65),
             0 18px 34px rgba(137, 92, 255, 0.6);
         }
         .glow-meowga {
-          box-shadow:
-            0 0 0 1px rgba(117, 229, 255, 0.7),
+          box-shadow: 0 0 0 1px rgba(117, 229, 255, 0.7),
             0 18px 34px rgba(63, 199, 255, 0.6);
         }
         .glow-miners {
-          box-shadow:
-            0 0 0 1px rgba(137, 255, 197, 0.7),
+          box-shadow: 0 0 0 1px rgba(137, 255, 197, 0.7),
             0 18px 34px rgba(76, 219, 151, 0.6);
         }
         .glow-client {
-          box-shadow:
-            0 0 0 1px rgba(119, 182, 255, 0.7),
+          box-shadow: 0 0 0 1px rgba(119, 182, 255, 0.7),
             0 18px 34px rgba(71, 140, 255, 0.6);
         }
 
@@ -524,8 +525,7 @@ export default function HomePage() {
               rgba(19, 10, 38, 0.9)
             ),
             rgba(20, 10, 40, 0.95);
-          box-shadow:
-            0 14px 28px rgba(0, 0, 0, 0.8),
+          box-shadow: 0 14px 28px rgba(0, 0, 0, 0.8),
             0 0 0 1px rgba(205, 170, 255, 0.28);
           text-align: left;
         }
@@ -597,10 +597,12 @@ export default function HomePage() {
 
         @media (max-width: 768px) {
           .ls-page {
-            padding-top: 12px;
+            padding-top: 80px;
           }
-          .ls-hero {
-            margin-top: -8px;
+          #projects,
+          #how,
+          #faq {
+            scroll-margin-top: 80px;
           }
           .phone-grid {
             grid-template-columns: repeat(2, minmax(150px, 1fr));
