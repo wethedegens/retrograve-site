@@ -3,6 +3,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+type FitMode = "contain" | "cover";
+
 type PhoneShowcaseProps = {
   images: string[];
   intervalMs?: number;
@@ -10,8 +12,17 @@ type PhoneShowcaseProps = {
   title?: string;
   showHint?: boolean;
 
-  // ✅ NEW: cover fills the phone, contain letterboxes
-  fit?: "cover" | "contain";
+  /** how the preview image fits inside the phone screen */
+  fit?: FitMode;
+
+  /** show a phone-like frame (bezel + notch) */
+  frame?: boolean;
+
+  /**
+   * Base phone width in px.
+   * We set this to 450px (25% bigger than 360px) to match your request.
+   */
+  widthPx?: number;
 };
 
 export default function PhoneShowcase({
@@ -21,29 +32,27 @@ export default function PhoneShowcase({
   title = "How it looks",
   showHint = true,
   fit = "cover",
+  frame = true,
+  widthPx = 450, // ✅ 25% larger (360 -> 450)
 }: PhoneShowcaseProps) {
-  const safeImages = useMemo(() => (Array.isArray(images) ? images : []), [images]);
+  const safeImages = useMemo(() => images?.filter(Boolean) ?? [], [images]);
   const [index, setIndex] = useState(0);
 
-  // Reset index if images change
   useEffect(() => {
-    setIndex(0);
-  }, [safeImages.length]);
-
-  // ✅ Auto-cycle only when there are 2+ images
-  useEffect(() => {
-    if (!safeImages || safeImages.length <= 1) return;
+    if (!safeImages.length) return;
 
     const id = window.setInterval(() => {
       setIndex((i) => (i + 1) % safeImages.length);
     }, intervalMs);
 
     return () => window.clearInterval(id);
-  }, [safeImages, intervalMs]);
+  }, [safeImages.length, intervalMs]);
 
-  const current = safeImages.length > 0 ? safeImages[index] : null;
+  const current = safeImages.length ? safeImages[index] : null;
 
-  // ✅ BgChoice handling
+  // ✅ Correct BgChoice handling:
+  // - image backgrounds use bg.image
+  // - color backgrounds use bg.value
   const bgStyle =
     bg && bg.kind === "image" && bg.image
       ? {
@@ -59,57 +68,136 @@ export default function PhoneShowcase({
         };
 
   return (
-    <section style={{ padding: 0 }}>
-      {title ? (
+    <section style={{ padding: title || showHint ? "32px 0" : "0" }}>
+      {(title || showHint) && (
         <div style={{ textAlign: "center", marginBottom: 16 }}>
-          <h2 style={{ fontSize: 20, margin: 0 }}>{title}</h2>
-          {showHint && safeImages.length > 1 ? (
+          {title ? <h2 style={{ fontSize: 20, margin: 0 }}>{title}</h2> : null}
+          {showHint ? (
             <p style={{ fontSize: 13, opacity: 0.7, marginTop: 4 }}>
               Preview cycling through a few examples.
             </p>
           ) : null}
         </div>
-      ) : null}
+      )}
 
       <div style={{ display: "flex", justifyContent: "center" }}>
+        {/* OUTER PHONE (frame lives here) */}
         <div
           style={{
             position: "relative",
-            width: "min(360px, 80vw)",
+            width: `min(${widthPx}px, 80vw)`,
             aspectRatio: "9 / 19.5",
-            borderRadius: 26,
-            overflow: "hidden",
-            boxShadow: "0 18px 44px rgba(0,0,0,0.45)",
-            ...bgStyle,
+            borderRadius: 34,
+            overflow: "visible",
+            filter: "drop-shadow(0 22px 44px rgba(0,0,0,0.35))",
           }}
         >
-          {current ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={current}
-              alt="Lock screen preview"
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: fit, // ✅ cover fills the phone
-                imageRendering: "pixelated",
-                display: "block",
-              }}
-            />
-          ) : (
-            <div
-              style={{
-                position: "absolute",
-                inset: 0,
-                display: "grid",
-                placeItems: "center",
-                fontSize: 12,
-                opacity: 0.7,
-              }}
-            >
-              No images configured
-            </div>
-          )}
+          {/* INNER SCREEN */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              borderRadius: 30,
+              overflow: "hidden",
+              boxShadow: "0 18px 44px rgba(0,0,0,0.30)",
+              ...bgStyle,
+            }}
+          >
+            {current ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={current}
+                alt="Lock screen preview"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: fit,
+                  imageRendering: "pixelated",
+                  display: "block",
+                }}
+                draggable={false}
+              />
+            ) : (
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "grid",
+                  placeItems: "center",
+                  fontSize: 12,
+                  opacity: 0.7,
+                }}
+              >
+                No images configured
+              </div>
+            )}
+          </div>
+
+          {/* PHONE FRAME OVERLAY */}
+          {frame ? (
+            <>
+              {/* bezel */}
+              <div
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  inset: -10,
+                  borderRadius: 42,
+                  border: "10px solid rgba(255,255,255,0.12)",
+                  boxShadow:
+                    "inset 0 0 0 1px rgba(0,0,0,0.25), 0 12px 30px rgba(0,0,0,0.25)",
+                  pointerEvents: "none",
+                }}
+              />
+
+              {/* glass highlight */}
+              <div
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  borderRadius: 30,
+                  boxShadow:
+                    "inset 0 0 0 1px rgba(255,255,255,0.10), inset 0 12px 40px rgba(255,255,255,0.10)",
+                  pointerEvents: "none",
+                }}
+              />
+
+              {/* notch */}
+              <div
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  top: 10,
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  width: "42%",
+                  height: 18,
+                  borderRadius: 999,
+                  background: "rgba(0,0,0,0.35)",
+                  boxShadow:
+                    "inset 0 0 0 1px rgba(255,255,255,0.10), 0 6px 14px rgba(0,0,0,0.25)",
+                  pointerEvents: "none",
+                }}
+              />
+
+              {/* speaker dot */}
+              <div
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  top: 14,
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  width: 34,
+                  height: 6,
+                  borderRadius: 999,
+                  background: "rgba(255,255,255,0.10)",
+                  pointerEvents: "none",
+                }}
+              />
+            </>
+          ) : null}
         </div>
       </div>
     </section>
