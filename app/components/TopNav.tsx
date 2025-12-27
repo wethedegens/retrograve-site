@@ -2,37 +2,28 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
 
 export default function TopNav() {
   const path = usePathname();
   const sp = useSearchParams();
 
-  // ✅ Prevent content from hiding under the fixed nav WITHOUT a visible spacer bar
-  useEffect(() => {
-    const prev = document.body.style.paddingTop;
-    document.body.style.paddingTop = "64px";
-    return () => {
-      document.body.style.paddingTop = prev;
-    };
-  }, []);
-
-  // ✅ Query param project on /locker?project=...
-  const projectParam = (sp.get("project") || "").toLowerCase();
-  const isLockerRoute = path === "/locker" || path.startsWith("/locker/");
+  // ✅ Query param is NOT included in usePathname() — must read it separately
+  const project = (sp.get("project") || "").toLowerCase();
 
   // Treat BOTH /enchanted-miners/* and /my-miners as Enchanted Miners pages
+  // Also support /locker?project=miners
   const isMiners =
     path.startsWith("/enchanted-miners") ||
     path.startsWith("/my-miners") ||
-    (isLockerRoute && projectParam === "miners");
+    (path.startsWith("/locker") && project === "miners");
 
   // MAGApixel pages
+  // Also support /locker?project=magapixel
   const isMagapixel =
     path.startsWith("/locker/magapixel") ||
     path.startsWith("/magapixel-nfts") ||
     path.startsWith("/retrogs") ||
-    (isLockerRoute && projectParam === "magapixel");
+    (path.startsWith("/locker") && project === "magapixel");
 
   // RetroGrave pages
   const isRetrograve = path.startsWith("/retrograve") || path.startsWith("/retrogs");
@@ -40,7 +31,7 @@ export default function TopNav() {
   const isActiveExact = (href: string) => path === href;
   const isActiveStarts = (href: string) => path === href || path.startsWith(href + "/");
 
-  // Shared fixed-bar styles
+  // Shared fixed-bar styles (Miners format)
   const FixedBar = ({
     barColor,
     textColor,
