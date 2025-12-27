@@ -128,7 +128,7 @@ export default function EnchantedMinersPage() {
               // Send to the existing locker page
               const mint = nft.id || "";
               const uri = nft.uri ? encodeURIComponent(nft.uri) : "";
-              router.push(`/locker?mint=${mint}${uri ? `&uri=${uri}` : ""}`);
+              router.push(`/locker?mint=${mint}${uri ? `&uri=${uri}` : ""}&project=miners`);
             }}
           />
         )}
