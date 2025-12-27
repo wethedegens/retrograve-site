@@ -9,202 +9,186 @@ type NavItem =
   | { type: "link"; label: string; href: string; active?: ActiveMode }
   | { type: "a"; label: string; href: string };
 
-type NavVariant = {
-  id: string;
-  barColor: string;
-  textColor: string;
-  links: NavItem[];
-  match: (args: { path: string; project: string }) => boolean;
-};
+function safeLower(s: string | null | undefined) {
+  return (s || "").trim().toLowerCase();
+}
 
 export default function TopNav() {
   const path = usePathname() || "";
   const sp = useSearchParams();
 
-  // supports: /locker/<project>
+  // -----
+  // Robust "project" (but nav will NOT depend on it)
+  // -----
   const projectFromLockerPath = useMemo(() => {
     if (!path.startsWith("/locker/")) return "";
     const parts = path.split("/").filter(Boolean); // ["locker", "magapixel"]
-    return (parts[1] || "").trim().toLowerCase();
+    return safeLower(parts[1] || "");
   }, [path]);
 
-  // ✅ robust project detection (searchParams + window fallback)
   const [project, setProject] = useState<string>("");
 
   useEffect(() => {
-    // 1) try next/navigation search params first
-    const fromSp = (sp.get("project") || "").trim().toLowerCase();
+    const fromSp = safeLower(sp.get("project"));
 
-    // 2) fallback: window.location (always correct on client)
     let fromWindow = "";
     try {
       const u = new URL(window.location.href);
-      fromWindow = (u.searchParams.get("project") || "").trim().toLowerCase();
+      fromWindow = safeLower(u.searchParams.get("project"));
     } catch {}
 
-    // 3) pick the best
-    const finalProject = fromSp || fromWindow || projectFromLockerPath || "";
-    setProject(finalProject);
-  }, [sp, projectFromLockerPath, path]);
+    setProject(fromSp || fromWindow || projectFromLockerPath || "");
+  }, [sp, projectFromLockerPath]);
 
+  // -----
+  // Active helpers
+  // -----
   const isActiveExact = (href: string) => path === href;
   const isActiveStarts = (href: string) => path === href || path.startsWith(href + "/");
 
-  const FixedBar = ({
-    barColor,
-    textColor,
-    links,
-  }: {
-    barColor: string;
-    textColor: string;
-    links: NavItem[];
-  }) => {
-    const baseLinkStyle = {
-      fontSize: "16px",
-      color: textColor,
-      textDecoration: "none" as const,
-      opacity: 0.9,
-      letterSpacing: "0.06em",
-      whiteSpace: "nowrap" as const,
-    };
-
-    const activeLinkStyle = {
-      ...baseLinkStyle,
-      textDecoration: "underline" as const,
-      textDecorationThickness: "2px",
-      textUnderlineOffset: "4px",
-      opacity: 1,
-    };
-
-    const pickStyle = (href: string, mode?: ActiveMode) => {
-      if (!mode) return baseLinkStyle;
-      const active = mode === "exact" ? isActiveExact(href) : isActiveStarts(href);
-      return active ? activeLinkStyle : baseLinkStyle;
-    };
-
-    return (
-      <nav
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "64px",
-          backgroundColor: barColor,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "28px",
-          padding: "0 18px",
-          zIndex: 9999,
-
-          // ✅ remove the “black line” under the nav
-          borderBottom: "none",
-
-          // optional: gives a nicer feel over backgrounds
-          backdropFilter: "blur(6px)",
-        }}
-      >
-        {links.map((l) => {
-          if (l.type === "link") {
-            return (
-              <Link key={l.label} href={l.href} style={pickStyle(l.href, l.active)}>
-                {l.label}
-              </Link>
-            );
-          }
-
-          return (
-            <a
-              key={l.label}
-              href={l.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={baseLinkStyle}
-            >
-              {l.label}
-            </a>
-          );
-        })}
-      </nav>
-    );
+  const pickActive = (href: string, mode?: ActiveMode) => {
+    if (!mode) return false;
+    return mode === "exact" ? isActiveExact(href) : isActiveStarts(href);
   };
 
-  // -------------------------
-  // NAV VARIANTS (safe add later)
-  // -------------------------
-  const NAVS: NavVariant[] = [
-    {
-      id: "miners",
-      barColor: "#1f3d2b",
-      textColor: "#ffffff",
-      links: [
-        { type: "link", label: "HOME", href: "/", active: "exact" },
-        { type: "link", label: "MY MINERS", href: "/my-miners", active: "exact" },
-        { type: "a", label: "COMMUNITY", href: "https://discord.gg/C5MfNP7hek" },
-        {
-          type: "a",
-          label: "COLLECT NOW",
-          href: "https://magiceden.us/marketplace/enchanted_miner",
-        },
-        { type: "a", label: "FOLLOW ON X", href: "https://x.com/enchanted_nfts" },
-      ],
-      match: ({ path, project }) => {
-        const p = project;
-        const isMinersProject = p === "miners" || p === "enchanted" || p === "enchanted-miners";
-        return isMinersProject || path.startsWith("/enchanted-miners") || path.startsWith("/my-miners");
-      },
-    },
+  // -----
+  // Determine "variant" (ONLY for colors + external links)
+  // -----
+  const variant = useMemo<"magapixel" | "miners" | "retrograve" | "default">(() => {
+    // Prefer explicit project when available
+    if (project === "magapixel") return "magapixel";
+    if (project === "miners" || project === "enchanted" || project === "enchanted-miners")
+      return "miners";
+    if (project === "retrograve") return "retrograve";
 
-    {
-      id: "magapixel",
-      barColor: "#af232a",
-      textColor: "#ffffff",
-      links: [
-        { type: "link", label: "HOME", href: "/", active: "exact" },
-        { type: "link", label: "MY MAGAPIXELS", href: "/magapixel-nfts", active: "exact" },
+    // Fallback to pathname
+    if (path.startsWith("/my-miners") || path.startsWith("/enchanted-miners")) return "miners";
+    if (path.startsWith("/magapixel-nfts") || path.startsWith("/locker/magapixel") || path.startsWith("/retrogs"))
+      return "magapixel";
+    if (path.startsWith("/retrograve")) return "retrograve";
+
+    // If we're on /locker with no reliable project, keep it neutral
+    return "default";
+  }, [path, project]);
+
+  const theme = useMemo(() => {
+    if (variant === "miners") return { barColor: "#1f3d2b", textColor: "#ffffff" };
+    if (variant === "magapixel") return { barColor: "#af232a", textColor: "#ffffff" };
+    if (variant === "retrograve") return { barColor: "#0b0b0f", textColor: "#ffffff" };
+    return { barColor: "#0b0b0f", textColor: "#ffffff" };
+  }, [variant]);
+
+  // -----
+  // Always-visible INTERNAL links (this is the new approach)
+  // -----
+  const INTERNAL: NavItem[] = [
+    { type: "link", label: "HOME", href: "/", active: "exact" },
+    { type: "link", label: "MY MAGAPIXELS", href: "/magapixel-nfts", active: "exact" },
+    { type: "link", label: "MY MINERS", href: "/my-miners", active: "exact" },
+    { type: "link", label: "MY RETROGRAVES", href: "/retrograve", active: "starts" },
+  ];
+
+  // -----
+  // Optional EXTERNAL links (only when we know the project)
+  // -----
+  const EXTERNAL: NavItem[] = useMemo(() => {
+    if (variant === "miners") {
+      return [
+        { type: "a", label: "COMMUNITY", href: "https://discord.gg/C5MfNP7hek" },
+        { type: "a", label: "COLLECT NOW", href: "https://magiceden.us/marketplace/enchanted_miner" },
+        { type: "a", label: "FOLLOW ON X", href: "https://x.com/enchanted_nfts" },
+      ];
+    }
+    if (variant === "magapixel") {
+      return [
         { type: "a", label: "COMMUNITY", href: "https://discord.gg/ZVGtHUpHfb" },
         { type: "a", label: "COLLECT NOW", href: "https://magiceden.us/marketplace/magapixel" },
         { type: "a", label: "FOLLOW ON X", href: "https://x.com/MAGApixel_NFT" },
-      ],
-      match: ({ path, project }) => {
-        return (
-          project === "magapixel" ||
-          path.startsWith("/locker/magapixel") ||
-          path.startsWith("/magapixel-nfts") ||
-          path.startsWith("/retrogs")
-        );
-      },
-    },
-
-    {
-      id: "retrograve",
-      barColor: "#0b0b0f",
-      textColor: "#ffffff",
-      links: [
-        { type: "link", label: "HOME", href: "/", active: "exact" },
-        { type: "link", label: "MY RETROGRAVES", href: "/retrograve", active: "starts" },
+      ];
+    }
+    if (variant === "retrograve") {
+      return [
         { type: "a", label: "COMMUNITY", href: "https://discord.gg/mSNHRFdCkS" },
         { type: "a", label: "COLLECT NOW", href: "https://magiceden.io" },
         { type: "a", label: "FOLLOW ON X", href: "https://x.com/RETROGRAVE_NFT" },
-      ],
-      match: ({ path, project }) => {
-        return project === "retrograve" || path.startsWith("/retrograve");
-      },
-    },
-  ];
+      ];
+    }
+    return [];
+  }, [variant]);
 
-  const found = NAVS.find((n) => n.match({ path, project }));
+  const links: NavItem[] = [...INTERNAL, ...EXTERNAL];
 
-  if (found) {
-    return <FixedBar barColor={found.barColor} textColor={found.textColor} links={found.links} />;
-  }
+  const baseLinkStyle = {
+    fontSize: "16px",
+    color: theme.textColor,
+    textDecoration: "none" as const,
+    opacity: 0.9,
+    letterSpacing: "0.06em",
+    whiteSpace: "nowrap" as const,
+  };
+
+  const activeLinkStyle = {
+    ...baseLinkStyle,
+    textDecoration: "underline" as const,
+    textDecorationThickness: "2px",
+    textUnderlineOffset: "4px",
+    opacity: 1,
+  };
+
+  const styleFor = (item: NavItem) => {
+    if (item.type !== "link") return baseLinkStyle;
+    const mode = item.active;
+    const active = mode ? pickActive(item.href, mode) : false;
+    return active ? activeLinkStyle : baseLinkStyle;
+  };
 
   return (
-    <FixedBar
-      barColor="#0b0b0f"
-      textColor="#ffffff"
-      links={[{ type: "link", label: "HOME", href: "/", active: "exact" }]}
-    />
+    <nav
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "64px",
+        backgroundColor: theme.barColor,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "22px",
+        padding: "0 14px",
+        zIndex: 9999,
+
+        // ✅ kills the “black line”
+        borderBottom: "none",
+
+        // Optional: looks nicer over busy backgrounds
+        backdropFilter: "blur(6px)",
+
+        // Helps when links overflow on smaller screens
+        overflowX: "auto",
+      }}
+    >
+      {links.map((l) => {
+        if (l.type === "link") {
+          return (
+            <Link key={l.label} href={l.href} style={styleFor(l)}>
+              {l.label}
+            </Link>
+          );
+        }
+
+        return (
+          <a
+            key={l.label}
+            href={l.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={styleFor(l)}
+          >
+            {l.label}
+          </a>
+        );
+      })}
+    </nav>
   );
 }
