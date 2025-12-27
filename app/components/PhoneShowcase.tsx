@@ -6,8 +6,7 @@ import { useEffect, useState } from "react";
 type PhoneShowcaseProps = {
   images: string[];
   intervalMs?: number;
-  // We don't care about the exact BgChoice shape here – "any" keeps TS happy
-  bg?: any;
+  bg?: any; // BgChoice-like
   title?: string;
   showHint?: boolean;
 };
@@ -21,28 +20,29 @@ export default function PhoneShowcase({
 }: PhoneShowcaseProps) {
   const [index, setIndex] = useState(0);
 
-  // Auto-advance through the images
   useEffect(() => {
     if (!images || images.length === 0) return;
 
-    const id = setInterval(() => {
+    const id = window.setInterval(() => {
       setIndex((i) => (i + 1) % images.length);
     }, intervalMs);
 
-    return () => clearInterval(id);
+    return () => window.clearInterval(id);
   }, [images, intervalMs]);
 
   const current = images && images.length > 0 ? images[index] : null;
 
-  // Very simple background handling
+  // ✅ Correct BgChoice handling:
+  // - image backgrounds use bg.image
+  // - color backgrounds use bg.value
   const bgStyle =
-    bg && bg.kind === "image"
+    bg && bg.kind === "image" && bg.image
       ? {
-          backgroundImage: `url(${bg.value})`,
+          backgroundImage: `url(${bg.image})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }
-      : bg && bg.kind === "color"
+      : bg && bg.kind === "color" && bg.value
       ? { backgroundColor: bg.value }
       : {
           background:
@@ -55,7 +55,7 @@ export default function PhoneShowcase({
         <h2 style={{ fontSize: 20, margin: 0 }}>{title}</h2>
         {showHint && (
           <p style={{ fontSize: 13, opacity: 0.7, marginTop: 4 }}>
-            Preview of RetroGrave lock screens cycling through a few examples.
+            Preview cycling through a few examples.
           </p>
         )}
       </div>
@@ -75,7 +75,7 @@ export default function PhoneShowcase({
           {current ? (
             <img
               src={current}
-              alt="RetroGrave lock screen preview"
+              alt="Lock screen preview"
               style={{
                 width: "100%",
                 height: "100%",
