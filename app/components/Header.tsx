@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
@@ -27,9 +28,12 @@ export default function FixedBar({ links, showWallet = true }: FixedBarProps) {
         width: "100%",
         height: 64,
         zIndex: 9999,
+
+        // ✅ important for "dead link" feeling if something overlaps:
+        pointerEvents: "auto",
+
         display: "flex",
         alignItems: "center",
-        gap: 18,
         padding: "0 14px",
         backgroundColor: "rgba(11, 11, 15, 0.85)",
         backdropFilter: "blur(10px)",
@@ -41,22 +45,34 @@ export default function FixedBar({ links, showWallet = true }: FixedBarProps) {
           maxWidth: 1200,
           margin: "0 auto",
           width: "100%",
-          display: "flex",
+          height: "100%",
+
+          // ✅ 3-column grid so LINKS are truly centered, wallet stays right
+          display: "grid",
+          gridTemplateColumns: "1fr auto 1fr",
           alignItems: "center",
-          gap: 18,
+          gap: 12,
         }}
       >
-        {/* LEFT LINKS */}
+        {/* LEFT SPACER (keeps center truly centered) */}
+        <div />
+
+        {/* CENTER LINKS */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
+            justifyContent: "center",
             gap: 18,
             flexWrap: "wrap",
+
+            // ✅ ensure clicks always register
+            pointerEvents: "auto",
           }}
         >
           {links.map((l) => {
             const isInternal = l.type === "link";
+
             const commonStyle: React.CSSProperties = {
               color: "rgba(255,255,255,0.88)",
               textDecoration: "none",
@@ -66,11 +82,14 @@ export default function FixedBar({ links, showWallet = true }: FixedBarProps) {
               padding: "10px 10px",
               borderRadius: 999,
               lineHeight: 1,
+              cursor: "pointer",
+              userSelect: "none",
+              whiteSpace: "nowrap",
             };
 
             if (isInternal) {
               return (
-                <Link key={l.href} href={l.href} style={commonStyle}>
+                <Link key={`${l.label}-${l.href}`} href={l.href} style={commonStyle}>
                   {l.label}
                 </Link>
               );
@@ -78,7 +97,7 @@ export default function FixedBar({ links, showWallet = true }: FixedBarProps) {
 
             return (
               <a
-                key={l.href}
+                key={`${l.label}-${l.href}`}
                 href={l.href}
                 target="_blank"
                 rel="noreferrer"
@@ -93,14 +112,18 @@ export default function FixedBar({ links, showWallet = true }: FixedBarProps) {
         {/* RIGHT WALLET */}
         <div
           style={{
-            marginLeft: "auto",
+            justifySelf: "end",
             display: "flex",
             alignItems: "center",
             gap: 10,
-            // ✅ explicitly NOT hidden / blurred
+
+            // ✅ force visible
             opacity: 1,
             visibility: "visible",
             filter: "none",
+
+            // ✅ ensure wallet is clickable
+            pointerEvents: "auto",
           }}
         >
           {showWallet ? (
@@ -110,6 +133,40 @@ export default function FixedBar({ links, showWallet = true }: FixedBarProps) {
           ) : null}
         </div>
       </div>
+
+      {/* ✅ Hard overrides so wallet can’t get “hidden/blurred” by other CSS */}
+      <style jsx>{`
+        :global(.wallet-adapter-button),
+        :global(.wallet-adapter-button-trigger),
+        :global(.wallet-adapter-dropdown),
+        :global(.wallet-adapter-dropdown-list),
+        :global(.wallet-adapter-dropdown-list-item) {
+          opacity: 1 !important;
+          visibility: visible !important;
+          filter: none !important;
+          pointer-events: auto !important;
+        }
+
+        /* Mobile: allow wrapping but keep centered feel */
+        @media (max-width: 720px) {
+          nav[aria-label="Top navigation"] > div {
+            grid-template-columns: 1fr;
+            gap: 8px;
+          }
+
+          nav[aria-label="Top navigation"] > div > div:first-child {
+            display: none;
+          }
+
+          nav[aria-label="Top navigation"] > div > div:nth-child(2) {
+            justify-content: center;
+          }
+
+          nav[aria-label="Top navigation"] > div > div:last-child {
+            justify-self: center;
+          }
+        }
+      `}</style>
     </nav>
   );
 }
