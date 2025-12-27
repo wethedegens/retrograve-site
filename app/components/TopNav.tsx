@@ -31,12 +31,10 @@ function FixedBar({ links }: { links: NavLink[] }) {
       }}
       aria-label="Top navigation"
     >
-      {/* RIGHT wallet only (no duplicates) */}
       <div style={{ position: "absolute", right: 12, top: 12 }}>
         <WalletMultiButton />
       </div>
 
-      {/* center links */}
       <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
         {links.map((l) => {
           if (l.type === "a") {
@@ -77,11 +75,8 @@ const navLinkStyle: React.CSSProperties = {
 };
 
 export default function TopNav({ project }: { project: NavProject }) {
-  /**
-   * ✅ KEY FIX:
-   * You said /my-miners is a placeholder.
-   * So miners nav should go to /enchanted-miners (the real working page with art).
-   */
+  // ✅ Internal “My ____” link
+  // IMPORTANT: miners goes straight to /enchanted-miners (single source of truth)
   const internal =
     project === "miners"
       ? { type: "link" as const, label: "MY MINERS", href: "/enchanted-miners" }
@@ -108,7 +103,6 @@ export default function TopNav({ project }: { project: NavProject }) {
   return (
     <>
       <FixedBar links={links} />
-      {/* spacer so content isn't hidden under fixed nav */}
       <div style={{ height: 64 }} />
     </>
   );

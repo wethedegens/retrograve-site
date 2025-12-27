@@ -1,177 +1,191 @@
+// app/enchanted-miners/page.tsx
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-export const dynamic = "force-dynamic";
+import { useWallet } from "@solana/wallet-adapter-react";
+import NftGrid, { type NFT } from "../components/NftGrid";
 
-export default function EnchantedMinersLandingPage() {
-  const demoImages = useMemo(
-    () => [
-      "/demo/enchanted-1.png",
-      "/demo/enchanted-2.png",
-      "/demo/enchanted-3.png",
-      "/demo/enchanted-4.png",
-    ],
-    []
-  );
+// ✅ Put your real Enchanted Miners collection address here
+const MINERS_COLLECTION = "GzhXjRxLXWkzW6vDVyHgbYmqW75xrfh4WvgVKQ8XA1su";
 
-  const [idx, setIdx] = useState(0);
+// Optional creator fallback (leave empty if you don’t need it)
+const MINERS_CREATORS: string[] = [
+  // "CreatorPubkeyHere",
+];
 
-  // rotate every 3 seconds
-  useEffect(() => {
-    if (!demoImages.length) return;
+type ApiNft = any;
 
-    const t = window.setInterval(() => {
-      setIdx((p) => (p + 1) % demoImages.length);
-    }, 3000);
+function normalizeStr(x: any) {
+  return typeof x === "string" ? x : "";
+}
 
-    return () => window.clearInterval(t);
-  }, [demoImages]);
-
-  const activeSrc = demoImages[idx] || "";
-
+function getAnyCollectionId(n: ApiNft): string {
   return (
-    <main
-      className="miners-wrapper"
-      style={{
-        minHeight: "100vh",
-        marginTop: "-64px", // ✅ cancels TopNav spacer (removes black bar)
-        paddingBottom: 60,
-        backgroundImage: "url('/enchanted-miners-bg.png')",
-        backgroundRepeat: "no-repeat",
-        backgroundPosition: "center",
-        backgroundSize: "cover",
-      }}
-    >
-      {/* HERO */}
-      <section className="hero">
-        {/* LEFT: TEXT */}
-        <div className="hero-text">
-          <h1 className="miners-title">
+    normalizeStr(n?.collection) ||
+    normalizeStr(n?.collectionId) ||
+    normalizeStr(n?.collectionAddress) ||
+    normalizeStr(n?.collection_address) ||
+    normalizeStr(n?.grouping?.[0]?.group_value) ||
+    normalizeStr(n?.collection?.address) ||
+    normalizeStr(n?.collection?.key) ||
+    ""
+  );
+}
+
+function getCreatorList(n: ApiNft): string[] {
+  const creators =
+    n?.creators ||
+    n?.creator ||
+    n?.metadata?.creators ||
+    n?.onchain?.creators ||
+    n?.content?.metadata?.creators ||
+    [];
+
+  if (Array.isArray(creators)) {
+    return creators
+      .map((c: any) => normalizeStr(c?.address || c?.creator || c))
+      .filter(Boolean);
+  }
+  return [];
+}
+
+function isMinerNft(n: ApiNft): boolean {
+  const cid = getAnyCollectionId(n);
+  if (cid && cid === MINERS_COLLECTION) return true;
+
+  if (MINERS_CREATORS.length) {
+    const c = getCreatorList(n);
+    return c.some((addr) => MINERS_CREATORS.includes(addr));
+  }
+
+  return false;
+}
+
+export default function EnchantedMinersPage() {
+  const { publicKey } = useWallet();
+
+  const owner = publicKey?.toBase58() || "";
+  const isConnected = !!owner;
+
+  // ====== Grid state (only used when connected) ======
+  const [all, setAll] = useState<NFT[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!owner) {
+      setAll([]);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function load() {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const r = await fetch("/api/nfts", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ owner }),
+          cache: "no-store",
+        });
+
+        if (!r.ok) {
+          const msg = await r.text().catch(() => String(r.status));
+          throw new Error(msg);
+        }
+
+        const data = await r.json();
+        const list: any[] = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.nfts)
+          ? data.nfts
+          : [];
+
+        if (!cancelled) setAll(list as unknown as NFT[]);
+      } catch (e: any) {
+        if (!cancelled) setError(e?.message || "Failed to load NFTs");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [owner]);
+
+  const miners = useMemo(() => {
+    return (all as any[]).filter(isMinerNft) as unknown as NFT[];
+  }, [all]);
+
+  // ====== NOT CONNECTED: LANDING PAGE ======
+  if (!isConnected) {
+    return (
+      <main
+        style={{
+          minHeight: "100vh",
+          padding: "90px 18px 80px",
+          backgroundImage: "url(/enchanted-miners-bg.png)",
+          backgroundSize: "cover",
+          backgroundPosition: "center bottom",
+        }}
+      >
+        <section style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <h1 style={{ fontSize: 46, margin: "0 0 12px" }}>
             ENCHANTED MINERS
             <br />
             LOCKSCREEN LOCKER
           </h1>
-          <p className="miners-sub">
-            Download your Enchanted Miners NFT with a perfectly tuned background
-            — sized for any phone.
+
+          <p style={{ maxWidth: 640, opacity: 0.85, marginTop: 0 }}>
+            Connect your wallet to view your Miners and export perfect phone lock
+            screens.
           </p>
-        </div>
 
-        {/* RIGHT: PHONE */}
-        <div className="hero-phone">
-          <div className="phone-shell">
-            <div className="phone-screen">
-              <img
-                key={activeSrc}
-                src={activeSrc}
-                alt="Enchanted Miners lockscreen preview"
-                className="demo-img"
-                draggable={false}
-              />
-            </div>
+          <div style={{ height: 18 }} />
+
+          <div
+            style={{
+              width: "min(420px, 92vw)",
+              aspectRatio: "9 / 19.5",
+              borderRadius: 26,
+              overflow: "hidden",
+              boxShadow: "0 18px 44px rgba(0,0,0,0.45)",
+              background: "rgba(0,0,0,0.15)",
+              display: "grid",
+              placeItems: "center",
+            }}
+          >
+            <img
+              src="/enchanted-miners-preview.png"
+              alt="Enchanted Miners preview"
+              style={{ width: "100%", height: "100%", objectFit: "contain" }}
+            />
           </div>
-        </div>
+        </section>
+      </main>
+    );
+  }
+
+  // ====== CONNECTED: OWNER GRID ======
+  return (
+    <main style={{ padding: "18px 0 80px" }}>
+      <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 18px" }}>
+        <h1 style={{ margin: "8px 0 8px", fontSize: 28, letterSpacing: "0.04em" }}>
+          MY MINERS
+        </h1>
+        <p style={{ margin: 0, opacity: 0.75 }}>
+          Showing Enchanted Miners owned by your connected wallet.
+        </p>
+
+        <div style={{ height: 16 }} />
+
+        <NftGrid nfts={miners} loading={loading} error={error} />
       </section>
-
-      <style jsx>{`
-        /* ---------------- HERO LAYOUT ---------------- */
-
-        .hero {
-          max-width: 1100px;
-          margin: 0 auto;
-          padding: 48px 24px 0;
-          display: grid;
-          grid-template-columns: 1.1fr 0.9fr;
-          align-items: center;
-          gap: 48px;
-        }
-
-        /* ---------------- TEXT ---------------- */
-
-        .hero-text {
-          text-align: left;
-        }
-
-        .miners-title {
-          font-size: 38px;
-          font-weight: 800;
-          letter-spacing: 0.06em;
-          margin-bottom: 14px;
-          text-transform: uppercase;
-          color: #1f3d2b;
-          text-shadow: 0 2px 6px rgba(255, 255, 255, 0.35);
-        }
-
-        .miners-sub {
-          font-size: 15px;
-          max-width: 520px;
-          color: #1f3d2b;
-          opacity: 0.9;
-          line-height: 1.5;
-        }
-
-        /* ---------------- PHONE ---------------- */
-
-        .hero-phone {
-          display: flex;
-          justify-content: center;
-        }
-
-        .phone-shell {
-          width: 325px; /* ⬅️ 25% bigger */
-          border-radius: 34px;
-          padding: 14px;
-          background: rgba(255, 255, 255, 0.18);
-          border: 1px solid rgba(0, 0, 0, 0.08);
-          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-          backdrop-filter: blur(6px);
-        }
-
-        .phone-screen {
-          width: 100%;
-          aspect-ratio: 9 / 19.5;
-          border-radius: 26px;
-          overflow: hidden;
-          background: rgba(0, 0, 0, 0.45);
-        }
-
-        .demo-img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-          user-select: none;
-        }
-
-        /* ---------------- MOBILE ---------------- */
-
-        @media (max-width: 820px) {
-          .hero {
-            grid-template-columns: 1fr;
-            gap: 32px;
-            padding-top: 32px;
-            text-align: center;
-          }
-
-          .hero-text {
-            text-align: center;
-          }
-
-          .miners-title {
-            font-size: 30px;
-          }
-
-          .miners-sub {
-            margin: 0 auto;
-          }
-        }
-
-        @media (max-width: 480px) {
-          .phone-shell {
-            width: 270px; /* scaled mobile size */
-          }
-        }
-      `}</style>
     </main>
   );
 }
