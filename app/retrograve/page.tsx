@@ -45,7 +45,7 @@ function CountdownSmall({ targetIso }: { targetIso: string }) {
         .cd {
           position: absolute;
           left: clamp(12px, 7vw, 140px);
-          top: 96px;
+          top: 110px; /* ⬇️ pushed down from header */
           transform: scale(0.82);
           transform-origin: left top;
           background: rgba(22, 14, 35, 0.55);
@@ -70,29 +70,9 @@ function CountdownSmall({ targetIso }: { targetIso: string }) {
           gap: 8px;
         }
 
-        @media (max-width: 1200px) {
-          .cd {
-            top: 90px;
-            transform: scale(0.8);
-          }
-        }
-        @media (max-width: 980px) {
-          .cd {
-            top: 84px;
-            transform: scale(0.78);
-          }
-        }
         @media (max-width: 760px) {
           .cd {
-            left: 12px;
-            top: 76px;
-            transform: scale(0.76);
-          }
-        }
-        @media (max-width: 560px) {
-          .cd {
-            top: 68px;
-            transform: scale(0.74);
+            top: 96px;
           }
         }
         @media (max-width: 420px) {
@@ -109,7 +89,7 @@ function Pill({ v, label }: { v: number; label: string }) {
   const vv = String(v).padStart(2, "0");
   return (
     <>
-      <div className="pill" role="group" aria-label={label.toLowerCase()}>
+      <div className="pill">
         <div className="num">{vv}</div>
         <div className="txt">{label}</div>
       </div>
@@ -119,14 +99,7 @@ function Pill({ v, label }: { v: number; label: string }) {
           min-width: 56px;
           padding: 7px 9px;
           border-radius: 10px;
-          background:
-            radial-gradient(
-              120% 200% at 80% 0%,
-              rgba(183, 122, 255, 0.24),
-              rgba(30, 12, 60, 0.18) 60%,
-              rgba(30, 12, 60, 0.1) 100%
-            ),
-            rgba(32, 18, 48, 0.5);
+          background: rgba(32, 18, 48, 0.5);
           box-shadow:
             inset 0 0 0 1px rgba(183, 122, 255, 0.22),
             0 6px 14px rgba(0, 0, 0, 0.33);
@@ -138,24 +111,18 @@ function Pill({ v, label }: { v: number; label: string }) {
           font-family: "VT323", monospace;
           font-size: 20px;
           color: #fff;
-          line-height: 1;
-          text-shadow: 0 0 8px rgba(183, 122, 255, 0.7);
         }
         .txt {
           font-size: 9px;
           letter-spacing: 0.06em;
           color: #cdb8ff;
-          opacity: 0.85;
         }
       `}</style>
     </>
   );
 }
-/** ===== End countdown ===== */
 
 export default function HomePage() {
-  const SHOW_COUNTDOWN = true;
-
   const demoImages = [
     "/demo/1.png",
     "/demo/2.png",
@@ -166,24 +133,23 @@ export default function HomePage() {
   ];
 
   const bg: BgChoice = { kind: "color", value: "#3e2d75" };
-
-  // Jan 1, 2026 12:00 PM PST (-08:00 on that date)
   const TARGET_PST = "2026-01-01T12:00:00-08:00";
 
   return (
     <main className="home-wrap">
       <OgWLBanner />
 
+      {/* HERO */}
       <section className="hero">
         <h1 className="title">RETROGRAVE LOCKSCREEN LOCKER</h1>
         <p className="subtitle">
           Download your NFT with the perfect background—sized for any phone.
         </p>
-        {SHOW_COUNTDOWN && <CountdownSmall targetIso={TARGET_PST} />}
+        <CountdownSmall targetIso={TARGET_PST} />
       </section>
 
+      {/* SHOWCASE */}
       <div className="showcase-wrap">
-        {/* ✅ match MAGApixel phone size */}
         <div className="phone-shell">
           <PhoneShowcase
             images={demoImages}
@@ -196,8 +162,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      <ScrollHint targetId="roadmap" />
-
       <section id="roadmap" className="roadmap-wrap">
         <Roadmap />
       </section>
@@ -207,34 +171,28 @@ export default function HomePage() {
       <style jsx>{`
         .home-wrap {
           display: grid;
-          gap: 20px;
+          gap: 12px; /* ⬆️ overall tighter vertical rhythm */
           justify-items: center;
-          padding: 2px 12px 48px;
+          padding: 88px 12px 48px; /* ⬇️ pushes everything down from header */
         }
 
         .hero {
           position: relative;
           display: grid;
-          gap: 8px;
+          gap: 6px; /* ⬅️ tighter title/subtitle spacing */
           justify-items: center;
-          margin-top: 0;
           width: 100%;
         }
 
         .title {
-          margin: 6px 0 0;
+          margin: 0;
           text-align: center;
-          font-family: "Oswald", system-ui, -apple-system, Segoe UI, Roboto,
-            Ubuntu, Cantarell, "Helvetica Neue", Arial;
           font-weight: 800;
           font-size: clamp(28px, 4.2vw, 56px);
-          letter-spacing: 1px;
-          color: #ffffff;
+          color: #fff;
           text-shadow:
             0 0 8px rgba(183, 122, 255, 0.6),
             0 0 18px rgba(183, 122, 255, 0.35);
-          line-height: 1.05;
-          white-space: nowrap;
         }
 
         .subtitle {
@@ -242,114 +200,31 @@ export default function HomePage() {
           text-align: center;
           color: #bda3ff;
           font-size: 15px;
-          letter-spacing: 0.3px;
         }
 
         .showcase-wrap {
-          margin-top: 10px;
+          margin-top: 6px; /* ⬆️ bring phone closer to text */
           display: flex;
           justify-content: center;
           width: 100%;
         }
 
-        /* ✅ EXACT same sizing pattern as MAGApixel landing */
         .phone-shell {
-          transform: translateY(22px) scale(0.7);
+          transform: translateY(12px) scale(0.7); /* ⬆️ lift phone upward */
           transform-origin: top center;
           filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.35));
         }
 
-        @media (max-width: 980px) {
-          .phone-shell {
-            transform: translateY(10px) scale(0.75);
-          }
+        .roadmap-wrap {
+          margin-top: 12px; /* ⬆️ bring roadmap up */
         }
 
         @media (max-width: 520px) {
           .phone-shell {
-            transform: translateY(6px) scale(0.78);
+            transform: translateY(8px) scale(0.78);
           }
-        }
-
-        @media (max-width: 420px) {
-          .title {
-            white-space: normal;
-            line-height: 1.1;
-            font-size: clamp(22px, 7vw, 34px);
-          }
-        }
-
-        .roadmap-wrap {
-          margin-top: -6px;
         }
       `}</style>
     </main>
-  );
-}
-
-function ScrollHint({ targetId }: { targetId: string }) {
-  return (
-    <>
-      <button
-        className="scroll-hint"
-        aria-label="Scroll to roadmap"
-        onClick={() => {
-          const el = document.getElementById(targetId);
-          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-        }}
-      >
-        <span className="chev" aria-hidden>
-          ▼
-        </span>
-      </button>
-
-      <style jsx>{`
-        .scroll-hint {
-          position: sticky;
-          top: 8px;
-          margin-top: -4px;
-          border: 0;
-          background: transparent;
-          cursor: pointer;
-          display: grid;
-          place-items: center;
-          width: 42px;
-          height: 28px;
-          opacity: 0.8;
-          transition: opacity 0.2s ease, transform 0.2s ease;
-          z-index: 5;
-        }
-        .scroll-hint:hover {
-          opacity: 1;
-          transform: translateY(-1px);
-        }
-        .chev {
-          font-family: "VT323", monospace;
-          font-size: 18px;
-          line-height: 1;
-          color: #ffffff;
-          text-shadow:
-            0 0 8px rgba(183, 122, 255, 0.65),
-            0 0 14px rgba(183, 122, 255, 0.45);
-          animation: pulse 1.8s ease-in-out infinite;
-        }
-        @keyframes pulse {
-          0%,
-          100% {
-            transform: translateY(0);
-            opacity: 0.85;
-          }
-          50% {
-            transform: translateY(4px);
-            opacity: 1;
-          }
-        }
-        @media (max-width: 420px) {
-          .scroll-hint {
-            display: none;
-          }
-        }
-      `}</style>
-    </>
   );
 }
