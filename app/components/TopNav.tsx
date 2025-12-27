@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 
 type ActiveMode = "exact" | "starts";
 type NavItem =
@@ -20,20 +21,31 @@ export default function TopNav() {
   const path = usePathname() || "";
   const sp = useSearchParams();
 
-  // -------------------------
-  // 1) NORMALIZE PROJECT ID
-  // -------------------------
-  const projectFromQuery = (sp.get("project") || "").trim().toLowerCase();
-
-  // supports: /locker/magapixel, /locker/miners, /locker/retrograve (if you ever do)
-  const projectFromLockerPath = (() => {
+  // supports: /locker/<project>
+  const projectFromLockerPath = useMemo(() => {
     if (!path.startsWith("/locker/")) return "";
     const parts = path.split("/").filter(Boolean); // ["locker", "magapixel"]
     return (parts[1] || "").trim().toLowerCase();
-  })();
+  }, [path]);
 
-  // final normalized "project" string we use everywhere
-  const project = projectFromQuery || projectFromLockerPath;
+  // ✅ robust project detection (searchParams + window fallback)
+  const [project, setProject] = useState<string>("");
+
+  useEffect(() => {
+    // 1) try next/navigation search params first
+    const fromSp = (sp.get("project") || "").trim().toLowerCase();
+
+    // 2) fallback: window.location (always correct on client)
+    let fromWindow = "";
+    try {
+      const u = new URL(window.location.href);
+      fromWindow = (u.searchParams.get("project") || "").trim().toLowerCase();
+    } catch {}
+
+    // 3) pick the best
+    const finalProject = fromSp || fromWindow || projectFromLockerPath || "";
+    setProject(finalProject);
+  }, [sp, projectFromLockerPath, path]);
 
   const isActiveExact = (href: string) => path === href;
   const isActiveStarts = (href: string) => path === href || path.startsWith(href + "/");
@@ -84,8 +96,12 @@ export default function TopNav() {
           justifyContent: "center",
           gap: "28px",
           padding: "0 18px",
-          zIndex: 50,
-          borderBottom: "1px solid rgba(255,255,255,0.10)",
+          zIndex: 9999,
+
+          // ✅ remove the “black line” under the nav
+          borderBottom: "none",
+
+          // optional: gives a nicer feel over backgrounds
           backdropFilter: "blur(6px)",
         }}
       >
@@ -115,7 +131,7 @@ export default function TopNav() {
   };
 
   // -------------------------
-  // 2) NAV VARIANTS (ADD NEW PROJECTS HERE)
+  // NAV VARIANTS (safe add later)
   // -------------------------
   const NAVS: NavVariant[] = [
     {
@@ -136,11 +152,7 @@ export default function TopNav() {
       match: ({ path, project }) => {
         const p = project;
         const isMinersProject = p === "miners" || p === "enchanted" || p === "enchanted-miners";
-        return (
-          isMinersProject ||
-          path.startsWith("/enchanted-miners") ||
-          path.startsWith("/my-miners")
-        );
+        return isMinersProject || path.startsWith("/enchanted-miners") || path.startsWith("/my-miners");
       },
     },
 
@@ -182,16 +194,12 @@ export default function TopNav() {
     },
   ];
 
-  // -------------------------
-  // 3) PICK THE FIRST MATCH
-  // -------------------------
   const found = NAVS.find((n) => n.match({ path, project }));
 
   if (found) {
     return <FixedBar barColor={found.barColor} textColor={found.textColor} links={found.links} />;
   }
 
-  // Default fallback
   return (
     <FixedBar
       barColor="#0b0b0f"
