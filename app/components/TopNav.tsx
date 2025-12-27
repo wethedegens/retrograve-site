@@ -1,198 +1,184 @@
+// app/components/TopNav.tsx
 "use client";
 
 import Link from "next/link";
+import { useEffect, useMemo } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
-export default function TopNav() {
-  const path = usePathname();
-  const sp = useSearchParams();
+type NavLink =
+  | { type: "link"; label: string; href: string; active?: "exact" | "starts" }
+  | { type: "a"; label: string; href: string };
 
-  // ✅ Fallback: read query params from window after mount
-  const [projectFromWindow, setProjectFromWindow] = useState("");
+type FixedBarProps = {
+  barColor?: string;
+  textColor?: string;
+  links: NavLink[];
+};
 
-  useEffect(() => {
-    try {
-      const qs = new URLSearchParams(window.location.search);
-      setProjectFromWindow((qs.get("project") || "").toLowerCase());
-    } catch {
-      setProjectFromWindow("");
-    }
-    // rerun when search params change
-  }, [sp]);
+function FixedBar({
+  barColor = "#0b0b0f",
+  textColor = "#ffffff",
+  links,
+}: FixedBarProps) {
+  const pathname = usePathname();
 
-  const project = useMemo(() => {
-    const p1 = (sp.get("project") || "").toLowerCase();
-    const p2 = (projectFromWindow || "").toLowerCase();
-    return p1 || p2;
-  }, [sp, projectFromWindow]);
+  const isActive = (href: string, mode?: "exact" | "starts") => {
+    if (!href.startsWith("/")) return false;
+    if (mode === "exact") return pathname === href;
+    if (mode === "starts") return pathname.startsWith(href);
+    return false;
+  };
 
-  // Treat BOTH /enchanted-miners/* and /my-miners as Enchanted Miners pages
-  // Also support /locker?project=miners
-  const isMiners =
-    path.startsWith("/enchanted-miners") ||
-    path.startsWith("/my-miners") ||
-    (path.startsWith("/locker") && project === "miners");
-
-  // MAGApixel pages
-  // Also support /locker?project=magapixel
-  const isMagapixel =
-    path.startsWith("/locker/magapixel") ||
-    path.startsWith("/magapixel-nfts") ||
-    (path.startsWith("/locker") && project === "magapixel");
-
-  // RetroGrave pages
-  const isRetrograve = path.startsWith("/retrograve") || path.startsWith("/retrogs");
-
-  const isActiveExact = (href: string) => path === href;
-  const isActiveStarts = (href: string) => path === href || path.startsWith(href + "/");
-
-  // Shared fixed-bar styles
-  const FixedBar = ({
-    barColor,
-    textColor,
-    links,
-  }: {
-    barColor: string;
-    textColor: string;
-    links: Array<
-      | { type: "link"; label: string; href: string; active?: "exact" | "starts" }
-      | { type: "a"; label: string; href: string }
-    >;
-  }) => {
-    const baseLinkStyle = {
-      fontSize: "16px",
-      color: textColor,
-      textDecoration: "none" as const,
-      opacity: 0.9,
-      letterSpacing: "0.06em",
-      fontFamily: "VT323, monospace",
-    };
-
-    const activeLinkStyle = {
-      ...baseLinkStyle,
-      textDecoration: "underline" as const,
-      textDecorationThickness: "2px",
-      textUnderlineOffset: "4px",
-      opacity: 1,
-    };
-
-    const pickStyle = (href: string, mode?: "exact" | "starts") => {
-      if (!mode) return baseLinkStyle;
-      const active = mode === "exact" ? isActiveExact(href) : isActiveStarts(href);
-      return active ? activeLinkStyle : baseLinkStyle;
-    };
-
-    return (
+  return (
+    <>
       <nav
         style={{
           position: "fixed",
           top: 0,
           left: 0,
           width: "100%",
-          height: "64px",
+          height: 64,
           backgroundColor: barColor,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          gap: "32px",
+          gap: 32,
           zIndex: 50,
+          padding: "0 16px",
+          boxSizing: "border-box",
         }}
       >
         {links.map((l) => {
-          if (l.type === "link") {
+          const key = `${l.type}:${l.label}:${l.href}`;
+
+          const commonStyle: React.CSSProperties = {
+            fontFamily: '"VT323", monospace',
+            fontWeight: 700,
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+            fontSize: 20,
+            color: textColor,
+            textDecoration: "none",
+            opacity: 0.92,
+            textShadow:
+              "0 0 10px rgba(183, 122, 255, 0.8), 0 0 20px rgba(183, 122, 255, 0.5)",
+            transition: "transform 0.18s ease, opacity 0.18s ease",
+            transform: "translateZ(0)",
+            whiteSpace: "nowrap",
+          };
+
+          if (l.type === "a") {
             return (
-              <Link key={l.label} href={l.href} style={pickStyle(l.href, l.active)}>
+              <a
+                key={key}
+                href={l.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={commonStyle}
+              >
                 {l.label}
-              </Link>
+              </a>
             );
           }
 
+          const active = isActive(l.href, l.active);
           return (
-            <a
-              key={l.label}
+            <Link
+              key={key}
               href={l.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={baseLinkStyle}
+              style={{
+                ...commonStyle,
+                opacity: active ? 1 : commonStyle.opacity,
+                transform: active ? "scale(1.06)" : commonStyle.transform,
+              }}
             >
               {l.label}
-            </a>
+            </Link>
           );
         })}
+
+        {/* wallet button stays right-ish on wide screens */}
+        <div
+          style={{
+            position: "absolute",
+            right: 14,
+            top: "50%",
+            transform: "translateY(-50%)",
+          }}
+        >
+          <WalletMultiButton />
+        </div>
       </nav>
-    );
-  };
 
-  /* =========================================================
-     1) ENCHANTED MINERS NAV
-     ========================================================= */
-  if (isMiners) {
-    return (
-      <FixedBar
-        barColor="#1f3d2b"
-        textColor="#ffffff"
-        links={[
-          { type: "link", label: "HOME", href: "/", active: "exact" },
-          { type: "link", label: "MY MINERS", href: "/my-miners", active: "exact" },
-          { type: "a", label: "COMMUNITY", href: "https://discord.gg/C5MfNP7hek" },
-          {
-            type: "a",
-            label: "COLLECT NOW",
-            href: "https://magiceden.us/marketplace/enchanted_miner",
-          },
-          { type: "a", label: "FOLLOW ON X", href: "https://x.com/enchanted_nfts" },
-        ]}
+      {/* spacer under fixed nav — MUST match page background to avoid black band */}
+      <div
+        style={{
+          height: 64,
+          backgroundColor: "var(--page-bg)",
+          backgroundImage: "var(--page-bg-image)",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center top",
+          backgroundSize: "cover",
+          backgroundAttachment: "fixed",
+        }}
       />
-    );
-  }
-
-  /* =========================================================
-     2) MAGAPIXEL NAV
-     ========================================================= */
-  if (isMagapixel) {
-    return (
-      <FixedBar
-        barColor="#af232a"
-        textColor="#ffffff"
-        links={[
-          { type: "link", label: "HOME", href: "/", active: "exact" },
-          { type: "link", label: "MY MAGAPIXELS", href: "/magapixel-nfts", active: "exact" },
-          { type: "a", label: "COMMUNITY", href: "https://discord.gg/ZVGtHUpHfb" },
-          { type: "a", label: "COLLECT NOW", href: "https://magiceden.us/marketplace/magapixel" },
-          { type: "a", label: "FOLLOW ON X", href: "https://x.com/MAGApixel_NFT" },
-        ]}
-      />
-    );
-  }
-
-  /* =========================================================
-     3) RETROGRAVE NAV
-     ========================================================= */
-  if (isRetrograve) {
-    return (
-      <FixedBar
-        barColor="#0b0b0f"
-        textColor="#ffffff"
-        links={[
-          { type: "link", label: "HOME", href: "/", active: "exact" },
-          { type: "link", label: "MY RETROGRAVES", href: "/retrograve", active: "starts" },
-          { type: "a", label: "COMMUNITY", href: "https://discord.gg/mSNHRFdCkS" },
-          { type: "a", label: "COLLECT NOW", href: "https://magiceden.io" },
-          { type: "a", label: "FOLLOW ON X", href: "https://x.com/RETROGRAVE_NFT" },
-        ]}
-      />
-    );
-  }
-
-  /* =========================================================
-     4) DEFAULT
-     ========================================================= */
-  return (
-    <FixedBar
-      barColor="#0b0b0f"
-      textColor="#ffffff"
-      links={[{ type: "link", label: "HOME", href: "/", active: "exact" }]}
-    />
+    </>
   );
+}
+
+export default function TopNav() {
+  const pathname = usePathname();
+  const sp = useSearchParams();
+
+  // Detect project from BOTH path + query param
+  const project = useMemo(() => {
+    const qp = (sp?.get("project") || "").toLowerCase();
+
+    // locker routes (your screenshot uses /locker?...&project=magapixel)
+    if (pathname.startsWith("/locker")) {
+      if (qp) return qp; // magapixel, miners, retrograve, etc.
+      return "retrograve";
+    }
+
+    // explicit project routes
+    if (pathname.startsWith("/enchanted-miners") || pathname.startsWith("/my-miners"))
+      return "miners";
+
+    if (pathname.startsWith("/retrograve") || pathname.startsWith("/retrogs"))
+      return "retrograve";
+
+    // default
+    return "retrograve";
+  }, [pathname, sp]);
+
+  // Ensure the BODY background vars match the page/project
+  useEffect(() => {
+    const root = document.documentElement;
+
+    // Only set defaults if you want project-level control here.
+    // If some pages already set these vars, this keeps the nav spacer consistent anyway.
+    if (project === "magapixel") {
+      root.style.setProperty("--page-bg", "#0078e9");
+      root.style.setProperty("--page-bg-image", 'url("/bg-ovaloface-blue.png")');
+    } else if (project === "miners") {
+      root.style.setProperty("--page-bg", "#0b0b0f");
+      root.style.setProperty("--page-bg-image", 'url("/bg-miners.png")');
+      // If you don't have bg-miners.png, comment the line above and it’ll just use --page-bg.
+    } else {
+      root.style.setProperty("--page-bg", "#111827");
+      root.style.setProperty("--page-bg-image", 'url("/bg-retrograve.png")');
+    }
+  }, [project]);
+
+  // FULL nav links (so you don't get stuck with HOME-only ever again)
+  const links: NavLink[] = [
+    { type: "link", label: "HOME", href: "/", active: "exact" },
+    { type: "link", label: "MY RETROGRAVES", href: "/retrogs", active: "starts" },
+    { type: "a", label: "COMMUNITY", href: "https://discord.gg/mSNHRFdCkS" },
+    { type: "link", label: "COLLECT NOW", href: "/collect", active: "starts" },
+    { type: "a", label: "FOLLOW ON X", href: "https://x.com/RETROGRAVE_NFT" },
+  ];
+
+  return <FixedBar barColor="#0b0b0f" textColor="#ffffff" links={links} />;
 }
