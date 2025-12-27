@@ -5,39 +5,22 @@ import { usePathname } from "next/navigation";
 import TopNav from "./TopNav";
 
 /**
- * Renders the RetroGrave header (TopNav) on every page
- * EXCEPT the LockScreened hub homepage (/).
+ * Renders the RetroGrave header (TopNav) on most pages
+ * but hides it on pages where the fixed bar + spacer causes layout issues.
  */
 export default function TopNavWrapper() {
   const pathname = usePathname();
 
-  // Hide nav ONLY on the LockScreened homepage
-  if (pathname === "/") {
-    return null;
-  }
+  // Hide nav on LockScreened hub homepage
+  if (pathname === "/") return null;
 
-  return (
-    <>
-      {/* ✅ DEBUG PILL — TEMP (remove after confirmed) */}
-      <div
-        style={{
-          position: "fixed",
-          top: 66,
-          left: 12,
-          zIndex: 10000,
-          background: "rgba(0,0,0,0.75)",
-          color: "#fff",
-          padding: "6px 10px",
-          borderRadius: 999,
-          fontSize: 12,
-          letterSpacing: "0.06em",
-          pointerEvents: "none",
-        }}
-      >
-        DEBUG WRAPPER: {pathname}
-      </div>
+  // Hide nav on locker / composer flows (these pages already have their own UI/back links)
+  if (pathname.startsWith("/locker")) return null;
+  if (pathname.startsWith("/enchanted-miners")) return null;
 
-      <TopNav />
-    </>
-  );
+  // Optional: also hide on these if they are “tool pages”
+  // if (pathname.startsWith("/magapixel-nfts")) return null;
+  // if (pathname.startsWith("/my-miners")) return null;
+
+  return <TopNav />;
 }
