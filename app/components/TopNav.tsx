@@ -12,11 +12,7 @@ type NavLink =
   | { type: "link"; label: string; href: string }
   | { type: "a"; label: string; href: string };
 
-function FixedBar({
-  links,
-}: {
-  links: NavLink[];
-}) {
+function FixedBar({ links }: { links: NavLink[] }) {
   return (
     <nav
       style={{
@@ -35,8 +31,8 @@ function FixedBar({
       }}
       aria-label="Top navigation"
     >
-      {/* left wallet */}
-      <div style={{ position: "absolute", left: 12, top: 12 }}>
+      {/* RIGHT wallet only (no duplicates) */}
+      <div style={{ position: "absolute", right: 12, top: 12 }}>
         <WalletMultiButton />
       </div>
 
@@ -63,11 +59,6 @@ function FixedBar({
           );
         })}
       </div>
-
-      {/* right wallet (optional mirror; comment out if you only want left) */}
-      <div style={{ position: "absolute", right: 12, top: 12 }}>
-        <WalletMultiButton />
-      </div>
     </nav>
   );
 }
@@ -86,10 +77,14 @@ const navLinkStyle: React.CSSProperties = {
 };
 
 export default function TopNav({ project }: { project: NavProject }) {
-  // ✅ INTERNAL LINK (this is the key fix)
+  /**
+   * ✅ KEY FIX:
+   * You said /my-miners is a placeholder.
+   * So miners nav should go to /enchanted-miners (the real working page with art).
+   */
   const internal =
     project === "miners"
-      ? { type: "link" as const, label: "MY MINERS", href: "/my-miners" }
+      ? { type: "link" as const, label: "MY MINERS", href: "/enchanted-miners" }
       : project === "magapixel"
       ? {
           type: "link" as const,
@@ -102,7 +97,6 @@ export default function TopNav({ project }: { project: NavProject }) {
           href: "/retrogs",
         };
 
-  // ✅ EXTERNALS stay consistent across the whole site
   const links: NavLink[] = [
     { type: "link", label: "HOME", href: "/" },
     internal,
@@ -111,10 +105,10 @@ export default function TopNav({ project }: { project: NavProject }) {
     { type: "a", label: "FOLLOW ON X", href: "https://x.com/RETROGRAVE_NFT" },
   ];
 
-  // Add a spacer so content doesn't hide under fixed nav
   return (
     <>
       <FixedBar links={links} />
+      {/* spacer so content isn't hidden under fixed nav */}
       <div style={{ height: 64 }} />
     </>
   );
