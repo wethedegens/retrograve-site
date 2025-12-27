@@ -21,28 +21,12 @@ export default function MagapixelLandingPage() {
           <h2 className="lp-subtitle">LOCKSCREEN LOCKER</h2>
 
           <p className="lp-copy">
-            Download your MAGAPIXEL NFT with a perfectly tuned background — sized for any phone.
+            <span className="lp-copy-strong">Phone-native wallpapers</span> for
+            MAGAPIXEL.
+            <br />
+            Connect your wallet, pick a MAGAPIXEL, swap backgrounds, and export
+            for any device.
           </p>
-
-          <div className="lp-actions">
-            <a
-              className="lp-btn lp-btn-primary"
-              href="https://x.com/RETROGRAVE_NFT"
-              target="_blank"
-              rel="noreferrer"
-            >
-              FOLLOW MAGAPIXEL ON X
-            </a>
-
-            <a
-              className="lp-btn lp-btn-ghost"
-              href="https://discord.gg/mSNHRFdCkS"
-              target="_blank"
-              rel="noreferrer"
-            >
-              JOIN MAGAPIXEL DISCORD
-            </a>
-          </div>
         </div>
 
         {/* RIGHT */}
@@ -75,14 +59,22 @@ export default function MagapixelLandingPage() {
         .lp-inner {
           max-width: 1200px;
           margin: 0 auto;
+
           display: grid;
-          grid-template-columns: 1.1fr 0.9fr;
+          grid-template-columns: 1fr 520px; /* match Enchanted layout */
           gap: 28px;
+
           align-items: center;
+          min-height: calc(100vh - 64px - 80px);
         }
 
+        /* 🔑 same fix as Enchanted: lift text to match phone’s visual center */
         .lp-left {
           max-width: 640px;
+          position: relative;
+          top: -48px;
+
+          margin-left: clamp(0px, 3vw, 28px);
         }
 
         .lp-title {
@@ -115,40 +107,10 @@ export default function MagapixelLandingPage() {
           color: rgba(255, 255, 255, 0.7);
         }
 
-        .lp-actions {
-          margin-top: 16px;
-          display: flex;
-          gap: 10px;
-          flex-wrap: wrap;
-          align-items: center;
-        }
-
-        .lp-btn {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          height: 34px;
-          padding: 0 14px;
-          border-radius: 999px;
-          font-size: 11px;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          text-decoration: none;
-          border: 1px solid rgba(255, 255, 255, 0.25);
-          color: rgba(255, 255, 255, 0.88);
-          background: rgba(0, 0, 0, 0.25);
-          backdrop-filter: blur(6px);
-        }
-
-        .lp-btn-primary {
-          background: rgba(255, 255, 255, 0.9);
-          color: rgba(10, 10, 14, 0.9);
-          border: 1px solid rgba(255, 255, 255, 0.9);
-        }
-
-        .lp-btn-ghost:hover,
-        .lp-btn-primary:hover {
-          transform: translateY(-1px);
+        .lp-copy-strong {
+          font-weight: 900;
+          font-size: 14px;
+          color: rgba(255, 255, 255, 0.9);
         }
 
         .lp-right {
@@ -156,7 +118,7 @@ export default function MagapixelLandingPage() {
           justify-content: center;
         }
 
-        /* ✅ phone down a bit + ~30% smaller */
+        /* keep your phone positioning the same */
         .phone-shell {
           transform: translateY(22px) scale(0.7);
           transform-origin: top center;
@@ -167,14 +129,15 @@ export default function MagapixelLandingPage() {
           .lp-inner {
             grid-template-columns: 1fr;
             text-align: center;
+            min-height: auto;
             padding-top: 8px;
           }
+
           .lp-left {
+            top: 0;
             margin: 0 auto;
           }
-          .lp-actions {
-            justify-content: center;
-          }
+
           .phone-shell {
             transform: translateY(10px) scale(0.75);
           }
