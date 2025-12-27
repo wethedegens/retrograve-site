@@ -45,7 +45,7 @@ function CountdownSmall({ targetIso }: { targetIso: string }) {
         .cd {
           position: absolute;
           left: clamp(12px, 7vw, 140px);
-          top: 110px; /* ⬇️ pushed down from header */
+          top: 110px;
           transform: scale(0.82);
           transform-origin: left top;
           background: rgba(22, 14, 35, 0.55);
@@ -171,15 +171,19 @@ export default function HomePage() {
       <style jsx>{`
         .home-wrap {
           display: grid;
-          gap: 12px; /* ⬆️ overall tighter vertical rhythm */
           justify-items: center;
-          padding: 40px 12px 48px; /* ⬇️ pushes everything down from header */
+
+          /* ✅ reduce overall vertical spacing between blocks */
+          gap: 4px;
+
+          /* keep it under the fixed top nav */
+          padding: 40px 12px 48px;
         }
 
         .hero {
           position: relative;
           display: grid;
-          gap: 2px; /* ⬅️ tighter title/subtitle spacing */
+          gap: 2px;
           justify-items: center;
           width: 100%;
         }
@@ -203,25 +207,39 @@ export default function HomePage() {
         }
 
         .showcase-wrap {
-          margin-top: 2px; /* ⬆️ bring phone closer to text */
+          margin-top: 0px;
           display: flex;
           justify-content: center;
           width: 100%;
         }
 
+        /* ✅ THIS is the main fix: pull phone UP so Roadmap sits closer */
         .phone-shell {
-          transform: translateY(8px) scale(0.7); /* ⬆️ lift phone upward */
+          transform: translateY(-6px) scale(0.7);
           transform-origin: top center;
           filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.35));
         }
 
+        /* ✅ Bring Roadmap (and everything after) MUCH closer to phone */
         .roadmap-wrap {
-          margin-top: 4px; /* ⬆️ bring roadmap up */
+          margin-top: -44px;
+          width: 100%;
+          display: flex;
+          justify-content: center;
+        }
+
+        /* optional: FAQ also gets pulled up slightly */
+        :global(#faq),
+        :global(.faq-wrap) {
+          margin-top: -10px;
         }
 
         @media (max-width: 520px) {
           .phone-shell {
-            transform: translateY(8px) scale(0.78);
+            transform: translateY(-2px) scale(0.78);
+          }
+          .roadmap-wrap {
+            margin-top: -22px;
           }
         }
       `}</style>
