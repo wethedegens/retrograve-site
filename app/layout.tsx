@@ -12,6 +12,14 @@ export const metadata: Metadata = {
     "LockScreened hub for phone-native NFT lock screens, plus RetroGrave legendary lock screens.",
 };
 
+/**
+ * ✅ CRITICAL: Prevent Next/Vercel from trying to prerender wallet-driven pages.
+ * This stops build-time "prerender-error" crashes for routes like:
+ * /magapixel-nfts, /my-miners, /locker, /enchanted-miners, etc.
+ */
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default function RootLayout({
   children,
 }: {
@@ -19,12 +27,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      {/* ✅ add a stable class so pages can override body background reliably */}
+      {/* ✅ stable class so pages can override body background reliably */}
       <body className="app-body">
         <Providers>
           <WalletGate>
             <RedirectOnConnect />
-            {/* Header is now controlled by TopNavWrapper */}
             <TopNavWrapper />
             {children}
           </WalletGate>
