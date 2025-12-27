@@ -72,7 +72,7 @@ export default function MagapixelLandingPage() {
         .lp-left {
           max-width: 640px;
           position: relative;
-          top: -48px;
+          top: -100px;
 
           margin-left: clamp(0px, 3vw, 28px);
         }
