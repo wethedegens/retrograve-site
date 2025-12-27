@@ -173,13 +173,13 @@ export default function HomePage() {
           display: grid;
           gap: 12px; /* ⬆️ overall tighter vertical rhythm */
           justify-items: center;
-          padding: 88px 12px 48px; /* ⬇️ pushes everything down from header */
+          padding: 40px 12px 48px; /* ⬇️ pushes everything down from header */
         }
 
         .hero {
           position: relative;
           display: grid;
-          gap: 6px; /* ⬅️ tighter title/subtitle spacing */
+          gap: 2px; /* ⬅️ tighter title/subtitle spacing */
           justify-items: center;
           width: 100%;
         }
@@ -203,14 +203,14 @@ export default function HomePage() {
         }
 
         .showcase-wrap {
-          margin-top: 6px; /* ⬆️ bring phone closer to text */
+          margin-top: 2px; /* ⬆️ bring phone closer to text */
           display: flex;
           justify-content: center;
           width: 100%;
         }
 
         .phone-shell {
-          transform: translateY(12px) scale(0.7); /* ⬆️ lift phone upward */
+          transform: translateY(8px) scale(0.7); /* ⬆️ lift phone upward */
           transform-origin: top center;
           filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.35));
         }
