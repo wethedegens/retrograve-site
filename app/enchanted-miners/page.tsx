@@ -4,7 +4,6 @@
 import PhoneShowcase from "../components/PhoneShowcase";
 
 export default function EnchantedMinersLandingPage() {
-  // ✅ Your real demo images in /public/demo/
   const previewImages = [
     "/demo/enchanted-1.png",
     "/demo/enchanted-2.png",
@@ -48,7 +47,7 @@ export default function EnchantedMinersLandingPage() {
         .lp-wrap {
           min-height: 100vh;
           padding: 18px 18px 80px;
-          padding-top: 64px; /* fixed nav space */
+          padding-top: 64px; /* fixed nav */
           background-image: url("/enchanted-miners-bg.png");
           background-repeat: no-repeat;
           background-position: center center;
@@ -61,20 +60,24 @@ export default function EnchantedMinersLandingPage() {
           margin: 0 auto;
 
           display: grid;
-          grid-template-columns: 1fr 520px; /* left + fixed phone column */
+          grid-template-columns: 1fr 520px;
           gap: 28px;
 
-          /* ✅ aligns the LEFT block vertically with the PHONE block */
+          /* keep grid centered */
           align-items: center;
-          min-height: calc(100vh - 64px - 80px); /* roughly center in viewport */
+
+          min-height: calc(100vh - 64px - 80px);
         }
 
+        /* 🔑 THIS IS THE FIX */
         .lp-left {
           max-width: 640px;
 
-          /* ✅ visually center the text against the phone */
+          /* pull text UP to match phone’s visual center */
+          position: relative;
+          top: -48px;
+
           margin-left: clamp(0px, 3vw, 28px);
-          transform: translateY(10px);
         }
 
         .lp-title {
@@ -107,11 +110,10 @@ export default function EnchantedMinersLandingPage() {
           color: rgba(20, 35, 24, 0.7);
         }
 
-        /* ✅ bold + slightly larger for “Phone-native wallpapers” */
         .lp-copy-strong {
           font-weight: 900;
           font-size: 14px;
-          color: rgba(20, 35, 24, 0.88);
+          color: rgba(20, 35, 24, 0.9);
         }
 
         .lp-right {
@@ -119,7 +121,6 @@ export default function EnchantedMinersLandingPage() {
           justify-content: center;
         }
 
-        /* phone sizing/positioning */
         .phone-shell {
           transform: translateY(22px) scale(0.7);
           transform-origin: top center;
@@ -131,12 +132,11 @@ export default function EnchantedMinersLandingPage() {
             grid-template-columns: 1fr;
             text-align: center;
             min-height: auto;
-            padding-top: 8px;
           }
 
           .lp-left {
+            top: 0;
             margin: 0 auto;
-            transform: translateY(0);
           }
 
           .phone-shell {
@@ -148,9 +148,11 @@ export default function EnchantedMinersLandingPage() {
           .lp-title {
             font-size: 34px;
           }
+
           .lp-subtitle {
             font-size: 24px;
           }
+
           .phone-shell {
             transform: translateY(6px) scale(0.78);
           }
