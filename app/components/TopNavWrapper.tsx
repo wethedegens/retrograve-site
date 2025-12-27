@@ -2,35 +2,46 @@
 
 import { useMemo } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import TopNav, { type TopNavProject } from "./TopNav";
+import TopNav from "./TopNav";
+
+/**
+ * TopNavWrapper
+ * - Chooses which nav to show based on the current route
+ * - Special case: /locker is shared, so we read ?project=magapixel|miners
+ */
+
+export type TopNavProject = "retrograve" | "magapixel" | "miners";
 
 export default function TopNavWrapper() {
-  const pathname = usePathname();
+  const pathname = usePathname() || "/";
   const sp = useSearchParams();
 
   const project = useMemo<TopNavProject>(() => {
-    // MAGAPIXEL routes
+    // ✅ Special: /locker is shared — use query param
+    if (pathname.startsWith("/locker")) {
+      const qp = (sp.get("project") || "").toLowerCase();
+      if (qp === "miners") return "miners";
+      if (qp === "magapixel") return "magapixel";
+      // fallback
+      return "retrograve";
+    }
+
+    // ✅ Route-based detection
     if (
       pathname.startsWith("/locker/magapixel") ||
-      pathname.startsWith("/magapixel-nfts")
+      pathname.startsWith("/magapixel-nfts") ||
+      pathname.startsWith("/retrogs")
     ) {
       return "magapixel";
     }
 
-    // ENCHANTED MINERS routes (and legacy /my-miners)
-    if (pathname.startsWith("/enchanted-miners") || pathname.startsWith("/my-miners")) {
+    if (
+      pathname.startsWith("/enchanted-miners") ||
+      pathname.startsWith("/my-miners")
+    ) {
       return "miners";
     }
 
-    // RetroGrave routes
-    if (pathname.startsWith("/retrogs") || pathname.startsWith("/retrograve")) {
-      return "retrograve";
-    }
-
-    // Locker base fallback (your existing behavior)
-    if (pathname.startsWith("/locker")) return "magapixel";
-
-    // Default identity
     return "retrograve";
   }, [pathname, sp]);
 
