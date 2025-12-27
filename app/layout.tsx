@@ -25,7 +25,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="app-body">
         <Providers>
-          {/* ✅ NAV SHOULD NOT LIVE INSIDE WALLETGATE */}
+          {/* ✅ NAV lives OUTSIDE WalletGate so it always renders */}
           <TopNavWrapper />
 
           <WalletGate>
