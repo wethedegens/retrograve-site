@@ -1,3 +1,4 @@
+// app/components/TopNav.tsx
 "use client";
 
 import Link from "next/link";
@@ -9,80 +10,75 @@ type NavItem =
   | { type: "link"; label: string; href: string; active?: ActiveMode }
   | { type: "a"; label: string; href: string };
 
-type NavVariant = {
-  id: string;
-  barColor: string;
-  textColor: string;
-  links: NavItem[];
-  match: (args: { path: string; project: string }) => boolean;
-};
+function safeLower(s: string | null | undefined) {
+  return (s || "").trim().toLowerCase();
+}
 
 export default function TopNav() {
   const path = usePathname() || "";
   const sp = useSearchParams();
 
-  // supports: /locker/<project>
   const projectFromLockerPath = useMemo(() => {
     if (!path.startsWith("/locker/")) return "";
-    const parts = path.split("/").filter(Boolean); // ["locker", "magapixel"]
-    return (parts[1] || "").trim().toLowerCase();
+    const parts = path.split("/").filter(Boolean);
+    return safeLower(parts[1] || "");
   }, [path]);
 
-  // ✅ robust project detection (searchParams + window fallback)
   const [project, setProject] = useState<string>("");
 
   useEffect(() => {
-    // 1) try next/navigation search params first
-    const fromSp = (sp.get("project") || "").trim().toLowerCase();
+    const fromSp = safeLower(sp.get("project"));
 
-    // 2) fallback: window.location (always correct on client)
     let fromWindow = "";
     try {
       const u = new URL(window.location.href);
-      fromWindow = (u.searchParams.get("project") || "").trim().toLowerCase();
+      fromWindow = safeLower(u.searchParams.get("project"));
     } catch {}
 
-    // 3) pick the best
-    const finalProject = fromSp || fromWindow || projectFromLockerPath || "";
-    setProject(finalProject);
-  }, [sp, projectFromLockerPath, path]);
+    setProject(fromSp || fromWindow || projectFromLockerPath || "");
+  }, [sp, projectFromLockerPath]);
 
   const isActiveExact = (href: string) => path === href;
   const isActiveStarts = (href: string) => path === href || path.startsWith(href + "/");
 
-  const FixedBar = ({
-    barColor,
-    textColor,
-    links,
-  }: {
-    barColor: string;
-    textColor: string;
-    links: NavItem[];
-  }) => {
-    const baseLinkStyle = {
-      fontSize: "16px",
-      color: textColor,
-      textDecoration: "none" as const,
-      opacity: 0.9,
-      letterSpacing: "0.06em",
-      whiteSpace: "nowrap" as const,
-    };
+  const INTERNAL: NavItem[] = [
+    { type: "link", label: "HOME", href: "/", active: "exact" },
+    { type: "link", label: "MY MAGAPIXELS", href: "/magapixel-nfts", active: "exact" },
+    { type: "link", label: "MY MINERS", href: "/my-miners", active: "exact" },
+    { type: "link", label: "MY RETROGRAVES", href: "/retrograve", active: "starts" },
+  ];
 
-    const activeLinkStyle = {
-      ...baseLinkStyle,
-      textDecoration: "underline" as const,
-      textDecorationThickness: "2px",
-      textUnderlineOffset: "4px",
-      opacity: 1,
-    };
+  const baseLinkStyle = {
+    fontSize: "16px",
+    color: "#ffffff",
+    textDecoration: "none" as const,
+    opacity: 0.95,
+    letterSpacing: "0.08em",
+    whiteSpace: "nowrap" as const,
+    fontFamily: "VT323, monospace",
+  };
 
-    const pickStyle = (href: string, mode?: ActiveMode) => {
-      if (!mode) return baseLinkStyle;
-      const active = mode === "exact" ? isActiveExact(href) : isActiveStarts(href);
-      return active ? activeLinkStyle : baseLinkStyle;
-    };
+  const activeLinkStyle = {
+    ...baseLinkStyle,
+    textDecoration: "underline" as const,
+    textDecorationThickness: "2px",
+    textUnderlineOffset: "4px",
+    opacity: 1,
+  };
 
-    return (
+  const styleFor = (item: NavItem) => {
+    if (item.type !== "link") return baseLinkStyle;
+    const mode = item.active;
+    const active = mode
+      ? mode === "exact"
+        ? isActiveExact(item.href)
+        : isActiveStarts(item.href)
+      : false;
+    return active ? activeLinkStyle : baseLinkStyle;
+  };
+
+  return (
+    <>
       <nav
         style={{
           position: "fixed",
@@ -90,121 +86,46 @@ export default function TopNav() {
           left: 0,
           width: "100%",
           height: "64px",
-          backgroundColor: barColor,
+
+          // ✅ IMPOSSIBLE TO MISS (TEMP)
+          background: "linear-gradient(90deg, #00ff9d, #00a3ff, #b400ff)",
+
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          gap: "28px",
-          padding: "0 18px",
+          gap: "22px",
+          padding: "0 14px",
           zIndex: 9999,
-
-          // ✅ remove the “black line” under the nav
           borderBottom: "none",
-
-          // optional: gives a nicer feel over backgrounds
-          backdropFilter: "blur(6px)",
         }}
       >
-        {links.map((l) => {
-          if (l.type === "link") {
-            return (
-              <Link key={l.label} href={l.href} style={pickStyle(l.href, l.active)}>
-                {l.label}
-              </Link>
-            );
-          }
-
-          return (
-            <a
-              key={l.label}
-              href={l.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={baseLinkStyle}
-            >
-              {l.label}
-            </a>
-          );
-        })}
+        {INTERNAL.map((l) => (
+          <Link key={l.label} href={l.href} style={styleFor(l)}>
+            {l.label}
+          </Link>
+        ))}
       </nav>
-    );
-  };
 
-  // -------------------------
-  // NAV VARIANTS (safe add later)
-  // -------------------------
-  const NAVS: NavVariant[] = [
-    {
-      id: "miners",
-      barColor: "#1f3d2b",
-      textColor: "#ffffff",
-      links: [
-        { type: "link", label: "HOME", href: "/", active: "exact" },
-        { type: "link", label: "MY MINERS", href: "/my-miners", active: "exact" },
-        { type: "a", label: "COMMUNITY", href: "https://discord.gg/C5MfNP7hek" },
-        {
-          type: "a",
-          label: "COLLECT NOW",
-          href: "https://magiceden.us/marketplace/enchanted_miner",
-        },
-        { type: "a", label: "FOLLOW ON X", href: "https://x.com/enchanted_nfts" },
-      ],
-      match: ({ path, project }) => {
-        const p = project;
-        const isMinersProject = p === "miners" || p === "enchanted" || p === "enchanted-miners";
-        return isMinersProject || path.startsWith("/enchanted-miners") || path.startsWith("/my-miners");
-      },
-    },
-
-    {
-      id: "magapixel",
-      barColor: "#af232a",
-      textColor: "#ffffff",
-      links: [
-        { type: "link", label: "HOME", href: "/", active: "exact" },
-        { type: "link", label: "MY MAGAPIXELS", href: "/magapixel-nfts", active: "exact" },
-        { type: "a", label: "COMMUNITY", href: "https://discord.gg/ZVGtHUpHfb" },
-        { type: "a", label: "COLLECT NOW", href: "https://magiceden.us/marketplace/magapixel" },
-        { type: "a", label: "FOLLOW ON X", href: "https://x.com/MAGApixel_NFT" },
-      ],
-      match: ({ path, project }) => {
-        return (
-          project === "magapixel" ||
-          path.startsWith("/locker/magapixel") ||
-          path.startsWith("/magapixel-nfts") ||
-          path.startsWith("/retrogs")
-        );
-      },
-    },
-
-    {
-      id: "retrograve",
-      barColor: "#0b0b0f",
-      textColor: "#ffffff",
-      links: [
-        { type: "link", label: "HOME", href: "/", active: "exact" },
-        { type: "link", label: "MY RETROGRAVES", href: "/retrograve", active: "starts" },
-        { type: "a", label: "COMMUNITY", href: "https://discord.gg/mSNHRFdCkS" },
-        { type: "a", label: "COLLECT NOW", href: "https://magiceden.io" },
-        { type: "a", label: "FOLLOW ON X", href: "https://x.com/RETROGRAVE_NFT" },
-      ],
-      match: ({ path, project }) => {
-        return project === "retrograve" || path.startsWith("/retrograve");
-      },
-    },
-  ];
-
-  const found = NAVS.find((n) => n.match({ path, project }));
-
-  if (found) {
-    return <FixedBar barColor={found.barColor} textColor={found.textColor} links={found.links} />;
-  }
-
-  return (
-    <FixedBar
-      barColor="#0b0b0f"
-      textColor="#ffffff"
-      links={[{ type: "link", label: "HOME", href: "/", active: "exact" }]}
-    />
+      {/* ✅ DEBUG LINE — TEMP */}
+      <div
+        style={{
+          position: "fixed",
+          top: 64,
+          left: 0,
+          width: "100%",
+          zIndex: 9999,
+          fontSize: 12,
+          fontFamily: "VT323, monospace",
+          letterSpacing: "0.08em",
+          color: "#fff",
+          background: "rgba(0,0,0,0.55)",
+          padding: "4px 10px",
+          textAlign: "center",
+          pointerEvents: "none",
+        }}
+      >
+        DEBUG NAV • path: {path} • project: {project || "(none)"}
+      </div>
+    </>
   );
 }

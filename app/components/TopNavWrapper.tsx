@@ -16,5 +16,28 @@ export default function TopNavWrapper() {
     return null;
   }
 
-  return <TopNav />;
+  return (
+    <>
+      {/* ✅ DEBUG PILL — TEMP (remove after confirmed) */}
+      <div
+        style={{
+          position: "fixed",
+          top: 66,
+          left: 12,
+          zIndex: 10000,
+          background: "rgba(0,0,0,0.75)",
+          color: "#fff",
+          padding: "6px 10px",
+          borderRadius: 999,
+          fontSize: 12,
+          letterSpacing: "0.06em",
+          pointerEvents: "none",
+        }}
+      >
+        DEBUG WRAPPER: {pathname}
+      </div>
+
+      <TopNav />
+    </>
+  );
 }
