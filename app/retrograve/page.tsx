@@ -216,7 +216,7 @@ export default function HomePage() {
              (tweakable, but this removes the giant dead space) */
           height: 640px;
 
-          margin-top: 10px;
+          margin-top: 15px;
         }
 
         .phone-shell {
