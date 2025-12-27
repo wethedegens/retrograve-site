@@ -1,26 +1,24 @@
-// app/components/TopNavWrapper.tsx
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import TopNav from "./TopNav";
 
 /**
- * Renders the RetroGrave header (TopNav) on most pages
- * but hides it on pages where the fixed bar + spacer causes layout issues.
+ * Show TopNav everywhere EXCEPT the true homepage (/ with no query params).
+ * This prevents the nav from disappearing on /locker routes.
  */
 export default function TopNavWrapper() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  // Hide nav on LockScreened hub homepage
-  if (pathname === "/") return null;
+  const isHome = pathname === "/";
+  const hasQuery = searchParams.toString().length > 0;
 
-  // Hide nav on locker / composer flows (these pages already have their own UI/back links)
-  if (pathname.startsWith("/locker")) return null;
-  if (pathname.startsWith("/enchanted-miners")) return null;
+  // ❌ Hide nav ONLY on the real homepage
+  if (isHome && !hasQuery) {
+    return null;
+  }
 
-  // Optional: also hide on these if they are “tool pages”
-  // if (pathname.startsWith("/magapixel-nfts")) return null;
-  // if (pathname.startsWith("/my-miners")) return null;
-
+  // ✅ Show nav everywhere else (locker, miners, magapixel, etc)
   return <TopNav />;
 }
