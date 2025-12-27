@@ -183,13 +183,17 @@ export default function HomePage() {
       </section>
 
       <div className="showcase-wrap">
-        <PhoneShowcase
-          images={demoImages}
-          intervalMs={3000}
-          bg={bg}
-          title="How it looks"
-          showHint={false}
-        />
+        {/* ✅ match MAGApixel phone size */}
+        <div className="phone-shell">
+          <PhoneShowcase
+            images={demoImages}
+            intervalMs={3000}
+            bg={bg}
+            title="How it looks"
+            showHint={false}
+            fit="cover"
+          />
+        </div>
       </div>
 
       <ScrollHint targetId="roadmap" />
@@ -243,6 +247,28 @@ export default function HomePage() {
 
         .showcase-wrap {
           margin-top: 10px;
+          display: flex;
+          justify-content: center;
+          width: 100%;
+        }
+
+        /* ✅ EXACT same sizing pattern as MAGApixel landing */
+        .phone-shell {
+          transform: translateY(22px) scale(0.7);
+          transform-origin: top center;
+          filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.35));
+        }
+
+        @media (max-width: 980px) {
+          .phone-shell {
+            transform: translateY(10px) scale(0.75);
+          }
+        }
+
+        @media (max-width: 520px) {
+          .phone-shell {
+            transform: translateY(6px) scale(0.78);
+          }
         }
 
         @media (max-width: 420px) {
