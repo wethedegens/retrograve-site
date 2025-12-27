@@ -72,7 +72,7 @@ export default function MagapixelLandingPage() {
         .lp-left {
           max-width: 640px;
           position: relative;
-          top: -100px;
+          top: -105px;
 
           margin-left: clamp(0px, 3vw, 28px);
         }
@@ -84,7 +84,7 @@ export default function MagapixelLandingPage() {
           text-transform: uppercase;
           font-weight: 900;
           line-height: 1.05;
-          color: rgba(255, 255, 255, 0.92);
+          color: rgba(16, 14, 14, 0.92);
           text-shadow: 0 10px 34px rgba(0, 0, 0, 0.35);
         }
 
