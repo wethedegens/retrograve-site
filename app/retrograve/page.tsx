@@ -214,9 +214,9 @@ export default function HomePage() {
 
           /* roughly the visible phone height area after scale(0.7)
              (tweakable, but this removes the giant dead space) */
-          height: 520px;
+          height: 640px;
 
-          margin-top: 6px;
+          margin-top: 10px;
         }
 
         .phone-shell {
