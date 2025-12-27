@@ -193,3 +193,22 @@ body {
 .phone-back-btn {
   display: none !important;
 }
+/* --- Wallet Adapter dropdown should be hidden until opened --- */
+.wallet-adapter-dropdown {
+  position: relative;
+}
+
+.wallet-adapter-dropdown-list {
+  display: none !important;      /* hide by default */
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* show only when wallet adapter marks it active/open */
+.wallet-adapter-dropdown-list.wallet-adapter-dropdown-list-active {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
