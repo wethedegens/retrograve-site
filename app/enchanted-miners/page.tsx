@@ -3,77 +3,31 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
-import NftGrid, { type NFT } from "../components/NftGrid";
+import { useRouter } from "next/navigation";
 
-// ✅ Enchanted Miners collection address
-const MINERS_COLLECTION = "GzhXjRxLXWkzW6vDVyHgbYmqW75xrfh4WvgVKQ8XA1su";
-
-// Optional creator fallback (leave empty if you don’t need it)
-const MINERS_CREATORS: string[] = [
-  // "CreatorPubkeyHere",
-];
-
-type ApiNft = any;
-
-function normalizeStr(x: any) {
-  return typeof x === "string" ? x : "";
-}
-
-function getAnyCollectionId(n: ApiNft): string {
-  return (
-    normalizeStr(n?.collection) ||
-    normalizeStr(n?.collectionId) ||
-    normalizeStr(n?.collectionAddress) ||
-    normalizeStr(n?.collection_address) ||
-    normalizeStr(n?.grouping?.[0]?.group_value) ||
-    normalizeStr(n?.collection?.address) ||
-    normalizeStr(n?.collection?.key) ||
-    ""
-  );
-}
-
-function getCreatorList(n: ApiNft): string[] {
-  const creators =
-    n?.creators ||
-    n?.creator ||
-    n?.metadata?.creators ||
-    n?.onchain?.creators ||
-    n?.content?.metadata?.creators ||
-    [];
-
-  if (Array.isArray(creators)) {
-    return creators
-      .map((c: any) => normalizeStr(c?.address || c?.creator || c))
-      .filter(Boolean);
-  }
-  return [];
-}
-
-function isMinerNft(n: ApiNft): boolean {
-  const cid = getAnyCollectionId(n);
-  if (cid && cid === MINERS_COLLECTION) return true;
-
-  if (MINERS_CREATORS.length) {
-    const c = getCreatorList(n);
-    return c.some((addr) => MINERS_CREATORS.includes(addr));
-  }
-
-  return false;
-}
+import NftGrid, { NFT } from "../components/NftGrid";
 
 export default function EnchantedMinersPage() {
-  const { publicKey } = useWallet();
+  const { publicKey, connected } = useWallet();
+  const router = useRouter();
 
   const owner = publicKey?.toBase58() || "";
-  const isConnected = !!owner;
 
-  const [all, setAll] = useState<NFT[]>([]);
+  const [miners, setMiners] = useState<NFT[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // You can hard-code filters here later if you want only Miners.
+  // For now we rely on your existing /api/nfts behavior (same pattern as other pages).
+  // If your /api/nfts needs a "project" flag, we send it below.
+  const body = useMemo(() => {
+    return JSON.stringify({ owner, project: "miners" });
+  }, [owner]);
+
   useEffect(() => {
-    if (!owner) {
-      setAll([]);
+    if (!connected || !owner) {
+      setMiners([]);
+      setError(null);
       return;
     }
 
@@ -87,7 +41,7 @@ export default function EnchantedMinersPage() {
         const r = await fetch("/api/nfts", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ owner }),
+          body,
           cache: "no-store",
         });
 
@@ -96,14 +50,8 @@ export default function EnchantedMinersPage() {
           throw new Error(msg);
         }
 
-        const data = await r.json();
-        const list: any[] = Array.isArray(data)
-          ? data
-          : Array.isArray(data?.nfts)
-          ? data.nfts
-          : [];
-
-        if (!cancelled) setAll(list as unknown as NFT[]);
+        const data = (await r.json()) as NFT[];
+        if (!cancelled) setMiners(Array.isArray(data) ? data : []);
       } catch (e: any) {
         if (!cancelled) setError(e?.message || "Failed to load NFTs");
       } finally {
@@ -115,54 +63,170 @@ export default function EnchantedMinersPage() {
     return () => {
       cancelled = true;
     };
-  }, [owner]);
+  }, [connected, owner, body]);
 
-  const miners = useMemo(() => {
-    return (all as any[]).filter(isMinerNft) as unknown as NFT[];
-  }, [all]);
-
-  // ===== NOT CONNECTED: Landing =====
-  if (!isConnected) {
+  // =========================
+  //  NOT CONNECTED: LANDING
+  // =========================
+  if (!connected) {
     return (
-      <main
-        style={{
-          minHeight: "100vh",
-          padding: "90px 18px 80px",
-          backgroundImage: "url(/enchanted-miners-bg.png)",
-          backgroundSize: "cover",
-          backgroundPosition: "center bottom",
-        }}
-      >
-        <section style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <h1 style={{ fontSize: 46, margin: "0 0 12px" }}>
-            ENCHANTED MINERS
-            <br />
-            LOCKSCREEN LOCKER
-          </h1>
+      <main className="miners-wrapper">
+        <section className="miners-hero">
+          <div className="miners-left">
+            <h1 className="miners-title">ENCHANTED MINERS</h1>
+            <h2 className="miners-subtitle">LOCKSCREEN LOCKER</h2>
 
-          <p style={{ maxWidth: 640, opacity: 0.85, marginTop: 0 }}>
-            Connect your wallet to view your Miners and export perfect phone lock
-            screens.
-          </p>
+            <p className="miners-blurb">
+              Download your Enchanted Miners NFT with a perfectly tuned background —
+              sized for any phone.
+            </p>
+
+            <div className="miners-cta-row">
+              <button
+                className="miners-cta"
+                onClick={() => {
+                  // wallet button is in nav; this is just a helper scroll-to-top
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              >
+                CONNECT WALLET ABOVE
+              </button>
+
+              <a
+                className="miners-cta ghost"
+                href="https://discord.gg/mSNHRFdCkS"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                JOIN DISCORD
+              </a>
+            </div>
+          </div>
+
+          <div className="miners-right">
+            <div className="miners-phone">
+              <div className="miners-phone-screen" />
+            </div>
+          </div>
         </section>
+
+        <style jsx>{`
+          .miners-wrapper {
+            min-height: 100vh;
+            margin-top: 64px; /* account for fixed nav */
+            padding: 0;
+            background: transparent;
+          }
+
+          .miners-hero {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 40px;
+            align-items: center;
+            padding: 60px 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+          }
+
+          .miners-title {
+            margin: 0;
+            font-size: 48px;
+            letter-spacing: 0.08em;
+            font-weight: 900;
+          }
+          .miners-subtitle {
+            margin: 6px 0 0;
+            font-size: 34px;
+            letter-spacing: 0.06em;
+            font-weight: 800;
+            opacity: 0.95;
+          }
+
+          .miners-blurb {
+            margin: 16px 0 0;
+            max-width: 520px;
+            opacity: 0.8;
+            line-height: 1.5;
+          }
+
+          .miners-cta-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+          }
+
+          .miners-cta {
+            padding: 12px 16px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(0, 0, 0, 0.45);
+            color: #fff;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+          }
+
+          .miners-cta.ghost {
+            background: transparent;
+          }
+
+          .miners-right {
+            display: grid;
+            place-items: center;
+          }
+
+          .miners-phone {
+            width: 320px;
+            height: 640px;
+            border-radius: 28px;
+            background: rgba(0, 0, 0, 0.25);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+            padding: 16px;
+          }
+
+          .miners-phone-screen {
+            width: 100%;
+            height: 100%;
+            border-radius: 22px;
+            background: rgba(155, 0, 255, 0.65);
+          }
+
+          @media (max-width: 900px) {
+            .miners-hero {
+              grid-template-columns: 1fr;
+              padding: 34px 16px;
+            }
+          }
+        `}</style>
       </main>
     );
   }
 
-  // ===== CONNECTED: Owner Grid =====
+  // =========================
+  //  CONNECTED: OWNER GRID
+  // =========================
   return (
-    <main style={{ padding: "18px 0 80px" }}>
+    <main style={{ padding: "18px 0 80px", marginTop: 64 }}>
       <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 18px" }}>
         <h1 style={{ margin: "8px 0 8px", fontSize: 28, letterSpacing: "0.04em" }}>
           MY MINERS
         </h1>
+
         <p style={{ margin: 0, opacity: 0.75 }}>
           Showing Enchanted Miners owned by your connected wallet.
         </p>
 
         <div style={{ height: 16 }} />
 
-        <NftGrid nfts={miners} loading={loading} error={error} />
+        {loading && <p style={{ opacity: 0.8 }}>Loading…</p>}
+        {error && (
+          <p style={{ opacity: 0.9, color: "#ffb3b3" }}>
+            {error}
+          </p>
+        )}
+
+        {!loading && !error && <NftGrid nfts={miners} />}
       </section>
     </main>
   );

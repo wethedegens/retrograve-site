@@ -1,109 +1,22 @@
 // app/components/TopNav.tsx
 "use client";
 
-import Link from "next/link";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-
-const DISCORD_INVITE = "https://discord.gg/mSNHRFdCkS";
-
-type NavProject = "miners" | "magapixel" | "retrograve";
+import FixedBar from "./TopNavWrapper"; // if your FixedBar is actually in another file, keep your original import
+// ^ If this line is wrong in your project, keep whatever import you already had for FixedBar.
 
 type NavLink =
-  | { type: "link"; label: string; href: string }
+  | { type: "link"; label: string; href: string; active?: "exact" | "starts" }
   | { type: "a"; label: string; href: string };
 
-function FixedBar({ links }: { links: NavLink[] }) {
-  return (
-    <nav
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: 64,
-        zIndex: 50,
-        backgroundColor: "rgb(11, 11, 15)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 32,
-        padding: "0 14px",
-      }}
-      aria-label="Top navigation"
-    >
-      <div style={{ position: "absolute", right: 12, top: 12 }}>
-        <WalletMultiButton />
-      </div>
-
-      <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
-        {links.map((l) => {
-          if (l.type === "a") {
-            return (
-              <a
-                key={l.label}
-                href={l.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={navLinkStyle}
-              >
-                {l.label}
-              </a>
-            );
-          }
-          return (
-            <Link key={l.label} href={l.href} style={navLinkStyle}>
-              {l.label}
-            </Link>
-          );
-        })}
-      </div>
-    </nav>
-  );
-}
-
-const navLinkStyle: React.CSSProperties = {
-  fontFamily: "VT323, monospace",
-  fontWeight: 700,
-  textTransform: "uppercase",
-  letterSpacing: "0.05em",
-  fontSize: 20,
-  color: "#ffffff",
-  textDecoration: "none",
-  textShadow:
-    "0 0 10px rgba(183, 122, 255, 0.8), 0 0 20px rgba(183, 122, 255, 0.5)",
-  opacity: 0.95,
-};
-
-export default function TopNav({ project }: { project: NavProject }) {
-  // ✅ Internal “My ____” link
-  // IMPORTANT: miners goes straight to /enchanted-miners (single source of truth)
-  const internal =
-    project === "miners"
-      ? { type: "link" as const, label: "MY MINERS", href: "/enchanted-miners" }
-      : project === "magapixel"
-      ? {
-          type: "link" as const,
-          label: "MY MAGAPIXELS",
-          href: "/magapixel-nfts",
-        }
-      : {
-          type: "link" as const,
-          label: "MY RETROGRAVES",
-          href: "/retrogs",
-        };
-
+export default function TopNav() {
+  // ✅ Always keep internal links correct
   const links: NavLink[] = [
-    { type: "link", label: "HOME", href: "/" },
-    internal,
-    { type: "a", label: "COMMUNITY", href: DISCORD_INVITE },
-    { type: "link", label: "COLLECT NOW", href: "/collect" },
+    { type: "link", label: "HOME", href: "/", active: "exact" },
+    { type: "link", label: "MY MINERS", href: "/enchanted-miners", active: "starts" },
+    { type: "a", label: "COMMUNITY", href: "https://discord.gg/mSNHRFdCkS" },
+    { type: "link", label: "COLLECT NOW", href: "/collect", active: "starts" },
     { type: "a", label: "FOLLOW ON X", href: "https://x.com/RETROGRAVE_NFT" },
   ];
 
-  return (
-    <>
-      <FixedBar links={links} />
-      <div style={{ height: 64 }} />
-    </>
-  );
+  return <FixedBar barColor="#0b0b0f" textColor="#ffffff" links={links} />;
 }
