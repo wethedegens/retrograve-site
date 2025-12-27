@@ -1,3 +1,4 @@
+// app/components/TopNav.tsx
 "use client";
 
 import FixedBar from "./Header";
@@ -6,13 +7,13 @@ type TopNavProject = "retrograve" | "magapixel" | "miners";
 
 type NavLink =
   | {
-      type: "link"; // internal (Next route)
+      type: "link";
       label: string;
-      href: string; // MUST start with "/"
+      href: string;
       active?: "starts" | "exact";
     }
   | {
-      type: "a"; // external
+      type: "a";
       label: string;
       href: string;
       target?: string;
@@ -20,7 +21,6 @@ type NavLink =
     };
 
 export default function TopNav({ project }: { project: TopNavProject }) {
-  // Shared/external links
   const baseLinks: NavLink[] = [
     { type: "link", label: "HOME", href: "/", active: "exact" },
   ];
@@ -29,8 +29,8 @@ export default function TopNav({ project }: { project: TopNavProject }) {
   if (project === "miners") {
     const links: NavLink[] = [
       ...baseLinks,
-      // IMPORTANT: leading "/" so it always works from any page
-      { type: "link", label: "MY MINERS", href: "/enchanted-miners", active: "starts" },
+      // ✅ point to the LANDING page (not the grid)
+      { type: "link", label: "MY MINERS", href: "/my-miners", active: "starts" },
       {
         type: "a",
         label: "COMMUNITY",
@@ -61,7 +61,6 @@ export default function TopNav({ project }: { project: TopNavProject }) {
   if (project === "magapixel") {
     const links: NavLink[] = [
       ...baseLinks,
-      // IMPORTANT: leading "/" so it always works
       { type: "link", label: "MY MAGAPIXELS", href: "/magapixel-nfts", active: "starts" },
       {
         type: "a",
