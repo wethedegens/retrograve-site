@@ -4,14 +4,12 @@
 import PhoneShowcase from "../../components/PhoneShowcase";
 
 export default function MagapixelLandingPage() {
-  // ✅ Your real demo images in /public/demo/
+  // ✅ MAGAPIXEL previews are lock-*.png in /public/demo
   const previewImages = [
-    "/demo/1.png",
-    "/demo/2.png",
-    "/demo/3.png",
-    "/demo/4.png",
-    "/demo/5.png",
-    "/demo/6.png",
+    "/demo/lock-1.png",
+    "/demo/lock-2.png",
+    "/demo/lock-3.png",
+    "/demo/lock-4.png",
   ];
 
   return (
@@ -23,8 +21,7 @@ export default function MagapixelLandingPage() {
           <h2 className="lp-subtitle">LOCKSCREEN LOCKER</h2>
 
           <p className="lp-copy">
-            Download your MAGAPIXEL NFT with a perfectly tuned background — sized
-            for any phone.
+            Download your MAGAPIXEL NFT with a perfectly tuned background — sized for any phone.
           </p>
 
           <div className="lp-actions">
@@ -56,7 +53,7 @@ export default function MagapixelLandingPage() {
               intervalMs={3000}
               title=""
               showHint={false}
-              fit="cover" // ✅ fill entire phone
+              fit="cover"
               bg={{ kind: "color", value: "#2a2f3a" }}
             />
           </div>
@@ -159,7 +156,7 @@ export default function MagapixelLandingPage() {
           justify-content: center;
         }
 
-        /* ✅ you asked: phone down a bit + ~30% smaller */
+        /* ✅ phone down a bit + ~30% smaller */
         .phone-shell {
           transform: translateY(22px) scale(0.7);
           transform-origin: top center;
