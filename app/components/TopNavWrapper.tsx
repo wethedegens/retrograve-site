@@ -3,12 +3,11 @@
 
 import { useMemo } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import TopNav, { type TopNavProject } from "./TopNav";
+import TopNav from "./TopNav";
 
-function inferProjectFromRoute(
-  pathname: string,
-  searchParams: URLSearchParams
-): TopNavProject {
+type TopNavProject = "retrograve" | "magapixel" | "miners" | "gainz";
+
+function inferProjectFromRoute(pathname: string, searchParams: URLSearchParams): TopNavProject {
   const p = (pathname || "").toLowerCase();
 
   // Explicit locker subroutes

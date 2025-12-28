@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
-export type TopNavProject = "retrograve" | "magapixel" | "miners" | "gainz";
+type TopNavProject = "retrograve" | "magapixel" | "miners" | "gainz";
 
 export default function TopNav({ project }: { project: TopNavProject }) {
   const active = (p: TopNavProject) => project === p;
@@ -63,7 +63,7 @@ export default function TopNav({ project }: { project: TopNavProject }) {
           width: 100%;
           background: rgba(10, 8, 20, 0.78);
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-          backdrop-filter: none;
+          backdrop-filter: blur(10px);
         }
 
         .inner {
@@ -92,21 +92,21 @@ export default function TopNav({ project }: { project: TopNavProject }) {
           font-size: 11px;
           letter-spacing: 0.18em;
           font-weight: 800;
-          color: rgba(255, 255, 255, 0.86);
+          color: rgba(255, 255, 255, 0.92); /* ✅ ALL WHITE */
           text-decoration: none;
           opacity: 0.95;
-          transition: opacity 0.12s ease, color 0.12s ease, transform 0.12s ease;
+          transition: opacity 0.12s ease, transform 0.12s ease;
         }
 
         .navlink:hover {
           opacity: 1;
-          color: rgba(255, 255, 255, 0.98);
           text-decoration: underline;
           text-underline-offset: 6px;
         }
 
+        /* ✅ Keep “active” white too (no purple) */
         .navlink.active {
-          color: #a78bfa;
+          color: rgba(255, 255, 255, 0.92);
           text-decoration: underline;
           text-underline-offset: 6px;
         }
@@ -118,9 +118,11 @@ export default function TopNav({ project }: { project: TopNavProject }) {
           gap: 10px;
         }
 
+        /* Wallet button should look crisp */
         .walletWrap :global(button) {
           filter: none !important;
           backdrop-filter: none !important;
+          opacity: 1 !important;
         }
 
         .logoLink {
