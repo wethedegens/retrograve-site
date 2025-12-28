@@ -4,92 +4,93 @@
 import Link from "next/link";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
-export type TopNavProject = "retrograve" | "magapixel" | "miners" | "gainz";
+type TopNavProject = "retrograve" | "magapixel" | "miners" | "gainz";
 
 type ProjectLinks = {
-  // internal
-  myPath: string; // "MY ____" page (internal route)
-
-  // external
-  collectUrl: string;  // Magic Eden / marketplace
-  discordUrl: string;  // Discord invite
-  xUrl: string;        // X profile
+  homeLabel: string; // the "MY ___" label
+  homeHref: string;  // the "MY ___" internal link
+  communityHref: string;
+  collectHref: string;
+  xHref: string;
 };
 
-const PROJECT_LINKS: Record<TopNavProject, ProjectLinks> = {
+const LINKS: Record<TopNavProject, ProjectLinks> = {
   retrograve: {
-    myPath: "/my-retrograves",
-    // (Not provided yet — leaving safe placeholders)
-    collectUrl: "https://magiceden.io",
-    discordUrl: "https://discord.gg/",
-    xUrl: "https://x.com",
+    homeLabel: "MY RETROGRAVES",
+    homeHref: "/my-retrograves",
+    // If you have RetroGrave-specific community/collect/x, drop them here.
+    // Leaving placeholders won’t break anything.
+    communityHref: "/community",
+    collectHref: "https://magiceden.io",
+    xHref: "https://x.com",
   },
 
   magapixel: {
-    myPath: "/magapixel-nfts",
-    collectUrl: "https://magiceden.io/marketplace/magapixel",
-    discordUrl: "https://discord.gg/ZVGtHUpHfb",
-    xUrl: "https://x.com/MAGApixel_NFT",
+    homeLabel: "MY MAGAPIXELS",
+    homeHref: "/magapixel-nfts",
+    communityHref: "https://discord.gg/ZVGtHUpHfb",
+    collectHref: "https://magiceden.io/marketplace/magapixel",
+    xHref: "https://x.com/MAGApixel_NFT",
   },
 
   miners: {
-    myPath: "/my-miners",
-    collectUrl: "https://magiceden.us/marketplace/enchanted_miner",
-    discordUrl: "https://discord.gg/9Py5japbSe",
-    xUrl: "https://x.com/enchanted_nfts",
+    homeLabel: "MY MINERS",
+    homeHref: "/my-miners",
+    communityHref: "https://discord.gg/9Py5japbSe",
+    collectHref: "https://magiceden.us/marketplace/enchanted_miner",
+    xHref: "https://x.com/enchanted_nfts",
   },
 
   gainz: {
-    myPath: "/gainz",
-    collectUrl: "https://magiceden.us/marketplace/gainz_",
-    discordUrl: "https://discord.gg/NeeU7zcQ",
-    xUrl: "https://x.com/GotmLabz",
+    homeLabel: "GAINZ",
+    homeHref: "/gainz",
+    communityHref: "https://discord.gg/NeeU7zcQ",
+    collectHref: "https://magiceden.us/marketplace/gainz_",
+    xHref: "https://x.com/GotmLabz",
   },
 };
 
 export default function TopNav({ project }: { project: TopNavProject }) {
-  const links = PROJECT_LINKS[project];
-
-  // ✅ "HOME" should always go to the app/page.tsx home hub
-  const homeHref = "/";
-
-  // ✅ Project-specific "MY ____" label
-  const myLabel =
-    project === "retrograve"
-      ? "MY RETROGRAVES"
-      : project === "magapixel"
-      ? "MY MAGAPIXELS"
-      : project === "miners"
-      ? "MY MINERS"
-      : "GAINZ";
+  const p = LINKS[project] ?? LINKS.retrograve;
 
   return (
     <header className="topnav">
       <div className="inner">
+        {/* LEFT SPACER (keeps center truly centered) */}
         <div className="left" aria-hidden="true" />
 
-        <nav className="center" aria-label="Primary">
-          <Link className="navlink" href={homeHref}>
+        {/* CENTER LINKS */}
+        <nav className="center" aria-label="Top navigation">
+          <Link className="navlink" href="/">
             HOME
           </Link>
 
-          <Link className="navlink" href={links.myPath}>
-            {myLabel}
+          <Link className="navlink" href={p.homeHref}>
+            {p.homeLabel}
           </Link>
 
-          <a className="navlink" href={links.discordUrl} target="_blank" rel="noreferrer">
-            COMMUNITY
-          </a>
+          {/* Community: for RetroGrave we keep /community internal.
+              For the others, it's a Discord invite (external). */}
+          {p.communityHref.startsWith("/") ? (
+            <Link className="navlink" href={p.communityHref}>
+              COMMUNITY
+            </Link>
+          ) : (
+            <a className="navlink" href={p.communityHref} target="_blank" rel="noreferrer">
+              COMMUNITY
+            </a>
+          )}
 
-          <a className="navlink" href={links.collectUrl} target="_blank" rel="noreferrer">
+          <a className="navlink" href={p.collectHref} target="_blank" rel="noreferrer">
             COLLECT NOW
           </a>
 
-          <a className="navlink" href={links.xUrl} target="_blank" rel="noreferrer">
+          <a className="navlink" href={p.xHref} target="_blank" rel="noreferrer">
             FOLLOW ON X
           </a>
         </nav>
 
+        {/* RIGHT: WALLET + LOGO */}
         <div className="right">
           <div className="walletWrap">
             <WalletMultiButton />
@@ -110,11 +111,11 @@ export default function TopNav({ project }: { project: TopNavProject }) {
         .topnav {
           position: sticky;
           top: 0;
-          z-index: 9999;
+          z-index: 999;
           width: 100%;
           background: rgba(10, 8, 20, 0.78);
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-          backdrop-filter: none;
+          backdrop-filter: blur(10px);
         }
 
         .inner {
@@ -139,24 +140,22 @@ export default function TopNav({ project }: { project: TopNavProject }) {
           flex-wrap: wrap;
         }
 
-        /* ✅ HARD FORCE WHITE + NO UNDERLINE (including visited/active) */
+        /* ✅ Force WHITE, no underline, and keep visited links white */
         .navlink,
         .navlink:visited,
-        .navlink:hover,
-        .navlink:active,
-        .navlink:focus {
+        .navlink:active {
           font-size: 11px;
           letter-spacing: 0.18em;
           font-weight: 800;
-          color: rgba(255, 255, 255, 0.92) !important;
-          text-decoration: none !important;
+          color: rgba(255, 255, 255, 0.92);
+          text-decoration: none;
           opacity: 0.92;
-          outline: none;
           transition: opacity 0.12s ease;
         }
 
         .navlink:hover {
           opacity: 1;
+          text-decoration: none;
         }
 
         .right {
@@ -166,6 +165,7 @@ export default function TopNav({ project }: { project: TopNavProject }) {
           gap: 10px;
         }
 
+        /* Wallet button should look crisp */
         .walletWrap :global(button) {
           filter: none !important;
           backdrop-filter: none !important;

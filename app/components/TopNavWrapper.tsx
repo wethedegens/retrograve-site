@@ -3,23 +3,32 @@
 
 import { useMemo } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import TopNav, { type TopNavProject } from "./TopNav";
+import TopNav from "./TopNav";
+
+type TopNavProject = "retrograve" | "magapixel" | "miners" | "gainz";
 
 function inferProjectFromRoute(pathname: string, searchParams: URLSearchParams): TopNavProject {
   const p = (pathname || "").toLowerCase();
+
+  // Core hub pages default to RetroGrave mode (safe default)
+  if (p === "/" || p.startsWith("/community") || p.startsWith("/my-retrograves")) return "retrograve";
 
   // Explicit locker subroutes
   if (p.startsWith("/locker/magapixel")) return "magapixel";
   if (p.startsWith("/locker/retrograve")) return "retrograve";
 
-  // Miners routes (landing + grid + legacy)
+  // Magapixel routes
+  if (p.startsWith("/magapixel-nfts")) return "magapixel";
+
+  // Retrograve routes
+  if (p.startsWith("/retrograve")) return "retrograve";
+
+  // Miners routes
   if (p.startsWith("/enchanted-miners")) return "miners";
-  if (p.startsWith("/enchanted-miners-nfts")) return "miners";
   if (p.startsWith("/my-miners")) return "miners";
 
   // Gainz routes
   if (p.startsWith("/gainz")) return "gainz";
-  if (p.startsWith("/gainz-nft")) return "gainz";
 
   // Generic locker route: uses ?project=
   if (p.startsWith("/locker")) {
@@ -28,16 +37,8 @@ function inferProjectFromRoute(pathname: string, searchParams: URLSearchParams):
     if (qp === "magapixel") return "magapixel";
     if (qp === "retrograve") return "retrograve";
     if (qp === "gainz") return "gainz";
-    return "magapixel";
+    return "retrograve";
   }
-
-  // MAGApixel
-  if (p.startsWith("/magapixel-nfts")) return "magapixel";
-  if (p.startsWith("/retrogs")) return "magapixel"; // legacy MAGApixel grid path
-
-  // RetroGrave
-  if (p.startsWith("/retrograve")) return "retrograve";
-  if (p.startsWith("/my-retrograves")) return "retrograve";
 
   return "retrograve";
 }
