@@ -16,7 +16,6 @@ export default function PhoneComposer({
   nft: SimpleNft | null;
   bg: BgChoice | null;
 }) {
-  // ✅ must be "ComposerHandle | null" so it matches ExportButtons + ShareActions
   const composerRef = useRef<ComposerHandle | null>(null);
 
   return (
