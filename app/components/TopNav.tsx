@@ -6,94 +6,91 @@ import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 export type TopNavProject = "retrograve" | "magapixel" | "miners" | "gainz";
 
-type NavItem = {
-  label: string;
-  href: string;
-  type?: "internal" | "external";
+type ProjectLinks = {
+  // internal
+  myPath: string;        // "MY ____" page
+  communityPath: string; // internal community page (or "/" if shared)
+
+  // external
+  collectUrl: string; // Magic Eden / Tensor / etc.
+  xUrl: string;       // X profile
+  discordUrl?: string; // optional if you want a Discord link later
 };
 
-function getProjectLinks(project: TopNavProject): NavItem[] {
-  // ✅ IMPORTANT:
-  // - "HOME" always returns to LockScreened hub (/)
-  // - "MY ____" goes to that project's NFT grid page
-  // - COMMUNITY / COLLECT / X are placeholders unless you wire to project-specific URLs
-  //   (you asked if these were generic — right now these are generic until you add your real links)
-  switch (project) {
-    case "magapixel":
-      return [
-        { label: "HOME", href: "/" },
-        { label: "MY MAGAPIXELS", href: "/magapixel-nfts" },
-        { label: "COMMUNITY", href: "/community" },
-        { label: "COLLECT NOW", href: "https://magiceden.io", type: "external" },
-        { label: "FOLLOW ON X", href: "https://x.com", type: "external" },
-      ];
-
-    case "miners":
-      return [
-        { label: "HOME", href: "/" },
-        { label: "MY MINERS", href: "/enchanted-miners-nfts" }, // ✅ miners grid route
-        { label: "COMMUNITY", href: "/community" },
-        { label: "COLLECT NOW", href: "https://magiceden.io", type: "external" },
-        { label: "FOLLOW ON X", href: "https://x.com", type: "external" },
-      ];
-
-    case "gainz":
-      return [
-        { label: "HOME", href: "/" },
-        { label: "GAINZ", href: "/gainz" },
-        { label: "COMMUNITY", href: "/community" },
-        { label: "COLLECT NOW", href: "https://magiceden.io", type: "external" },
-        { label: "FOLLOW ON X", href: "https://x.com", type: "external" },
-      ];
-
-    case "retrograve":
-    default:
-      return [
-        { label: "HOME", href: "/" },
-        { label: "MY RETROGRAVES", href: "/my-retrograves" },
-        { label: "COMMUNITY", href: "/community" },
-        { label: "COLLECT NOW", href: "https://magiceden.io", type: "external" },
-        { label: "FOLLOW ON X", href: "https://x.com", type: "external" },
-      ];
-  }
-}
+const PROJECT_LINKS: Record<TopNavProject, ProjectLinks> = {
+  retrograve: {
+    myPath: "/my-retrograves",
+    communityPath: "/community",
+    collectUrl: "https://magiceden.io", // TODO: replace with RetroGrave collection link
+    xUrl: "https://x.com",              // TODO: replace with RetroGrave X
+    discordUrl: "",                     // optional
+  },
+  magapixel: {
+    myPath: "/magapixel-nfts",
+    communityPath: "/community",
+    collectUrl: "https://magiceden.io", // TODO: MAGApixel collection link
+    xUrl: "https://x.com",              // TODO: MAGApixel X
+    discordUrl: "",
+  },
+  miners: {
+    myPath: "/enchanted-miners-nfts",
+    communityPath: "/community",
+    collectUrl: "https://magiceden.io", // TODO: Miners collection link
+    xUrl: "https://x.com",              // TODO: Miners X
+    discordUrl: "",
+  },
+  gainz: {
+    myPath: "/gainz",
+    communityPath: "/community",
+    collectUrl: "https://magiceden.io",
+    xUrl: "https://x.com",
+    discordUrl: "",
+  },
+};
 
 export default function TopNav({ project }: { project: TopNavProject }) {
-  const links = getProjectLinks(project);
+  const links = PROJECT_LINKS[project];
+
+  // ✅ "HOME" should always go to the app/page.tsx home hub
+  const homeHref = "/";
+
+  // ✅ Project-specific "MY ____" label
+  const myLabel =
+    project === "retrograve"
+      ? "MY RETROGRAVES"
+      : project === "magapixel"
+      ? "MY MAGAPIXELS"
+      : project === "miners"
+      ? "MY MINERS"
+      : "GAINZ";
 
   return (
     <header className="topnav">
       <div className="inner">
-        {/* LEFT SPACER */}
         <div className="left" aria-hidden="true" />
 
-        {/* CENTER LINKS */}
-        <nav className="center" aria-label="Top navigation">
-          {links.map((l) => {
-            const isExternal = l.type === "external";
-            if (isExternal) {
-              return (
-                <a
-                  key={`${l.label}-${l.href}`}
-                  className="navlink"
-                  href={l.href}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {l.label}
-                </a>
-              );
-            }
+        <nav className="center" aria-label="Primary">
+          <Link className="navlink" href={homeHref}>
+            HOME
+          </Link>
 
-            return (
-              <Link key={`${l.label}-${l.href}`} className="navlink" href={l.href}>
-                {l.label}
-              </Link>
-            );
-          })}
+          <Link className="navlink" href={links.myPath}>
+            {myLabel}
+          </Link>
+
+          <Link className="navlink" href={links.communityPath}>
+            COMMUNITY
+          </Link>
+
+          <a className="navlink" href={links.collectUrl} target="_blank" rel="noreferrer">
+            COLLECT NOW
+          </a>
+
+          <a className="navlink" href={links.xUrl} target="_blank" rel="noreferrer">
+            FOLLOW ON X
+          </a>
         </nav>
 
-        {/* RIGHT: WALLET + LOGO */}
         <div className="right">
           <div className="walletWrap">
             <WalletMultiButton />
@@ -143,23 +140,24 @@ export default function TopNav({ project }: { project: TopNavProject }) {
           flex-wrap: wrap;
         }
 
-        /* ✅ FORCE: never blue, never underlined, even visited */
+        /* ✅ HARD FORCE WHITE + NO UNDERLINE */
         .navlink,
         .navlink:visited,
         .navlink:hover,
-        .navlink:active {
+        .navlink:active,
+        .navlink:focus {
           font-size: 11px;
           letter-spacing: 0.18em;
           font-weight: 800;
           color: rgba(255, 255, 255, 0.92) !important;
           text-decoration: none !important;
-          opacity: 0.95;
-          transition: opacity 0.12s ease, transform 0.12s ease;
+          opacity: 0.92;
+          outline: none;
+          transition: opacity 0.12s ease;
         }
 
         .navlink:hover {
           opacity: 1;
-          transform: translateY(-0.5px);
         }
 
         .right {
