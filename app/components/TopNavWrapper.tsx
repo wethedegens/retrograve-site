@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import TopNav from "./TopNav";
 
-type TopNavProject = "retrograve" | "magapixel" | "miners" | "gainz";
+export type TopNavProject = "retrograve" | "magapixel" | "miners" | "gainz";
 
 function inferProjectFromRoute(pathname: string, searchParams: URLSearchParams): TopNavProject {
   const p = (pathname || "").toLowerCase();
@@ -19,13 +19,14 @@ function inferProjectFromRoute(pathname: string, searchParams: URLSearchParams):
 
   // Magapixel routes
   if (p.startsWith("/magapixel-nfts")) return "magapixel";
+  if (p.startsWith("/retrogs")) return "magapixel"; // if you still use this
 
   // Retrograve routes
   if (p.startsWith("/retrograve")) return "retrograve";
 
-  // Miners routes
+  // ✅ Miners routes (NEW)
   if (p.startsWith("/enchanted-miners")) return "miners";
-  if (p.startsWith("/my-miners")) return "miners";
+  if (p.startsWith("/enchanted-miners-nfts")) return "miners";
 
   // Gainz routes
   if (p.startsWith("/gainz")) return "gainz";
@@ -37,7 +38,7 @@ function inferProjectFromRoute(pathname: string, searchParams: URLSearchParams):
     if (qp === "magapixel") return "magapixel";
     if (qp === "retrograve") return "retrograve";
     if (qp === "gainz") return "gainz";
-    return "retrograve";
+    return "magapixel";
   }
 
   return "retrograve";
