@@ -2,12 +2,68 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
-type TopNavProject = "retrograve" | "magapixel" | "miners" | "gainz";
+export type TopNavProject = "retrograve" | "magapixel" | "miners" | "gainz";
+
+type NavItem = {
+  label: string;
+  href: string;
+  external?: boolean;
+};
+
+function isActive(pathname: string, href: string) {
+  // exact for home
+  if (href === "/") return pathname === "/";
+  // starts-with for other internal routes
+  return pathname === href || pathname.startsWith(href + "/");
+}
+
+function getLinks(project: TopNavProject): NavItem[] {
+  // Update external URLs anytime you want; internal routes here match your app folder routes.
+  switch (project) {
+    case "magapixel":
+      return [
+        { label: "HOME", href: "/" },
+        { label: "MY MAGAPIXELS", href: "/magapixel-nfts" },
+        { label: "COMMUNITY", href: "/community" },
+        { label: "COLLECT NOW", href: "https://magiceden.io", external: true },
+        { label: "FOLLOW ON X", href: "https://x.com", external: true },
+      ];
+
+    case "miners":
+      return [
+        { label: "HOME", href: "/enchanted-miners" },
+        { label: "MY MINERS", href: "/my-miners" },
+        { label: "COMMUNITY", href: "/community" },
+        { label: "COLLECT NOW", href: "https://magiceden.io", external: true },
+        { label: "FOLLOW ON X", href: "https://x.com", external: true },
+      ];
+
+    case "gainz":
+      return [
+        { label: "HOME", href: "/gainz" },
+        { label: "COMMUNITY", href: "/community" },
+        { label: "COLLECT NOW", href: "https://magiceden.io", external: true },
+        { label: "FOLLOW ON X", href: "https://x.com", external: true },
+      ];
+
+    case "retrograve":
+    default:
+      return [
+        { label: "HOME", href: "/" },
+        { label: "MY RETROGRAVES", href: "/my-retrograves" },
+        { label: "COMMUNITY", href: "/community" },
+        { label: "COLLECT NOW", href: "https://magiceden.io", external: true },
+        { label: "FOLLOW ON X", href: "https://x.com", external: true },
+      ];
+  }
+}
 
 export default function TopNav({ project }: { project: TopNavProject }) {
-  const isActive = (p: TopNavProject) => project === p;
+  const pathname = usePathname() || "/";
+  const links = getLinks(project);
 
   return (
     <header className="topnav">
@@ -17,25 +73,30 @@ export default function TopNav({ project }: { project: TopNavProject }) {
 
         {/* CENTER LINKS */}
         <nav className="center" aria-label="Primary navigation">
-          <Link className={`navlink ${isActive("retrograve") ? "active" : ""}`} href="/">
-            HOME
-          </Link>
+          {links.map((l) => {
+            const active = !l.external && isActive(pathname, l.href);
+            const cls = `navlink ${active ? "active" : ""}`;
 
-          <Link className="navlink" href="/my-retrograves">
-            MY RETROGRAVES
-          </Link>
+            if (l.external) {
+              return (
+                <a
+                  key={`${l.label}-${l.href}`}
+                  className={cls}
+                  href={l.href}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {l.label}
+                </a>
+              );
+            }
 
-          <Link className="navlink" href="/community">
-            COMMUNITY
-          </Link>
-
-          <a className="navlink" href="https://magiceden.io" target="_blank" rel="noreferrer">
-            COLLECT NOW
-          </a>
-
-          <a className="navlink" href="https://x.com" target="_blank" rel="noreferrer">
-            FOLLOW ON X
-          </a>
+            return (
+              <Link key={`${l.label}-${l.href}`} className={cls} href={l.href}>
+                {l.label}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* RIGHT: WALLET + LOGO */}
@@ -88,28 +149,32 @@ export default function TopNav({ project }: { project: TopNavProject }) {
           flex-wrap: wrap;
         }
 
-        /* ✅ ALL WHITE TEXT */
+        /* ✅ HARD OVERRIDES so global link styles never turn them blue/underlined */
         .navlink {
           font-size: 11px;
           letter-spacing: 0.18em;
           font-weight: 800;
-          color: rgba(255, 255, 255, 0.92);
-          text-decoration: none;
+
+          color: #ffffff !important;
+          text-decoration: none !important;
+
           opacity: 0.92;
           transition: opacity 0.12s ease, transform 0.12s ease;
         }
 
-        .navlink:hover {
-          opacity: 1;
-          text-decoration: underline;
-          text-underline-offset: 6px;
+        .navlink:visited {
+          color: #ffffff !important;
+          text-decoration: none !important;
         }
 
-        /* ✅ active stays white, just underlined */
+        .navlink:hover {
+          opacity: 1;
+          text-decoration: none !important;
+        }
+
         .navlink.active {
-          color: rgba(255, 255, 255, 0.98);
-          text-decoration: underline;
-          text-underline-offset: 6px;
+          color: #ffffff !important;
+          text-decoration: none !important;
           opacity: 1;
         }
 
@@ -120,12 +185,11 @@ export default function TopNav({ project }: { project: TopNavProject }) {
           gap: 10px;
         }
 
-        /* Wallet button should look crisp */
         .walletWrap :global(button) {
           filter: none !important;
+          backdrop-filter: none !important;
         }
 
-        /* ✅ logo always visible */
         .logoLink {
           width: 42px;
           height: 42px;
@@ -136,7 +200,6 @@ export default function TopNav({ project }: { project: TopNavProject }) {
           background: rgba(255, 255, 255, 0.08);
           border: 1px solid rgba(255, 255, 255, 0.16);
           box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
-          flex: 0 0 auto;
         }
 
         .logoImg {

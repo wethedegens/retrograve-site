@@ -3,9 +3,7 @@
 
 import { useMemo } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import TopNav from "./TopNav";
-
-type TopNavProject = "retrograve" | "magapixel" | "miners" | "gainz";
+import TopNav, { type TopNavProject } from "./TopNav";
 
 function inferProjectFromRoute(pathname: string, searchParams: URLSearchParams): TopNavProject {
   const p = (pathname || "").toLowerCase();
@@ -14,7 +12,7 @@ function inferProjectFromRoute(pathname: string, searchParams: URLSearchParams):
   if (p.startsWith("/locker/magapixel")) return "magapixel";
   if (p.startsWith("/locker/retrograve")) return "retrograve";
 
-  // Miners routes
+  // Miners routes (landing + grid + my-miners)
   if (p.startsWith("/enchanted-miners")) return "miners";
   if (p.startsWith("/my-miners")) return "miners";
 
@@ -31,23 +29,25 @@ function inferProjectFromRoute(pathname: string, searchParams: URLSearchParams):
     return "magapixel";
   }
 
-  // Magapixel
+  // Magapixel legacy / grid pages
   if (p.startsWith("/magapixel-nfts")) return "magapixel";
-  if (p.startsWith("/retrogs")) return "magapixel";
+  if (p.startsWith("/retrogs")) return "magapixel"; // legacy MAGApixel grid path
 
-  // Retrograve
+  // Retrograve pages
   if (p.startsWith("/retrograve")) return "retrograve";
+  if (p.startsWith("/my-retrograves")) return "retrograve";
 
+  // Home defaults to retrograve style nav
   return "retrograve";
 }
 
 export default function TopNavWrapper() {
-  const pathname = usePathname();
+  const pathname = usePathname() || "/";
   const sp = useSearchParams();
 
   const project = useMemo<TopNavProject>(() => {
     const params = new URLSearchParams(sp?.toString() || "");
-    return inferProjectFromRoute(pathname || "", params);
+    return inferProjectFromRoute(pathname, params);
   }, [pathname, sp]);
 
   return <TopNav project={project} />;

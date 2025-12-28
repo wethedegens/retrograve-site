@@ -7,14 +7,8 @@ type WalletGateProps = {
   children?: ReactNode;
 };
 
-/**
- * WalletGate is ONLY a wrapper now.
- *
- * ✅ IMPORTANT:
- * - Do NOT render WalletMultiButton here.
- * - The wallet button lives in TopNav only.
- * - This prevents "two wallets" + the black bar / extra top element.
- */
 export default function WalletGate({ children }: WalletGateProps) {
+  // ✅ Wallet button lives in TopNav only.
+  // WalletGate should just wrap children (and you can add gating logic later if needed).
   return <>{children}</>;
 }
