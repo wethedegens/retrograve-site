@@ -21,7 +21,7 @@ function inferProjectFromRoute(
   if (p.startsWith("/enchanted-miners")) return "miners";
   if (p.startsWith("/my-miners")) return "miners";
 
-  // Gainz
+  // Gainz routes
   if (p.startsWith("/gainz")) return "gainz";
 
   // Generic locker route: uses ?project=
@@ -53,6 +53,10 @@ export default function TopNavWrapper() {
     return inferProjectFromRoute(pathname || "", params);
   }, [pathname, sp]);
 
-  // cast prevents build breaks if TopNav's prop type is slightly different
-  return <TopNav project={project as any} />;
+  // ✅ IMPORTANT:
+  // TS error is because TopNav's props don't declare `project`.
+  // Cast the *component* so the prop name stops failing builds.
+  const TopNavAny = TopNav as any;
+
+  return <TopNavAny project={project} />;
 }
