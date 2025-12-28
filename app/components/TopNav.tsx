@@ -8,43 +8,42 @@ export type TopNavProject = "retrograve" | "magapixel" | "miners" | "gainz";
 
 type ProjectLinks = {
   // internal
-  myPath: string;        // "MY ____" page
-  communityPath: string; // internal community page (or "/" if shared)
+  myPath: string; // "MY ____" page (internal route)
 
   // external
-  collectUrl: string; // Magic Eden / Tensor / etc.
-  xUrl: string;       // X profile
-  discordUrl?: string; // optional if you want a Discord link later
+  collectUrl: string;  // Magic Eden / marketplace
+  discordUrl: string;  // Discord invite
+  xUrl: string;        // X profile
 };
 
 const PROJECT_LINKS: Record<TopNavProject, ProjectLinks> = {
   retrograve: {
     myPath: "/my-retrograves",
-    communityPath: "/community",
-    collectUrl: "https://magiceden.io", // TODO: replace with RetroGrave collection link
-    xUrl: "https://x.com",              // TODO: replace with RetroGrave X
-    discordUrl: "",                     // optional
+    // (Not provided yet — leaving safe placeholders)
+    collectUrl: "https://magiceden.io",
+    discordUrl: "https://discord.gg/",
+    xUrl: "https://x.com",
   },
+
   magapixel: {
     myPath: "/magapixel-nfts",
-    communityPath: "/community",
-    collectUrl: "https://magiceden.io", // TODO: MAGApixel collection link
-    xUrl: "https://x.com",              // TODO: MAGApixel X
-    discordUrl: "",
+    collectUrl: "https://magiceden.io/marketplace/magapixel",
+    discordUrl: "https://discord.gg/ZVGtHUpHfb",
+    xUrl: "https://x.com/MAGApixel_NFT",
   },
+
   miners: {
-    myPath: "/enchanted-miners-nfts",
-    communityPath: "/community",
-    collectUrl: "https://magiceden.io", // TODO: Miners collection link
-    xUrl: "https://x.com",              // TODO: Miners X
-    discordUrl: "",
+    myPath: "/my-miners",
+    collectUrl: "https://magiceden.us/marketplace/enchanted_miner",
+    discordUrl: "https://discord.gg/9Py5japbSe",
+    xUrl: "https://x.com/enchanted_nfts",
   },
+
   gainz: {
     myPath: "/gainz",
-    communityPath: "/community",
-    collectUrl: "https://magiceden.io",
-    xUrl: "https://x.com",
-    discordUrl: "",
+    collectUrl: "https://magiceden.us/marketplace/gainz_",
+    discordUrl: "https://discord.gg/NeeU7zcQ",
+    xUrl: "https://x.com/GotmLabz",
   },
 };
 
@@ -78,9 +77,9 @@ export default function TopNav({ project }: { project: TopNavProject }) {
             {myLabel}
           </Link>
 
-          <Link className="navlink" href={links.communityPath}>
+          <a className="navlink" href={links.discordUrl} target="_blank" rel="noreferrer">
             COMMUNITY
-          </Link>
+          </a>
 
           <a className="navlink" href={links.collectUrl} target="_blank" rel="noreferrer">
             COLLECT NOW
@@ -140,7 +139,7 @@ export default function TopNav({ project }: { project: TopNavProject }) {
           flex-wrap: wrap;
         }
 
-        /* ✅ HARD FORCE WHITE + NO UNDERLINE */
+        /* ✅ HARD FORCE WHITE + NO UNDERLINE (including visited/active) */
         .navlink,
         .navlink:visited,
         .navlink:hover,
