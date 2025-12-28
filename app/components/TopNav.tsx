@@ -2,7 +2,6 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 export type TopNavProject = "retrograve" | "magapixel" | "miners" | "gainz";
@@ -10,43 +9,41 @@ export type TopNavProject = "retrograve" | "magapixel" | "miners" | "gainz";
 type NavItem = {
   label: string;
   href: string;
-  external?: boolean;
+  type?: "internal" | "external";
 };
 
-function isActive(pathname: string, href: string) {
-  // exact for home
-  if (href === "/") return pathname === "/";
-  // starts-with for other internal routes
-  return pathname === href || pathname.startsWith(href + "/");
-}
-
-function getLinks(project: TopNavProject): NavItem[] {
-  // Update external URLs anytime you want; internal routes here match your app folder routes.
+function getProjectLinks(project: TopNavProject): NavItem[] {
+  // ✅ IMPORTANT:
+  // - "HOME" always returns to LockScreened hub (/)
+  // - "MY ____" goes to that project's NFT grid page
+  // - COMMUNITY / COLLECT / X are placeholders unless you wire to project-specific URLs
+  //   (you asked if these were generic — right now these are generic until you add your real links)
   switch (project) {
     case "magapixel":
       return [
         { label: "HOME", href: "/" },
         { label: "MY MAGAPIXELS", href: "/magapixel-nfts" },
         { label: "COMMUNITY", href: "/community" },
-        { label: "COLLECT NOW", href: "https://magiceden.io", external: true },
-        { label: "FOLLOW ON X", href: "https://x.com", external: true },
+        { label: "COLLECT NOW", href: "https://magiceden.io", type: "external" },
+        { label: "FOLLOW ON X", href: "https://x.com", type: "external" },
       ];
 
     case "miners":
       return [
-        { label: "HOME", href: "/enchanted-miners" },
-        { label: "MY MINERS", href: "/my-miners" },
+        { label: "HOME", href: "/" },
+        { label: "MY MINERS", href: "/enchanted-miners-nfts" }, // ✅ miners grid route
         { label: "COMMUNITY", href: "/community" },
-        { label: "COLLECT NOW", href: "https://magiceden.io", external: true },
-        { label: "FOLLOW ON X", href: "https://x.com", external: true },
+        { label: "COLLECT NOW", href: "https://magiceden.io", type: "external" },
+        { label: "FOLLOW ON X", href: "https://x.com", type: "external" },
       ];
 
     case "gainz":
       return [
-        { label: "HOME", href: "/gainz" },
+        { label: "HOME", href: "/" },
+        { label: "GAINZ", href: "/gainz" },
         { label: "COMMUNITY", href: "/community" },
-        { label: "COLLECT NOW", href: "https://magiceden.io", external: true },
-        { label: "FOLLOW ON X", href: "https://x.com", external: true },
+        { label: "COLLECT NOW", href: "https://magiceden.io", type: "external" },
+        { label: "FOLLOW ON X", href: "https://x.com", type: "external" },
       ];
 
     case "retrograve":
@@ -55,33 +52,30 @@ function getLinks(project: TopNavProject): NavItem[] {
         { label: "HOME", href: "/" },
         { label: "MY RETROGRAVES", href: "/my-retrograves" },
         { label: "COMMUNITY", href: "/community" },
-        { label: "COLLECT NOW", href: "https://magiceden.io", external: true },
-        { label: "FOLLOW ON X", href: "https://x.com", external: true },
+        { label: "COLLECT NOW", href: "https://magiceden.io", type: "external" },
+        { label: "FOLLOW ON X", href: "https://x.com", type: "external" },
       ];
   }
 }
 
 export default function TopNav({ project }: { project: TopNavProject }) {
-  const pathname = usePathname() || "/";
-  const links = getLinks(project);
+  const links = getProjectLinks(project);
 
   return (
     <header className="topnav">
       <div className="inner">
-        {/* LEFT SPACER (keeps center truly centered) */}
+        {/* LEFT SPACER */}
         <div className="left" aria-hidden="true" />
 
         {/* CENTER LINKS */}
-        <nav className="center" aria-label="Primary navigation">
+        <nav className="center" aria-label="Top navigation">
           {links.map((l) => {
-            const active = !l.external && isActive(pathname, l.href);
-            const cls = `navlink ${active ? "active" : ""}`;
-
-            if (l.external) {
+            const isExternal = l.type === "external";
+            if (isExternal) {
               return (
                 <a
                   key={`${l.label}-${l.href}`}
-                  className={cls}
+                  className="navlink"
                   href={l.href}
                   target="_blank"
                   rel="noreferrer"
@@ -92,7 +86,7 @@ export default function TopNav({ project }: { project: TopNavProject }) {
             }
 
             return (
-              <Link key={`${l.label}-${l.href}`} className={cls} href={l.href}>
+              <Link key={`${l.label}-${l.href}`} className="navlink" href={l.href}>
                 {l.label}
               </Link>
             );
@@ -124,7 +118,7 @@ export default function TopNav({ project }: { project: TopNavProject }) {
           width: 100%;
           background: rgba(10, 8, 20, 0.78);
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-          backdrop-filter: blur(10px);
+          backdrop-filter: none;
         }
 
         .inner {
@@ -149,33 +143,23 @@ export default function TopNav({ project }: { project: TopNavProject }) {
           flex-wrap: wrap;
         }
 
-        /* ✅ HARD OVERRIDES so global link styles never turn them blue/underlined */
-        .navlink {
+        /* ✅ FORCE: never blue, never underlined, even visited */
+        .navlink,
+        .navlink:visited,
+        .navlink:hover,
+        .navlink:active {
           font-size: 11px;
           letter-spacing: 0.18em;
           font-weight: 800;
-
-          color: #ffffff !important;
+          color: rgba(255, 255, 255, 0.92) !important;
           text-decoration: none !important;
-
-          opacity: 0.92;
+          opacity: 0.95;
           transition: opacity 0.12s ease, transform 0.12s ease;
-        }
-
-        .navlink:visited {
-          color: #ffffff !important;
-          text-decoration: none !important;
         }
 
         .navlink:hover {
           opacity: 1;
-          text-decoration: none !important;
-        }
-
-        .navlink.active {
-          color: #ffffff !important;
-          text-decoration: none !important;
-          opacity: 1;
+          transform: translateY(-0.5px);
         }
 
         .right {

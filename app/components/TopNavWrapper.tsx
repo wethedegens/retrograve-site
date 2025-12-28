@@ -12,12 +12,14 @@ function inferProjectFromRoute(pathname: string, searchParams: URLSearchParams):
   if (p.startsWith("/locker/magapixel")) return "magapixel";
   if (p.startsWith("/locker/retrograve")) return "retrograve";
 
-  // Miners routes (landing + grid + my-miners)
+  // Miners routes (landing + grid + legacy)
   if (p.startsWith("/enchanted-miners")) return "miners";
+  if (p.startsWith("/enchanted-miners-nfts")) return "miners";
   if (p.startsWith("/my-miners")) return "miners";
 
   // Gainz routes
   if (p.startsWith("/gainz")) return "gainz";
+  if (p.startsWith("/gainz-nft")) return "gainz";
 
   // Generic locker route: uses ?project=
   if (p.startsWith("/locker")) {
@@ -29,25 +31,24 @@ function inferProjectFromRoute(pathname: string, searchParams: URLSearchParams):
     return "magapixel";
   }
 
-  // Magapixel legacy / grid pages
+  // MAGApixel
   if (p.startsWith("/magapixel-nfts")) return "magapixel";
   if (p.startsWith("/retrogs")) return "magapixel"; // legacy MAGApixel grid path
 
-  // Retrograve pages
+  // RetroGrave
   if (p.startsWith("/retrograve")) return "retrograve";
   if (p.startsWith("/my-retrograves")) return "retrograve";
 
-  // Home defaults to retrograve style nav
   return "retrograve";
 }
 
 export default function TopNavWrapper() {
-  const pathname = usePathname() || "/";
+  const pathname = usePathname();
   const sp = useSearchParams();
 
   const project = useMemo<TopNavProject>(() => {
     const params = new URLSearchParams(sp?.toString() || "");
-    return inferProjectFromRoute(pathname, params);
+    return inferProjectFromRoute(pathname || "", params);
   }, [pathname, sp]);
 
   return <TopNav project={project} />;
