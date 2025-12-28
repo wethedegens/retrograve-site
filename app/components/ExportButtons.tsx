@@ -1,11 +1,11 @@
 // app/components/ExportButtons.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, type RefObject } from "react";
 import type { ComposerHandle } from "./Composer";
 
 type ExportButtonsProps = {
-  composerRef: React.RefObject<ComposerHandle | null>;
+  composerRef: RefObject<ComposerHandle | null>;
 };
 
 type ExportDevice = "phone" | "ipad" | "desktop";
@@ -86,7 +86,8 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
       // ✅ detect current project from URL (keeps all other code untouched)
       let project = "";
       try {
-        project = new URLSearchParams(window.location.search).get("project") || "";
+        project =
+          new URLSearchParams(window.location.search).get("project") || "";
       } catch {
         project = "";
       }
@@ -96,13 +97,17 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
           ? "right"
           : "center";
 
-      const blob = await composer.exportImage({
+      // ✅ If ComposerHandle types don’t include `justify` yet,
+      // pass it safely without breaking TS.
+      const opts = {
         width: def.width,
         height: def.height,
         format: "png",
         device: def.device,
         justify,
-      });
+      } as any;
+
+      const blob = await (composer as any).exportImage(opts);
 
       if (!blob) return;
 

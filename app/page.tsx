@@ -1,356 +1,368 @@
-// app/components/ExportButtons.tsx
 "use client";
 
-import { useState } from "react";
-import type { ComposerHandle } from "./Composer";
+import Link from "next/link";
+import LockscreenedFAQ from "./components/LockscreenedFAQ";
 
-type ExportButtonsProps = {
-  composerRef: React.RefObject<ComposerHandle | null>;
-};
-
-// Device variants understood by Composer
-type ExportDevice = "phone" | "ipad" | "desktop";
-
-type ExportDefinition = {
-  key: string;
+type LockerProject = {
+  name: string;
+  status: "live" | "coming";
   label: string;
-  width: number;
-  height: number;
-  device: ExportDevice;
+  lockerPath: string;
+  glow: string;
+  preview?: string;
 };
 
-const EXPORTS: ExportDefinition[] = [
+const PROJECTS: LockerProject[] = [
   {
-    key: "master",
-    label: "Download Master (1440×3200)",
-    width: 1440,
-    height: 3200,
-    device: "phone",
+    name: "MAGApixel Locker",
+    status: "live",
+    label: "Live",
+    lockerPath: "/locker/magapixel",
+    glow: "magapixel",
+    preview: "/lockscreened-previews/magapixel.png",
   },
   {
-    key: "iphone15pm",
-    label: "Download iPhone 15/14 Pro Max (1290×2796)",
-    width: 1290,
-    height: 2796,
-    device: "phone",
+    name: "RetroGrave Locker",
+    status: "live",
+    label: "Live",
+    lockerPath: "/retrograve",
+    glow: "retrograve",
+    preview: "/lockscreened-previews/retrograve.png",
   },
   {
-    key: "iphone15pro",
-    label: "Download iPhone 15/14 Pro (1179×2556)",
-    width: 1179,
-    height: 2556,
-    device: "phone",
+    name: "MEOWGA",
+    status: "coming",
+    label: "Coming soon",
+    lockerPath: "#",
+    glow: "meowga",
+    preview: "/lockscreened-previews/meowga.png",
   },
   {
-    key: "android-20-9",
-    label: "Download Android 20:9 (1080×2400)",
-    width: 1080,
-    height: 2400,
-    device: "phone",
+    name: "Enchanted Miners",
+    status: "live",
+    label: "Live",
+    lockerPath: "/enchanted-miners",
+    glow: "miners",
+    preview: "/lockscreened-previews/miners.png",
   },
   {
-    key: "android-qhd-plus",
-    label: "Download Android QHD+ (1440×3040)",
-    width: 1440,
-    height: 3040,
-    device: "phone",
-  },
-
-  // iPad preset – tall portrait
-  {
-    key: "ipad",
-    label: "Download iPad (2048×2732)",
-    width: 2048,
-    height: 2732,
-    device: "ipad",
-  },
-
-  // Desktop preset – 16:9 wallpaper
-  {
-    key: "desktop",
-    label: "Download Desktop (2560×1440)",
-    width: 2560,
-    height: 1440,
-    device: "desktop",
+    name: "Gainz",
+    status: "coming",
+    label: "Coming soon",
+    // ✅ You said you want it linking now:
+    lockerPath: "/gainz",
+    glow: "gainz",
+    preview: "/lockscreened-previews/gainz.png",
   },
 ];
 
-export default function ExportButtons({ composerRef }: ExportButtonsProps) {
-  const [activeKey, setActiveKey] = useState<string | null>(null);
-
-  // In-app overlay with the generated image
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [previewLabel, setPreviewLabel] = useState<string>("");
-
-  async function handleExport(def: ExportDefinition) {
-    const composer = composerRef.current;
-    if (!composer) return;
-
-    try {
-      setActiveKey(def.key);
-
-      const blob = await composer.exportImage({
-        width: def.width,
-        height: def.height,
-        format: "png",
-        device: def.device,
-      });
-
-      if (!blob) return;
-
-      const url = URL.createObjectURL(blob);
-      setPreviewUrl(url);
-      setPreviewLabel(def.label);
-    } finally {
-      setActiveKey(null);
-    }
-  }
-
-  function closePreview() {
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
-    setPreviewUrl(null);
-    setPreviewLabel("");
-  }
-
+export default function HomePage() {
   return (
-    <>
-      <div className="export-buttons">
-        {EXPORTS.map((def) => (
-          <button
-            key={def.key}
-            type="button"
-            onClick={() => handleExport(def)}
-            className="export-btn"
-            disabled={activeKey === def.key}
-          >
-            {activeKey === def.key ? "Preparing download…" : def.label}
-          </button>
-        ))}
-      </div>
+    <main className="ls-home">
+      {/* TOP HERO */}
+      <section className="hero">
+        <div className="heroInner">
+          <h1 className="heroTitle">
+            <span className="heroLock">LOCK</span>
+            <span className="heroScreened">SCREENED</span>
+          </h1>
 
-      {/* Overlay shown after export, everywhere (desktop + mobile) */}
-      {previewUrl && (
-        <div className="preview-overlay" onClick={closePreview}>
-          <div
-            className="preview-inner"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="preview-header">
-              <button
-                type="button"
-                className="preview-back"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  closePreview();
-                }}
-              >
-                ← Go back
-              </button>
-            </div>
+          <p className="heroSub">
+            Lock screens and wallpapers for Web3-native collectors.
+            <br />
+            A simple hub for partner projects, holders, and phone-first art.
+          </p>
 
-            <div className="preview-text">
-              <strong>{previewLabel}</strong>
-              <div style={{ marginTop: 4 }}>
-                On mobile (including Phantom): <b>tap and hold</b> the image to
-                save it.
-              </div>
-              <div style={{ fontSize: 11, opacity: 0.8 }}>
-                On desktop: right-click → “Save image as…”.
-              </div>
-            </div>
+          <p className="heroDesc">
+            LockScreened gives every partner collection its own locker—a clean
+            space where holders can plug in their NFTs, swap backgrounds, and
+            export ready-to-use walls for every device.
+          </p>
 
-            <div className="preview-image-wrap">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={previewUrl}
-                alt="Lock screen preview"
-                className="preview-image"
-              />
-            </div>
-
-            <button
-              type="button"
-              className="preview-close"
-              onClick={closePreview}
-            >
-              Close
-            </button>
+          <div className="heroCtas">
+            <a href="#partner-lockers" className="ctaPrimary">
+              View Partner Lockers
+            </a>
+            <a href="#how-it-works" className="ctaSecondary">
+              Learn How It Works
+            </a>
           </div>
         </div>
-      )}
+      </section>
+
+      {/* PARTNER LOCKERS */}
+      <section id="partner-lockers" className="partners">
+        <div className="partnersInner">
+          <h2 className="partnersTitle">PARTNER LOCKERS</h2>
+          <p className="partnersDesc">
+            Each project below has (or will have) its own dedicated locker on
+            LockScreened. Tap a phone to open that project’s experience, connect
+            your wallet, and start building your daily lock screens.
+          </p>
+
+          <div className="grid">
+            {PROJECTS.map((p) => {
+              const isClickable = p.lockerPath !== "#";
+              const CardInner = (
+                <div className={`card ${p.glow}`}>
+                  <div className="pill">{p.label}</div>
+
+                  <div className="phoneFrame">
+                    <div className="phoneScreen">
+                      {p.preview ? (
+                        <img
+                          src={p.preview}
+                          alt={`${p.name} preview`}
+                          className="phoneImg"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="phonePlaceholder" />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="cardName">{p.name}</div>
+                  <div className="cardStatus">{p.status === "live" ? "Live" : "Coming soon"}</div>
+                </div>
+              );
+
+              if (!isClickable) return <div key={p.name}>{CardInner}</div>;
+
+              // ✅ use Link for internal routes
+              return (
+                <Link key={p.name} href={p.lockerPath} className="cardLink">
+                  {CardInner}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ / HOW IT WORKS */}
+      <section id="how-it-works" className="faq">
+        <div className="faqInner">
+          <LockscreenedFAQ />
+        </div>
+      </section>
 
       <style jsx>{`
-        .export-buttons {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          margin-top: 10px;
+        .ls-home {
+          min-height: 100vh;
+          padding-bottom: 80px;
         }
 
-        .export-btn {
-          width: 100%;
-          text-align: left;
-          padding: 12px 20px;
-          border-radius: 30px;
-
-          /* Retrograve look */
-          background: linear-gradient(180deg, #4b2a83 0%, #3a2068 100%);
-          border: 1px solid rgba(255, 255, 255, 0.18);
-          color: #e9d7ff;
-          font-size: 14px;
-          font-weight: 500;
-          cursor: pointer;
-
-          /* subtle depth */
-          box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
-          transition: background 0.2s ease, transform 0.1s ease,
-            box-shadow 0.2s ease, opacity 0.15s ease;
-        }
-
-        .export-btn:hover:not(:disabled) {
-          background: linear-gradient(180deg, #5a33a0 0%, #44287e 100%);
-          transform: translateY(-2px);
-          box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
-        }
-
-        .export-btn:active:not(:disabled) {
-          transform: translateY(0);
-          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-        }
-
-        .export-btn:disabled {
-          opacity: 0.65;
-          cursor: default;
-          background: linear-gradient(180deg, #38245b 0%, #2f1d4d 100%);
-          box-shadow: none;
-        }
-
-        /* Overlay styles */
-        .preview-overlay {
-          position: fixed;
-          inset: 0;
-          background: rgba(5, 0, 20, 0.88);
-          backdrop-filter: blur(4px);
-          display: flex;
-          justify-content: center;
-          align-items: flex-start; /* 🟣 start at top so header isn't clipped */
-          z-index: 9999;
-          padding: 16px 16px 24px;
-          overflow-y: auto; /* 🟣 whole overlay scrolls on tiny screens */
-        }
-
-        .preview-inner {
+        .hero {
+          padding: 70px 18px 36px;
+          background: #cfdcf0;
           position: relative;
-          max-width: 480px;
-          width: 100%;
-          margin-top: 16px;
-          background: #161022;
-          border-radius: 18px;
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          box-shadow: 0 18px 44px rgba(0, 0, 0, 0.6);
-          padding: 12px 16px 16px;
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          color: #f5e8ff;
-          max-height: calc(100vh - 48px); /* 🟣 card itself can scroll */
-          overflow-y: auto;
+          overflow: hidden;
         }
 
-        .preview-header {
-          position: sticky; /* 🟣 keep Go back locked at the top */
-          top: 0;
-          padding-bottom: 8px;
-          margin-bottom: 8px;
-          display: flex;
-          justify-content: flex-start;
-          background: #161022;
-          z-index: 1;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        .heroInner {
+          max-width: 1100px;
+          margin: 0 auto;
+          text-align: center;
         }
 
-        .preview-back {
+        .heroTitle {
+          margin: 0;
+          font-size: 74px;
+          letter-spacing: 0.02em;
+          line-height: 0.95;
+          font-weight: 900;
+        }
+
+        .heroLock {
+          color: #0b0b0f;
+        }
+
+        .heroScreened {
+          color: #55b57c;
+          margin-left: 10px;
+          font-style: italic;
+          font-weight: 900;
+        }
+
+        .heroSub {
+          margin: 14px 0 0;
+          font-size: 14px;
+          opacity: 0.9;
+        }
+
+        .heroDesc {
+          max-width: 760px;
+          margin: 14px auto 0;
           font-size: 13px;
-          padding: 6px 12px;
-          border-radius: 999px;
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          background: rgba(0, 0, 0, 0.65);
-          color: #f5e8ff;
-          cursor: pointer;
+          opacity: 0.9;
+        }
+
+        .heroCtas {
+          margin-top: 18px;
+          display: flex;
+          gap: 12px;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+
+        .ctaPrimary,
+        .ctaSecondary {
           display: inline-flex;
           align-items: center;
-          gap: 4px;
-          backdrop-filter: blur(3px);
-          transition: background 0.15s ease, transform 0.08s ease,
-            box-shadow 0.15s ease;
+          justify-content: center;
+          padding: 10px 16px;
+          border-radius: 999px;
+          font-size: 12px;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+          text-decoration: none;
+          user-select: none;
+          white-space: nowrap;
         }
 
-        .preview-back:hover {
-          background: rgba(0, 0, 0, 0.85);
-          transform: translateY(-1px);
-          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+        .ctaPrimary {
+          background: #ff3bd4;
+          color: white;
+          box-shadow: 0 10px 28px rgba(255, 59, 212, 0.35);
         }
 
-        .preview-back:active {
-          transform: translateY(0);
-          box-shadow: none;
+        .ctaSecondary {
+          background: rgba(255, 255, 255, 0.35);
+          color: #0b0b0f;
+          border: 1px solid rgba(0, 0, 0, 0.12);
         }
 
-        .preview-text {
+        .partners {
+          padding: 36px 18px 10px;
+        }
+
+        .partnersInner {
+          max-width: 1100px;
+          margin: 0 auto;
+          text-align: center;
+        }
+
+        .partnersTitle {
+          margin: 0;
+          letter-spacing: 0.22em;
+          font-size: 16px;
+          font-weight: 900;
+        }
+
+        .partnersDesc {
+          margin: 10px auto 0;
+          max-width: 760px;
           font-size: 13px;
-          line-height: 1.4;
+          opacity: 0.8;
         }
 
-        .preview-image-wrap {
-          background: #05030a;
-          border-radius: 14px;
-          padding: 8px;
+        .grid {
+          margin-top: 22px;
           display: flex;
+          justify-content: center;
+          flex-wrap: wrap;
+          gap: 20px;
+        }
+
+        .cardLink {
+          text-decoration: none;
+          color: inherit;
+        }
+
+        .card {
+          width: 180px;
+          padding: 14px 14px 16px;
+          border-radius: 22px;
+          background: rgba(0, 0, 0, 0.45);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
+          backdrop-filter: blur(10px);
+        }
+
+        .pill {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          height: 22px;
+          padding: 0 10px;
+          border-radius: 999px;
+          font-size: 10px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          color: white;
+          margin-bottom: 10px;
+        }
+
+        .phoneFrame {
+          width: 120px;
+          height: 220px;
+          margin: 0 auto;
+          border-radius: 26px;
+          padding: 10px;
+          background: rgba(20, 20, 26, 0.85);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          box-shadow: 0 14px 38px rgba(0, 0, 0, 0.35);
+        }
+
+        .phoneScreen {
+          width: 100%;
+          height: 100%;
+          border-radius: 18px;
+          overflow: hidden;
+          background: rgba(0, 0, 0, 0.35);
+          display: flex;
+          align-items: center;
           justify-content: center;
         }
 
-        .preview-image {
-          max-width: 100%;
-          height: auto;
-          border-radius: 12px;
+        .phoneImg {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
         }
 
-        .preview-close {
-          align-self: flex-end;
-          margin-top: 4px;
-          border-radius: 999px;
-          padding: 6px 14px;
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          background: #4b2a83;
-          color: #f5e8ff;
+        .phonePlaceholder {
+          width: 100%;
+          height: 100%;
+          opacity: 0.25;
+          background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.2));
+        }
+
+        .cardName {
+          margin-top: 10px;
           font-size: 12px;
-          cursor: pointer;
-          transition: background 0.15s ease, box-shadow 0.15s ease;
+          text-decoration: underline;
+          opacity: 0.95;
         }
 
-        .preview-close:hover {
-          background: #5a33a0;
-          box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+        .cardStatus {
+          margin-top: 4px;
+          font-size: 11px;
+          opacity: 0.7;
         }
 
-        @media (max-width: 768px) {
-          .export-btn {
-            font-size: 13px;
-            padding: 10px 18px;
+        .faq {
+          padding: 18px 18px 60px;
+        }
+
+        .faqInner {
+          max-width: 1100px;
+          margin: 0 auto;
+        }
+
+        @media (max-width: 520px) {
+          .heroTitle {
+            font-size: 48px;
           }
-          .preview-inner {
-            margin-top: 12px;
-            max-width: 100%;
-            max-height: calc(100vh - 40px);
-          }
-          .preview-back {
-            font-size: 12px;
-            padding: 5px 11px;
+          .card {
+            width: 170px;
           }
         }
       `}</style>
-    </>
+    </main>
   );
 }
