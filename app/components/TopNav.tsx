@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
-type TopNavProject = "retrograve" | "magapixel" | "miners";
+export type TopNavProject = "retrograve" | "magapixel" | "miners" | "gainz";
 
 export default function TopNav({ project }: { project: TopNavProject }) {
   const active = (p: TopNavProject) => project === p;
@@ -59,11 +59,10 @@ export default function TopNav({ project }: { project: TopNavProject }) {
         .topnav {
           position: sticky;
           top: 0;
-          z-index: 999;
+          z-index: 9999;
           width: 100%;
           background: rgba(10, 8, 20, 0.78);
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-          /* ✅ no blur/filter on the bar itself */
           backdrop-filter: none;
         }
 
@@ -119,13 +118,11 @@ export default function TopNav({ project }: { project: TopNavProject }) {
           gap: 10px;
         }
 
-        /* Wallet button should look crisp */
         .walletWrap :global(button) {
           filter: none !important;
           backdrop-filter: none !important;
         }
 
-        /* ✅ Make the logo always visible */
         .logoLink {
           width: 42px;
           height: 42px;

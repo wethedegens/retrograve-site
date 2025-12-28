@@ -3,9 +3,7 @@
 
 import { useMemo } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import TopNav from "./TopNav";
-
-type TopNavProject = "retrograve" | "magapixel" | "miners" | "gainz";
+import TopNav, { type TopNavProject } from "./TopNav";
 
 function inferProjectFromRoute(
   pathname: string,
@@ -53,10 +51,5 @@ export default function TopNavWrapper() {
     return inferProjectFromRoute(pathname || "", params);
   }, [pathname, sp]);
 
-  // ✅ IMPORTANT:
-  // TS error is because TopNav's props don't declare `project`.
-  // Cast the *component* so the prop name stops failing builds.
-  const TopNavAny = TopNav as any;
-
-  return <TopNavAny project={project} />;
+  return <TopNav project={project} />;
 }
