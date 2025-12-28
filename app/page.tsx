@@ -62,7 +62,6 @@ export default function HomePage() {
       {/* HERO */}
       <section className="ls-hero">
         <div className="ls-hero-inner">
-          {/* ✅ restore PNG wordmark */}
           <img
             className="ls-wordmark"
             src="/lockscreened-wordmark-1.png"
@@ -92,9 +91,9 @@ export default function HomePage() {
         <div className="ls-section-inner">
           <h2 className="ls-h2">PARTNER LOCKERS</h2>
           <p className="ls-p">
-            Each project below has (or will have) its own dedicated locker on LockScreened.
-            Tap a phone to open that project&apos;s experience, connect your wallet, and start
-            building your daily lock screens.
+            Each project below has (or will have) its own dedicated locker on LockScreened. Tap a
+            phone to open that project&apos;s experience, connect your wallet, and start building
+            your daily lock screens.
           </p>
 
           <div className="ls-grid">
@@ -140,15 +139,19 @@ export default function HomePage() {
       </section>
 
       <style jsx>{`
-        /* ✅ This is the key: background on the OUTERMOST <main> so it always fills */
+        /* ✅ Background must live on the OUTERMOST main and fill the full doc height */
         .ls-home {
-          min-height: 100vh;
+          min-height: 100dvh;
           padding-bottom: 80px;
+
           background-color: #cddaf0;
           background-image: url("/lockscreened-main-bg-2.png");
           background-repeat: no-repeat;
           background-position: top center;
           background-size: cover;
+
+          /* ✅ helps prevent the “background stops early” look on tall pages */
+          background-attachment: fixed;
         }
 
         .ls-hero {
@@ -331,6 +334,10 @@ export default function HomePage() {
           }
           .ls-hero {
             padding-top: 72px;
+          }
+          /* iOS Safari: fixed backgrounds can be weird */
+          .ls-home {
+            background-attachment: scroll;
           }
         }
       `}</style>
