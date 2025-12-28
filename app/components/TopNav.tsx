@@ -2,70 +2,58 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 
-export default function TopNav() {
-  const pathname = usePathname();
+type TopNavProject = "retrograve" | "magapixel" | "miners";
 
-  const NavLink = ({
-    href,
-    label,
-  }: {
-    href: string;
-    label: string;
-  }) => {
-    const active = pathname === href;
-    return (
-      <Link href={href} className={`nav-link ${active ? "active" : ""}`}>
-        {label}
-      </Link>
-    );
-  };
+export default function TopNav({ project }: { project: TopNavProject }) {
+  // You can tweak highlight color per project if you want later
+  const linkStyle = (active: boolean) => ({
+    color: active ? "#a78bfa" : "rgba(255,255,255,0.85)",
+    textDecoration: active ? "underline" : "none",
+    textUnderlineOffset: 6,
+  });
 
   return (
     <header className="topnav">
-      <div className="inner">
+      <nav className="inner">
         <div className="left">
-          <NavLink href="/" label="HOME" />
-          <NavLink href="/my-retrograves" label="MY RETROGRAVES" />
-          <NavLink href="/community" label="COMMUNITY" />
-          <a
-            className="nav-link"
-            href="https://magiceden.io/"
-            target="_blank"
-            rel="noreferrer"
-          >
+          <Link href="/" className="navlink" style={linkStyle(project === "retrograve")}>
+            HOME
+          </Link>
+          <Link href="/my-retrograves" className="navlink">
+            MY RETROGRAVES
+          </Link>
+          <Link href="/community" className="navlink">
+            COMMUNITY
+          </Link>
+          <a className="navlink" href="https://magiceden.io" target="_blank" rel="noreferrer">
             COLLECT NOW
           </a>
-          <a
-            className="nav-link"
-            href="https://x.com/"
-            target="_blank"
-            rel="noreferrer"
-          >
+          <a className="navlink" href="https://x.com" target="_blank" rel="noreferrer">
             FOLLOW ON X
           </a>
         </div>
 
-        <div className="right">
-          {/* ✅ keep your wallet button slot (whatever wraps it elsewhere) */}
-          <div className="wallet-slot" />
-
-          {/* ✅ restore the top-right logo */}
-          <Link href="/" className="logo-link" aria-label="LockScreened Home">
-            <img src="/lockscreened-logo.png" alt="LockScreened" className="logo" />
-          </Link>
-        </div>
-      </div>
+        {/* ✅ restore top-right lockscreened logo */}
+        <Link className="logoLink" href="/" aria-label="LockScreened home">
+          <img
+            src="/lockscreened-logo.png"
+            alt="LockScreened logo"
+            className="logoImg"
+            draggable={false}
+          />
+        </Link>
+      </nav>
 
       <style jsx>{`
         .topnav {
           position: sticky;
           top: 0;
           z-index: 999;
-          background: rgba(10, 8, 18, 0.78);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+          width: 100%;
+          background: rgba(10, 8, 20, 0.75);
           backdrop-filter: blur(10px);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .inner {
@@ -75,74 +63,45 @@ export default function TopNav() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 14px;
+          gap: 10px;
         }
 
         .left {
           display: flex;
+          gap: 18px;
           align-items: center;
-          gap: 16px;
           flex-wrap: wrap;
         }
 
-        .nav-link {
-          font-size: 12px;
-          letter-spacing: 1px;
+        .navlink {
+          font-size: 11px;
+          letter-spacing: 0.18em;
+          font-weight: 800;
+          color: rgba(255, 255, 255, 0.85);
           text-decoration: none;
-          color: rgba(255, 255, 255, 0.82);
-          padding: 6px 8px;
-          border-radius: 999px;
+          opacity: 0.95;
         }
 
-        .nav-link:hover {
-          color: rgba(255, 255, 255, 1);
-          background: rgba(255, 255, 255, 0.06);
+        .navlink:hover {
+          opacity: 1;
+          text-decoration: underline;
+          textUnderlineOffset: 6px;
         }
 
-        .nav-link.active {
-          background: rgba(255, 255, 255, 0.08);
-          color: rgba(255, 255, 255, 0.95);
-        }
-
-        .right {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .wallet-slot {
-          /* If your wallet button is injected elsewhere, keep this.
-             If you render it here, replace wallet-slot with your wallet component. */
-          display: flex;
-          align-items: center;
-        }
-
-        .logo-link {
+        .logoLink {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          width: 36px;
-          height: 36px;
+          width: 42px;
+          height: 42px;
           border-radius: 12px;
-          background: rgba(255, 255, 255, 0.06);
-          border: 1px solid rgba(255, 255, 255, 0.12);
         }
 
-        .logo {
-          width: 22px;
-          height: 22px;
+        .logoImg {
+          width: 34px;
+          height: 34px;
           object-fit: contain;
-          display: block;
-        }
-
-        @media (max-width: 820px) {
-          .left {
-            gap: 10px;
-          }
-          .nav-link {
-            font-size: 11px;
-            padding: 5px 7px;
-          }
+          filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.4));
         }
       `}</style>
     </header>
