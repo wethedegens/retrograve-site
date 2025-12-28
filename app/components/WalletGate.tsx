@@ -2,20 +2,19 @@
 "use client";
 
 import { ReactNode } from "react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 type WalletGateProps = {
   children?: ReactNode;
 };
 
+/**
+ * WalletGate is ONLY a wrapper now.
+ *
+ * ✅ IMPORTANT:
+ * - Do NOT render WalletMultiButton here.
+ * - The wallet button lives in TopNav only.
+ * - This prevents "two wallets" + the black bar / extra top element.
+ */
 export default function WalletGate({ children }: WalletGateProps) {
-  return (
-    <>
-      {/* This renders the purple Connect/Disconnect button */}
-      <WalletMultiButton />
-
-      {/* If anything is wrapped in <WalletGate> ... </WalletGate>, it still works */}
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }

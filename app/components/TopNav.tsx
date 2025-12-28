@@ -7,6 +7,8 @@ import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 type TopNavProject = "retrograve" | "magapixel" | "miners" | "gainz";
 
 export default function TopNav({ project }: { project: TopNavProject }) {
+  const isActive = (p: TopNavProject) => project === p;
+
   return (
     <header className="topnav">
       <div className="inner">
@@ -14,8 +16,8 @@ export default function TopNav({ project }: { project: TopNavProject }) {
         <div className="left" aria-hidden="true" />
 
         {/* CENTER LINKS */}
-        <nav className="center" aria-label="Primary">
-          <Link className="navlink" href="/">
+        <nav className="center" aria-label="Primary navigation">
+          <Link className={`navlink ${isActive("retrograve") ? "active" : ""}`} href="/">
             HOME
           </Link>
 
@@ -59,8 +61,7 @@ export default function TopNav({ project }: { project: TopNavProject }) {
           top: 0;
           z-index: 9999;
           width: 100%;
-          height: 64px;
-          background: rgba(10, 8, 20, 0.82);
+          background: rgba(10, 8, 20, 0.78);
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
           backdrop-filter: blur(10px);
         }
@@ -68,12 +69,11 @@ export default function TopNav({ project }: { project: TopNavProject }) {
         .inner {
           max-width: 1200px;
           margin: 0 auto;
-          height: 64px;
-          padding: 0 14px;
+          padding: 10px 14px;
           display: grid;
           grid-template-columns: 1fr auto 1fr;
           align-items: center;
-          gap: 12px;
+          gap: 10px;
         }
 
         .left {
@@ -88,10 +88,10 @@ export default function TopNav({ project }: { project: TopNavProject }) {
           flex-wrap: wrap;
         }
 
-        /* ✅ All white, cleaner look */
+        /* ✅ ALL WHITE TEXT */
         .navlink {
-          font-size: 12px;
-          letter-spacing: 0.16em;
+          font-size: 11px;
+          letter-spacing: 0.18em;
           font-weight: 800;
           color: rgba(255, 255, 255, 0.92);
           text-decoration: none;
@@ -105,22 +105,27 @@ export default function TopNav({ project }: { project: TopNavProject }) {
           text-underline-offset: 6px;
         }
 
+        /* ✅ active stays white, just underlined */
+        .navlink.active {
+          color: rgba(255, 255, 255, 0.98);
+          text-decoration: underline;
+          text-underline-offset: 6px;
+          opacity: 1;
+        }
+
         .right {
           display: flex;
           justify-content: flex-end;
           align-items: center;
           gap: 10px;
-          min-width: 0;
         }
 
-        /* ✅ Wallet always crisp */
+        /* Wallet button should look crisp */
         .walletWrap :global(button) {
           filter: none !important;
-          backdrop-filter: none !important;
-          opacity: 1 !important;
         }
 
-        /* ✅ Logo always visible */
+        /* ✅ logo always visible */
         .logoLink {
           width: 42px;
           height: 42px;
@@ -146,20 +151,16 @@ export default function TopNav({ project }: { project: TopNavProject }) {
         @media (max-width: 900px) {
           .inner {
             grid-template-columns: 1fr;
-            height: auto;
-            padding: 10px 14px;
+            gap: 8px;
           }
-
           .center {
             order: 2;
             gap: 14px;
           }
-
           .right {
             order: 1;
             justify-content: space-between;
           }
-
           .left {
             display: none;
           }
