@@ -8,7 +8,6 @@ type ExportButtonsProps = {
   composerRef: React.RefObject<ComposerHandle | null>;
 };
 
-// Device variants understood by Composer
 type ExportDevice = "phone" | "ipad" | "desktop";
 
 type ExportDefinition = {
@@ -55,8 +54,6 @@ const EXPORTS: ExportDefinition[] = [
     height: 3040,
     device: "phone",
   },
-
-  // iPad preset – tall portrait
   {
     key: "ipad",
     label: "Download iPad (2048×2732)",
@@ -64,8 +61,6 @@ const EXPORTS: ExportDefinition[] = [
     height: 2732,
     device: "ipad",
   },
-
-  // Desktop preset – 16:9 wallpaper
   {
     key: "desktop",
     label: "Download Desktop (2560×1440)",
@@ -78,7 +73,6 @@ const EXPORTS: ExportDefinition[] = [
 export default function ExportButtons({ composerRef }: ExportButtonsProps) {
   const [activeKey, setActiveKey] = useState<string | null>(null);
 
-  // In-app overlay with the generated image
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewLabel, setPreviewLabel] = useState<string>("");
 
@@ -89,11 +83,25 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
     try {
       setActiveKey(def.key);
 
+      // ✅ detect current project from URL (keeps all other code untouched)
+      let project = "";
+      try {
+        project = new URLSearchParams(window.location.search).get("project") || "";
+      } catch {
+        project = "";
+      }
+
+      const justify =
+        def.device === "desktop" && project.toLowerCase() === "gainz"
+          ? "right"
+          : "center";
+
       const blob = await composer.exportImage({
         width: def.width,
         height: def.height,
         format: "png",
         device: def.device,
+        justify,
       });
 
       if (!blob) return;
@@ -130,13 +138,9 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
         ))}
       </div>
 
-      {/* Overlay shown after export, everywhere (desktop + mobile) */}
       {previewUrl && (
         <div className="preview-overlay" onClick={closePreview}>
-          <div
-            className="preview-inner"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="preview-inner" onClick={(e) => e.stopPropagation()}>
             <div className="preview-header">
               <button
                 type="button"
@@ -162,7 +166,6 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
             </div>
 
             <div className="preview-image-wrap">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={previewUrl}
                 alt="Lock screen preview"
@@ -195,7 +198,6 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
           padding: 12px 20px;
           border-radius: 30px;
 
-          /* Retrograve look */
           background: linear-gradient(180deg, #4b2a83 0%, #3a2068 100%);
           border: 1px solid rgba(255, 255, 255, 0.18);
           color: #e9d7ff;
@@ -203,7 +205,6 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
           font-weight: 500;
           cursor: pointer;
 
-          /* subtle depth */
           box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
           transition: background 0.2s ease, transform 0.1s ease,
             box-shadow 0.2s ease, opacity 0.15s ease;
@@ -227,7 +228,6 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
           box-shadow: none;
         }
 
-        /* Overlay styles */
         .preview-overlay {
           position: fixed;
           inset: 0;
@@ -235,10 +235,10 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
           backdrop-filter: blur(4px);
           display: flex;
           justify-content: center;
-          align-items: flex-start; /* 🟣 start at top so header isn't clipped */
+          align-items: flex-start;
           z-index: 9999;
           padding: 16px 16px 24px;
-          overflow-y: auto; /* 🟣 whole overlay scrolls on tiny screens */
+          overflow-y: auto;
         }
 
         .preview-inner {
@@ -255,12 +255,12 @@ export default function ExportButtons({ composerRef }: ExportButtonsProps) {
           flex-direction: column;
           gap: 12px;
           color: #f5e8ff;
-          max-height: calc(100vh - 48px); /* 🟣 card itself can scroll */
+          max-height: calc(100vh - 48px);
           overflow-y: auto;
         }
 
         .preview-header {
-          position: sticky; /* 🟣 keep Go back locked at the top */
+          position: sticky;
           top: 0;
           padding-bottom: 8px;
           margin-bottom: 8px;

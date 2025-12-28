@@ -1,12 +1,12 @@
 // app/projectsConfig.ts
 
 export type LockerProject = {
-  slug: string;          // URL-ish identifier
-  name: string;          // Display name
-  tagline: string;       // Short description
-  primaryColor: string;  // Card / frame gradient base
-  accentColor?: string;  // Optional 2nd gradient color
-  lockerPath: string;    // Where the phone/card tries to go when LIVE
+  slug: string; // URL-ish identifier
+  name: string; // Display name
+  tagline: string; // Short description
+  primaryColor: string; // Card / frame gradient base
+  accentColor?: string; // Optional 2nd gradient color
+  lockerPath: string; // Where the phone/card tries to go when LIVE
   status: "live" | "coming-soon";
 };
 
@@ -48,13 +48,15 @@ export const PROJECTS: LockerProject[] = [
     lockerPath: "/enchanted-miners", // placeholder
     status: "coming-soon",
   },
+
+  // ✅ NEW: GAINZ (replacing the old Client #1 placeholder)
   {
-    slug: "client-1",
-    name: "Client Project #1",
-    tagline: "Custom lockscreen engine for partner NFTs.",
-    primaryColor: "#00c6ff",
-    accentColor: "#0072ff",
-    lockerPath: "/client-1-locker", // placeholder
-    status: "coming-soon",
+    slug: "gainz",
+    name: "GAINZ",
+    tagline: "Phone-native lock screens for GAINZ NFTs.",
+    primaryColor: "#111111",
+    accentColor: "#444444",
+    lockerPath: "/gainz",
+    status: "live",
   },
 ];

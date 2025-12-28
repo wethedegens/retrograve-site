@@ -1,7 +1,7 @@
 // app/components/BackgroundPicker.tsx
 "use client";
 
-import React, { ChangeEvent } from "react";
+import type { ChangeEvent } from "react";
 import type { BgChoice } from "./Composer";
 
 type Props = {
@@ -68,7 +68,7 @@ const MAGAPIXEL_BACKGROUND_SLUGS: string[] = [
   "whitehouse-hallway",
 ];
 
-function BackgroundPicker({ value, onChange, project }: Props) {
+export default function BackgroundPicker({ value, onChange, project }: Props) {
   const current = value as any;
   const isMiners = project === "miners";
 
@@ -82,56 +82,49 @@ function BackgroundPicker({ value, onChange, project }: Props) {
     if (!file) return;
     const url = URL.createObjectURL(file);
 
-    // Match BgChoice image shape: { kind: "image", image, file }
-    const bg = {
+    onChange({
       kind: "image",
       image: url,
       file,
-    } as any as BgChoice;
-
-    onChange(bg);
+    } as any as BgChoice);
   };
 
   /** Enchanted Miners: click one of the phone PNGs */
   const handleMinerImageClick = (src: string, index: number) => {
-    let file: File;
+    let file: File | undefined;
     try {
       file = new File([], `miner-wallpaper-${index + 1}.png`, {
         type: "image/png",
       });
     } catch {
-      file = undefined as unknown as File;
+      file = undefined;
     }
 
-    const bg = {
+    onChange({
       kind: "image",
       image: src,
-      file,
-    } as any as BgChoice;
-
-    onChange(bg);
+      file: file as any,
+    } as any as BgChoice);
   };
 
   /** MAGAPIXEL: use /backgrounds/<slug>/phone.png as wallpaper */
   const handleMagapixelClick = (slug: string, index: number) => {
     const phoneSrc = `/backgrounds/${slug}/phone.png`;
 
-    let file: File;
+    let file: File | undefined;
     try {
       file = new File([], `magapixel-bg-${slug}-${index + 1}.png`, {
         type: "image/png",
       });
     } catch {
-      file = undefined as unknown as File;
+      file = undefined;
     }
 
-    const bg = {
+    onChange({
       kind: "image",
       image: phoneSrc,
-      file,
-    } as any as BgChoice;
-
-    onChange(bg);
+      file: file as any,
+    } as any as BgChoice);
   };
 
   return (
@@ -150,6 +143,7 @@ function BackgroundPicker({ value, onChange, project }: Props) {
           >
             MINER WALLPAPERS
           </div>
+
           <div
             style={{
               display: "flex",
@@ -209,6 +203,7 @@ function BackgroundPicker({ value, onChange, project }: Props) {
           >
             MAGAPIXEL BACKGROUNDS
           </div>
+
           <div
             style={{
               display: "flex",
@@ -275,5 +270,3 @@ function BackgroundPicker({ value, onChange, project }: Props) {
     </section>
   );
 }
-
-export default BackgroundPicker;

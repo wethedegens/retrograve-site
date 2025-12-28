@@ -1,10 +1,12 @@
+// app/components/ShareActions.tsx
 "use client";
 
-import { useCallback, useState, type MutableRefObject } from "react";
+import { useCallback, useState } from "react";
 import type { ComposerHandle } from "./Composer";
 
 type ShareActionsProps = {
-  composerRef?: MutableRefObject<ComposerHandle | null>;
+  // ✅ match the rest of the app: RefObject style
+  composerRef?: React.RefObject<ComposerHandle | null>;
   nftName?: string;
   onUsing?: (msg: string) => void;
 };
@@ -36,7 +38,9 @@ export default function ShareActions({
   }, [notify]);
 
   const handleHowToUse = useCallback(() => {
-    notify("Export the image, then set it as your lock screen in your phone settings.");
+    notify(
+      "Export the image, then set it as your lock screen in your phone settings."
+    );
   }, [notify]);
 
   return (

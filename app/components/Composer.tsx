@@ -1,460 +1,647 @@
-// app/components/Composer.tsx
+// app/page.tsx
 "use client";
 
-import {
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import {
-  getBackgroundImagePath,
-  type DeviceVariant,
-} from "../backgroundsConfig";
+import Link from "next/link";
+import LockscreenedFAQ from "./components/LockscreenedFAQ";
+export const dynamic = "force-dynamic";
 
-export type BgChoice =
-  | { kind: "color"; value: string }
-  | { kind: "image"; image: string; value?: string; file?: File | null }
-  | { kind: "preset"; id: string };
-
-export type MetaAttribute = {
-  trait_type?: string;
-  value?: string | number | null;
+type LockerProject = {
+  name: string;
+  status: "live" | "coming";
+  label: string;
+  lockerPath: string;
+  glow: string;
+  preview?: string;
 };
 
-export type SimpleNft = {
-  id: string;
-  name?: string;
-  image?: string; // remote fallback
-  attributes?: MetaAttribute[]; // used to rebuild from local layers
-};
+const PROJECTS: LockerProject[] = [
+  {
+    name: "MAGApixel Locker",
+    status: "live",
+    label: "Live",
+    lockerPath: "/locker/magapixel",
+    glow: "magapixel",
+    preview: "/lockscreened-previews/magapixel.png",
+  },
+  {
+    name: "RetroGrave Locker",
+    status: "live",
+    label: "Live",
+    lockerPath: "/retrograve",
+    glow: "retrograve",
+    preview: "/lockscreened-previews/retrograve.png",
+  },
+  {
+    name: "MEOWGA",
+    status: "coming",
+    label: "Coming soon",
+    lockerPath: "#",
+    glow: "meowga",
+    preview: "/lockscreened-previews/meowga.png",
+  },
+  {
+    name: "Enchanted Miners",
+    status: "live",
+    label: "Live",
+    lockerPath: "/enchanted-miners",
+    glow: "miners",
+    preview: "/lockscreened-previews/miners.png",
+  },
 
-export type ExportSize = { label: string; w: number; h: number };
+  // ✅ GAINZ is LIVE now
+  {
+    name: "Gainz",
+    status: "live",
+    label: "Live",
+    lockerPath: "/gainz",
+    glow: "gainz",
+    preview: "/lockscreened-previews/gainz.png",
+  },
+];
 
-type Size = { w: number; h: number };
-
-export type ExportImageOptions = {
-  width: number;
-  height: number;
-  format?: "png";
-  /**
-   * Which device preset this export is for.
-   * Used to pick the correct background image variant.
-   * Defaults to "phone" so existing callers keep working.
-   */
-  device?: DeviceVariant;
-};
-
-/** --------- CONFIG: update only these if your structure changes ---------- */
-// Your MAGApixel layer sprites under /public:
-//
-// You now have: public/magapixel/{body,face,glasses,head,skin,hand}/...
-// So the base path must be "/magapixel" (no /layers here).
-const BASE_TRAITS_DIR = "/magapixel";
-
-// NOTE: "Background" is intentionally NOT here – we don't draw it so we can swap BGs.
-const LAYER_ORDER = ["Skin", "Face", "Body", "Head", "Glasses", "Hand"];
-
-const CANDIDATE_EXTS = [".png", ".webp"]; // try both if you mix formats
-/** ----------------------------------------------------------------------- */
-
-const PRESETS: Record<string, Size> = {
-  master: { w: 1440, h: 3200 },
-  "iphone-15pmax": { w: 1290, h: 2796 },
-  "iphone-15pro": { w: 1179, h: 2556 },
-  "android-20-9": { w: 1080, h: 2400 },
-  "android-qhd+": { w: 1440, h: 3040 },
-};
-
-export type ComposerHandle = {
-  // Used by ExportButtons
-  exportImage: (opts: ExportImageOptions) => Promise<Blob | null>;
-
-  // Backwards-compatible helper (still available if we ever want it)
-  exportAt: (size: ExportSize | keyof typeof PRESETS) => Promise<void>;
-};
-
-const isHttpUrl = (s?: string | null) => !!s && /^https?:\/\//i.test(s);
-const proxyUrl = (src: string) => `/api/img?u=${encodeURIComponent(src)}`;
-
-function loadImage(src: string): Promise<HTMLImageElement> {
-  return new Promise((res, rej) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => res(img);
-    img.onerror = () => rej(new Error("image load failed: " + src));
-    img.src = src;
-  });
-}
-
-/** Normalize folder/file segments */
-function slugify(s: string) {
-  return s
-    .toLowerCase()
-    .replace(/&/g, " and ")
-    .replace(/[+]/g, " plus ")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-}
-
-/**
- * Detect whether this NFT *should* be treated as a layered/generative one,
- * meaning we DO NOT want to fall back to the baked PNG background.
- */
-function hasLayerTraits(attrs?: MetaAttribute[] | null): boolean {
-  if (!attrs || !attrs.length) return false;
-  const target = ["skin", "face", "body", "head", "glasses", "hand"];
-  return attrs.some((a) => {
-    const t = String(a?.trait_type || "").trim().toLowerCase();
-    return target.includes(t);
-  });
-}
-
-/**
- * Load the FIRST existing image for each layer type (Skin/Face/Body/Head/Glasses/Hand),
- * skipping Background completely so we can use our own phone BG.
- */
-async function loadExistingLayersPerType(
-  attrs?: MetaAttribute[] | null
-): Promise<HTMLImageElement[]> {
-  if (!attrs) return [];
-
-  // Map: trait_type -> attribute
-  const byType = new Map<string, MetaAttribute>();
-  for (const a of attrs) {
-    const t = String(a?.trait_type || "").trim();
-    if (!t) continue;
-    byType.set(t, a);
-  }
-
-  const images: HTMLImageElement[] = [];
-
-  for (const type of LAYER_ORDER) {
-    const attr = byType.get(type);
-    if (!attr || attr.value == null) continue;
-
-    const typeSeg = slugify(type); // "Skin" -> "skin"
-    const valSeg = slugify(String(attr.value)); // "Teflon Don" -> "teflon-don"
-
-    // Try both .png and .webp for resiliency
-    const candidates = CANDIDATE_EXTS.map(
-      (ext) => `${BASE_TRAITS_DIR}/${typeSeg}/${valSeg}${ext}`
-    );
-
-    let loaded: HTMLImageElement | null = null;
-    for (const url of candidates) {
-      try {
-        loaded = await loadImage(url);
-        break;
-      } catch {
-        // try next extension
-      }
-    }
-    if (loaded) images.push(loaded);
-  }
-
-  return images;
-}
-
-/**
- * Draw a background image that covers the canvas and bottom-aligns,
- * given a direct src URL.
- */
-async function drawBackgroundImageFromSrc(
-  ctx: CanvasRenderingContext2D,
-  size: Size,
-  src: string
-) {
-  const img = await loadImage(src);
-  const scale = Math.max(size.w / img.width, size.h / img.height);
-  const drawW = img.width * scale;
-  const drawH = img.height * scale;
-  const dx = (size.w - drawW) / 2;
-  const dy = size.h - drawH; // bottom align
-  ctx.drawImage(img, dx, dy, drawW, drawH);
-}
-
-const Composer = forwardRef<
-  ComposerHandle,
-  { nft: SimpleNft | null; bg: BgChoice | null }
->(({ nft, bg }, ref) => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [loadingImg, setLoadingImg] = useState(false);
-
-  const previewScale = 0.58;
-  const activeBg = useMemo(
-    () => bg || ({ kind: "color", value: "#3e2d75" } as BgChoice),
-    [bg]
-  );
-  const previewSize: Size = useMemo(
-    () => ({
-      w: Math.round(1440 * previewScale),
-      h: Math.round(3200 * previewScale),
-    }),
-    []
-  );
-
-  /**
-   * Core draw: background -> local layers (if any) -> OPTIONAL remote image
-   * Device tells us which background variant to use (phone/ipad/desktop).
-   */
-  const draw = async (
-    ctx: CanvasRenderingContext2D,
-    size: Size,
-    device: DeviceVariant
-  ) => {
-    // 1) Background: preset image, solid color, or uploaded/static image
-    if (activeBg.kind === "preset") {
-      const src = getBackgroundImagePath(activeBg.id, device);
-      if (src) {
-        setLoadingImg(true);
-        try {
-          await drawBackgroundImageFromSrc(ctx, size, src);
-        } finally {
-          setLoadingImg(false);
-        }
-      } else {
-        // fallback to default color if something's missing
-        ctx.fillStyle = "#2b2146";
-        ctx.fillRect(0, 0, size.w, size.h);
-      }
-    } else if (activeBg.kind === "color") {
-      ctx.fillStyle = activeBg.value || "#2b2146";
-      ctx.fillRect(0, 0, size.w, size.h);
-    } else if (activeBg.kind === "image") {
-      // handle both static URLs and uploaded File blobs
-      const anyBg = activeBg as any;
-      const src: string | undefined = anyBg.image || anyBg.value;
-
-      setLoadingImg(true);
-      try {
-        if (src) {
-          // Static URL (MAGApixel / Miners / user-uploaded blob URL)
-          await drawBackgroundImageFromSrc(ctx, size, src);
-        } else if (anyBg.file instanceof File) {
-          // Fallback: if only a File exists, use it
-          const url = URL.createObjectURL(anyBg.file);
-          try {
-            await drawBackgroundImageFromSrc(ctx, size, url);
-          } finally {
-            URL.revokeObjectURL(url);
-          }
-        } else {
-          // Last resort: just fill with default color
-          ctx.fillStyle = "#2b2146";
-          ctx.fillRect(0, 0, size.w, size.h);
-        }
-      } finally {
-        setLoadingImg(false);
-      }
-    }
-
-    // 2) NFT layers / remote image
-    const layeredMode = hasLayerTraits(nft?.attributes);
-    let drewLayers = false;
-
-    // Try to draw local layers (Skin/Face/Body/Head/Glasses/Hand)
-    if (layeredMode) {
-      setLoadingImg(true);
-      try {
-        const imgs = await loadExistingLayersPerType(nft?.attributes);
-        if (imgs.length) {
-          const base = imgs[0];
-          const scale = Math.min(size.w / base.width, size.h / base.height);
-          const drawW = base.width * scale;
-          const drawH = base.height * scale;
-          const dx = (size.w - drawW) / 2;
-          const dy = size.h - drawH; // bottom align
-          ctx.imageSmoothingEnabled = false;
-          for (const li of imgs) {
-            ctx.drawImage(li, dx, dy, drawW, drawH);
-          }
-          drewLayers = true;
-        }
-      } finally {
-        setLoadingImg(false);
-      }
-    }
-
-    // Fallback: draw the remote NFT image ONLY if we are NOT in layered mode
-    if (!drewLayers && nft?.image && !layeredMode) {
-      setLoadingImg(true);
-      try {
-        const src = isHttpUrl(nft.image) ? proxyUrl(nft.image!) : nft.image!;
-        const img = await loadImage(src);
-        const scale = Math.min(size.w / img.width, size.h / img.height);
-        const drawW = img.width * scale;
-        const drawH = img.height * scale;
-        const dx = (size.w - drawW) / 2;
-        const dy = size.h - drawH;
-        ctx.imageSmoothingEnabled = false;
-        ctx.drawImage(img, dx, dy, drawW, drawH);
-      } finally {
-        setLoadingImg(false);
-      }
-    }
-  };
-
-  const renderPreview = async () => {
-    const c = canvasRef.current;
-    if (!c) return;
-    c.width = previewSize.w;
-    c.height = previewSize.h;
-    const ctx = c.getContext("2d");
-    if (!ctx) return;
-    ctx.clearRect(0, 0, c.width, c.height);
-    // For preview, we always use the phone variant
-    await draw(ctx, previewSize, "phone");
-  };
-
-  useEffect(() => {
-    renderPreview();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nft?.image, (nft?.attributes || []).length, activeBg]);
-
-  useImperativeHandle(ref, () => {
-    // Internal helper: render at any size and return a Blob
-    const doExportImage = async (
-      opts: ExportImageOptions
-    ): Promise<Blob | null> => {
-      const { width, height, format = "png", device = "phone" } = opts;
-      const c = document.createElement("canvas");
-      c.width = width;
-      c.height = height;
-      const ctx = c.getContext("2d");
-      if (!ctx) return null;
-
-      await draw(ctx, { w: width, h: height }, device);
-
-      const mime = format === "png" ? "image/png" : "image/png";
-      const blob = await new Promise<Blob | null>((res) =>
-        c.toBlob(res, mime)
-      );
-      return blob;
-    };
-
-    return {
-      exportImage: doExportImage,
-
-      // Backwards-compatible: still lets us trigger a direct download if we ever want.
-      async exportAt(size: ExportSize | keyof typeof PRESETS) {
-        const target: Size =
-          typeof size === "string"
-            ? PRESETS[size]
-            : { w: size.w, h: size.h };
-
-        const blob = await doExportImage({
-          width: target.w,
-          height: target.h,
-          format: "png",
-          device: "phone",
-        });
-        if (!blob) return;
-
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${(nft?.name || "nft").replace(
-          /\s+/g,
-          "_"
-        )}_${target.w}x${target.h}.png`;
-        a.click();
-        URL.revokeObjectURL(url);
-      },
-    };
-  });
-
+export default function HomePage() {
   return (
-    <div className="composer-wrap">
-      <div className="phone-frame">
-        <div className="phone-surface">
-          <div className="phone-hint">
-            {loadingImg
-              ? "Loading image…"
-              : "Preview is scaled; exports are full size."}
-          </div>
-          <canvas
-            ref={canvasRef}
-            className="phone-canvas"
-            style={{ imageRendering: "pixelated" }}
-          />
-        </div>
+    <main id="top" className="ls-page">
+      {/* ✅ Spacer for fixed nav (nav height is 64px) */}
+      <div className="topnav-spacer" />
+
+      {/* Floating phone logo in top-right */}
+      <div className="ls-logo-floating">
+        <img
+          src="/lockscreened-logo.png"
+          alt="LockScreened logo"
+          className="ls-logo"
+        />
       </div>
 
+      {/* HERO */}
+      <section className="ls-hero">
+        <img
+          src="/lockscreened-wordmark-1.png"
+          alt="LockScreened wordmark"
+          className="ls-wordmark"
+        />
+
+        <p className="ls-subtitle">
+          Lock screens and wallpapers for Web3-native collectors.
+        </p>
+        <p className="ls-subtitle">
+          A simple hub for partner projects, holders, and phone-first art.
+        </p>
+
+        <p className="ls-body">
+          LockScreened gives every partner collection its own locker—a clean
+          space where holders can plug in their NFTs, swap backgrounds, and
+          export ready-to-use walls for every device.
+        </p>
+
+        <div className="ls-hero-actions">
+          <button
+            className="ls-btn ls-btn-primary"
+            onClick={() => {
+              const el = document.getElementById("projects");
+              if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+          >
+            View partner lockers
+          </button>
+          <button
+            className="ls-btn ls-btn-ghost"
+            onClick={() => {
+              const el = document.getElementById("how");
+              if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+          >
+            Learn how it works
+          </button>
+        </div>
+      </section>
+
+      {/* PARTNER PROJECTS */}
+      <section id="projects" className="ls-partners">
+        <h2 className="ls-section-title">Partner lockers</h2>
+        <p className="ls-section-copy">
+          Each project below has (or will have) its own dedicated locker on
+          LockScreened. Tap a phone to open that project&apos;s experience,
+          connect your wallet, and start building your daily lock screens.
+        </p>
+
+        <div className="phone-grid">
+          {PROJECTS.map((p) => {
+            const isDisabled = p.status === "coming" || p.lockerPath === "#";
+
+            const inner = (
+              <div
+                className={`phone-frame glow-${p.glow}`}
+                onClick={(e) => {
+                  if (isDisabled) return;
+                  e.preventDefault();
+                  window.location.href = p.lockerPath;
+                }}
+                role={isDisabled ? undefined : "button"}
+                tabIndex={isDisabled ? -1 : 0}
+                onKeyDown={(e) => {
+                  if (isDisabled) return;
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    window.location.href = p.lockerPath;
+                  }
+                }}
+              >
+                <div className="phone-pill">
+                  <span className="pill-text">
+                    {p.status === "live" ? "LIVE" : "COMING SOON"}
+                  </span>
+                </div>
+
+                <div className="phone-screen">
+                  {p.preview && (
+                    <img
+                      src={p.preview}
+                      alt={`${p.name} preview`}
+                      className="phone-preview"
+                      draggable={false}
+                    />
+                  )}
+                </div>
+
+                <div className="phone-name">{p.name}</div>
+                <div className="phone-status">
+                  {p.status === "live" ? "Live" : "Coming soon"}
+                </div>
+              </div>
+            );
+
+            if (isDisabled) {
+              return (
+                <div
+                  key={p.name}
+                  className="phone-link phone-link-disabled"
+                  aria-disabled="true"
+                >
+                  {inner}
+                </div>
+              );
+            }
+
+            return (
+              <Link key={p.name} href={p.lockerPath} className="phone-link">
+                {inner}
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* HOW IT WORKS */}
+      <section id="how" className="ls-how">
+        <h2 className="ls-section-title">How LockScreened works</h2>
+        <div className="how-grid">
+          <article className="how-card">
+            <div className="how-step">1</div>
+            <h3 className="how-title">Connect with a partner locker</h3>
+            <p className="how-text">
+              Choose a partner project above and open their locker. Connect your
+              wallet to view eligible NFTs from that collection.
+            </p>
+          </article>
+
+          <article className="how-card">
+            <div className="how-step">2</div>
+            <h3 className="how-title">Swap backgrounds in real time</h3>
+            <p className="how-text">
+              Pick from curated backgrounds tuned to each project&apos;s art, or
+              upload your own. Everything renders at exact device pixels.
+            </p>
+          </article>
+
+          <article className="how-card">
+            <div className="how-step">3</div>
+            <h3 className="how-title">Export for phone, tablet, or desktop</h3>
+            <p className="how-text">
+              Download master, iPhone, Android, iPad, and desktop versions.
+              Previews are scaled for speed, exports are full quality.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="ls-faq">
+        <LockscreenedFAQ />
+      </section>
+
+      {/* FOOTER */}
+      <footer className="ls-footer">
+        <p className="ls-footer-text">
+          Built by RetroGrave and expanding to curated partner collections over
+          time.
+        </p>
+        <div className="ls-footer-links">
+          <a
+            href="https://discord.gg/mSNHRFdCkS"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ls-footer-pill"
+          >
+            Discord
+          </a>
+          <a
+            href="https://x.com/RETROGRAVE_NFT"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ls-footer-pill"
+          >
+            X (Twitter)
+          </a>
+        </div>
+      </footer>
+
       <style jsx>{`
-        .composer-wrap {
-          display: grid;
-          gap: 10px;
-          justify-items: center;
-        }
-        .phone-frame {
+        .ls-page {
+          min-height: 100vh;
+          padding: 0 16px 72px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          color: #ffffff;
           position: relative;
-          width: 340px;
-          max-width: 88vw;
-          aspect-ratio: 9 / 19.5;
-          border-radius: 26px;
-          overflow: hidden;
-          box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
-          background: #221a33;
         }
-        .phone-surface {
-          position: absolute;
+
+        /* ✅ This is the reliable fixed-nav offset */
+        .topnav-spacer {
+          height: 64px;
+          width: 100%;
+          flex: 0 0 auto;
+        }
+
+        /* ✅ keep anchor scroll targets below fixed nav */
+        #projects,
+        #how,
+        #faq {
+          scroll-margin-top: 72px;
+        }
+
+        .ls-page::before {
+          content: "";
+          position: fixed;
           inset: 0;
-          display: grid;
-          grid-template-rows: auto 1fr;
-          align-content: end;
-          justify-items: center;
-          padding: 8px 8px 10px;
-          gap: 4px;
+          background-image: url("/lockscreened-main-bg-2.png");
+          background-size: cover;
+          background-position: center top;
+          background-repeat: no-repeat;
+          z-index: -1;
         }
 
-        /* 🔨 KILL any button that ever appears inside the phone frame */
-        .phone-frame button {
-          display: none !important;
-        }
-
-        .phone-hint {
-          align-self: start;
-          justify-self: center;
-          font-size: 11px;
-          color: #cfc2ff;
-          background: rgba(0, 0, 0, 0.35);
-          padding: 6px 8px;
-          border-radius: 999px;
-          backdrop-filter: blur(2px);
+        .ls-logo-floating {
+          position: fixed;
+          top: 16px;
+          right: 20px;
+          z-index: 30;
           pointer-events: none;
-          user-select: none;
-          white-space: nowrap;
         }
-        .phone-canvas {
-          width: 92%;
+        .ls-logo {
+          width: 120px;
           height: auto;
+          display: block;
+          filter: drop-shadow(0 0 12px rgba(183, 122, 255, 0.8));
         }
 
-        /* 📱 Mobile tweaks: make phone smaller + remove hint to free space */
+        .ls-hero {
+          margin-top: 0;
+          max-width: 820px;
+          text-align: center;
+        }
+
+        .ls-wordmark {
+          width: clamp(540px, 60vw, 960px);
+          display: block;
+          margin: 0 auto 18px;
+        }
+
+        .ls-subtitle {
+          margin: 2px 0;
+          font-size: 16px;
+          line-height: 1.6;
+          color: #1e1e24;
+        }
+
+        .ls-body {
+          margin: 10px auto 0;
+          max-width: 720px;
+          font-size: 15px;
+          line-height: 1.7;
+          color: #2c2c35;
+        }
+
+        .ls-hero-actions {
+          margin-top: 18px;
+          display: flex;
+          justify-content: center;
+          gap: 14px;
+          flex-wrap: wrap;
+        }
+
+        .ls-btn {
+          border-radius: 999px;
+          padding: 10px 20px;
+          font-size: 14px;
+          border: 0;
+          cursor: pointer;
+          font-family: "VT323", monospace;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          transition: transform 0.18s ease, box-shadow 0.18s ease,
+            background 0.18s ease, opacity 0.18s ease;
+        }
+        .ls-btn-primary {
+          background: radial-gradient(
+            120% 200% at 0% 0%,
+            #ff7ad9,
+            #ff3fbf 40%,
+            #c736ff 100%
+          );
+          color: #fff;
+          box-shadow: 0 0 14px rgba(255, 122, 217, 0.75),
+            0 14px 32px rgba(0, 0, 0, 0.55);
+        }
+        .ls-btn-primary:hover {
+          transform: translateY(-1px) scale(1.03);
+          box-shadow: 0 0 18px rgba(255, 122, 217, 0.95),
+            0 18px 40px rgba(0, 0, 0, 0.7);
+        }
+        .ls-btn-ghost {
+          background: transparent;
+          color: #1f1f26;
+          border: 1px solid rgba(40, 40, 60, 0.6);
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+        }
+        .ls-btn-ghost:hover {
+          background: rgba(40, 40, 70, 0.08);
+          transform: translateY(-1px);
+        }
+
+        .ls-partners {
+          margin-top: 32px;
+          max-width: 1120px;
+          width: 100%;
+          text-align: center;
+        }
+        .ls-section-title {
+          font-family: "Oswald", system-ui, -apple-system, Segoe UI, Roboto,
+            Ubuntu, Cantarell, "Helvetica Neue", Arial;
+          font-size: 22px;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          margin-bottom: 10px;
+          color: #171720;
+        }
+        .ls-section-copy {
+          margin: 0 auto 18px;
+          max-width: 620px;
+          font-size: 14px;
+          color: #2b2b34;
+        }
+
+        .phone-grid {
+          display: grid;
+          grid-template-columns: repeat(5, minmax(150px, 1fr));
+          gap: 18px;
+          justify-items: center;
+          margin-top: 12px;
+        }
+
+        .phone-link {
+          text-decoration: none;
+          color: inherit;
+          display: flex;
+          justify-content: center;
+        }
+        .phone-link-disabled {
+          opacity: 0.7;
+          cursor: default;
+        }
+
+        .phone-frame {
+          width: 180px;
+          padding: 14px 10px 16px;
+          border-radius: 28px;
+          background: radial-gradient(
+              120% 200% at 0% 0%,
+              rgba(248, 136, 255, 0.2),
+              transparent 55%
+            ),
+            rgba(10, 6, 26, 0.96);
+          box-shadow: 0 14px 26px rgba(0, 0, 0, 0.7),
+            0 0 0 1px rgba(200, 160, 255, 0.22);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+          cursor: pointer;
+        }
+
+        .phone-screen {
+          width: 100%;
+          height: 220px;
+          border-radius: 22px;
+          background: radial-gradient(
+            140% 180% at 0% 0%,
+            rgba(255, 255, 255, 0.08),
+            rgba(10, 6, 26, 0.96)
+          );
+          box-shadow: inset 0 0 0 1px rgba(210, 180, 255, 0.12);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .phone-preview {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: bottom;
+          display: block;
+          user-select: none;
+          pointer-events: none;
+        }
+
+        .phone-pill {
+          align-self: flex-end;
+          padding: 2px 10px;
+          border-radius: 999px;
+          background: rgba(0, 0, 0, 0.8);
+          box-shadow: 0 0 8px rgba(255, 255, 255, 0.28);
+        }
+        .pill-text {
+          font-family: "VT323", monospace;
+          font-size: 11px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+        }
+        .phone-name {
+          font-size: 13px;
+          margin-top: 2px;
+        }
+        .phone-status {
+          font-size: 11px;
+          opacity: 0.85;
+          color: #d2c4ff;
+        }
+
+        .glow-magapixel {
+          box-shadow: 0 0 0 1px rgba(255, 142, 153, 0.6),
+            0 18px 34px rgba(242, 79, 115, 0.55);
+        }
+        .glow-retrograve {
+          box-shadow: 0 0 0 1px rgba(182, 133, 255, 0.65),
+            0 18px 34px rgba(137, 92, 255, 0.6);
+        }
+        .glow-meowga {
+          box-shadow: 0 0 0 1px rgba(117, 229, 255, 0.7),
+            0 18px 34px rgba(63, 199, 255, 0.6);
+        }
+        .glow-miners {
+          box-shadow: 0 0 0 1px rgba(137, 255, 197, 0.7),
+            0 18px 34px rgba(76, 219, 151, 0.6);
+        }
+        .glow-client {
+          box-shadow: 0 0 0 1px rgba(119, 182, 255, 0.7),
+            0 18px 34px rgba(71, 140, 255, 0.6);
+        }
+
+        /* ✅ NEW: GAINZ glow (clean neutral) */
+        .glow-gainz {
+          box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.22),
+            0 18px 34px rgba(0, 0, 0, 0.7);
+        }
+
+        .ls-how {
+          margin-top: 40px;
+          max-width: 1120px;
+          width: 100%;
+          text-align: center;
+        }
+        .how-grid {
+          margin-top: 18px;
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 18px;
+        }
+        .how-card {
+          padding: 18px 18px 20px;
+          border-radius: 18px;
+          background: radial-gradient(
+              140% 200% at 0% 0%,
+              rgba(183, 122, 255, 0.3),
+              rgba(19, 10, 38, 0.9)
+            ),
+            rgba(20, 10, 40, 0.95);
+          box-shadow: 0 14px 28px rgba(0, 0, 0, 0.8),
+            0 0 0 1px rgba(205, 170, 255, 0.28);
+          text-align: left;
+        }
+        .how-step {
+          width: 24px;
+          height: 24px;
+          border-radius: 999px;
+          border: 1px solid rgba(240, 225, 255, 0.7);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-family: "VT323", monospace;
+          font-size: 14px;
+          margin-bottom: 6px;
+        }
+        .how-title {
+          font-size: 15px;
+          margin-bottom: 4px;
+        }
+        .how-text {
+          font-size: 13px;
+          line-height: 1.6;
+          color: #e7dcff;
+        }
+
+        .ls-faq {
+          margin-top: 40px;
+          width: 100%;
+          max-width: 1120px;
+          margin-left: auto;
+          margin-right: auto;
+          display: flex;
+          justify-content: center;
+        }
+
+        .ls-footer {
+          margin-top: 40px;
+          text-align: center;
+          color: #d9d2ff;
+          font-size: 12px;
+        }
+        .ls-footer-links {
+          margin-top: 8px;
+          display: flex;
+          justify-content: center;
+          gap: 8px;
+        }
+        .ls-footer-pill {
+          padding: 4px 10px;
+          border-radius: 999px;
+          border: 1px solid rgba(230, 214, 255, 0.7);
+          text-decoration: none;
+          color: #f3eaff;
+          font-size: 11px;
+        }
+
+        @media (max-width: 1024px) {
+          .phone-grid {
+            grid-template-columns: repeat(3, minmax(150px, 1fr));
+          }
+          .ls-logo-floating {
+            top: 14px;
+            right: 12px;
+          }
+          .ls-logo {
+            width: 90px;
+          }
+        }
+
         @media (max-width: 768px) {
-          .composer-wrap {
-            margin-bottom: 8px;
+          #projects,
+          #how,
+          #faq {
+            scroll-margin-top: 84px;
           }
-          .phone-frame {
-            width: min(280px, 65vw);
-            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5);
+          .phone-grid {
+            grid-template-columns: repeat(2, minmax(150px, 1fr));
           }
-          .phone-surface {
-            padding: 4px 4px 6px;
-            gap: 3px;
+          .ls-how {
+            margin-top: 32px;
           }
-          .phone-hint {
-            display: none; /* free some vertical space on small screens */
+          .how-grid {
+            grid-template-columns: 1fr;
+          }
+          .ls-logo-floating {
+            top: 10px;
+            right: 10px;
+          }
+          .ls-logo {
+            width: 80px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .ls-wordmark {
+            width: 260px;
+          }
+          .ls-subtitle {
+            font-size: 14px;
+          }
+          .ls-body {
+            font-size: 14px;
           }
         }
       `}</style>
-    </div>
+    </main>
   );
-});
-
-Composer.displayName = "Composer";
-export default Composer;
+}

@@ -2,7 +2,11 @@
 "use client";
 
 import { useRef } from "react";
-import Composer, { ComposerHandle, SimpleNft, BgChoice } from "./Composer";
+import Composer, {
+  type ComposerHandle,
+  type SimpleNft,
+  type BgChoice,
+} from "./Composer";
 import ExportButtons from "./ExportButtons";
 
 export default function PhoneComposer({
@@ -12,7 +16,8 @@ export default function PhoneComposer({
   nft: SimpleNft | null;
   bg: BgChoice | null;
 }) {
-  const composerRef = useRef<ComposerHandle>(null);
+  // ✅ must be "ComposerHandle | null" so it matches ExportButtons + ShareActions
+  const composerRef = useRef<ComposerHandle | null>(null);
 
   return (
     <div className="phone-composer">
@@ -30,22 +35,15 @@ export default function PhoneComposer({
         }
 
         .side {
-          max-width: 320px;
+          width: 280px;
         }
 
-        /* 📱 On mobile: stack vertically (phone on top, buttons below) */
         @media (max-width: 900px) {
           .phone-composer {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            row-gap: 14px;
+            grid-template-columns: 1fr;
           }
-
           .side {
-            order: 2;
             width: 100%;
-            max-width: 360px;
           }
         }
       `}</style>

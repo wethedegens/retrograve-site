@@ -1,11 +1,35 @@
+// app/components/Showcase.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import NftGrid, { NFT } from "./NftGrid";
 import { useWallet } from "@solana/wallet-adapter-react";
 
-export default function Showcase() {
+type ShowcaseProps = {
+  /**
+   * Heading label. Defaults to "MAGAPIXEL" to preserve your current behavior.
+   */
+  title?: string;
+
+  /**
+   * Optional verified collection mint to filter results (uses /api/nfts body.collection).
+   * If omitted, behavior stays the same as your current setup (no filter).
+   */
+  collection?: string;
+
+  /**
+   * Which project mode the locker should open in after clicking an NFT.
+   * Defaults to "magapixel" to preserve current behavior.
+   */
+  project?: string;
+};
+
+export default function Showcase(props: ShowcaseProps) {
   const { publicKey } = useWallet();
+
+  const title = (props.title || "MAGAPIXEL").toUpperCase();
+  const collection = (props.collection || "").trim();
+  const project = (props.project || "magapixel").trim();
 
   const [nfts, setNfts] = useState<NFT[]>([]);
   const [loading, setLoading] = useState(false);
@@ -24,10 +48,13 @@ export default function Showcase() {
       setLoading(true);
       setError(null);
       try {
+        const payload: any = { owner };
+        if (collection) payload.collection = collection;
+
         const r = await fetch("/api/nfts", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ owner }),
+          body: JSON.stringify(payload),
           cache: "no-store",
         });
 
@@ -54,12 +81,13 @@ export default function Showcase() {
     return () => {
       cancelled = true;
     };
-  }, [publicKey]);
+  }, [publicKey, collection]);
 
   return (
     <div className="page-wrap">
       <h1 style={{ margin: "16px 18px" }}>
-        MAGAPIXEL{nfts.length ? ` · ${nfts.length}` : ""}
+        {title}
+        {nfts.length ? ` · ${nfts.length}` : ""}
       </h1>
 
       {!publicKey && (
@@ -69,6 +97,7 @@ export default function Showcase() {
       )}
 
       {loading && <p style={{ margin: "0 18px 16px" }}>Loading your NFTs…</p>}
+
       {error && (
         <p className="error" style={{ margin: "0 18px 16px" }}>
           {error}
@@ -80,10 +109,11 @@ export default function Showcase() {
           nfts={nfts}
           onPick={(n) => {
             if (!n?.id) return;
-            // ✅ Force Magapixel project mode so locker loads Magapixel traits/backgrounds
+
+            // ✅ Preserve your existing behavior, but allow other projects to override
             window.location.href = `/locker?mint=${encodeURIComponent(
               n.id
-            )}&project=magapixel`;
+            )}&project=${encodeURIComponent(project)}`;
           }}
         />
       )}
