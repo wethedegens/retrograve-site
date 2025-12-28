@@ -1,3 +1,4 @@
+// app/page.tsx
 "use client";
 
 import Link from "next/link";
@@ -7,9 +8,9 @@ type LockerProject = {
   name: string;
   status: "live" | "coming";
   label: string;
-  lockerPath: string;
+  href: string;
   glow: string;
-  preview?: string;
+  preview: string;
 };
 
 const PROJECTS: LockerProject[] = [
@@ -17,7 +18,7 @@ const PROJECTS: LockerProject[] = [
     name: "MAGApixel Locker",
     status: "live",
     label: "Live",
-    lockerPath: "/locker/magapixel",
+    href: "/locker/magapixel",
     glow: "magapixel",
     preview: "/lockscreened-previews/magapixel.png",
   },
@@ -25,7 +26,7 @@ const PROJECTS: LockerProject[] = [
     name: "RetroGrave Locker",
     status: "live",
     label: "Live",
-    lockerPath: "/retrograve",
+    href: "/retrograve",
     glow: "retrograve",
     preview: "/lockscreened-previews/retrograve.png",
   },
@@ -33,7 +34,7 @@ const PROJECTS: LockerProject[] = [
     name: "MEOWGA",
     status: "coming",
     label: "Coming soon",
-    lockerPath: "#",
+    href: "#",
     glow: "meowga",
     preview: "/lockscreened-previews/meowga.png",
   },
@@ -41,7 +42,7 @@ const PROJECTS: LockerProject[] = [
     name: "Enchanted Miners",
     status: "live",
     label: "Live",
-    lockerPath: "/enchanted-miners",
+    href: "/enchanted-miners",
     glow: "miners",
     preview: "/lockscreened-previews/miners.png",
   },
@@ -49,8 +50,7 @@ const PROJECTS: LockerProject[] = [
     name: "Gainz",
     status: "coming",
     label: "Coming soon",
-    // ✅ You said you want it linking now:
-    lockerPath: "/gainz",
+    href: "/gainz",
     glow: "gainz",
     preview: "/lockscreened-previews/gainz.png",
   },
@@ -58,80 +58,62 @@ const PROJECTS: LockerProject[] = [
 
 export default function HomePage() {
   return (
-    <main className="ls-home">
-      {/* TOP HERO */}
+    <main className="home-wrap">
       <section className="hero">
-        <div className="heroInner">
-          <h1 className="heroTitle">
-            <span className="heroLock">LOCK</span>
-            <span className="heroScreened">SCREENED</span>
+        <div className="hero-inner">
+          <h1 className="hero-title">
+            <span className="lock">LOCK</span>
+            <span className="screened">SCREENED</span>
           </h1>
 
-          <p className="heroSub">
+          <p className="hero-sub">
             Lock screens and wallpapers for Web3-native collectors.
             <br />
             A simple hub for partner projects, holders, and phone-first art.
           </p>
 
-          <p className="heroDesc">
-            LockScreened gives every partner collection its own locker—a clean
-            space where holders can plug in their NFTs, swap backgrounds, and
-            export ready-to-use walls for every device.
-          </p>
-
-          <div className="heroCtas">
-            <a href="#partner-lockers" className="ctaPrimary">
-              View Partner Lockers
+          <div className="hero-cta">
+            <a href="#partners" className="cta-primary">
+              View partner lockers
             </a>
-            <a href="#how-it-works" className="ctaSecondary">
-              Learn How It Works
+            <a href="#faq" className="cta-secondary">
+              Learn how it works
             </a>
           </div>
         </div>
       </section>
 
-      {/* PARTNER LOCKERS */}
-      <section id="partner-lockers" className="partners">
-        <div className="partnersInner">
-          <h2 className="partnersTitle">PARTNER LOCKERS</h2>
-          <p className="partnersDesc">
-            Each project below has (or will have) its own dedicated locker on
-            LockScreened. Tap a phone to open that project’s experience, connect
-            your wallet, and start building your daily lock screens.
+      <section id="partners" className="partners">
+        <div className="partners-inner">
+          <h2 className="section-title">PARTNER LOCKERS</h2>
+          <p className="section-sub">
+            Each project below has (or will have) its own dedicated locker on LockScreened.
+            Tap a phone to open that project’s experience, connect your wallet, and start
+            building your daily lock screens.
           </p>
 
-          <div className="grid">
+          <div className="cards">
             {PROJECTS.map((p) => {
-              const isClickable = p.lockerPath !== "#";
+              const isDisabled = p.status !== "live" && p.href === "#";
               const CardInner = (
-                <div className={`card ${p.glow}`}>
-                  <div className="pill">{p.label}</div>
+                <div className={`card card-${p.glow}`}>
+                  <div className="badge">{p.status === "live" ? "LIVE" : "COMING SOON"}</div>
 
-                  <div className="phoneFrame">
-                    <div className="phoneScreen">
-                      {p.preview ? (
-                        <img
-                          src={p.preview}
-                          alt={`${p.name} preview`}
-                          className="phoneImg"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="phonePlaceholder" />
-                      )}
+                  <div className="phone">
+                    <div className="phone-screen">
+                      <img src={p.preview} alt={`${p.name} preview`} />
                     </div>
                   </div>
 
-                  <div className="cardName">{p.name}</div>
-                  <div className="cardStatus">{p.status === "live" ? "Live" : "Coming soon"}</div>
+                  <div className="card-name">{p.name}</div>
+                  <div className="card-label">{p.label}</div>
                 </div>
               );
 
-              if (!isClickable) return <div key={p.name}>{CardInner}</div>;
+              if (isDisabled) return <div key={p.name}>{CardInner}</div>;
 
-              // ✅ use Link for internal routes
               return (
-                <Link key={p.name} href={p.lockerPath} className="cardLink">
+                <Link key={p.name} href={p.href} className="card-link" aria-label={p.name}>
                   {CardInner}
                 </Link>
               );
@@ -140,74 +122,73 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FAQ / HOW IT WORKS */}
-      <section id="how-it-works" className="faq">
-        <div className="faqInner">
-          <LockscreenedFAQ />
-        </div>
+      <section id="faq" className="faq">
+        <LockscreenedFAQ />
       </section>
 
       <style jsx>{`
-        .ls-home {
+        .home-wrap {
           min-height: 100vh;
-          padding-bottom: 80px;
+          background-color: #0b0613;
+          /* FULL-BLEED background art */
+          background-image:
+            url("/lockscreened-watermark-1.png"),
+            url("/lockscreened-main-bg-2.png");
+          background-repeat: no-repeat, no-repeat;
+          background-position: left bottom, center bottom;
+          background-size: auto 55vh, cover;
+          background-attachment: scroll, scroll;
         }
 
         .hero {
-          padding: 70px 18px 36px;
-          background: #cfdcf0;
-          position: relative;
-          overflow: hidden;
+          padding: 96px 18px 28px;
         }
 
-        .heroInner {
+        .hero-inner {
           max-width: 1100px;
           margin: 0 auto;
           text-align: center;
+          color: #eae6ff;
         }
 
-        .heroTitle {
+        .hero-title {
           margin: 0;
-          font-size: 74px;
-          letter-spacing: 0.02em;
-          line-height: 0.95;
+          font-size: clamp(44px, 6vw, 76px);
+          letter-spacing: 1px;
+          display: inline-flex;
+          gap: 10px;
+          align-items: baseline;
+        }
+
+        .lock {
+          color: #ffffff;
           font-weight: 900;
         }
 
-        .heroLock {
-          color: #0b0b0f;
-        }
-
-        .heroScreened {
-          color: #55b57c;
-          margin-left: 10px;
+        .screened {
+          color: #61d49b;
+          font-weight: 900;
           font-style: italic;
-          font-weight: 900;
         }
 
-        .heroSub {
-          margin: 14px 0 0;
-          font-size: 14px;
-          opacity: 0.9;
-        }
-
-        .heroDesc {
-          max-width: 760px;
+        .hero-sub {
           margin: 14px auto 0;
-          font-size: 13px;
+          max-width: 760px;
+          font-size: 14px;
+          line-height: 1.6;
           opacity: 0.9;
         }
 
-        .heroCtas {
-          margin-top: 18px;
+        .hero-cta {
+          margin-top: 16px;
           display: flex;
-          gap: 12px;
           justify-content: center;
+          gap: 10px;
           flex-wrap: wrap;
         }
 
-        .ctaPrimary,
-        .ctaSecondary {
+        .cta-primary,
+        .cta-secondary {
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -215,148 +196,141 @@ export default function HomePage() {
           border-radius: 999px;
           font-size: 12px;
           text-transform: uppercase;
-          letter-spacing: 0.12em;
+          letter-spacing: 0.8px;
+          font-weight: 800;
           text-decoration: none;
-          user-select: none;
-          white-space: nowrap;
         }
 
-        .ctaPrimary {
-          background: #ff3bd4;
-          color: white;
-          box-shadow: 0 10px 28px rgba(255, 59, 212, 0.35);
+        .cta-primary {
+          background: #ff4bd1;
+          color: #120016;
+          box-shadow: 0 10px 26px rgba(255, 75, 209, 0.35);
         }
 
-        .ctaSecondary {
-          background: rgba(255, 255, 255, 0.35);
-          color: #0b0b0f;
-          border: 1px solid rgba(0, 0, 0, 0.12);
+        .cta-secondary {
+          background: rgba(255, 255, 255, 0.06);
+          border: 1px solid rgba(255, 255, 255, 0.16);
+          color: #ffffff;
         }
 
         .partners {
-          padding: 36px 18px 10px;
+          padding: 16px 18px 40px;
+          color: #eee;
         }
 
-        .partnersInner {
+        .partners-inner {
           max-width: 1100px;
           margin: 0 auto;
           text-align: center;
         }
 
-        .partnersTitle {
+        .section-title {
           margin: 0;
-          letter-spacing: 0.22em;
-          font-size: 16px;
+          font-size: 14px;
+          letter-spacing: 2px;
           font-weight: 900;
         }
 
-        .partnersDesc {
+        .section-sub {
           margin: 10px auto 0;
-          max-width: 760px;
-          font-size: 13px;
-          opacity: 0.8;
+          max-width: 820px;
+          font-size: 12px;
+          opacity: 0.85;
+          line-height: 1.6;
         }
 
-        .grid {
-          margin-top: 22px;
-          display: flex;
-          justify-content: center;
-          flex-wrap: wrap;
-          gap: 20px;
+        .cards {
+          margin-top: 18px;
+          display: grid;
+          grid-template-columns: repeat(5, minmax(0, 1fr));
+          gap: 16px;
+          justify-items: center;
         }
 
-        .cardLink {
+        .card-link {
           text-decoration: none;
-          color: inherit;
         }
 
         .card {
-          width: 180px;
-          padding: 14px 14px 16px;
+          width: 190px;
           border-radius: 22px;
-          background: rgba(0, 0, 0, 0.45);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
-          backdrop-filter: blur(10px);
+          padding: 12px 12px 14px;
+          background: rgba(10, 6, 18, 0.55);
+          border: 1px solid rgba(255, 255, 255, 0.10);
+          box-shadow: 0 18px 44px rgba(0, 0, 0, 0.55);
+          position: relative;
+          transition: transform 0.12s ease, box-shadow 0.18s ease;
         }
 
-        .pill {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          height: 22px;
-          padding: 0 10px;
-          border-radius: 999px;
+        .card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 22px 52px rgba(0, 0, 0, 0.65);
+        }
+
+        .badge {
+          position: absolute;
+          top: 10px;
+          left: 10px;
           font-size: 10px;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          background: rgba(255, 255, 255, 0.1);
+          padding: 4px 9px;
+          border-radius: 999px;
+          background: rgba(0, 0, 0, 0.55);
           border: 1px solid rgba(255, 255, 255, 0.12);
-          color: white;
-          margin-bottom: 10px;
+          color: #fff;
+          letter-spacing: 0.7px;
         }
 
-        .phoneFrame {
-          width: 120px;
-          height: 220px;
-          margin: 0 auto;
-          border-radius: 26px;
-          padding: 10px;
-          background: rgba(20, 20, 26, 0.85);
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          box-shadow: 0 14px 38px rgba(0, 0, 0, 0.35);
-        }
-
-        .phoneScreen {
+        .phone {
+          margin-top: 10px;
           width: 100%;
-          height: 100%;
-          border-radius: 18px;
-          overflow: hidden;
-          background: rgba(0, 0, 0, 0.35);
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          display: grid;
+          place-items: center;
         }
 
-        .phoneImg {
+        .phone-screen {
+          width: 138px;
+          aspect-ratio: 9 / 19.5;
+          border-radius: 20px;
+          overflow: hidden;
+          background: #0b0613;
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.35);
+        }
+
+        .phone-screen img {
           width: 100%;
           height: 100%;
           object-fit: cover;
           display: block;
         }
 
-        .phonePlaceholder {
-          width: 100%;
-          height: 100%;
-          opacity: 0.25;
-          background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.2));
-        }
-
-        .cardName {
+        .card-name {
           margin-top: 10px;
           font-size: 12px;
-          text-decoration: underline;
-          opacity: 0.95;
+          font-weight: 900;
+          color: #ffffff;
         }
 
-        .cardStatus {
-          margin-top: 4px;
+        .card-label {
+          margin-top: 3px;
           font-size: 11px;
-          opacity: 0.7;
+          opacity: 0.8;
+          color: #cfc2ff;
         }
 
         .faq {
-          padding: 18px 18px 60px;
+          padding: 0 18px 80px;
         }
 
-        .faqInner {
-          max-width: 1100px;
-          margin: 0 auto;
+        @media (max-width: 1100px) {
+          .cards {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+          }
         }
 
-        @media (max-width: 520px) {
-          .heroTitle {
-            font-size: 48px;
+        @media (max-width: 780px) {
+          .cards {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
           }
           .card {
             width: 170px;

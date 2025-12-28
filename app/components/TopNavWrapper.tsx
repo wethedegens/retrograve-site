@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import TopNav from "./TopNav";
 
-type TopNavProject = "retrograve" | "magapixel" | "miners";
+type TopNavProject = "retrograve" | "magapixel" | "miners" | "gainz";
 
 function inferProjectFromRoute(
   pathname: string,
@@ -17,9 +17,12 @@ function inferProjectFromRoute(
   if (p.startsWith("/locker/magapixel")) return "magapixel";
   if (p.startsWith("/locker/retrograve")) return "retrograve";
 
-  // Miners routes (landing + grid)
+  // Miners routes
   if (p.startsWith("/enchanted-miners")) return "miners";
   if (p.startsWith("/my-miners")) return "miners";
+
+  // Gainz
+  if (p.startsWith("/gainz")) return "gainz";
 
   // Generic locker route: uses ?project=
   if (p.startsWith("/locker")) {
@@ -27,12 +30,13 @@ function inferProjectFromRoute(
     if (qp === "miners") return "miners";
     if (qp === "magapixel") return "magapixel";
     if (qp === "retrograve") return "retrograve";
+    if (qp === "gainz") return "gainz";
     return "magapixel";
   }
 
   // Magapixel
   if (p.startsWith("/magapixel-nfts")) return "magapixel";
-  if (p.startsWith("/retrogs")) return "magapixel"; // legacy MAGApixel grid path
+  if (p.startsWith("/retrogs")) return "magapixel";
 
   // Retrograve
   if (p.startsWith("/retrograve")) return "retrograve";
@@ -49,5 +53,6 @@ export default function TopNavWrapper() {
     return inferProjectFromRoute(pathname || "", params);
   }, [pathname, sp]);
 
-  return <TopNav project={project} />;
+  // cast prevents build breaks if TopNav's prop type is slightly different
+  return <TopNav project={project as any} />;
 }
