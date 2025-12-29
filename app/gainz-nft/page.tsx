@@ -1,162 +1,226 @@
-// app/gainz/page.tsx
+// app/gainz-nfts/page.tsx
 "use client";
 
-import Link from "next/link";
-import PhoneShowcase from "../components/PhoneShowcase";
+import { useEffect, useState } from "react";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { useRouter } from "next/navigation";
+import NftGrid, { NFT } from "../components/NftGrid";
 
-export default function GainzLandingPage() {
-  const previewImages = [
-    "/demo/gainz-1.png",
-    "/demo/gainz-2.png",
-    "/demo/gainz-3.png",
-    "/demo/gainz-4.png",
-  ];
+/**
+ * =====================
+ *   GAINZ OWNER GRID
+ * =====================
+ *
+ * Matches Enchanted Miners behavior:
+ * - Connect wallet -> load owned NFTs from /api/nfts filtered by collection
+ * - Tap an NFT -> open universal locker:
+ *   /locker?mint=...&uri=...&project=gainz
+ */
+
+const GAINZ_COLLECTION = "4xo6wAGXhFgV1oozb7QPKbBsmubsSVkbhzqwAvKifT6q";
+const GAINZ_BG_IMAGE = "/gainz-bg.png"; // optional; safe even if you add later
+
+export default function GainzNftsPage() {
+  const { publicKey, connected } = useWallet();
+  const router = useRouter();
+
+  const [nfts, setNfts] = useState<NFT[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // ✅ Only load AFTER wallet is connected
+  useEffect(() => {
+    const owner = publicKey?.toBase58();
+    if (!owner) {
+      setNfts([]);
+      setError(null);
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadGainz() {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const r = await fetch("/api/nfts", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            owner,
+            collection: GAINZ_COLLECTION,
+            collectionId: GAINZ_COLLECTION,
+          }),
+          cache: "no-store",
+        });
+
+        const data = await r.json().catch(() => null);
+
+        if (!r.ok) {
+          const msg =
+            (data && (data.error || data.message)) ||
+            (typeof data === "string" ? data : "") ||
+            `Request failed (${r.status})`;
+          throw new Error(msg);
+        }
+
+        const list: NFT[] = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.nfts)
+          ? data.nfts
+          : [];
+
+        if (!cancelled) setNfts(list);
+      } catch (e: any) {
+        if (!cancelled) {
+          setError(e?.message || "Failed to load GAINZ NFTs");
+          setNfts([]);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    loadGainz();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [publicKey]);
 
   return (
-    <main className="lp-wrap">
-      <section className="lp-inner">
-        {/* LEFT */}
-        <div className="lp-left">
-          <h1 className="lp-title">GAINZ</h1>
-          <h2 className="lp-subtitle">LOCKSCREEN LOCKER</h2>
+    <main
+      className="gainz-wrapper"
+      style={{
+        minHeight: "100vh",
+        padding: "18px 0 80px",
+        paddingTop: 64,
 
-          <p className="lp-copy">
-            <strong>Phone-native</strong> wallpapers for GAINZ.
-            <br />
-            Connect your wallet, pick an NFT, swap backgrounds, and export for
-            any device.
-          </p>
-
-          {/* No “ENTER / VIEW MY …” button text (matches Enchanted vibe) */}
-        </div>
-
-        {/* RIGHT */}
-        <div className="lp-right">
-          <div className="phone-shell">
-            <PhoneShowcase
-              images={previewImages}
-              intervalMs={3000}
-              title=""
-              showHint={false}
-              fit="cover"
-              bg={{ kind: "color", value: "#000000" }}
-            />
-          </div>
-
-          {/* Invisible click target (keeps landing clean) */}
-          <Link
-            className="enter-overlay"
-            href="/gainz-nfts"
-            aria-label="Enter Gainz (View My NFTs)"
+        // ✅ safe default; black fallback even if image not present
+        backgroundColor: "#000",
+        backgroundImage: `url(${GAINZ_BG_IMAGE})`,
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center center",
+        backgroundSize: "cover",
+        backgroundAttachment: "fixed",
+      }}
+    >
+      <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 18px" }}>
+        {!connected ? (
+          /* ✅ CONNECT SCREEN */
+          <div
+            style={{
+              minHeight: "calc(100vh - 64px - 98px)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              padding: "40px 0",
+            }}
           >
-            Enter
-          </Link>
-        </div>
+            <div
+              style={{
+                maxWidth: 520,
+                padding: "22px 18px",
+                borderRadius: 18,
+                background: "rgba(10, 10, 14, 0.55)",
+                border: "1px solid rgba(255,255,255,0.14)",
+                backdropFilter: "blur(10px)",
+                boxShadow: "0 18px 40px rgba(0,0,0,0.45)",
+              }}
+            >
+              <h1
+                style={{
+                  margin: "0 0 10px",
+                  fontSize: 28,
+                  letterSpacing: "0.04em",
+                  color: "rgba(255,255,255,0.92)",
+                }}
+              >
+                GAINZ
+              </h1>
+
+              <p
+                style={{
+                  margin: "0 0 14px",
+                  opacity: 0.9,
+                  lineHeight: 1.6,
+                  color: "rgba(255,255,255,0.78)",
+                }}
+              >
+                Connect your wallet to view your GAINZ NFTs, then tap one to open
+                it in the locker and export wallpapers.
+              </p>
+
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <WalletMultiButton />
+              </div>
+
+              <p
+                style={{
+                  margin: "12px 0 0",
+                  opacity: 0.65,
+                  fontSize: 12,
+                  color: "rgba(255,255,255,0.72)",
+                }}
+              >
+                Your wallet is only used to read your NFTs — nothing can be moved
+                or signed without your approval.
+              </p>
+            </div>
+          </div>
+        ) : (
+          /* ✅ GRID SCREEN */
+          <>
+            <h1
+              style={{
+                margin: "8px 0",
+                fontSize: 28,
+                letterSpacing: "0.04em",
+                color: "rgba(255,255,255,0.92)",
+              }}
+            >
+              MY GAINZ
+            </h1>
+
+            <p style={{ margin: 0, opacity: 0.75, color: "rgba(255,255,255,0.72)" }}>
+              Showing GAINZ NFTs owned by your connected wallet.
+            </p>
+
+            <div style={{ height: 16 }} />
+
+            {loading && (
+              <p style={{ opacity: 0.85, color: "rgba(255,255,255,0.75)" }}>
+                Loading...
+              </p>
+            )}
+
+            {error && <p style={{ opacity: 0.9, color: "#ffb3b3" }}>{error}</p>}
+
+            {!loading && !error && nfts.length === 0 && (
+              <p style={{ opacity: 0.85, color: "rgba(255,255,255,0.75)" }}>
+                No GAINZ NFTs found.
+              </p>
+            )}
+
+            {!loading && !error && nfts.length > 0 && (
+              <NftGrid
+                nfts={nfts}
+                onPick={(nft) => {
+                  const mint = nft.id || "";
+                  const uri = nft.uri ? encodeURIComponent(nft.uri) : "";
+                  router.push(
+                    `/locker?mint=${mint}${uri ? `&uri=${uri}` : ""}&project=gainz`
+                  );
+                }}
+              />
+            )}
+          </>
+        )}
       </section>
-
-      <style jsx>{`
-        .lp-wrap {
-          min-height: 100vh;
-          padding: 18px 18px 80px;
-          padding-top: 64px; /* fixed nav space */
-          background: #000;
-        }
-
-        .lp-inner {
-          max-width: 1200px;
-          margin: 0 auto;
-          display: grid;
-          grid-template-columns: 1.1fr 0.9fr;
-          gap: 28px;
-          align-items: center;
-        }
-
-        .lp-left {
-          max-width: 640px;
-          transform: translateY(-6px);
-        }
-
-        .lp-title {
-          margin: 0;
-          font-size: 46px;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          font-weight: 900;
-          line-height: 1.05;
-          color: rgba(255, 255, 255, 0.92);
-          text-shadow: 0 10px 34px rgba(0, 0, 0, 0.55);
-        }
-
-        .lp-subtitle {
-          margin: 8px 0 0;
-          font-size: 34px;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          font-weight: 900;
-          line-height: 1.05;
-          color: rgba(255, 255, 255, 0.9);
-          text-shadow: 0 10px 34px rgba(0, 0, 0, 0.55);
-        }
-
-        .lp-copy {
-          margin: 14px 0 0;
-          font-size: 13.5px;
-          line-height: 1.6;
-          max-width: 520px;
-          color: rgba(255, 255, 255, 0.72);
-        }
-
-        .lp-copy strong {
-          font-weight: 900;
-          color: rgba(255, 255, 255, 0.88);
-        }
-
-        .lp-right {
-          display: flex;
-          justify-content: center;
-          position: relative;
-        }
-
-        /* matches your other landings’ phone sizing */
-        .phone-shell {
-          transform: translateY(22px) scale(0.7);
-          transform-origin: top center;
-          filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.55));
-        }
-
-        .enter-overlay {
-          position: absolute;
-          inset: 0;
-          text-indent: -9999px;
-        }
-
-        @media (max-width: 980px) {
-          .lp-inner {
-            grid-template-columns: 1fr;
-            text-align: center;
-            padding-top: 8px;
-          }
-          .lp-left {
-            margin: 0 auto;
-            transform: none;
-          }
-          .phone-shell {
-            transform: translateY(10px) scale(0.75);
-          }
-        }
-
-        @media (max-width: 520px) {
-          .lp-title {
-            font-size: 34px;
-          }
-          .lp-subtitle {
-            font-size: 24px;
-          }
-          .phone-shell {
-            transform: translateY(6px) scale(0.78);
-          }
-        }
-      `}</style>
     </main>
   );
 }

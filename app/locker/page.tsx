@@ -31,7 +31,7 @@ function LockerInner() {
   const uri = sp.get("uri") || "";
   const devMode = sp.get("devbg") === "1";
 
-  // "magapixel" (default) or "miners"
+  // "magapixel" (default) or "miners" or "gainz"
   const project = (sp.get("project") || "magapixel").toLowerCase();
 
   const imageParam = sp.get("image") || "";
@@ -44,7 +44,6 @@ function LockerInner() {
     []
   );
 
-  // Keep bg as a non-null BgChoice to make TS happy
   const [bg, setBg] = useState<BgChoice>(initialBg);
 
   const [nft, setNft] = useState<SimpleNft | null>(() => {
@@ -59,15 +58,18 @@ function LockerInner() {
   const [loading, setLoading] = useState(false);
   const [hint, setHint] = useState<null | string>(null);
 
-  // where "back" should send people if history.back() isn't available
-  const gridHref = project === "miners" ? "/my-miners" : "/magapixel-nfts";
+  // ✅ where "back" should send people if history.back() isn't available
+  const gridHref =
+    project === "miners"
+      ? "/my-miners"
+      : project === "gainz"
+      ? "/gainz-nfts"
+      : "/magapixel-nfts";
 
-  // keep bg in sync with initialBg when it changes
   useEffect(() => {
     setBg(initialBg);
   }, [initialBg]);
 
-  // dev background tester (updates hint, and resets bg when cleared)
   useEffect(() => {
     if (!devMode) return;
 
@@ -87,7 +89,6 @@ function LockerInner() {
     return () => window.removeEventListener("devbg:change", onDevBg);
   }, [devMode, initialBg]);
 
-  // fetch NFT unless image is in URL
   useEffect(() => {
     let cancelled = false;
 
@@ -142,6 +143,7 @@ function LockerInner() {
   }, [mint, uri, imageParam, nameParam]);
 
   const isMiners = project === "miners";
+  const isGainz = project === "gainz";
   const isMagapixel = project === "magapixel";
 
   return (
@@ -155,6 +157,17 @@ function LockerInner() {
               backgroundImage: 'url("/enchanted-miners-bg.png")',
               backgroundRepeat: "no-repeat",
               backgroundPosition: "bottom center",
+              backgroundSize: "cover",
+              backgroundAttachment: "fixed",
+            }
+          : {}),
+
+        ...(isGainz
+          ? {
+              backgroundColor: "#000000",
+              backgroundImage: 'url("/gainz-bg.png")',
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center center",
               backgroundSize: "cover",
               backgroundAttachment: "fixed",
             }
