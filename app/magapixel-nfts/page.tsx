@@ -11,6 +11,7 @@ export const dynamic = "force-dynamic";
  * Cosmetic-only fixes:
  * - Remove black gap caused by fixed TopNav spacer
  * - Match Enchanted-style vertical alignment
+ * - Page-scoped TopNav color (NO global bleed)
  * - NO changes to Showcase logic or NFT fetching
  */
 
@@ -34,15 +35,16 @@ export default function MagapixelOwnerGridPage() {
           </p>
         </header>
 
-        {/* Wallet connect + fetch + grid (unchanged) */}
+        {/* Wallet connect + fetch + grid (UNCHANGED) */}
         <Showcase />
       </div>
 
+      {/* PAGE STYLES */}
       <style jsx>{`
         .magapixel-grid-page {
           min-height: 100vh;
 
-          /* ⬅ cancel TopNav spacer */
+          /* ⬅ cancel TopNav spacer safely */
           margin-top: -64px;
           padding: 0 18px 48px;
 
@@ -55,7 +57,7 @@ export default function MagapixelOwnerGridPage() {
         .inner {
           max-width: 1200px;
           margin: 0 auto;
-          padding-top: 32px; /* controlled spacing inside background */
+          padding-top: 32px;
         }
 
         .back-row {
@@ -90,25 +92,27 @@ export default function MagapixelOwnerGridPage() {
 
         .page-subtitle {
           margin: 6px 0 0;
-          opacity: 0.85;
+          max-width: 560px;
+          opacity: 0.9;
           color: rgba(255, 255, 255, 0.92);
           text-shadow: 0 2px 18px rgba(0, 0, 0, 0.35);
-          max-width: 560px;
         }
       `}</style>
 
-      {/* MAGAPIXEL NAV COLOR — page scoped */}
+      {/* ✅ MAGAPIXEL-ONLY TOPNAV COLOR (NO RED, NO GLOBAL DAMAGE) */}
       <style jsx global>{`
-        nav {
-          background: #af232a !important;
+        header.topnav {
+          background: rgba(15, 40, 90, 0.88) !important;
+          backdrop-filter: blur(10px);
         }
 
-        nav a {
-          color: rgba(255, 255, 255, 0.9) !important;
-        }
-
-        nav a:hover {
-          color: #ffffff !important;
+        header.topnav a,
+        header.topnav a:link,
+        header.topnav a:visited,
+        header.topnav a:hover,
+        header.topnav a:active {
+          color: rgba(255, 255, 255, 0.95) !important;
+          text-decoration: none !important;
         }
       `}</style>
     </main>
