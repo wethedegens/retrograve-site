@@ -1,73 +1,156 @@
+// app/gainz/page.tsx
 "use client";
 
-import Link from "next/link";
+import PhoneShowcase from "../components/PhoneShowcase";
 
-export default function GainzPage() {
+export default function GainzLandingPage() {
+  const previewImages = [
+    "/demo/gainz-1.png",
+    "/demo/gainz-2.png",
+    "/demo/gainz-3.png",
+    "/demo/gainz-4.png",
+  ];
+
   return (
-    <main style={{ minHeight: "100vh", padding: "40px 18px 80px" }}>
-      <section style={{ maxWidth: 980, margin: "0 auto" }}>
-        <p style={{ margin: "0 0 18px" }}>
-          <Link
-            href="/"
-            style={{
-              color: "white",
-              textDecoration: "none",
-              opacity: 0.9,
-              borderBottom: "1px solid rgba(255,255,255,.25)",
-              paddingBottom: 2,
-            }}
-          >
-            ← Back to Home
-          </Link>
-        </p>
+    <main className="lp-wrap">
+      <section className="lp-inner">
+        {/* LEFT */}
+        <div className="lp-left">
+          <h1 className="lp-title">GAINZ</h1>
+          <h2 className="lp-subtitle">LOCKSCREEN LOCKER</h2>
 
-        <h1 style={{ margin: 0, fontSize: 34 }}>Gainz</h1>
-        <p style={{ marginTop: 10, opacity: 0.85, maxWidth: 640 }}>
-          Placeholder page for the Gainz locker. We’ll wire this up when the
-          collection / flow is ready.
-        </p>
+          <p className="lp-copy">
+            <span className="lp-copy-strong">Phone-native wallpapers</span> for
+            Gainz.
+            <br />
+            Connect your wallet, pick an NFT, swap backgrounds, and export for
+            any device.
+          </p>
+        </div>
 
-        <div
-          style={{
-            marginTop: 18,
-            padding: 16,
-            borderRadius: 16,
-            border: "1px solid rgba(255,255,255,.14)",
-            background: "rgba(0,0,0,.35)",
-            maxWidth: 680,
-          }}
-        >
-          <div style={{ fontSize: 12, opacity: 0.85, letterSpacing: ".14em" }}>
-            PREVIEW IMAGE CHECK
-          </div>
-
-          <div style={{ marginTop: 12, display: "flex", gap: 14, alignItems: "center" }}>
-            <div
-              style={{
-                width: 120,
-                height: 220,
-                borderRadius: 22,
-                overflow: "hidden",
-                border: "1px solid rgba(255,255,255,.14)",
-                background: "rgba(0,0,0,.25)",
-              }}
-            >
-              <img
-                src="/lockscreened-previews/gainz.png"
-                alt="Gainz preview"
-                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-              />
-            </div>
-
-            <div style={{ fontSize: 13, opacity: 0.85 }}>
-              If you can see the phone preview image here, then the file path is correct:
-              <div style={{ marginTop: 6, fontFamily: "monospace", fontSize: 12, opacity: 0.9 }}>
-                /public/lockscreened-previews/gainz.png
-              </div>
-            </div>
+        {/* RIGHT */}
+        <div className="lp-right">
+          <div className="phone-shell">
+            <PhoneShowcase
+              images={previewImages}
+              intervalMs={3000}
+              title=""
+              showHint={false}
+              fit="cover"
+              bg={{ kind: "color", value: "#000000" }}
+            />
           </div>
         </div>
       </section>
+
+      <style jsx>{`
+        .lp-wrap {
+          min-height: 100vh;
+          padding: 18px 18px 80px;
+          padding-top: 64px; /* fixed nav */
+          background: #000;
+        }
+
+        .lp-inner {
+          max-width: 1200px;
+          margin: 0 auto;
+
+          display: grid;
+          grid-template-columns: 1fr 520px;
+          gap: 28px;
+
+          align-items: center;
+          min-height: calc(100vh - 64px - 80px);
+        }
+
+        /* 🔑 Match Enchanted vertical alignment */
+        .lp-left {
+          max-width: 640px;
+
+          position: relative;
+          top: -100px;
+
+          margin-left: clamp(0px, 3vw, 28px);
+        }
+
+        .lp-title {
+          margin: 0;
+          font-size: 46px;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          font-weight: 900;
+          line-height: 1.05;
+          color: rgba(255, 255, 255, 0.92);
+          text-shadow: 0 10px 34px rgba(0, 0, 0, 0.55);
+        }
+
+        .lp-subtitle {
+          margin: 8px 0 0;
+          font-size: 34px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          font-weight: 900;
+          line-height: 1.05;
+          color: rgba(255, 255, 255, 0.9);
+          text-shadow: 0 10px 34px rgba(0, 0, 0, 0.55);
+        }
+
+        .lp-copy {
+          margin: 14px 0 0;
+          font-size: 13px;
+          line-height: 1.6;
+          max-width: 520px;
+          color: rgba(255, 255, 255, 0.72);
+        }
+
+        .lp-copy-strong {
+          font-weight: 900;
+          font-size: 14px;
+          color: rgba(255, 255, 255, 0.88);
+        }
+
+        .lp-right {
+          display: flex;
+          justify-content: center;
+        }
+
+        .phone-shell {
+          transform: translateY(22px) scale(0.7);
+          transform-origin: top center;
+          filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.55));
+        }
+
+        @media (max-width: 980px) {
+          .lp-inner {
+            grid-template-columns: 1fr;
+            text-align: center;
+            min-height: auto;
+          }
+
+          .lp-left {
+            top: 0;
+            margin: 0 auto;
+          }
+
+          .phone-shell {
+            transform: translateY(10px) scale(0.75);
+          }
+        }
+
+        @media (max-width: 520px) {
+          .lp-title {
+            font-size: 34px;
+          }
+
+          .lp-subtitle {
+            font-size: 24px;
+          }
+
+          .phone-shell {
+            transform: translateY(6px) scale(0.78);
+          }
+        }
+      `}</style>
     </main>
   );
 }
