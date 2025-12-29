@@ -7,7 +7,7 @@ import type { BgChoice } from "./Composer";
 type Props = {
   value: BgChoice;
   onChange: (bg: BgChoice) => void;
-  // "magapixel" (default), "miners", or future projects
+  // "magapixel" (default), "miners", "gainz", or future projects
   project?: string;
 };
 
@@ -45,6 +45,28 @@ const MINER_IMAGE_BACKGROUNDS: string[] = [
 ];
 
 /**
+ * ✅ GAINZ: static phone-sized PNGs (same pattern as Miners)
+ * Folder: /public/gainz/phone/bg-1.png ... bg-15.png
+ */
+const GAINZ_IMAGE_BACKGROUNDS: string[] = [
+  "/gainz/phone/bg-1.png",
+  "/gainz/phone/bg-2.png",
+  "/gainz/phone/bg-3.png",
+  "/gainz/phone/bg-4.png",
+  "/gainz/phone/bg-5.png",
+  "/gainz/phone/bg-6.png",
+  "/gainz/phone/bg-7.png",
+  "/gainz/phone/bg-8.png",
+  "/gainz/phone/bg-9.png",
+  "/gainz/phone/bg-10.png",
+  "/gainz/phone/bg-11.png",
+  "/gainz/phone/bg-12.png",
+  "/gainz/phone/bg-13.png",
+  "/gainz/phone/bg-14.png",
+  "/gainz/phone/bg-15.png",
+];
+
+/**
  * MAGAPIXEL: background packs with phone / ipad / desktop / thumb
  * Folder structure:
  *   /public/backgrounds/<slug>/thumb.png
@@ -70,13 +92,17 @@ const MAGAPIXEL_BACKGROUND_SLUGS: string[] = [
 
 export default function BackgroundPicker({ value, onChange, project }: Props) {
   const current = value as any;
-  const isMiners = project === "miners";
+  const key = (project || "magapixel").toLowerCase();
+
+  const isMiners = key === "miners";
+  const isGainz = key === "gainz";
+  const isMagapixel = !isMiners && !isGainz; // default behavior
 
   // IMPORTANT: image variant uses `.image`, not `.value`
   const isImageActive = (src: string) =>
     current?.kind === "image" && current?.image === src;
 
-  /** Upload handler (works for both projects) */
+  /** Upload handler (works for all projects) */
   const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -89,11 +115,15 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
     } as any as BgChoice);
   };
 
-  /** Enchanted Miners: click one of the phone PNGs */
-  const handleMinerImageClick = (src: string, index: number) => {
+  /** Miners/Gainz: click one of the phone PNGs */
+  const handleStaticProjectImageClick = (
+    src: string,
+    index: number,
+    filenamePrefix: string
+  ) => {
     let file: File | undefined;
     try {
-      file = new File([], `miner-wallpaper-${index + 1}.png`, {
+      file = new File([], `${filenamePrefix}-${index + 1}.png`, {
         type: "image/png",
       });
     } catch {
@@ -159,7 +189,9 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
                 <button
                   key={src}
                   type="button"
-                  onClick={() => handleMinerImageClick(src, idx)}
+                  onClick={() =>
+                    handleStaticProjectImageClick(src, idx, "miner-wallpaper")
+                  }
                   style={{
                     borderRadius: 10,
                     border: active
@@ -189,8 +221,70 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
         </div>
       )}
 
-      {/* MAGAPIXEL STRIP (default when not miners) */}
-      {!isMiners && (
+      {/* ✅ GAINZ STRIP (same behavior as miners) */}
+      {isGainz && (
+        <div style={{ marginBottom: 8 }}>
+          <div
+            style={{
+              fontSize: 12,
+              textTransform: "uppercase",
+              letterSpacing: "0.14em",
+              opacity: 0.8,
+              marginBottom: 4,
+            }}
+          >
+            GAINZ WALLPAPERS
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              alignItems: "center",
+              overflowX: "auto",
+              paddingBottom: 4,
+            }}
+          >
+            {GAINZ_IMAGE_BACKGROUNDS.map((src, idx) => {
+              const active = isImageActive(src);
+              return (
+                <button
+                  key={src}
+                  type="button"
+                  onClick={() =>
+                    handleStaticProjectImageClick(src, idx, "gainz-wallpaper")
+                  }
+                  style={{
+                    borderRadius: 10,
+                    border: active
+                      ? "2px solid #ffffff"
+                      : "2px solid transparent",
+                    padding: 0,
+                    backgroundColor: "transparent",
+                    cursor: "pointer",
+                    flex: "0 0 auto",
+                  }}
+                >
+                  <img
+                    src={src}
+                    alt={`Gainz wallpaper ${idx + 1}`}
+                    style={{
+                      display: "block",
+                      width: 52,
+                      height: 92,
+                      objectFit: "cover",
+                      borderRadius: 8,
+                    }}
+                  />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* MAGAPIXEL STRIP (default when not miners/gainz) */}
+      {isMagapixel && (
         <div style={{ marginBottom: 8 }}>
           <div
             style={{
