@@ -1,4 +1,4 @@
-// app/gainz-nfts/page.tsx
+// app/gainz-nft/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -7,21 +7,10 @@ import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useRouter } from "next/navigation";
 import NftGrid, { NFT } from "../components/NftGrid";
 
-/**
- * =====================
- *   GAINZ OWNER GRID
- * =====================
- *
- * Matches Enchanted Miners behavior:
- * - Connect wallet -> load owned NFTs from /api/nfts filtered by collection
- * - Tap an NFT -> open universal locker:
- *   /locker?mint=...&uri=...&project=gainz
- */
-
 const GAINZ_COLLECTION = "4xo6wAGXhFgV1oozb7QPKbBsmubsSVkbhzqwAvKifT6q";
-const GAINZ_BG_IMAGE = "/gainz-bg.png"; // optional; safe even if you add later
+const GAINZ_BG_IMAGE = "/gainz-bg.png"; // optional; if you don't have one, keep or remove backgroundImage below.
 
-export default function GainzNftsPage() {
+export default function GainzNftGridPage() {
   const { publicKey, connected } = useWallet();
   const router = useRouter();
 
@@ -29,7 +18,6 @@ export default function GainzNftsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // ✅ Only load AFTER wallet is connected
   useEffect(() => {
     const owner = publicKey?.toBase58();
     if (!owner) {
@@ -41,7 +29,7 @@ export default function GainzNftsPage() {
 
     let cancelled = false;
 
-    async function loadGainz() {
+    async function load() {
       setLoading(true);
       setError(null);
 
@@ -84,7 +72,7 @@ export default function GainzNftsPage() {
       }
     }
 
-    loadGainz();
+    load();
 
     return () => {
       cancelled = true;
@@ -93,14 +81,12 @@ export default function GainzNftsPage() {
 
   return (
     <main
-      className="gainz-wrapper"
+      className="gainz-nft-wrapper"
       style={{
         minHeight: "100vh",
         padding: "18px 0 80px",
         paddingTop: 64,
-
-        // ✅ safe default; black fallback even if image not present
-        backgroundColor: "#000",
+        backgroundColor: "#05020A",
         backgroundImage: `url(${GAINZ_BG_IMAGE})`,
         backgroundRepeat: "no-repeat",
         backgroundPosition: "center center",
@@ -110,7 +96,6 @@ export default function GainzNftsPage() {
     >
       <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 18px" }}>
         {!connected ? (
-          /* ✅ CONNECT SCREEN */
           <div
             style={{
               minHeight: "calc(100vh - 64px - 98px)",
@@ -137,73 +122,56 @@ export default function GainzNftsPage() {
                   margin: "0 0 10px",
                   fontSize: 28,
                   letterSpacing: "0.04em",
-                  color: "rgba(255,255,255,0.92)",
                 }}
               >
                 GAINZ
               </h1>
 
-              <p
-                style={{
-                  margin: "0 0 14px",
-                  opacity: 0.9,
-                  lineHeight: 1.6,
-                  color: "rgba(255,255,255,0.78)",
-                }}
-              >
-                Connect your wallet to view your GAINZ NFTs, then tap one to open
-                it in the locker and export wallpapers.
+              <p style={{ margin: "0 0 14px", opacity: 0.9, lineHeight: 1.6 }}>
+                Connect your wallet to view your GAINZ, then tap one to open it
+                in the locker and export wallpapers.
               </p>
 
               <div style={{ display: "flex", justifyContent: "center" }}>
                 <WalletMultiButton />
               </div>
 
-              <p
-                style={{
-                  margin: "12px 0 0",
-                  opacity: 0.65,
-                  fontSize: 12,
-                  color: "rgba(255,255,255,0.72)",
-                }}
-              >
-                Your wallet is only used to read your NFTs — nothing can be moved
-                or signed without your approval.
+              <p style={{ margin: "12px 0 0", opacity: 0.65, fontSize: 12 }}>
+                Your wallet is only used to read your NFTs — nothing can be
+                moved or signed without your approval.
               </p>
             </div>
           </div>
         ) : (
-          /* ✅ GRID SCREEN */
           <>
+            <p style={{ margin: "0 0 8px" }}>
+              <a href="/gainz" style={{ color: "#cfc2ff", opacity: 0.9 }}>
+                ← back to GAINZ
+              </a>
+            </p>
+
             <h1
               style={{
                 margin: "8px 0",
                 fontSize: 28,
                 letterSpacing: "0.04em",
-                color: "rgba(255,255,255,0.92)",
               }}
             >
               MY GAINZ
             </h1>
 
-            <p style={{ margin: 0, opacity: 0.75, color: "rgba(255,255,255,0.72)" }}>
-              Showing GAINZ NFTs owned by your connected wallet.
+            <p style={{ margin: 0, opacity: 0.75 }}>
+              Showing GAINZ owned by your connected wallet.
             </p>
 
             <div style={{ height: 16 }} />
 
-            {loading && (
-              <p style={{ opacity: 0.85, color: "rgba(255,255,255,0.75)" }}>
-                Loading...
-              </p>
-            )}
+            {loading && <p style={{ opacity: 0.85 }}>Loading...</p>}
 
             {error && <p style={{ opacity: 0.9, color: "#ffb3b3" }}>{error}</p>}
 
             {!loading && !error && nfts.length === 0 && (
-              <p style={{ opacity: 0.85, color: "rgba(255,255,255,0.75)" }}>
-                No GAINZ NFTs found.
-              </p>
+              <p style={{ opacity: 0.85 }}>No GAINZ found.</p>
             )}
 
             {!loading && !error && nfts.length > 0 && (

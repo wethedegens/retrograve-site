@@ -18,14 +18,12 @@ import DevBgTester from "../components/DevBgTester";
 import ClientOnly from "../components/ClientOnly";
 import WalletDebug from "../components/WalletDebug";
 
-type NftFetchResp =
-  | {
-      id: string;
-      name?: string;
-      image?: string;
-      attributes?: MetaAttribute[];
-    }
-  | null;
+type NftFetchResp = {
+  id: string;
+  name?: string;
+  image?: string;
+  attributes?: MetaAttribute[];
+} | null;
 
 function LockerInner() {
   const sp = useSearchParams();
@@ -33,7 +31,7 @@ function LockerInner() {
   const uri = sp.get("uri") || "";
   const devMode = sp.get("devbg") === "1";
 
-  // "magapixel" (default) or "miners" or "gainz"
+  // "magapixel" (default), "miners", "gainz"
   const project = (sp.get("project") || "magapixel").toLowerCase();
 
   const imageParam = sp.get("image") || "";
@@ -41,7 +39,10 @@ function LockerInner() {
 
   const composerRef = useRef<ComposerHandle | null>(null);
 
-  const initialBg = useMemo<BgChoice>(() => ({ kind: "color", value: "#3e2d75" }), []);
+  const initialBg = useMemo<BgChoice>(
+    () => ({ kind: "color", value: "#3e2d75" }),
+    []
+  );
 
   const [bg, setBg] = useState<BgChoice>(initialBg);
 
@@ -57,8 +58,12 @@ function LockerInner() {
   const [loading, setLoading] = useState(false);
   const [hint, setHint] = useState<null | string>(null);
 
-  // where "back" should send people if history.back() isn't available
-  const gridHref = project === "miners" ? "/my-miners" : "/magapixel-nfts";
+  const gridHref =
+    project === "miners"
+      ? "/my-miners"
+      : project === "gainz"
+      ? "/gainz-nft"
+      : "/magapixel-nfts";
 
   useEffect(() => {
     setBg(initialBg);
@@ -138,6 +143,7 @@ function LockerInner() {
 
   const isMiners = project === "miners";
   const isMagapixel = project === "magapixel";
+  const isGainz = project === "gainz";
 
   return (
     <main
@@ -159,6 +165,16 @@ function LockerInner() {
           ? {
               backgroundColor: "#0078e9",
               backgroundImage: 'url("/bg-ovaloffice.png")',
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center",
+              backgroundSize: "cover",
+              backgroundAttachment: "fixed",
+            }
+          : {}),
+
+        ...(isGainz
+          ? {
+              backgroundColor: "#05020A",
               backgroundRepeat: "no-repeat",
               backgroundPosition: "center",
               backgroundSize: "cover",
@@ -249,7 +265,7 @@ function LockerInner() {
                   zIndex: 1,
                 }}
               >
-                {/* ✅ PASS PROJECT DOWN (Gainz-only rules live in Composer) */}
+                {/* ✅ PASS PROJECT DOWN (so Gainz can behave differently without touching Magapixel) */}
                 <Composer ref={composerRef} nft={nft} bg={bg} project={project} />
               </div>
             </div>

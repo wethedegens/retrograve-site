@@ -29,17 +29,13 @@ export type SimpleNft = {
 };
 
 export type ExportSize = { label: string; w: number; h: number };
+
 type Size = { w: number; h: number };
 
 export type ExportImageOptions = {
   width: number;
   height: number;
   format?: "png";
-  /**
-   * Which device preset this export is for.
-   * Used to pick the correct background image variant.
-   * Defaults to "phone" so existing callers keep working.
-   */
   device?: DeviceVariant;
 };
 
@@ -132,6 +128,10 @@ async function loadExistingLayersPerType(
   return images;
 }
 
+/**
+ * Background should always COVER the full canvas.
+ * Bottom-align keeps your “grounded” vibe.
+ */
 async function drawBackgroundImageFromSrc(
   ctx: CanvasRenderingContext2D,
   size: Size,
@@ -146,26 +146,52 @@ async function drawBackgroundImageFromSrc(
   ctx.drawImage(img, dx, dy, drawW, drawH);
 }
 
-/**
- * Draw an image into a square "box" anchored within the canvas.
- * - Uses "cover" inside the square so you never get letterboxing.
- */
-function drawImageCoverIntoBox(
+function drawImageCoverBottomCenter(
   ctx: CanvasRenderingContext2D,
-  img: HTMLImageElement,
-  boxX: number,
-  boxY: number,
-  boxSize: number
+  size: Size,
+  img: HTMLImageElement
 ) {
-  const scale = Math.max(boxSize / img.width, boxSize / img.height);
+  const scale = Math.min(size.w / img.width, size.h / img.height);
   const drawW = img.width * scale;
   const drawH = img.height * scale;
-
-  const dx = boxX + (boxSize - drawW) / 2;
-  const dy = boxY + (boxSize - drawH) / 2;
-
+  const dx = (size.w - drawW) / 2;
+  const dy = size.h - drawH;
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(img, dx, dy, drawW, drawH);
+}
+
+/**
+ * Gainz placement rules:
+ * - phone: existing bottom-center scaling
+ * - ipad canvas (2048×2732): draw NFT as 2048×2048, centered, bottom aligned
+ * - desktop canvas (2560×1440): draw NFT as 1440×1440, bottom-right aligned
+ */
+function drawGainzNft(
+  ctx: CanvasRenderingContext2D,
+  size: Size,
+  device: DeviceVariant,
+  img: HTMLImageElement
+) {
+  ctx.imageSmoothingEnabled = false;
+
+  if (device === "ipad") {
+    const target = 2048;
+    const dx = Math.round((size.w - target) / 2);
+    const dy = Math.round(size.h - target);
+    ctx.drawImage(img, dx, dy, target, target);
+    return;
+  }
+
+  if (device === "desktop") {
+    const target = 1440;
+    const dx = Math.round(size.w - target); // right
+    const dy = Math.round(size.h - target); // bottom
+    ctx.drawImage(img, dx, dy, target, target);
+    return;
+  }
+
+  // phone fallback
+  drawImageCoverBottomCenter(ctx, size, img);
 }
 
 const Composer = forwardRef<
@@ -175,18 +201,14 @@ const Composer = forwardRef<
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [loadingImg, setLoadingImg] = useState(false);
 
+  const key = (project || "magapixel").toLowerCase();
+  const isGainz = key === "gainz";
+
   const previewScale = 0.58;
   const activeBg = useMemo(
     () => bg || ({ kind: "color", value: "#3e2d75" } as BgChoice),
     [bg]
   );
-
-  const projectKey = useMemo(
-    () => String(project || "magapixel").toLowerCase(),
-    [project]
-  );
-
-  const isGainz = projectKey === "gainz";
 
   const previewSize: Size = useMemo(
     () => ({
@@ -246,7 +268,6 @@ const Composer = forwardRef<
     const layeredMode = hasLayerTraits(nft?.attributes);
     let drewLayers = false;
 
-    // MAGAPIXEL-style reassembly (unchanged)
     if (layeredMode) {
       setLoadingImg(true);
       try {
@@ -269,40 +290,17 @@ const Composer = forwardRef<
       }
     }
 
-    // Non-layered image (Miners + Gainz + future full-image projects)
     if (!drewLayers && nft?.image && !layeredMode) {
       setLoadingImg(true);
       try {
         const src = isHttpUrl(nft.image) ? proxyUrl(nft.image!) : nft.image!;
         const img = await loadImage(src);
 
-        // ✅ GAINZ-ONLY sizing + alignment rules:
-        // iPad import: 2048x2048 centered (bottom aligned)
-        // Desktop import: 1440x1440 bottom-right
-        if (isGainz && device === "ipad") {
-          const box = 2048;
-          const boxX = Math.round((size.w - box) / 2);
-          const boxY = Math.round(size.h - box);
-          drawImageCoverIntoBox(ctx, img, boxX, boxY, box);
-          return;
+        if (isGainz) {
+          drawGainzNft(ctx, size, device, img);
+        } else {
+          drawImageCoverBottomCenter(ctx, size, img);
         }
-
-        if (isGainz && device === "desktop") {
-          const box = 1440;
-          const boxX = Math.round(size.w - box); // right
-          const boxY = Math.round(size.h - box); // bottom
-          drawImageCoverIntoBox(ctx, img, boxX, boxY, box);
-          return;
-        }
-
-        // Default behavior (unchanged): fit to canvas, bottom-center
-        const scale = Math.min(size.w / img.width, size.h / img.height);
-        const drawW = img.width * scale;
-        const drawH = img.height * scale;
-        const dx = (size.w - drawW) / 2;
-        const dy = size.h - drawH;
-        ctx.imageSmoothingEnabled = false;
-        ctx.drawImage(img, dx, dy, drawW, drawH);
       } finally {
         setLoadingImg(false);
       }
@@ -323,7 +321,7 @@ const Composer = forwardRef<
   useEffect(() => {
     renderPreview();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nft?.image, (nft?.attributes || []).length, activeBg, projectKey]);
+  }, [nft?.image, (nft?.attributes || []).length, activeBg, key]);
 
   useImperativeHandle(ref, () => {
     const doExportImage = async (opts: ExportImageOptions): Promise<Blob | null> => {
@@ -373,7 +371,11 @@ const Composer = forwardRef<
           <div className="phone-hint">
             {loadingImg ? "Loading image…" : "Preview is scaled; exports are full size."}
           </div>
-          <canvas ref={canvasRef} className="phone-canvas" style={{ imageRendering: "pixelated" }} />
+          <canvas
+            ref={canvasRef}
+            className="phone-canvas"
+            style={{ imageRendering: "pixelated" }}
+          />
         </div>
       </div>
 
