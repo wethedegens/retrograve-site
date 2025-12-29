@@ -2,6 +2,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import type { TopNavProject } from "./TopNavWrapper";
 
@@ -20,9 +21,6 @@ const LINKS: Record<TopNavProject, ProjectLinks> = {
     homeHref: "/",
     myHref: "/my-retrograves",
     myLabel: "MY RETROGRAVES",
-
-    // ✅ If you have RetroGrave links, drop them here.
-    // Leaving safe placeholders so nothing 404s.
     collectHref: "https://magiceden.io",
     communityHref: "https://discord.com",
     xHref: "https://x.com",
@@ -32,19 +30,15 @@ const LINKS: Record<TopNavProject, ProjectLinks> = {
     homeHref: "/",
     myHref: "/magapixel-nfts",
     myLabel: "MY MAGAPIXELS",
-
     collectHref: "https://magiceden.io/marketplace/magapixel",
     communityHref: "https://discord.gg/ZVGtHUpHfb",
     xHref: "https://x.com/MAGApixel_NFT",
   },
 
   miners: {
-    // ✅ IMPORTANT: “HOME” should ALWAYS go back to hub home
     homeHref: "/",
-    // ✅ IMPORTANT: This is your current grid route
     myHref: "/enchanted-miners-nfts",
     myLabel: "MY MINERS",
-
     collectHref: "https://magiceden.us/marketplace/enchanted_miner",
     communityHref: "https://discord.gg/9Py5japbSe",
     xHref: "https://x.com/enchanted_nfts",
@@ -54,15 +48,26 @@ const LINKS: Record<TopNavProject, ProjectLinks> = {
     homeHref: "/",
     myHref: "/gainz",
     myLabel: "GAINZ",
-
     collectHref: "https://magiceden.us/marketplace/gainz_",
     communityHref: "https://discord.gg/NeeU7zcQ",
     xHref: "https://x.com/GotmLabz",
   },
 };
 
+function isActive(pathname: string, href: string) {
+  const p = (pathname || "").toLowerCase();
+  const h = (href || "").toLowerCase();
+
+  if (h === "/") return p === "/";
+  return p.startsWith(h);
+}
+
 export default function TopNav({ project }: { project: TopNavProject }) {
   const cfg = LINKS[project];
+  const pathname = usePathname();
+
+  const homeActive = isActive(pathname || "", cfg.homeHref);
+  const myActive = cfg.myHref ? isActive(pathname || "", cfg.myHref) : false;
 
   return (
     <header className="topnav">
@@ -72,12 +77,12 @@ export default function TopNav({ project }: { project: TopNavProject }) {
 
         {/* CENTER LINKS */}
         <nav className="center" aria-label="Top navigation">
-          <Link className="navlink" href={cfg.homeHref}>
+          <Link className={`navlink ${homeActive ? "active" : ""}`} href={cfg.homeHref}>
             HOME
           </Link>
 
           {cfg.myHref && cfg.myLabel ? (
-            <Link className="navlink" href={cfg.myHref}>
+            <Link className={`navlink ${myActive ? "active" : ""}`} href={cfg.myHref}>
               {cfg.myLabel}
             </Link>
           ) : null}
@@ -145,13 +150,20 @@ export default function TopNav({ project }: { project: TopNavProject }) {
           flex-wrap: wrap;
         }
 
-        /* ✅ FORCE WHITE, NO UNDERLINE */
+        /* ✅ BULLETPROOF WHITE INSIDE NAV */
+        .center :global(a),
+        .center :global(a:visited),
+        .center :global(a:hover),
+        .center :global(a:active),
+        .center :global(a:focus) {
+          color: rgba(255, 255, 255, 0.92) !important;
+          text-decoration: none !important;
+        }
+
         .navlink {
           font-size: 11px;
           letter-spacing: 0.18em;
           font-weight: 800;
-          color: rgba(255, 255, 255, 0.92);
-          text-decoration: none !important;
           opacity: 0.9;
           transition: opacity 0.12s ease, transform 0.12s ease;
         }
@@ -159,13 +171,13 @@ export default function TopNav({ project }: { project: TopNavProject }) {
         .navlink:hover {
           opacity: 1;
           transform: translateY(-1px);
-          text-decoration: none !important;
         }
 
-        /* Safety: kill any visited/link coloring */
-        .navlink:visited {
-          color: rgba(255, 255, 255, 0.92);
-          text-decoration: none !important;
+        /* Optional: active state without relying on visited coloring */
+        .navlink.active {
+          opacity: 1;
+          text-decoration: underline !important;
+          text-underline-offset: 6px;
         }
 
         .right {
@@ -189,37 +201,4 @@ export default function TopNav({ project }: { project: TopNavProject }) {
           border-radius: 12px;
           background: rgba(255, 255, 255, 0.08);
           border: 1px solid rgba(255, 255, 255, 0.16);
-          box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
-          text-decoration: none;
-        }
-
-        .logoImg {
-          width: 30px;
-          height: 30px;
-          object-fit: contain;
-          display: block;
-          opacity: 1;
-          filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.45));
-        }
-
-        @media (max-width: 900px) {
-          .inner {
-            grid-template-columns: 1fr;
-            gap: 8px;
-          }
-          .center {
-            order: 2;
-            gap: 14px;
-          }
-          .right {
-            order: 1;
-            justify-content: space-between;
-          }
-          .left {
-            display: none;
-          }
-        }
-      `}</style>
-    </header>
-  );
-}
+          box-shadow: 0 10px 22p

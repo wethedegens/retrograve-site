@@ -212,3 +212,13 @@ body {
   visibility: visible !important;
   pointer-events: auto !important;
 }
+/* TopNav must always be white, regardless of global link styles */
+header.topnav a,
+header.topnav a:link,
+header.topnav a:visited,
+header.topnav a:hover,
+header.topnav a:active,
+header.topnav a:focus {
+  color: rgba(255, 255, 255, 0.92) !important;
+  text-decoration: none !important;
+}
