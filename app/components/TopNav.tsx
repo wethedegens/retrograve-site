@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { usePathname } from "next/navigation";
 import type { TopNavProject } from "./TopNavWrapper";
 
 type ProjectLinks = {
@@ -18,8 +19,11 @@ type ProjectLinks = {
 const LINKS: Record<TopNavProject, ProjectLinks> = {
   retrograve: {
     homeHref: "/",
-    myHref: "/my-retrograves",
-    myLabel: "MY RETROGRAVES",
+
+    // ✅ FIX: RetroGrave “MY …” should go to the RetroGrave landing page route you use now
+    myHref: "/retrograve",
+    myLabel: "RETROGRAVE",
+
     collectHref: "https://magiceden.io",
     communityHref: "https://discord.com",
     xHref: "https://x.com",
@@ -53,23 +57,32 @@ const LINKS: Record<TopNavProject, ProjectLinks> = {
   },
 };
 
+function isActive(pathname: string, href: string) {
+  const p = (pathname || "").toLowerCase();
+  const h = (href || "").toLowerCase();
+  if (h === "/") return p === "/";
+  return p.startsWith(h);
+}
+
 export default function TopNav({ project }: { project: TopNavProject }) {
   const cfg = LINKS[project];
+  const pathname = usePathname() || "";
+
+  const homeActive = isActive(pathname, cfg.homeHref);
+  const myActive = cfg.myHref ? isActive(pathname, cfg.myHref) : false;
 
   return (
     <header className="topnav">
       <div className="inner">
-        {/* LEFT SPACER (keeps center truly centered) */}
         <div className="left" aria-hidden="true" />
 
-        {/* CENTER LINKS */}
         <nav className="center" aria-label="Top navigation">
-          <Link className="navlink" href={cfg.homeHref}>
+          <Link className={`navlink ${homeActive ? "active" : ""}`} href={cfg.homeHref}>
             HOME
           </Link>
 
           {cfg.myHref && cfg.myLabel ? (
-            <Link className="navlink" href={cfg.myHref}>
+            <Link className={`navlink ${myActive ? "active" : ""}`} href={cfg.myHref}>
               {cfg.myLabel}
             </Link>
           ) : null}
@@ -87,7 +100,6 @@ export default function TopNav({ project }: { project: TopNavProject }) {
           </a>
         </nav>
 
-        {/* RIGHT: WALLET + LOGO */}
         <div className="right">
           <div className="walletWrap">
             <WalletMultiButton />
@@ -137,26 +149,40 @@ export default function TopNav({ project }: { project: TopNavProject }) {
           flex-wrap: wrap;
         }
 
-        .navlink {
-          font-size: 11px;
-          letter-spacing: 0.18em;
-          font-weight: 800;
-          color: rgba(255, 255, 255, 0.92);
+        :global(header.topnav .navlink),
+        :global(header.topnav .navlink:link),
+        :global(header.topnav .navlink:visited),
+        :global(header.topnav .navlink:hover),
+        :global(header.topnav .navlink:active),
+        :global(header.topnav .navlink:focus) {
+          font-size: 11px !important;
+          letter-spacing: 0.18em !important;
+          font-weight: 800 !important;
+          text-transform: uppercase !important;
+          -webkit-font-smoothing: antialiased;
+          color: rgba(255, 255, 255, 0.92) !important;
           text-decoration: none !important;
-          opacity: 0.9;
+          opacity: 0.92 !important;
+          line-height: 1 !important;
+        }
+
+        :global(header.topnav .navlink) {
+          display: inline-flex;
+          align-items: center;
+          padding: 6px 0;
           transition: opacity 0.12s ease, transform 0.12s ease;
         }
 
-        .navlink:hover {
-          opacity: 1;
+        :global(header.topnav .navlink:hover) {
+          opacity: 1 !important;
           transform: translateY(-1px);
-          text-decoration: none !important;
         }
 
-        /* ✅ Visited styling must use :global for styled-jsx reliability */
-        :global(header.topnav a.navlink:visited) {
-          color: rgba(255, 255, 255, 0.92) !important;
-          text-decoration: none !important;
+        :global(header.topnav .navlink.active) {
+          opacity: 1 !important;
+          text-decoration: underline !important;
+          text-underline-offset: 6px;
+          text-decoration-thickness: 2px;
         }
 
         .right {
