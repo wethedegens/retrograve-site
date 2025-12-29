@@ -222,3 +222,13 @@ header.topnav a:focus {
   color: rgba(255, 255, 255, 0.92) !important;
   text-decoration: none !important;
 }
+/* GUARANTEE TopNav link colors never change (including visited) */
+header.topnav a.navlink,
+header.topnav a.navlink:link,
+header.topnav a.navlink:visited,
+header.topnav a.navlink:hover,
+header.topnav a.navlink:active,
+header.topnav a.navlink:focus {
+  color: rgba(255, 255, 255, 0.92) !important;
+  text-decoration: none !important;
+}
