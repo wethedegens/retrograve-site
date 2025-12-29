@@ -9,10 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
-import {
-  getBackgroundImagePath,
-  type DeviceVariant,
-} from "../backgroundsConfig";
+import { getBackgroundImagePath, type DeviceVariant } from "../backgroundsConfig";
 
 export type BgChoice =
   | { kind: "color"; value: string }
@@ -32,7 +29,6 @@ export type SimpleNft = {
 };
 
 export type ExportSize = { label: string; w: number; h: number };
-
 type Size = { w: number; h: number };
 
 export type ExportImageOptions = {
@@ -47,11 +43,9 @@ export type ExportImageOptions = {
   device?: DeviceVariant;
 };
 
-/** --------- CONFIG: update only these if your structure changes ---------- */
 const BASE_TRAITS_DIR = "/magapixel";
 const LAYER_ORDER = ["Skin", "Face", "Body", "Head", "Glasses", "Hand"];
 const CANDIDATE_EXTS = [".png", ".webp"];
-/** ----------------------------------------------------------------------- */
 
 const PRESETS: Record<string, Size> = {
   master: { w: 1440, h: 3200 },
@@ -152,10 +146,32 @@ async function drawBackgroundImageFromSrc(
   ctx.drawImage(img, dx, dy, drawW, drawH);
 }
 
+/**
+ * Draw an image into a square "box" anchored within the canvas.
+ * - Uses "cover" inside the square so you never get letterboxing.
+ */
+function drawImageCoverIntoBox(
+  ctx: CanvasRenderingContext2D,
+  img: HTMLImageElement,
+  boxX: number,
+  boxY: number,
+  boxSize: number
+) {
+  const scale = Math.max(boxSize / img.width, boxSize / img.height);
+  const drawW = img.width * scale;
+  const drawH = img.height * scale;
+
+  const dx = boxX + (boxSize - drawW) / 2;
+  const dy = boxY + (boxSize - drawH) / 2;
+
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(img, dx, dy, drawW, drawH);
+}
+
 const Composer = forwardRef<
   ComposerHandle,
-  { nft: SimpleNft | null; bg: BgChoice | null }
->(({ nft, bg }, ref) => {
+  { nft: SimpleNft | null; bg: BgChoice | null; project?: string }
+>(({ nft, bg, project }, ref) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [loadingImg, setLoadingImg] = useState(false);
 
@@ -164,6 +180,14 @@ const Composer = forwardRef<
     () => bg || ({ kind: "color", value: "#3e2d75" } as BgChoice),
     [bg]
   );
+
+  const projectKey = useMemo(
+    () => String(project || "magapixel").toLowerCase(),
+    [project]
+  );
+
+  const isGainz = projectKey === "gainz";
+
   const previewSize: Size = useMemo(
     () => ({
       w: Math.round(1440 * previewScale),
@@ -222,6 +246,7 @@ const Composer = forwardRef<
     const layeredMode = hasLayerTraits(nft?.attributes);
     let drewLayers = false;
 
+    // MAGAPIXEL-style reassembly (unchanged)
     if (layeredMode) {
       setLoadingImg(true);
       try {
@@ -244,11 +269,33 @@ const Composer = forwardRef<
       }
     }
 
+    // Non-layered image (Miners + Gainz + future full-image projects)
     if (!drewLayers && nft?.image && !layeredMode) {
       setLoadingImg(true);
       try {
         const src = isHttpUrl(nft.image) ? proxyUrl(nft.image!) : nft.image!;
         const img = await loadImage(src);
+
+        // ✅ GAINZ-ONLY sizing + alignment rules:
+        // iPad import: 2048x2048 centered (bottom aligned)
+        // Desktop import: 1440x1440 bottom-right
+        if (isGainz && device === "ipad") {
+          const box = 2048;
+          const boxX = Math.round((size.w - box) / 2);
+          const boxY = Math.round(size.h - box);
+          drawImageCoverIntoBox(ctx, img, boxX, boxY, box);
+          return;
+        }
+
+        if (isGainz && device === "desktop") {
+          const box = 1440;
+          const boxX = Math.round(size.w - box); // right
+          const boxY = Math.round(size.h - box); // bottom
+          drawImageCoverIntoBox(ctx, img, boxX, boxY, box);
+          return;
+        }
+
+        // Default behavior (unchanged): fit to canvas, bottom-center
         const scale = Math.min(size.w / img.width, size.h / img.height);
         const drawW = img.width * scale;
         const drawH = img.height * scale;
@@ -276,12 +323,10 @@ const Composer = forwardRef<
   useEffect(() => {
     renderPreview();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nft?.image, (nft?.attributes || []).length, activeBg]);
+  }, [nft?.image, (nft?.attributes || []).length, activeBg, projectKey]);
 
   useImperativeHandle(ref, () => {
-    const doExportImage = async (
-      opts: ExportImageOptions
-    ): Promise<Blob | null> => {
+    const doExportImage = async (opts: ExportImageOptions): Promise<Blob | null> => {
       const { width, height, format = "png", device = "phone" } = opts;
       const c = document.createElement("canvas");
       c.width = width;
@@ -292,9 +337,7 @@ const Composer = forwardRef<
       await draw(ctx, { w: width, h: height }, device);
 
       const mime = format === "png" ? "image/png" : "image/png";
-      const blob = await new Promise<Blob | null>((res) =>
-        c.toBlob(res, mime)
-      );
+      const blob = await new Promise<Blob | null>((res) => c.toBlob(res, mime));
       return blob;
     };
 
@@ -303,9 +346,7 @@ const Composer = forwardRef<
 
       async exportAt(size: ExportSize | keyof typeof PRESETS) {
         const target: Size =
-          typeof size === "string"
-            ? PRESETS[size]
-            : { w: size.w, h: size.h };
+          typeof size === "string" ? PRESETS[size] : { w: size.w, h: size.h };
 
         const blob = await doExportImage({
           width: target.w,
@@ -318,10 +359,7 @@ const Composer = forwardRef<
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `${(nft?.name || "nft").replace(
-          /\s+/g,
-          "_"
-        )}_${target.w}x${target.h}.png`;
+        a.download = `${(nft?.name || "nft").replace(/\s+/g, "_")}_${target.w}x${target.h}.png`;
         a.click();
         URL.revokeObjectURL(url);
       },
@@ -333,15 +371,9 @@ const Composer = forwardRef<
       <div className="phone-frame">
         <div className="phone-surface">
           <div className="phone-hint">
-            {loadingImg
-              ? "Loading image…"
-              : "Preview is scaled; exports are full size."}
+            {loadingImg ? "Loading image…" : "Preview is scaled; exports are full size."}
           </div>
-          <canvas
-            ref={canvasRef}
-            className="phone-canvas"
-            style={{ imageRendering: "pixelated" }}
-          />
+          <canvas ref={canvasRef} className="phone-canvas" style={{ imageRendering: "pixelated" }} />
         </div>
       </div>
 

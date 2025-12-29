@@ -18,12 +18,14 @@ import DevBgTester from "../components/DevBgTester";
 import ClientOnly from "../components/ClientOnly";
 import WalletDebug from "../components/WalletDebug";
 
-type NftFetchResp = {
-  id: string;
-  name?: string;
-  image?: string;
-  attributes?: MetaAttribute[];
-} | null;
+type NftFetchResp =
+  | {
+      id: string;
+      name?: string;
+      image?: string;
+      attributes?: MetaAttribute[];
+    }
+  | null;
 
 function LockerInner() {
   const sp = useSearchParams();
@@ -39,10 +41,7 @@ function LockerInner() {
 
   const composerRef = useRef<ComposerHandle | null>(null);
 
-  const initialBg = useMemo<BgChoice>(
-    () => ({ kind: "color", value: "#3e2d75" }),
-    []
-  );
+  const initialBg = useMemo<BgChoice>(() => ({ kind: "color", value: "#3e2d75" }), []);
 
   const [bg, setBg] = useState<BgChoice>(initialBg);
 
@@ -58,13 +57,8 @@ function LockerInner() {
   const [loading, setLoading] = useState(false);
   const [hint, setHint] = useState<null | string>(null);
 
-  // ✅ where "back" should send people if history.back() isn't available
-  const gridHref =
-    project === "miners"
-      ? "/my-miners"
-      : project === "gainz"
-      ? "/gainz-nfts"
-      : "/magapixel-nfts";
+  // where "back" should send people if history.back() isn't available
+  const gridHref = project === "miners" ? "/my-miners" : "/magapixel-nfts";
 
   useEffect(() => {
     setBg(initialBg);
@@ -143,7 +137,6 @@ function LockerInner() {
   }, [mint, uri, imageParam, nameParam]);
 
   const isMiners = project === "miners";
-  const isGainz = project === "gainz";
   const isMagapixel = project === "magapixel";
 
   return (
@@ -157,17 +150,6 @@ function LockerInner() {
               backgroundImage: 'url("/enchanted-miners-bg.png")',
               backgroundRepeat: "no-repeat",
               backgroundPosition: "bottom center",
-              backgroundSize: "cover",
-              backgroundAttachment: "fixed",
-            }
-          : {}),
-
-        ...(isGainz
-          ? {
-              backgroundColor: "#000000",
-              backgroundImage: 'url("/gainz-bg.png")',
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "center center",
               backgroundSize: "cover",
               backgroundAttachment: "fixed",
             }
@@ -267,7 +249,8 @@ function LockerInner() {
                   zIndex: 1,
                 }}
               >
-                <Composer ref={composerRef} nft={nft} bg={bg} />
+                {/* ✅ PASS PROJECT DOWN (Gainz-only rules live in Composer) */}
+                <Composer ref={composerRef} nft={nft} bg={bg} project={project} />
               </div>
             </div>
           </div>
