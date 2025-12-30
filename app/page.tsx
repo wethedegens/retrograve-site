@@ -46,10 +46,12 @@ const PROJECTS: LockerProject[] = [
     glow: "miners",
     preview: "/lockscreened-previews/miners.png",
   },
+
+  // ✅ FIX: Gainz is LIVE and links to /gainz
   {
     name: "Gainz",
-    status: "coming",
-    label: "Coming soon",
+    status: "live",
+    label: "Live",
     lockerPath: "/gainz",
     glow: "gainz",
     preview: "/lockscreened-previews/gainz.png",

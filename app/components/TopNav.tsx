@@ -19,11 +19,8 @@ type ProjectLinks = {
 const LINKS: Record<TopNavProject, ProjectLinks> = {
   retrograve: {
     homeHref: "/",
-
-    // (leaving as you currently set it)
     myHref: "/retrograve",
     myLabel: "RETROGRAVE",
-
     collectHref: "https://magiceden.io",
     communityHref: "https://discord.com",
     xHref: "https://x.com",
@@ -50,8 +47,8 @@ const LINKS: Record<TopNavProject, ProjectLinks> = {
   gainz: {
     homeHref: "/",
 
-    // ✅ FIX: TopNav "GAINZ" should go to the Gainz PROJECT landing page (not the grid)
-    myHref: "/gainz",
+    // ✅ FIX: Gainz tab should go to the Gainz NFT grid page
+    myHref: "/gainz-nft",
     myLabel: "GAINZ",
 
     collectHref: "https://magiceden.us/marketplace/gainz_",
