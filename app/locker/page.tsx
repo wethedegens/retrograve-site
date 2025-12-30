@@ -1,318 +1,349 @@
-// app/page.tsx
+// app/locker/page.tsx
 "use client";
 
-import Link from "next/link";
-import LockscreenedFAQ from "./components/LockscreenedFAQ";
+import { useEffect, useMemo, useRef, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+export const dynamic = "force-dynamic";
 
-type LockerProject = {
-  name: string;
-  status: "live" | "coming";
-  label: string;
-  lockerPath: string;
-  glow: string;
-  preview?: string;
-};
+import BackgroundPicker from "../components/BackgroundPicker";
+import Composer, {
+  type ComposerHandle,
+  type SimpleNft,
+  type MetaAttribute,
+  type BgChoice,
+} from "../components/Composer";
+import ExportButtons from "../components/ExportButtons";
+import ShareActions from "../components/ShareActions";
+import DevBgTester from "../components/DevBgTester";
+import ClientOnly from "../components/ClientOnly";
+import WalletDebug from "../components/WalletDebug";
 
-const PROJECTS: LockerProject[] = [
-  {
-    name: "MAGApixel Locker",
-    status: "live",
-    label: "Live",
-    lockerPath: "/locker/magapixel",
-    glow: "magapixel",
-    preview: "/lockscreened-previews/magapixel.png",
-  },
-  {
-    name: "RetroGrave Locker",
-    status: "live",
-    label: "Live",
-    lockerPath: "/retrograve",
-    glow: "retrograve",
-    preview: "/lockscreened-previews/retrograve.png",
-  },
-  {
-    name: "MEOWGA",
-    status: "coming",
-    label: "Coming soon",
-    lockerPath: "#",
-    glow: "meowga",
-    preview: "/lockscreened-previews/meowga.png",
-  },
-  {
-    name: "Enchanted Miners",
-    status: "live",
-    label: "Live",
-    lockerPath: "/enchanted-miners",
-    glow: "miners",
-    preview: "/lockscreened-previews/enchanted.png",
-  },
+type NftFetchResp = {
+  id: string;
+  name?: string;
+  image?: string;
+  attributes?: MetaAttribute[];
+} | null;
 
-  // ✅ CHANGE: Gainz is LIVE and links to the Gainz PROJECT page
-  {
-    name: "Gainz",
-    status: "live",
-    label: "Live",
-    lockerPath: "/gainz",
-    glow: "gainz",
-    preview: "/lockscreened-previews/gainz.png",
-  },
-];
+function LockerInner() {
+  const sp = useSearchParams();
+  const mint = sp.get("mint") || "";
+  const uri = sp.get("uri") || "";
+  const devMode = sp.get("devbg") === "1";
 
-export default function HomePage() {
+  // "magapixel" (default), "miners", "gainz"
+  const project = (sp.get("project") || "magapixel").toLowerCase();
+
+  const imageParam = sp.get("image") || "";
+  const nameParam = sp.get("name") || "";
+
+  const composerRef = useRef<ComposerHandle | null>(null);
+
+  const initialBg = useMemo<BgChoice>(
+    () => ({ kind: "color", value: "#3e2d75" }),
+    []
+  );
+
+  const [bg, setBg] = useState<BgChoice>(initialBg);
+
+  const [nft, setNft] = useState<SimpleNft | null>(() => {
+    if (!mint && !imageParam) return null;
+    return {
+      id: mint || "unknown",
+      name: nameParam || undefined,
+      image: imageParam || undefined,
+    };
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [hint, setHint] = useState<null | string>(null);
+
+  const gridHref =
+    project === "miners"
+      ? "/my-miners"
+      : project === "gainz"
+      ? "/gainz-nft"
+      : "/magapixel-nfts";
+
+  useEffect(() => {
+    setBg(initialBg);
+  }, [initialBg]);
+
+  useEffect(() => {
+    if (!devMode) return;
+
+    const onDevBg = (e: Event) => {
+      const ev = e as CustomEvent<string | null>;
+      const url = ev.detail;
+
+      if (url) {
+        setHint("Using dev background (local file)");
+      } else {
+        setBg(initialBg);
+        setHint(null);
+      }
+    };
+
+    window.addEventListener("devbg:change", onDevBg);
+    return () => window.removeEventListener("devbg:change", onDevBg);
+  }, [devMode, initialBg]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (imageParam) {
+      const fromParams: SimpleNft = {
+        id: mint || "unknown",
+        name: nameParam || undefined,
+        image: imageParam,
+      };
+      setNft(fromParams);
+      setLoading(false);
+      return;
+    }
+
+    if (!mint) {
+      setNft(null);
+      return;
+    }
+
+    (async () => {
+      try {
+        setLoading(true);
+        const qs = new URLSearchParams({ mint });
+        if (uri) qs.set("uri", uri);
+        const r = await fetch(`/api/nft-by-mint?${qs.toString()}`, {
+          cache: "no-store",
+        });
+        const j = (await r.json()) as NftFetchResp;
+
+        if (!cancelled) {
+          if (j) {
+            setNft({
+              id: j.id,
+              name: j.name,
+              image: j.image,
+              attributes: Array.isArray(j.attributes) ? j.attributes : [],
+            });
+          } else {
+            setNft(null);
+          }
+        }
+      } catch {
+        if (!cancelled) setNft(null);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [mint, uri, imageParam, nameParam]);
+
+  const isMiners = project === "miners";
+  const isMagapixel = project === "magapixel";
+  const isGainz = project === "gainz";
+
   return (
-    <main className="home-wrap">
-      <section className="hero">
-        <h1 className="hero-title">
-          <span className="hero-lock">LOCK</span>
-          <span className="hero-screened">SCREENED</span>
-        </h1>
+    <main
+      style={{
+        padding: "0 0 80px",
 
-        <p className="hero-sub">
-          Lock screens and wallpapers for Web3-native collectors.
-          <br />
-          A simple hub for partner projects, holders, and phone-first art.
-        </p>
-
-        <div className="hero-actions">
-          <a href="#partner-lockers" className="btn primary">
-            VIEW PARTNER LOCKERS
-          </a>
-          <a href="#how" className="btn">
-            LEARN HOW IT WORKS
-          </a>
-        </div>
-      </section>
-
-      <section id="partner-lockers" className="partners">
-        <h2 className="partners-title">PARTNER LOCKERS</h2>
-        <p className="partners-sub">
-          Each project below has (or will have) its own dedicated locker on
-          LockScreened. Tap a phone to open that project’s experience, connect
-          your wallet, and start building your daily lock screens.
-        </p>
-
-        <div className="grid">
-          {PROJECTS.map((p) => {
-            const CardInner = (
-              <div className={`card glow-${p.glow}`}>
-                <div className="badge">{p.status === "live" ? "LIVE" : "COMING SOON"}</div>
-
-                <div className="phone">
-                  {p.preview ? (
-                    <img src={p.preview} alt={p.name} />
-                  ) : (
-                    <div className="phone-placeholder" />
-                  )}
-                </div>
-
-                <div className="name">{p.name}</div>
-                <div className="status">{p.label}</div>
-              </div>
-            );
-
-            if (p.status === "live") {
-              return (
-                <Link key={p.name} href={p.lockerPath} className="card-link">
-                  {CardInner}
-                </Link>
-              );
+        ...(isMiners
+          ? {
+              backgroundColor: "#05020A",
+              backgroundImage: 'url("/enchanted-miners-bg.png")',
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "bottom center",
+              backgroundSize: "cover",
+              backgroundAttachment: "fixed",
             }
+          : {}),
 
-            return (
-              <div key={p.name} className="card-link disabled" aria-disabled="true">
-                {CardInner}
+        ...(isMagapixel
+          ? {
+              backgroundColor: "#0078e9",
+              backgroundImage: 'url("/bg-ovaloffice.png")',
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center",
+              backgroundSize: "cover",
+              backgroundAttachment: "fixed",
+            }
+          : {}),
+
+        ...(isGainz
+          ? {
+              backgroundColor: "#05020A",
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center",
+              backgroundSize: "cover",
+              backgroundAttachment: "fixed",
+            }
+          : {}),
+      }}
+    >
+      <section
+        style={{ maxWidth: 1200, margin: "0 auto", padding: "18px 18px 0" }}
+      >
+        <a
+          href={gridHref}
+          style={{
+            color: isMagapixel ? "#ffffff" : "#bda9ff",
+            opacity: 0.9,
+            textShadow: isMagapixel ? "0 2px 10px rgba(0,0,0,0.25)" : "none",
+          }}
+        >
+          ← back to grid
+        </a>
+
+        <div
+          className="locker-layout"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "minmax(260px, 340px) 1fr",
+            gap: 22,
+            marginTop: 12,
+            alignItems: "start",
+          }}
+        >
+          {/* LEFT PANEL */}
+          <div className="left-panel">
+            <BackgroundPicker value={bg} onChange={setBg} project={project} />
+            <div style={{ height: 12 }} />
+            <ExportButtons composerRef={composerRef} />
+            <div style={{ height: 12 }} />
+            <ClientOnly>
+              <ShareActions
+                composerRef={composerRef}
+                nftName={nft?.name || nft?.id || "RetroGrave"}
+                onUsing={(msg) => setHint(msg)}
+              />
+            </ClientOnly>
+
+            {hint && (
+              <p
+                style={{
+                  marginTop: 10,
+                  fontSize: 12,
+                  opacity: 0.9,
+                  color: "#ffffff",
+                }}
+              >
+                {hint}
+              </p>
+            )}
+          </div>
+
+          {/* RIGHT PANEL — PHONE PREVIEW */}
+          <div className="right-panel">
+            <div
+              className="phone-frame"
+              style={{
+                position: "relative",
+                width: "min(360px, 78vw)",
+                aspectRatio: "9 / 19.5",
+                borderRadius: 26,
+                overflow: "hidden",
+                boxShadow: "0 18px 44px rgba(0, 0, 0, 0.45)",
+                background: "#221a33",
+                margin: "0 auto",
+              }}
+            >
+              <div
+                className="dev-bg"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  zIndex: 0,
+                  pointerEvents: "none",
+                }}
+              />
+
+              <div
+                className="phone-surface"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "grid",
+                  gridTemplateRows: "auto 1fr",
+                  alignContent: "end",
+                  justifyItems: "center",
+                  padding: "8px 8px 10px 8px",
+                  gap: 4,
+                  zIndex: 1,
+                }}
+              >
+                <Composer ref={composerRef} nft={nft} bg={bg} project={project} />
               </div>
-            );
-          })}
+            </div>
+          </div>
         </div>
       </section>
 
-      <section id="how" className="how">
-        <LockscreenedFAQ />
-      </section>
+      <ClientOnly>
+        <DevBgTester />
+      </ClientOnly>
+
+      <WalletDebug />
 
       <style jsx>{`
-        .home-wrap {
-          min-height: 100vh;
-          background: #cfdcf0;
+        .phone-frame {
+          margin-left: auto;
+          margin-right: auto;
         }
 
-        .hero {
-          padding: 86px 18px 34px;
-          text-align: center;
-          max-width: 1200px;
-          margin: 0 auto;
-        }
+        @media (max-width: 860px) {
+          .locker-layout {
+            grid-template-columns: 1fr;
+          }
 
-        .hero-title {
-          margin: 0;
-          font-size: clamp(54px, 8vw, 92px);
-          letter-spacing: 0.06em;
-          font-weight: 900;
-          line-height: 0.95;
-        }
+          .left-panel {
+            order: 2;
+          }
 
-        .hero-lock {
-          color: #111;
-        }
-        .hero-screened {
-          color: #60b383;
-          font-style: italic;
-          margin-left: 10px;
-        }
+          .right-panel {
+            order: 1;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+          }
 
-        .hero-sub {
-          margin: 16px auto 0;
-          max-width: 740px;
-          color: rgba(0, 0, 0, 0.65);
-          font-size: 13px;
-          line-height: 1.55;
-        }
-
-        .hero-actions {
-          display: flex;
-          gap: 12px;
-          justify-content: center;
-          margin-top: 16px;
-          flex-wrap: wrap;
-        }
-
-        .btn {
-          display: inline-block;
-          padding: 10px 14px;
-          border-radius: 999px;
-          font-size: 11px;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          font-weight: 900;
-          border: 1px solid rgba(0, 0, 0, 0.18);
-          background: rgba(255, 255, 255, 0.75);
-          color: rgba(0, 0, 0, 0.82);
-          text-decoration: none;
-        }
-
-        .btn.primary {
-          background: #ff4fd8;
-          border-color: rgba(0, 0, 0, 0.08);
-          color: rgba(0, 0, 0, 0.9);
-          box-shadow: 0 12px 24px rgba(255, 79, 216, 0.35);
-        }
-
-        .partners {
-          padding: 14px 18px 34px;
-          max-width: 1200px;
-          margin: 0 auto;
-          text-align: center;
-        }
-
-        .partners-title {
-          margin: 10px 0 0;
-          letter-spacing: 0.18em;
-          text-transform: uppercase;
-          font-weight: 900;
-          font-size: 12px;
-          color: rgba(0, 0, 0, 0.75);
-        }
-
-        .partners-sub {
-          margin: 10px auto 0;
-          max-width: 820px;
-          font-size: 12px;
-          line-height: 1.6;
-          color: rgba(0, 0, 0, 0.55);
-        }
-
-        .grid {
-          margin-top: 18px;
-          display: grid;
-          grid-template-columns: repeat(5, minmax(170px, 1fr));
-          gap: 16px;
-          justify-items: center;
-        }
-
-        .card-link {
-          text-decoration: none;
-          color: inherit;
-        }
-
-        .card-link.disabled {
-          cursor: not-allowed;
-          opacity: 0.85;
-        }
-
-        .card {
-          width: 100%;
-          max-width: 200px;
-          border-radius: 18px;
-          background: rgba(30, 32, 42, 0.72);
-          box-shadow: 0 18px 44px rgba(0, 0, 0, 0.18);
-          padding: 12px 12px 14px;
-          position: relative;
-          overflow: hidden;
-        }
-
-        .badge {
-          position: absolute;
-          top: 10px;
-          left: 10px;
-          font-size: 9px;
-          letter-spacing: 0.16em;
-          text-transform: uppercase;
-          font-weight: 900;
-          color: rgba(255, 255, 255, 0.85);
-          background: rgba(0, 0, 0, 0.35);
-          padding: 6px 8px;
-          border-radius: 999px;
-        }
-
-        .phone {
-          width: 124px;
-          height: 200px;
-          margin: 10px auto 8px;
-          border-radius: 16px;
-          overflow: hidden;
-          box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.12);
-          background: rgba(0, 0, 0, 0.25);
-        }
-
-        .phone img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-        }
-
-        .phone-placeholder {
-          width: 100%;
-          height: 100%;
-          background: rgba(255, 255, 255, 0.08);
-        }
-
-        .name {
-          font-weight: 900;
-          font-size: 11px;
-          color: rgba(255, 255, 255, 0.95);
-          text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
-        }
-
-        .status {
-          margin-top: 3px;
-          font-size: 10px;
-          color: rgba(255, 255, 255, 0.72);
-        }
-
-        @media (max-width: 1100px) {
-          .grid {
-            grid-template-columns: repeat(3, minmax(170px, 1fr));
+          .phone-frame {
+            margin-left: auto;
+            margin-right: auto;
           }
         }
 
-        @media (max-width: 650px) {
-          .grid {
-            grid-template-columns: repeat(2, minmax(160px, 1fr));
+        @media (min-width: 861px) {
+          .right-panel {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
           }
         }
       `}</style>
     </main>
+  );
+}
+
+export default function LockerPage() {
+  return (
+    <Suspense
+      fallback={
+        <main
+          style={{
+            minHeight: "60vh",
+            display: "grid",
+            placeItems: "center",
+            color: "#cfc2ff",
+          }}
+        >
+          Loading locker…
+        </main>
+      }
+    >
+      <LockerInner />
+    </Suspense>
   );
 }
