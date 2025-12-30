@@ -20,7 +20,7 @@ const LINKS: Record<TopNavProject, ProjectLinks> = {
   retrograve: {
     homeHref: "/",
 
-    // ✅ FIX: RetroGrave “MY …” should go to the RetroGrave landing page route you use now
+    // (leaving as you currently set it)
     myHref: "/retrograve",
     myLabel: "RETROGRAVE",
 
@@ -49,8 +49,11 @@ const LINKS: Record<TopNavProject, ProjectLinks> = {
 
   gainz: {
     homeHref: "/",
+
+    // ✅ FIX: TopNav "GAINZ" should go to the Gainz PROJECT landing page (not the grid)
     myHref: "/gainz",
     myLabel: "GAINZ",
+
     collectHref: "https://magiceden.us/marketplace/gainz_",
     communityHref: "https://discord.gg/NeeU7zcQ",
     xHref: "https://x.com/GotmLabz",
