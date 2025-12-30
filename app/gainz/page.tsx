@@ -2,6 +2,7 @@
 "use client";
 
 import PhoneShowcase from "../components/PhoneShowcase";
+import LockscreenedFAQ from "../components/LockscreenedFAQ";
 
 export default function GainzLandingPage() {
   const previewImages = [
@@ -23,8 +24,8 @@ export default function GainzLandingPage() {
             <span className="lp-copy-strong">Phone-native wallpapers</span> for
             Gainz.
             <br />
-            Connect your wallet, pick an NFT, swap backgrounds, and export for
-            any device.
+            Connect your wallet, pick a Gainz NFT, swap backgrounds, and export
+            for any device.
           </p>
         </div>
 
@@ -37,7 +38,7 @@ export default function GainzLandingPage() {
               title=""
               showHint={false}
               fit="cover"
-              bg={{ kind: "color", value: "#000000" }}
+              bg={{ kind: "color", value: "#0b0712" }}
             />
           </div>
         </div>
@@ -48,7 +49,14 @@ export default function GainzLandingPage() {
           min-height: 100vh;
           padding: 18px 18px 80px;
           padding-top: 64px; /* fixed nav */
-          background: #000;
+          background: #05020a;
+          /* If you add a Gainz bg later, uncomment:
+          background-image: url("/gainz-bg.png");
+          background-repeat: no-repeat;
+          background-position: center center;
+          background-size: cover;
+          background-attachment: fixed;
+          */
         }
 
         .lp-inner {
@@ -63,13 +71,10 @@ export default function GainzLandingPage() {
           min-height: calc(100vh - 64px - 80px);
         }
 
-        /* 🔑 Match Enchanted vertical alignment */
         .lp-left {
           max-width: 640px;
-
           position: relative;
-          top: -100px;
-
+          top: -100px; /* same Enchanted-style alignment */
           margin-left: clamp(0px, 3vw, 28px);
         }
 
@@ -81,7 +86,7 @@ export default function GainzLandingPage() {
           font-weight: 900;
           line-height: 1.05;
           color: rgba(255, 255, 255, 0.92);
-          text-shadow: 0 10px 34px rgba(0, 0, 0, 0.55);
+          text-shadow: 0 6px 28px rgba(0, 0, 0, 0.22);
         }
 
         .lp-subtitle {
@@ -91,8 +96,8 @@ export default function GainzLandingPage() {
           text-transform: uppercase;
           font-weight: 900;
           line-height: 1.05;
-          color: rgba(255, 255, 255, 0.9);
-          text-shadow: 0 10px 34px rgba(0, 0, 0, 0.55);
+          color: rgba(189, 169, 255, 0.95);
+          text-shadow: 0 6px 28px rgba(0, 0, 0, 0.22);
         }
 
         .lp-copy {
@@ -106,7 +111,7 @@ export default function GainzLandingPage() {
         .lp-copy-strong {
           font-weight: 900;
           font-size: 14px;
-          color: rgba(255, 255, 255, 0.88);
+          color: rgba(255, 255, 255, 0.9);
         }
 
         .lp-right {
@@ -117,7 +122,13 @@ export default function GainzLandingPage() {
         .phone-shell {
           transform: translateY(22px) scale(0.7);
           transform-origin: top center;
-          filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.55));
+          filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.35));
+        }
+
+        .faq-wrap {
+          max-width: 1200px;
+          margin: 18px auto 0;
+          padding: 0 18px;
         }
 
         @media (max-width: 980px) {
