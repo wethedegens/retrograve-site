@@ -39,11 +39,7 @@ function LockerInner() {
 
   const composerRef = useRef<ComposerHandle | null>(null);
 
-  const initialBg = useMemo<BgChoice>(
-    () => ({ kind: "color", value: "#3e2d75" }),
-    []
-  );
-
+  const initialBg = useMemo<BgChoice>(() => ({ kind: "color", value: "#3e2d75" }), []);
   const [bg, setBg] = useState<BgChoice>(initialBg);
 
   const [nft, setNft] = useState<SimpleNft | null>(() => {
@@ -60,7 +56,7 @@ function LockerInner() {
 
   const gridHref =
     project === "miners"
-      ? "/my-miners"
+      ? "/enchanted-miners-nfts"
       : project === "gainz"
       ? "/gainz-nft"
       : "/magapixel-nfts";
@@ -112,9 +108,11 @@ function LockerInner() {
         setLoading(true);
         const qs = new URLSearchParams({ mint });
         if (uri) qs.set("uri", uri);
+
         const r = await fetch(`/api/nft-by-mint?${qs.toString()}`, {
           cache: "no-store",
         });
+
         const j = (await r.json()) as NftFetchResp;
 
         if (!cancelled) {
@@ -147,6 +145,7 @@ function LockerInner() {
 
   return (
     <main
+      className="locker-page"
       style={{
         padding: "0 0 80px",
 
@@ -183,15 +182,14 @@ function LockerInner() {
           : {}),
       }}
     >
-      <section
-        style={{ maxWidth: 1200, margin: "0 auto", padding: "18px 18px 0" }}
-      >
+      <section style={{ maxWidth: 1200, margin: "0 auto", padding: "18px 18px 0" }}>
         <a
           href={gridHref}
+          className="back-link"
           style={{
-            color: isMagapixel ? "#ffffff" : "#bda9ff",
-            opacity: 0.9,
-            textShadow: isMagapixel ? "0 2px 10px rgba(0,0,0,0.25)" : "none",
+            color: isMagapixel ? "#ffffff" : "#ffffff",
+            opacity: 0.95,
+            textShadow: "0 2px 12px rgba(0,0,0,0.35)",
           }}
         >
           ← back to grid
@@ -201,7 +199,7 @@ function LockerInner() {
           className="locker-layout"
           style={{
             display: "grid",
-            gridTemplateColumns: "minmax(260px, 340px) 1fr",
+            gridTemplateColumns: "minmax(260px, 360px) 1fr",
             gap: 22,
             marginTop: 12,
             alignItems: "start",
@@ -222,17 +220,16 @@ function LockerInner() {
             </ClientOnly>
 
             {hint && (
-              <p
-                style={{
-                  marginTop: 10,
-                  fontSize: 12,
-                  opacity: 0.9,
-                  color: "#ffffff",
-                }}
-              >
+              <p style={{ marginTop: 10, fontSize: 12, opacity: 0.95, color: "#ffffff" }}>
                 {hint}
               </p>
             )}
+
+            {loading ? (
+              <p style={{ marginTop: 10, fontSize: 12, opacity: 0.9, color: "#ffffff" }}>
+                Loading NFT…
+              </p>
+            ) : null}
           </div>
 
           {/* RIGHT PANEL — PHONE PREVIEW */}
@@ -274,6 +271,7 @@ function LockerInner() {
                   zIndex: 1,
                 }}
               >
+                {/* ✅ PASS PROJECT DOWN */}
                 <Composer ref={composerRef} nft={nft} bg={bg} project={project} />
               </div>
             </div>
@@ -288,6 +286,36 @@ function LockerInner() {
       <WalletDebug />
 
       <style jsx>{`
+        /* ✅ Readability fix: “glass” panel behind controls */
+        .left-panel {
+          position: relative;
+          padding: 14px 14px 16px;
+          border-radius: 18px;
+
+          background: rgba(10, 8, 20, 0.55);
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          box-shadow: 0 18px 44px rgba(0, 0, 0, 0.25);
+
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+        }
+
+        /* Make the “back to grid” link readable too */
+        .back-link {
+          display: inline-block;
+          padding: 8px 10px;
+          border-radius: 999px;
+          background: rgba(10, 8, 20, 0.35);
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          text-decoration: none;
+        }
+
+        .back-link:hover {
+          background: rgba(10, 8, 20, 0.45);
+        }
+
         .phone-frame {
           margin-left: auto;
           margin-right: auto;
