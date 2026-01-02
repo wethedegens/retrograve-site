@@ -59,22 +59,14 @@ export type ComposerHandle = {
 const isHttpUrl = (s?: string | null) => !!s && /^https?:\/\//i.test(s);
 
 /**
- * ✅ FUTURE-PROOF MEDIA NORMALIZER
- * Handles:
- * - ipfs://<cid>/<path>
- * - ipfs://ipfs/<cid>/<path>
- * - /ipfs/<cid>/<path>
- * - already https://... (no change)
- *
- * Keeps everything consistent across projects so the NFT always loads.
+ * ✅ FUTURE-PROOF MEDIA NORMALIZER (ipfs:// → https gateway)
+ * IMPORTANT: We keep it simple and allow fallback hosts.
  */
 function normalizeMediaUrl(src?: string | null): string | null {
   if (!src) return null;
-
   const s = String(src).trim();
   if (!s) return null;
 
-  // already web url
   if (/^https?:\/\//i.test(s)) return s;
 
   // ipfs://ipfs/<cid>/...
@@ -95,16 +87,17 @@ function normalizeMediaUrl(src?: string | null): string | null {
     return `https://gateway.pinata.cloud/ipfs/${rest}`;
   }
 
-  // fallback: return as-is (maybe already relative or data url)
   return s;
 }
 
 /**
- * We use /api/img proxy to avoid CORS issues for remote images.
- * (works best when src is https://...)
+ * Proxy for CORS safety when possible
  */
 const proxyUrl = (src: string) => `/api/img?u=${encodeURIComponent(src)}`;
 
+/**
+ * Canvas image loader
+ */
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((res, rej) => {
     const img = new Image();
@@ -113,6 +106,21 @@ function loadImage(src: string): Promise<HTMLImageElement> {
     img.onerror = () => rej(new Error("image load failed: " + src));
     img.src = src;
   });
+}
+
+/**
+ * ✅ Load remote NFT image with fallback:
+ * 1) Try /api/img proxy (best for CORS)
+ * 2) If proxy fails (host blocked / proxy deny), try direct URL
+ */
+async function loadRemoteNftImage(url: string): Promise<HTMLImageElement> {
+  // Try proxy first
+  try {
+    return await loadImage(proxyUrl(url));
+  } catch {
+    // Fallback to direct
+    return await loadImage(url);
+  }
 }
 
 function slugify(s: string) {
@@ -269,10 +277,9 @@ const Composer = forwardRef<
     size: Size,
     device: DeviceVariant
   ) => {
-    // 0) Always clear
     ctx.clearRect(0, 0, size.w, size.h);
 
-    // 1) Background (always first)
+    // 1) Background
     if (activeBg.kind === "preset") {
       const src = getBackgroundImagePath(activeBg.id, device);
       if (src) {
@@ -313,11 +320,11 @@ const Composer = forwardRef<
       }
     }
 
-    // 2) NFT (always second / on top)
+    // 2) NFT on top
     const layeredMode = hasLayerTraits(nft?.attributes);
     let drewLayers = false;
 
-    // 2a) Magapixel layered build (unchanged)
+    // 2a) Magapixel layered mode
     if (layeredMode) {
       setLoadingImg(true);
       try {
@@ -340,26 +347,25 @@ const Composer = forwardRef<
       }
     }
 
-    // 2b) Remote NFT image (MidEvils/Miners/etc) — now supports ipfs://
+    // 2b) Remote image mode (MidEvils/Miners/etc)
     if (!drewLayers && nft?.image && !layeredMode) {
       setLoadingImg(true);
       try {
         const normalized = normalizeMediaUrl(nft.image);
-
         if (!normalized) return;
 
-        // if it's http(s), proxy it for CORS safety
-        const src = isHttpUrl(normalized) ? proxyUrl(normalized) : normalized;
-
-        const img = await loadImage(src);
+        let img: HTMLImageElement;
+        if (isHttpUrl(normalized)) {
+          img = await loadRemoteNftImage(normalized); // ✅ proxy → direct fallback
+        } else {
+          img = await loadImage(normalized);
+        }
 
         if (isGainz) {
           drawGainzNft(ctx, size, device, img);
         } else {
           drawImageCoverBottomCenter(ctx, size, img);
         }
-      } catch {
-        // If NFT fails to load, keep background visible; do not crash render.
       } finally {
         setLoadingImg(false);
       }
@@ -382,9 +388,7 @@ const Composer = forwardRef<
   }, [nft?.image, (nft?.attributes || []).length, activeBg, key]);
 
   useImperativeHandle(ref, () => {
-    const doExportImage = async (
-      opts: ExportImageOptions
-    ): Promise<Blob | null> => {
+    const doExportImage = async (opts: ExportImageOptions): Promise<Blob | null> => {
       const { width, height, format = "png", device = "phone" } = opts;
       const c = document.createElement("canvas");
       c.width = width;
@@ -429,9 +433,7 @@ const Composer = forwardRef<
       <div className="phone-frame">
         <div className="phone-surface">
           <div className="phone-hint">
-            {loadingImg
-              ? "Loading image…"
-              : "Preview is scaled; exports are full size."}
+            {loadingImg ? "Loading image…" : "Preview is scaled; exports are full size."}
           </div>
           <canvas
             ref={canvasRef}
