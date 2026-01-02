@@ -14,25 +14,9 @@ type LockerProject = {
 };
 
 const PROJECTS: LockerProject[] = [
-  // ✅ NEW: MidEvils FIRST
-  {
-    name: "MidEvils",
-    status: "live",
-    label: "Live",
-    lockerPath: "/midevils",
-    glow: "midevils",
-    preview: "/lockscreened-previews/midevils.png",
-  },
+  // ✅ Desired order:
+  // RetroGrave, Gainz, MidEvils, Enchanted, then the other projects
 
-  // shifted right
-  {
-    name: "MAGApixel Locker",
-    status: "live",
-    label: "Live",
-    lockerPath: "/locker/magapixel",
-    glow: "magapixel",
-    preview: "/lockscreened-previews/magapixel.png",
-  },
   {
     name: "RetroGrave Locker",
     status: "live",
@@ -42,12 +26,20 @@ const PROJECTS: LockerProject[] = [
     preview: "/lockscreened-previews/retrograve.png",
   },
   {
-    name: "MEOWGA",
-    status: "coming",
-    label: "Coming soon",
-    lockerPath: "#",
-    glow: "meowga",
-    preview: "/lockscreened-previews/meowga.png",
+    name: "Gainz",
+    status: "live",
+    label: "Live",
+    lockerPath: "/gainz",
+    glow: "gainz",
+    preview: "/lockscreened-previews/gainz.png",
+  },
+  {
+    name: "MidEvils",
+    status: "live",
+    label: "Live",
+    lockerPath: "/midevils",
+    glow: "midevils",
+    preview: "/lockscreened-previews/midevils.png",
   },
   {
     name: "Enchanted Miners",
@@ -57,13 +49,23 @@ const PROJECTS: LockerProject[] = [
     glow: "miners",
     preview: "/lockscreened-previews/miners.png",
   },
+
+  // --- other projects after ---
   {
-    name: "Gainz",
+    name: "MAGApixel Locker",
     status: "live",
     label: "Live",
-    lockerPath: "/gainz",
-    glow: "gainz",
-    preview: "/lockscreened-previews/gainz.png",
+    lockerPath: "/locker/magapixel",
+    glow: "magapixel",
+    preview: "/lockscreened-previews/magapixel.png",
+  },
+  {
+    name: "MEOWGA",
+    status: "coming",
+    label: "Coming soon",
+    lockerPath: "#",
+    glow: "meowga",
+    preview: "/lockscreened-previews/meowga.png",
   },
 ];
 
