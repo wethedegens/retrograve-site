@@ -24,7 +24,7 @@ export type MetaAttribute = {
 export type SimpleNft = {
   id: string;
   name?: string;
-  image?: string; // remote fallback
+  image?: string; // remote fallback (may be https:// or ipfs://)
   attributes?: MetaAttribute[]; // used to rebuild from local layers
 };
 
@@ -57,6 +57,52 @@ export type ComposerHandle = {
 };
 
 const isHttpUrl = (s?: string | null) => !!s && /^https?:\/\//i.test(s);
+
+/**
+ * ✅ FUTURE-PROOF MEDIA NORMALIZER
+ * Handles:
+ * - ipfs://<cid>/<path>
+ * - ipfs://ipfs/<cid>/<path>
+ * - /ipfs/<cid>/<path>
+ * - already https://... (no change)
+ *
+ * Keeps everything consistent across projects so the NFT always loads.
+ */
+function normalizeMediaUrl(src?: string | null): string | null {
+  if (!src) return null;
+
+  const s = String(src).trim();
+  if (!s) return null;
+
+  // already web url
+  if (/^https?:\/\//i.test(s)) return s;
+
+  // ipfs://ipfs/<cid>/...
+  if (/^ipfs:\/\/ipfs\//i.test(s)) {
+    const rest = s.replace(/^ipfs:\/\/ipfs\//i, "");
+    return `https://gateway.pinata.cloud/ipfs/${rest}`;
+  }
+
+  // ipfs://<cid>/...
+  if (/^ipfs:\/\//i.test(s)) {
+    const rest = s.replace(/^ipfs:\/\//i, "");
+    return `https://gateway.pinata.cloud/ipfs/${rest}`;
+  }
+
+  // /ipfs/<cid>/...
+  if (/^\/ipfs\//i.test(s)) {
+    const rest = s.replace(/^\/ipfs\//i, "");
+    return `https://gateway.pinata.cloud/ipfs/${rest}`;
+  }
+
+  // fallback: return as-is (maybe already relative or data url)
+  return s;
+}
+
+/**
+ * We use /api/img proxy to avoid CORS issues for remote images.
+ * (works best when src is https://...)
+ */
 const proxyUrl = (src: string) => `/api/img?u=${encodeURIComponent(src)}`;
 
 function loadImage(src: string): Promise<HTMLImageElement> {
@@ -223,7 +269,10 @@ const Composer = forwardRef<
     size: Size,
     device: DeviceVariant
   ) => {
-    // 1) Background
+    // 0) Always clear
+    ctx.clearRect(0, 0, size.w, size.h);
+
+    // 1) Background (always first)
     if (activeBg.kind === "preset") {
       const src = getBackgroundImagePath(activeBg.id, device);
       if (src) {
@@ -264,10 +313,11 @@ const Composer = forwardRef<
       }
     }
 
-    // 2) NFT layers / remote image
+    // 2) NFT (always second / on top)
     const layeredMode = hasLayerTraits(nft?.attributes);
     let drewLayers = false;
 
+    // 2a) Magapixel layered build (unchanged)
     if (layeredMode) {
       setLoadingImg(true);
       try {
@@ -290,10 +340,17 @@ const Composer = forwardRef<
       }
     }
 
+    // 2b) Remote NFT image (MidEvils/Miners/etc) — now supports ipfs://
     if (!drewLayers && nft?.image && !layeredMode) {
       setLoadingImg(true);
       try {
-        const src = isHttpUrl(nft.image) ? proxyUrl(nft.image!) : nft.image!;
+        const normalized = normalizeMediaUrl(nft.image);
+
+        if (!normalized) return;
+
+        // if it's http(s), proxy it for CORS safety
+        const src = isHttpUrl(normalized) ? proxyUrl(normalized) : normalized;
+
         const img = await loadImage(src);
 
         if (isGainz) {
@@ -301,6 +358,8 @@ const Composer = forwardRef<
         } else {
           drawImageCoverBottomCenter(ctx, size, img);
         }
+      } catch {
+        // If NFT fails to load, keep background visible; do not crash render.
       } finally {
         setLoadingImg(false);
       }
@@ -314,7 +373,6 @@ const Composer = forwardRef<
     c.height = previewSize.h;
     const ctx = c.getContext("2d");
     if (!ctx) return;
-    ctx.clearRect(0, 0, c.width, c.height);
     await draw(ctx, previewSize, "phone");
   };
 
@@ -324,7 +382,9 @@ const Composer = forwardRef<
   }, [nft?.image, (nft?.attributes || []).length, activeBg, key]);
 
   useImperativeHandle(ref, () => {
-    const doExportImage = async (opts: ExportImageOptions): Promise<Blob | null> => {
+    const doExportImage = async (
+      opts: ExportImageOptions
+    ): Promise<Blob | null> => {
       const { width, height, format = "png", device = "phone" } = opts;
       const c = document.createElement("canvas");
       c.width = width;
@@ -369,7 +429,9 @@ const Composer = forwardRef<
       <div className="phone-frame">
         <div className="phone-surface">
           <div className="phone-hint">
-            {loadingImg ? "Loading image…" : "Preview is scaled; exports are full size."}
+            {loadingImg
+              ? "Loading image…"
+              : "Preview is scaled; exports are full size."}
           </div>
           <canvas
             ref={canvasRef}
