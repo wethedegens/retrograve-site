@@ -7,7 +7,15 @@ import type { BgChoice } from "./Composer";
 type Props = {
   value: BgChoice;
   onChange: (bg: BgChoice) => void;
-  // "magapixel" (default), "miners", "gainz", or future projects
+
+  /**
+   * Project key passed from the locker/composer:
+   *  - "magapixel" (default)
+   *  - "miners"
+   *  - "gainz"
+   *  - "midevils"
+   *  - future projects...
+   */
   project?: string;
 };
 
@@ -45,7 +53,7 @@ const MINER_IMAGE_BACKGROUNDS: string[] = [
 ];
 
 /**
- * ✅ GAINZ: static phone-sized PNGs (same pattern as Miners)
+ * ✅ GAINZ: static phone-sized PNGs
  * Folder: /public/gainz/phone/bg-1.png ... bg-15.png
  */
 const GAINZ_IMAGE_BACKGROUNDS: string[] = [
@@ -64,6 +72,29 @@ const GAINZ_IMAGE_BACKGROUNDS: string[] = [
   "/gainz/phone/bg-13.png",
   "/gainz/phone/bg-14.png",
   "/gainz/phone/bg-15.png",
+];
+
+/**
+ * ✅ MIDEVILS: static phone-sized PNGs
+ * Folder: /public/midevils/phone/bg-1.png ... bg-12.png (or more)
+ *
+ * IMPORTANT:
+ * - This only affects project="midevils"
+ * - It does NOT change Magapixel/Miners/Gainz behavior
+ */
+const MIDEVILS_IMAGE_BACKGROUNDS: string[] = [
+  "/midevils/phone/bg-1.png",
+  "/midevils/phone/bg-2.png",
+  "/midevils/phone/bg-3.png",
+  "/midevils/phone/bg-4.png",
+  "/midevils/phone/bg-5.png",
+  "/midevils/phone/bg-6.png",
+  "/midevils/phone/bg-7.png",
+  "/midevils/phone/bg-8.png",
+  "/midevils/phone/bg-9.png",
+  "/midevils/phone/bg-10.png",
+  "/midevils/phone/bg-11.png",
+  "/midevils/phone/bg-12.png",
 ];
 
 /**
@@ -90,13 +121,40 @@ const MAGAPIXEL_BACKGROUND_SLUGS: string[] = [
   "whitehouse-hallway",
 ];
 
+/**
+ * ✅ Future-proof mapping:
+ * Any project you add later can be routed here without touching the rest of the file.
+ */
+const STATIC_PROJECT_STRIPS: Record<
+  string,
+  { label: string; images: string[]; filenamePrefix: string }
+> = {
+  miners: {
+    label: "MINER WALLPAPERS",
+    images: MINER_IMAGE_BACKGROUNDS,
+    filenamePrefix: "miner-wallpaper",
+  },
+  gainz: {
+    label: "GAINZ WALLPAPERS",
+    images: GAINZ_IMAGE_BACKGROUNDS,
+    filenamePrefix: "gainz-wallpaper",
+  },
+  midevils: {
+    label: "MIDEVILS WALLPAPERS",
+    images: MIDEVILS_IMAGE_BACKGROUNDS,
+    filenamePrefix: "midevils-wallpaper",
+  },
+};
+
 export default function BackgroundPicker({ value, onChange, project }: Props) {
   const current = value as any;
   const key = (project || "magapixel").toLowerCase();
 
-  const isMiners = key === "miners";
-  const isGainz = key === "gainz";
-  const isMagapixel = !isMiners && !isGainz; // default behavior
+  const staticStrip = STATIC_PROJECT_STRIPS[key];
+  const isStaticProject = !!staticStrip;
+
+  // Default behavior (Magapixel) if not a known static-strip project
+  const isMagapixel = !isStaticProject;
 
   // IMPORTANT: image variant uses `.image`, not `.value`
   const isImageActive = (src: string) =>
@@ -115,7 +173,7 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
     } as any as BgChoice);
   };
 
-  /** Miners/Gainz: click one of the phone PNGs */
+  /** Static-strip projects (miners/gainz/midevils): click one of the phone PNGs */
   const handleStaticProjectImageClick = (
     src: string,
     index: number,
@@ -159,8 +217,8 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
 
   return (
     <section>
-      {/* MINERS STRIP */}
-      {isMiners && (
+      {/* ✅ STATIC PROJECT STRIP (miners/gainz/midevils/anything you add to STATIC_PROJECT_STRIPS) */}
+      {isStaticProject && (
         <div style={{ marginBottom: 8 }}>
           <div
             style={{
@@ -171,7 +229,7 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
               marginBottom: 4,
             }}
           >
-            MINER WALLPAPERS
+            {staticStrip.label}
           </div>
 
           <div
@@ -183,14 +241,18 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
               paddingBottom: 4,
             }}
           >
-            {MINER_IMAGE_BACKGROUNDS.map((src, idx) => {
+            {staticStrip.images.map((src, idx) => {
               const active = isImageActive(src);
               return (
                 <button
                   key={src}
                   type="button"
                   onClick={() =>
-                    handleStaticProjectImageClick(src, idx, "miner-wallpaper")
+                    handleStaticProjectImageClick(
+                      src,
+                      idx,
+                      staticStrip.filenamePrefix
+                    )
                   }
                   style={{
                     borderRadius: 10,
@@ -205,7 +267,7 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
                 >
                   <img
                     src={src}
-                    alt={`Miner wallpaper ${idx + 1}`}
+                    alt={`${staticStrip.label} ${idx + 1}`}
                     style={{
                       display: "block",
                       width: 52,
@@ -221,69 +283,7 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
         </div>
       )}
 
-      {/* ✅ GAINZ STRIP (same behavior as miners) */}
-      {isGainz && (
-        <div style={{ marginBottom: 8 }}>
-          <div
-            style={{
-              fontSize: 12,
-              textTransform: "uppercase",
-              letterSpacing: "0.14em",
-              opacity: 0.8,
-              marginBottom: 4,
-            }}
-          >
-            GAINZ WALLPAPERS
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              gap: 8,
-              alignItems: "center",
-              overflowX: "auto",
-              paddingBottom: 4,
-            }}
-          >
-            {GAINZ_IMAGE_BACKGROUNDS.map((src, idx) => {
-              const active = isImageActive(src);
-              return (
-                <button
-                  key={src}
-                  type="button"
-                  onClick={() =>
-                    handleStaticProjectImageClick(src, idx, "gainz-wallpaper")
-                  }
-                  style={{
-                    borderRadius: 10,
-                    border: active
-                      ? "2px solid #ffffff"
-                      : "2px solid transparent",
-                    padding: 0,
-                    backgroundColor: "transparent",
-                    cursor: "pointer",
-                    flex: "0 0 auto",
-                  }}
-                >
-                  <img
-                    src={src}
-                    alt={`Gainz wallpaper ${idx + 1}`}
-                    style={{
-                      display: "block",
-                      width: 52,
-                      height: 92,
-                      objectFit: "cover",
-                      borderRadius: 8,
-                    }}
-                  />
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* MAGAPIXEL STRIP (default when not miners/gainz) */}
+      {/* MAGAPIXEL STRIP (default when not a static project) */}
       {isMagapixel && (
         <div style={{ marginBottom: 8 }}>
           <div
@@ -346,7 +346,7 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
         </div>
       )}
 
-      {/* UPLOAD (shared) */}
+      {/* UPLOAD (shared across all projects) */}
       <div style={{ marginTop: 12 }}>
         <div
           style={{
