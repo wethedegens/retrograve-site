@@ -24,8 +24,9 @@ export type MetaAttribute = {
 export type SimpleNft = {
   id: string;
   name?: string;
-  image?: string; // remote fallback (may be https:// or ipfs://)
-  attributes?: MetaAttribute[]; // used to rebuild from local layers
+  image?: string; // image URL (http/https/ipfs) if already known
+  uri?: string | null; // ✅ metadata JSON url (http/https/ipfs)
+  attributes?: MetaAttribute[]; // MAGApixel rebuild mode
 };
 
 export type ExportSize = { label: string; w: number; h: number };
@@ -56,48 +57,21 @@ export type ComposerHandle = {
   exportAt: (size: ExportSize | keyof typeof PRESETS) => Promise<void>;
 };
 
-const isHttpUrl = (s?: string | null) => !!s && /^https?:\/\//i.test(s);
+const isHttpUrl = (s?: string | null) => !!s && /^https?:\/\//i.test(String(s));
+const isIpfsUrl = (s?: string | null) => !!s && /^ipfs:\/\//i.test(String(s));
 
-/**
- * ✅ FUTURE-PROOF MEDIA NORMALIZER (ipfs:// → https gateway)
- * IMPORTANT: We keep it simple and allow fallback hosts.
- */
-function normalizeMediaUrl(src?: string | null): string | null {
-  if (!src) return null;
-  const s = String(src).trim();
-  if (!s) return null;
-
-  if (/^https?:\/\//i.test(s)) return s;
-
-  // ipfs://ipfs/<cid>/...
-  if (/^ipfs:\/\/ipfs\//i.test(s)) {
-    const rest = s.replace(/^ipfs:\/\/ipfs\//i, "");
-    return `https://gateway.pinata.cloud/ipfs/${rest}`;
+function normalizeIpfs(u: string) {
+  const s = String(u || "").trim();
+  if (!s) return "";
+  if (s.startsWith("ipfs://")) {
+    const path = s.replace("ipfs://", "").replace(/^ipfs\//, "");
+    return `https://gateway.pinata.cloud/ipfs/${path}`;
   }
-
-  // ipfs://<cid>/...
-  if (/^ipfs:\/\//i.test(s)) {
-    const rest = s.replace(/^ipfs:\/\//i, "");
-    return `https://gateway.pinata.cloud/ipfs/${rest}`;
-  }
-
-  // /ipfs/<cid>/...
-  if (/^\/ipfs\//i.test(s)) {
-    const rest = s.replace(/^\/ipfs\//i, "");
-    return `https://gateway.pinata.cloud/ipfs/${rest}`;
-  }
-
   return s;
 }
 
-/**
- * Proxy for CORS safety when possible
- */
 const proxyUrl = (src: string) => `/api/img?u=${encodeURIComponent(src)}`;
 
-/**
- * Canvas image loader
- */
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((res, rej) => {
     const img = new Image();
@@ -106,21 +80,6 @@ function loadImage(src: string): Promise<HTMLImageElement> {
     img.onerror = () => rej(new Error("image load failed: " + src));
     img.src = src;
   });
-}
-
-/**
- * ✅ Load remote NFT image with fallback:
- * 1) Try /api/img proxy (best for CORS)
- * 2) If proxy fails (host blocked / proxy deny), try direct URL
- */
-async function loadRemoteNftImage(url: string): Promise<HTMLImageElement> {
-  // Try proxy first
-  try {
-    return await loadImage(proxyUrl(url));
-  } catch {
-    // Fallback to direct
-    return await loadImage(url);
-  }
 }
 
 function slugify(s: string) {
@@ -248,6 +207,49 @@ function drawGainzNft(
   drawImageCoverBottomCenter(ctx, size, img);
 }
 
+/**
+ * ✅ FUTURE-PROOF: resolve an NFT image URL
+ * - Use nft.image if present
+ * - Else use nft.uri (metadata JSON) via server route /api/meta (no CORS headaches)
+ * - Normalize ipfs:// to https gateway
+ */
+async function resolveNftImageUrl(nft: SimpleNft | null): Promise<string | null> {
+  if (!nft) return null;
+
+  // 1) direct image already known
+  if (nft.image) {
+    const raw = String(nft.image);
+    const imgUrl = isIpfsUrl(raw) ? normalizeIpfs(raw) : raw;
+    return imgUrl || null;
+  }
+
+  // 2) metadata uri
+  const metaUri = nft.uri ? String(nft.uri) : "";
+  if (!metaUri) return null;
+
+  const metaUrl = isIpfsUrl(metaUri) ? normalizeIpfs(metaUri) : metaUri;
+
+  // Fetch via our server route (same-origin)
+  const r = await fetch(`/api/meta?u=${encodeURIComponent(metaUrl)}`, {
+    cache: "no-store",
+  });
+
+  if (!r.ok) return null;
+
+  const json: any = await r.json().catch(() => null);
+  if (!json) return null;
+
+  // Most NFTs store image in `image`, sometimes `image_url`
+  const rawImage =
+    (typeof json.image === "string" && json.image) ||
+    (typeof json.image_url === "string" && json.image_url) ||
+    "";
+
+  if (!rawImage) return null;
+
+  return isIpfsUrl(rawImage) ? normalizeIpfs(rawImage) : rawImage;
+}
+
 const Composer = forwardRef<
   ComposerHandle,
   { nft: SimpleNft | null; bg: BgChoice | null; project?: string }
@@ -277,8 +279,6 @@ const Composer = forwardRef<
     size: Size,
     device: DeviceVariant
   ) => {
-    ctx.clearRect(0, 0, size.w, size.h);
-
     // 1) Background
     if (activeBg.kind === "preset") {
       const src = getBackgroundImagePath(activeBg.id, device);
@@ -320,11 +320,11 @@ const Composer = forwardRef<
       }
     }
 
-    // 2) NFT on top
+    // 2) NFT layers / remote image
     const layeredMode = hasLayerTraits(nft?.attributes);
     let drewLayers = false;
 
-    // 2a) Magapixel layered mode
+    // MAGAPIXEL rebuild mode stays exactly the same
     if (layeredMode) {
       setLoadingImg(true);
       try {
@@ -347,19 +347,22 @@ const Composer = forwardRef<
       }
     }
 
-    // 2b) Remote image mode (MidEvils/Miners/etc)
-    if (!drewLayers && nft?.image && !layeredMode) {
+    // ✅ All non-layered projects (Miners/Gainz/MidEvils/etc)
+    if (!drewLayers) {
       setLoadingImg(true);
       try {
-        const normalized = normalizeMediaUrl(nft.image);
-        if (!normalized) return;
+        const resolved = await resolveNftImageUrl(nft || null);
 
-        let img: HTMLImageElement;
-        if (isHttpUrl(normalized)) {
-          img = await loadRemoteNftImage(normalized); // ✅ proxy → direct fallback
-        } else {
-          img = await loadImage(normalized);
+        if (!resolved) {
+          // nothing to draw
+          return;
         }
+
+        // If it's http(s), proxy through /api/img for consistent CORS/caching
+        const normalized = isIpfsUrl(resolved) ? normalizeIpfs(resolved) : resolved;
+        const src = isHttpUrl(normalized) ? proxyUrl(normalized) : normalized;
+
+        const img = await loadImage(src);
 
         if (isGainz) {
           drawGainzNft(ctx, size, device, img);
@@ -379,13 +382,14 @@ const Composer = forwardRef<
     c.height = previewSize.h;
     const ctx = c.getContext("2d");
     if (!ctx) return;
+    ctx.clearRect(0, 0, c.width, c.height);
     await draw(ctx, previewSize, "phone");
   };
 
   useEffect(() => {
     renderPreview();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nft?.image, (nft?.attributes || []).length, activeBg, key]);
+  }, [nft?.id, nft?.image, nft?.uri, (nft?.attributes || []).length, activeBg, key]);
 
   useImperativeHandle(ref, () => {
     const doExportImage = async (opts: ExportImageOptions): Promise<Blob | null> => {
@@ -421,7 +425,8 @@ const Composer = forwardRef<
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `${(nft?.name || "nft").replace(/\s+/g, "_")}_${target.w}x${target.h}.png`;
+        a.download = `${(nft?.name || "nft")
+          .replace(/\s+/g, "_")}_${target.w}x${target.h}.png`;
         a.click();
         URL.revokeObjectURL(url);
       },
