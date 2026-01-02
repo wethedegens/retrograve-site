@@ -14,6 +14,17 @@ type LockerProject = {
 };
 
 const PROJECTS: LockerProject[] = [
+  // ✅ NEW: MidEvils FIRST
+  {
+    name: "MidEvils",
+    status: "live",
+    label: "Live",
+    lockerPath: "/midevils",
+    glow: "midevils",
+    preview: "/lockscreened-previews/midevils.png",
+  },
+
+  // shifted right
   {
     name: "MAGApixel Locker",
     status: "live",
@@ -46,8 +57,6 @@ const PROJECTS: LockerProject[] = [
     glow: "miners",
     preview: "/lockscreened-previews/miners.png",
   },
-
-  // ✅ FIX: Gainz is LIVE and links to /gainz
   {
     name: "Gainz",
     status: "live",
@@ -141,7 +150,6 @@ export default function HomePage() {
       </section>
 
       <style jsx>{`
-        /* ✅ Background must live on the OUTERMOST main and fill the full doc height */
         .ls-home {
           min-height: 100dvh;
           padding-bottom: 80px;
@@ -151,8 +159,6 @@ export default function HomePage() {
           background-repeat: no-repeat;
           background-position: top center;
           background-size: cover;
-
-          /* ✅ helps prevent the “background stops early” look on tall pages */
           background-attachment: fixed;
         }
 
@@ -337,7 +343,6 @@ export default function HomePage() {
           .ls-hero {
             padding-top: 72px;
           }
-          /* iOS Safari: fixed backgrounds can be weird */
           .ls-home {
             background-attachment: scroll;
           }

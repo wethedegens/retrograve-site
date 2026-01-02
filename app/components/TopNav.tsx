@@ -46,14 +46,22 @@ const LINKS: Record<TopNavProject, ProjectLinks> = {
 
   gainz: {
     homeHref: "/",
-
     // ✅ FIX: Gainz tab should go to the Gainz NFT grid page
     myHref: "/gainz-nft",
     myLabel: "GAINZ",
-
     collectHref: "https://magiceden.us/marketplace/gainz_",
     communityHref: "https://discord.gg/NeeU7zcQ",
     xHref: "https://x.com/GotmLabz",
+  },
+
+  // ✅ NEW: MidEvils
+  midevils: {
+    homeHref: "/",
+    myHref: "/midevils-nfts",
+    myLabel: "MY MIDEVILS",
+    collectHref: "https://magiceden.us/marketplace/midevils",
+    communityHref: "https://discord.gg/StDJJYTYRSd",
+    xHref: "https://x.com/MidEvilsNFT",
   },
 };
 

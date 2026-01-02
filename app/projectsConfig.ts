@@ -17,7 +17,6 @@ export const PROJECTS: LockerProject[] = [
     tagline: "Phone-native lock screens for MAGApixel NFTs.",
     primaryColor: "#f04b83",
     accentColor: "#ffb347",
-    // ✅ Correct route (prevents homepage cards breaking later)
     lockerPath: "/locker/magapixel",
     status: "live",
   },
@@ -27,7 +26,6 @@ export const PROJECTS: LockerProject[] = [
     tagline: "Legendary lock screens for RetroGraves.",
     primaryColor: "#a46bff",
     accentColor: "#6c4bff",
-    // ✅ External is fine
     lockerPath: "https://retrograve.xyz/retrograve",
     status: "live",
   },
@@ -46,10 +44,21 @@ export const PROJECTS: LockerProject[] = [
     tagline: "Enchanted Miners lockscreen engine.",
     primaryColor: "#25f2d0",
     accentColor: "#00a3ff",
-    // ✅ Keep landing route here (not the grid route)
     lockerPath: "/enchanted-miners",
     status: "live",
   },
+
+  // ✅ NEW: MidEvils
+  {
+    slug: "midevils",
+    name: "MidEvils",
+    tagline: "Phone-native lock screens for MidEvils NFTs.",
+    primaryColor: "#ff2e63",
+    accentColor: "#8a2be2",
+    lockerPath: "/midevils",
+    status: "live",
+  },
+
   {
     slug: "gainz",
     name: "GAINZ",

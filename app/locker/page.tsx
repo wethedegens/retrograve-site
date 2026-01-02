@@ -18,12 +18,14 @@ import DevBgTester from "../components/DevBgTester";
 import ClientOnly from "../components/ClientOnly";
 import WalletDebug from "../components/WalletDebug";
 
-type NftFetchResp = {
-  id: string;
-  name?: string;
-  image?: string;
-  attributes?: MetaAttribute[];
-} | null;
+type NftFetchResp =
+  | {
+      id: string;
+      name?: string;
+      image?: string;
+      attributes?: MetaAttribute[];
+    }
+  | null;
 
 function LockerInner() {
   const sp = useSearchParams();
@@ -31,7 +33,7 @@ function LockerInner() {
   const uri = sp.get("uri") || "";
   const devMode = sp.get("devbg") === "1";
 
-  // "magapixel" (default), "miners", "gainz"
+  // "magapixel" (default), "miners", "gainz", "midevils"
   const project = (sp.get("project") || "magapixel").toLowerCase();
 
   const imageParam = sp.get("image") || "";
@@ -54,11 +56,14 @@ function LockerInner() {
   const [loading, setLoading] = useState(false);
   const [hint, setHint] = useState<null | string>(null);
 
+  // ✅ BACK LINK ROUTING SAFETY
   const gridHref =
     project === "miners"
       ? "/enchanted-miners-nfts"
       : project === "gainz"
       ? "/gainz-nft"
+      : project === "midevils"
+      ? "/midevils-nfts"
       : "/magapixel-nfts";
 
   useEffect(() => {
@@ -142,6 +147,7 @@ function LockerInner() {
   const isMiners = project === "miners";
   const isMagapixel = project === "magapixel";
   const isGainz = project === "gainz";
+  const isMidevils = project === "midevils";
 
   return (
     <main
@@ -180,6 +186,18 @@ function LockerInner() {
               backgroundAttachment: "fixed",
             }
           : {}),
+
+        // ✅ NEW: MIDEVILS locker background (from your /public screenshot)
+        ...(isMidevils
+          ? {
+              backgroundColor: "#05020A",
+              backgroundImage: 'url("/midevils-project-page-bg.jpg")',
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center center",
+              backgroundSize: "cover",
+              backgroundAttachment: "fixed",
+            }
+          : {}),
       }}
     >
       <section style={{ maxWidth: 1200, margin: "0 auto", padding: "18px 18px 0" }}>
@@ -187,7 +205,7 @@ function LockerInner() {
           href={gridHref}
           className="back-link"
           style={{
-            color: isMagapixel ? "#ffffff" : "#ffffff",
+            color: "#ffffff",
             opacity: 0.95,
             textShadow: "0 2px 12px rgba(0,0,0,0.35)",
           }}
@@ -271,7 +289,6 @@ function LockerInner() {
                   zIndex: 1,
                 }}
               >
-                {/* ✅ PASS PROJECT DOWN */}
                 <Composer ref={composerRef} nft={nft} bg={bg} project={project} />
               </div>
             </div>
@@ -286,7 +303,6 @@ function LockerInner() {
       <WalletDebug />
 
       <style jsx>{`
-        /* ✅ Readability fix: “glass” panel behind controls */
         .left-panel {
           position: relative;
           padding: 14px 14px 16px;
@@ -300,7 +316,6 @@ function LockerInner() {
           -webkit-backdrop-filter: blur(10px);
         }
 
-        /* Make the “back to grid” link readable too */
         .back-link {
           display: inline-block;
           padding: 8px 10px;

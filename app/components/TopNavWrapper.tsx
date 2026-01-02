@@ -5,13 +5,17 @@ import { useMemo } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import TopNav from "./TopNav";
 
-export type TopNavProject = "retrograve" | "magapixel" | "miners" | "gainz";
+export type TopNavProject = "retrograve" | "magapixel" | "miners" | "gainz" | "midevils";
 
-function inferProjectFromRoute(pathname: string, searchParams: URLSearchParams): TopNavProject {
+function inferProjectFromRoute(
+  pathname: string,
+  searchParams: URLSearchParams
+): TopNavProject {
   const p = (pathname || "").toLowerCase();
 
   // Core hub pages default to RetroGrave mode (safe default)
-  if (p === "/" || p.startsWith("/community") || p.startsWith("/my-retrograves")) return "retrograve";
+  if (p === "/" || p.startsWith("/community") || p.startsWith("/my-retrograves"))
+    return "retrograve";
 
   // Explicit locker subroutes
   if (p.startsWith("/locker/magapixel")) return "magapixel";
@@ -24,9 +28,13 @@ function inferProjectFromRoute(pathname: string, searchParams: URLSearchParams):
   // Retrograve routes
   if (p.startsWith("/retrograve")) return "retrograve";
 
-  // ✅ Miners routes (NEW)
+  // Miners routes
   if (p.startsWith("/enchanted-miners")) return "miners";
   if (p.startsWith("/enchanted-miners-nfts")) return "miners";
+
+  // ✅ MidEvils routes (NEW)
+  if (p.startsWith("/midevils")) return "midevils";
+  if (p.startsWith("/midevils-nfts")) return "midevils";
 
   // Gainz routes
   if (p.startsWith("/gainz")) return "gainz";
@@ -38,6 +46,7 @@ function inferProjectFromRoute(pathname: string, searchParams: URLSearchParams):
     if (qp === "magapixel") return "magapixel";
     if (qp === "retrograve") return "retrograve";
     if (qp === "gainz") return "gainz";
+    if (qp === "midevils") return "midevils";
     return "magapixel";
   }
 
