@@ -1,3 +1,4 @@
+// app/meowga-nfts/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,29 +7,23 @@ import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useRouter } from "next/navigation";
 import NftGrid, { NFT } from "../components/NftGrid";
 
-/**
- * MEOWGA COLLECTION
- */
-const MEOWGA_COLLECTION =
-  "GryRACtbbwn5aLXjGmimR2KLFNtb3vrcbM5dgDnaJp2g";
+// TODO: set this to the REAL MEOWGA collection id when you have it
+// If you already know it, paste it here and you’re done.
+const MEOWGA_COLLECTION = "REPLACE_MEOWGA_COLLECTION_ID";
+const MEOWGA_BG_IMAGE = "/my-meowgas-bg.png";
 
-/**
- * ✅ MEOWGA NFT GRID BACKGROUND (ONLY HERE)
- */
-const MEOWGA_BG_IMAGE = "/my-meowga-bg.png";
-
-export default function MeowgaNftGridPage() {
+export default function MeowgaNftsPage() {
   const { publicKey, connected } = useWallet();
   const router = useRouter();
 
-  const [nfts, setNfts] = useState<NFT[]>([]);
+  const [meowgas, setMeowgas] = useState<NFT[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const owner = publicKey?.toBase58();
     if (!owner) {
-      setNfts([]);
+      setMeowgas([]);
       setError(null);
       setLoading(false);
       return;
@@ -36,7 +31,7 @@ export default function MeowgaNftGridPage() {
 
     let cancelled = false;
 
-    async function loadMeowga() {
+    async function loadMeowgas() {
       setLoading(true);
       setError(null);
 
@@ -68,18 +63,19 @@ export default function MeowgaNftGridPage() {
           ? data.nfts
           : [];
 
-        if (!cancelled) setNfts(list);
+        if (!cancelled) setMeowgas(list);
       } catch (e: any) {
         if (!cancelled) {
           setError(e?.message || "Failed to load MEOWGA NFTs");
-          setNfts([]);
+          setMeowgas([]);
         }
       } finally {
         if (!cancelled) setLoading(false);
       }
     }
 
-    loadMeowga();
+    loadMeowgas();
+
     return () => {
       cancelled = true;
     };
@@ -91,8 +87,6 @@ export default function MeowgaNftGridPage() {
         minHeight: "100vh",
         padding: "18px 0 80px",
         paddingTop: 64,
-
-        /* ✅ MEOWGA NFT GRID BACKGROUND */
         backgroundImage: `url(${MEOWGA_BG_IMAGE})`,
         backgroundRepeat: "no-repeat",
         backgroundPosition: "center center",
@@ -109,6 +103,7 @@ export default function MeowgaNftGridPage() {
               alignItems: "center",
               justifyContent: "center",
               textAlign: "center",
+              padding: "40px 0",
             }}
           >
             <div
@@ -116,49 +111,71 @@ export default function MeowgaNftGridPage() {
                 maxWidth: 520,
                 padding: "22px 18px",
                 borderRadius: 18,
-                background: "rgba(10,10,14,0.55)",
+                background: "rgba(10, 10, 14, 0.55)",
                 border: "1px solid rgba(255,255,255,0.14)",
                 backdropFilter: "blur(10px)",
                 boxShadow: "0 18px 40px rgba(0,0,0,0.45)",
               }}
             >
-              <h1 style={{ margin: "0 0 10px", fontSize: 28 }}>
+              <h1
+                style={{
+                  margin: "0 0 10px",
+                  fontSize: 28,
+                  letterSpacing: "0.04em",
+                }}
+              >
                 MEOWGA
               </h1>
 
-              <p style={{ margin: "0 0 14px", opacity: 0.9 }}>
-                Connect your wallet to view your MEOWGA NFTs.
+              <p style={{ margin: "0 0 14px", opacity: 0.9, lineHeight: 1.6 }}>
+                Connect your wallet to view your MEOWGAs, then tap one to open it
+                in the locker and export wallpapers.
               </p>
 
-              <WalletMultiButton />
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <WalletMultiButton />
+              </div>
+
+              <p style={{ margin: "12px 0 0", opacity: 0.65, fontSize: 12 }}>
+                Your wallet is only used to read your NFTs — nothing can be
+                moved or signed without your approval.
+              </p>
+
+              <p style={{ margin: "12px 0 0", opacity: 0.65, fontSize: 12 }}>
+                ⚠️ If you still see “No MEOWGAs found”, set the correct
+                MEOWGA_COLLECTION id in this file.
+              </p>
             </div>
           </div>
         ) : (
           <>
-            <h1 style={{ margin: "8px 0", fontSize: 28 }}>
+            <h1 style={{ margin: "8px 0", fontSize: 28, letterSpacing: "0.04em" }}>
               MY MEOWGAS
             </h1>
 
             <p style={{ margin: 0, opacity: 0.75 }}>
-              Showing MEOWGA NFTs owned by your wallet.
+              Showing MEOWGA NFTs owned by your connected wallet.
             </p>
 
             <div style={{ height: 16 }} />
 
-            {loading && <p>Loading…</p>}
-            {error && <p style={{ color: "#ffb3b3" }}>{error}</p>}
-            {!loading && !error && nfts.length === 0 && (
-              <p>No MEOWGA NFTs found.</p>
+            {loading && <p style={{ opacity: 0.85 }}>Loading...</p>}
+
+            {error && <p style={{ opacity: 0.9, color: "#ffb3b3" }}>{error}</p>}
+
+            {!loading && !error && meowgas.length === 0 && (
+              <p style={{ opacity: 0.85 }}>No MEOWGA NFTs found.</p>
             )}
 
-            {!loading && !error && nfts.length > 0 && (
+            {!loading && !error && meowgas.length > 0 && (
               <NftGrid
-                nfts={nfts}
+                nfts={meowgas}
                 onPick={(nft) => {
                   const mint = nft.id || "";
                   const uri = nft.uri ? encodeURIComponent(nft.uri) : "";
+                  // ✅ critical: send project=meowga so locker uses MEOWGA backgrounds
                   router.push(
-                    `/locker?mint=${mint}${uri ? `&uri=${uri}` : ""}&project=magapixel`
+                    `/locker?mint=${mint}${uri ? `&uri=${uri}` : ""}&project=meowga`
                   );
                 }}
               />
