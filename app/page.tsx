@@ -42,7 +42,6 @@ const PROJECTS: LockerProject[] = [
     name: "Enchanted Miners",
     status: "live",
     label: "Live",
-    // your new correct route (per our previous chats)
     lockerPath: "/enchanted-miners-nfts",
     glow: "miners",
     preview: "/lockscreened-previews/miners.png",
@@ -55,8 +54,6 @@ const PROJECTS: LockerProject[] = [
     glow: "magapixel",
     preview: "/lockscreened-previews/magapixel.png",
   },
-
-  // 👇 MEOWGA is now LIVE + clickable to its project page
   {
     name: "MEOWGA",
     status: "live",
@@ -72,13 +69,13 @@ const BG = "/lockscreened-main-bg-2.png";
 export default function HomePage() {
   const live = PROJECTS.filter((p) => p.status === "live");
   const coming = PROJECTS.filter((p) => p.status === "coming");
+  const all = [...live, ...coming];
 
   return (
     <main className="home">
       <div className="bg" />
 
       <section className="wrap">
-        {/* Top Nav spacing is handled elsewhere; this page matches the “hero → cards” look */}
         <header className="hero">
           <div className="logoRow">
             <div className="logo">
@@ -103,7 +100,6 @@ export default function HomePage() {
           </div>
         </header>
 
-        {/* Partner Lockers */}
         <section id="partner-lockers" className="section">
           <h2 className="sectionTitle">PARTNER LOCKERS</h2>
           <p className="sectionSub">
@@ -111,30 +107,18 @@ export default function HomePage() {
             Tap a phone to open that project’s experience.
           </p>
 
-          <div className="cardsRow">
-            {live.slice(0, 5).map((p) => (
+          {/* ✅ Single grid (matches the old screenshot behavior) */}
+          <div className="cardsGrid">
+            {all.map((p) => (
               <ProjectCard key={p.name} p={p} />
             ))}
           </div>
-
-          {/* Second row for anything extra (like MEOWGA) */}
-          {live.length > 5 && (
-            <div className="cardsRowComing">
-              {live.slice(5).map((p) => (
-                <ProjectCard key={p.name} p={p} />
-              ))}
-              {coming.map((p) => (
-                <ProjectCard key={p.name} p={p} />
-              ))}
-            </div>
-          )}
         </section>
 
-        {/* FAQ */}
         <section id="how-it-works" className="faq">
           <LockscreenedFAQ />
         </section>
-      </div>
+      </section>
 
       <style jsx>{`
         .home {
@@ -156,9 +140,9 @@ export default function HomePage() {
         .wrap {
           position: relative;
           z-index: 1;
-          max-width: 1100px;
+          max-width: 1180px;
           margin: 0 auto;
-          padding: 90px 18px 80px;
+          padding: 86px 18px 80px;
         }
 
         .hero {
@@ -179,10 +163,12 @@ export default function HomePage() {
           line-height: 1;
           text-transform: uppercase;
         }
+
         .lock {
           color: #111214;
           margin-right: 2px;
         }
+
         .screened {
           color: #43c56a;
         }
@@ -246,28 +232,20 @@ export default function HomePage() {
 
         .sectionSub {
           margin: 0 auto 16px;
-          max-width: 720px;
+          max-width: 760px;
           font-size: 12px;
           line-height: 1.5;
           color: rgba(20, 24, 32, 0.62);
         }
 
-        .cardsRow {
+        /* ✅ This matches the screenshot layout: 5-wide row, then wrap */
+        .cardsGrid {
           display: grid;
           grid-template-columns: repeat(5, minmax(0, 1fr));
-          gap: 18px;
+          gap: 22px;
           align-items: start;
           justify-items: center;
-          margin: 12px auto 8px;
-        }
-
-        .cardsRowComing {
-          display: grid;
-          grid-template-columns: repeat(5, minmax(0, 1fr));
-          gap: 18px;
-          align-items: start;
-          justify-items: center;
-          margin: 12px auto 0;
+          margin: 14px auto 0;
         }
 
         .faq {
@@ -275,8 +253,7 @@ export default function HomePage() {
         }
 
         @media (max-width: 1100px) {
-          .cardsRow,
-          .cardsRowComing {
+          .cardsGrid {
             grid-template-columns: repeat(3, minmax(0, 1fr));
           }
         }
@@ -285,9 +262,9 @@ export default function HomePage() {
           .logo {
             font-size: 46px;
           }
-          .cardsRow,
-          .cardsRowComing {
+          .cardsGrid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
           }
         }
       `}</style>
@@ -296,7 +273,7 @@ export default function HomePage() {
 }
 
 function ProjectCard({ p }: { p: LockerProject }) {
-  const CardInner = (
+  const inner = (
     <div className="card">
       <div className="pill">{p.label.toUpperCase()}</div>
 
@@ -313,17 +290,17 @@ function ProjectCard({ p }: { p: LockerProject }) {
 
       <style jsx>{`
         .card {
-          width: 170px;
-          border-radius: 20px;
-          background: rgba(55, 58, 70, 0.55);
-          box-shadow: 0 18px 36px rgba(0, 0, 0, 0.18);
-          padding: 10px 10px 12px;
+          width: 186px;
+          border-radius: 22px;
+          background: rgba(55, 58, 70, 0.56);
+          box-shadow: 0 26px 44px rgba(0, 0, 0, 0.22);
+          padding: 12px 12px 14px;
           position: relative;
           display: grid;
           justify-items: center;
-          gap: 8px;
-          text-decoration: none;
+          gap: 9px;
           user-select: none;
+          transition: transform 120ms ease, box-shadow 120ms ease;
         }
 
         .pill {
@@ -333,7 +310,7 @@ function ProjectCard({ p }: { p: LockerProject }) {
           font-size: 10px;
           font-weight: 900;
           color: rgba(0, 0, 0, 0.85);
-          background: rgba(255, 255, 255, 0.75);
+          background: rgba(255, 255, 255, 0.78);
           padding: 3px 8px;
           border-radius: 999px;
           letter-spacing: 0.06em;
@@ -347,7 +324,7 @@ function ProjectCard({ p }: { p: LockerProject }) {
           display: grid;
           place-items: center;
           overflow: hidden;
-          margin-top: 8px;
+          margin-top: 10px;
         }
 
         .img {
@@ -371,12 +348,19 @@ function ProjectCard({ p }: { p: LockerProject }) {
         .sub {
           font-size: 10px;
           color: rgba(255, 255, 255, 0.7);
-          margin-top: -6px;
+          margin-top: -7px;
+        }
+
+        @media (hover: hover) {
+          .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 30px 54px rgba(0, 0, 0, 0.26);
+          }
         }
 
         @media (max-width: 720px) {
           .card {
-            width: 160px;
+            width: 170px;
           }
         }
       `}</style>
@@ -386,10 +370,10 @@ function ProjectCard({ p }: { p: LockerProject }) {
   if (p.status === "live" && p.lockerPath && p.lockerPath !== "#") {
     return (
       <Link href={p.lockerPath} style={{ textDecoration: "none" }}>
-        {CardInner}
+        {inner}
       </Link>
     );
   }
 
-  return <div style={{ opacity: 0.9 }}>{CardInner}</div>;
+  return <div style={{ opacity: 0.9 }}>{inner}</div>;
 }
