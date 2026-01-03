@@ -1,3 +1,4 @@
+// app/page.tsx
 "use client";
 
 import Link from "next/link";
@@ -13,7 +14,6 @@ type LockerProject = {
 };
 
 const PROJECTS: LockerProject[] = [
-  // ✅ ORDER MATCHES YOUR SCREENSHOT
   {
     name: "RetroGrave Locker",
     status: "live",
@@ -42,9 +42,10 @@ const PROJECTS: LockerProject[] = [
     name: "Enchanted Miners",
     status: "live",
     label: "Live",
-    lockerPath: "/enchanted-miners",
-    glow: "enchanted",
-    preview: "/lockscreened-previews/enchanted.png",
+    // your new correct route (per our previous chats)
+    lockerPath: "/enchanted-miners-nfts",
+    glow: "miners",
+    preview: "/lockscreened-previews/miners.png",
   },
   {
     name: "MAGApixel Locker",
@@ -55,355 +56,231 @@ const PROJECTS: LockerProject[] = [
     preview: "/lockscreened-previews/magapixel.png",
   },
 
-  // ✅ COMING SOON ROW
+  // 👇 MEOWGA is now LIVE + clickable to its project page
   {
     name: "MEOWGA",
-    status: "coming",
-    label: "Coming soon",
-    lockerPath: "#",
+    status: "live",
+    label: "Live",
+    lockerPath: "/meowga",
     glow: "meowga",
     preview: "/lockscreened-previews/meowga.png",
   },
 ];
 
+const BG = "/lockscreened-main-bg-2.png";
+
 export default function HomePage() {
-  const liveProjects = PROJECTS.filter((p) => p.status === "live");
-  const comingProjects = PROJECTS.filter((p) => p.status === "coming");
+  const live = PROJECTS.filter((p) => p.status === "live");
+  const coming = PROJECTS.filter((p) => p.status === "coming");
 
   return (
     <main className="home">
-      {/* HERO */}
-      <section className="hero">
-        <div className="heroInner">
-          <h1 className="logo">
-            <span className="logoLock">LOCK</span>
-            <span className="logoScreened">SCREENED</span>
-          </h1>
+      <div className="bg" />
 
-          <p className="heroCopy">
+      <section className="wrap">
+        {/* Top Nav spacing is handled elsewhere; this page matches the “hero → cards” look */}
+        <header className="hero">
+          <div className="logoRow">
+            <div className="logo">
+              <span className="lock">LOCK</span>
+              <span className="screened">SCREENED</span>
+            </div>
+          </div>
+
+          <p className="tagline">
             Lock screens and wallpapers for Web3-native collectors.
             <br />
             A simple hub for partner projects, holders, and phones-first art.
           </p>
 
-          <div className="heroBtns">
-            <a href="#partner-lockers" className="btnPrimary">
+          <div className="ctaRow">
+            <a href="#partner-lockers" className="ctaPrimary">
               VIEW PARTNER LOCKERS
             </a>
-            <a href="#how-it-works" className="btnSecondary">
+            <a href="#how-it-works" className="ctaGhost">
               LEARN HOW IT WORKS
             </a>
           </div>
-        </div>
-      </section>
+        </header>
 
-      {/* PARTNER LOCKERS */}
-      <section id="partner-lockers" className="partner">
-        <div className="partnerInner">
+        {/* Partner Lockers */}
+        <section id="partner-lockers" className="section">
           <h2 className="sectionTitle">PARTNER LOCKERS</h2>
-          <p className="sectionCopy">
-            Each project below has (or will have) its own dedicated locker on
-            LockScreened. Tap a phone to open that project’s experience.
+          <p className="sectionSub">
+            Each project below has (or will have) its own dedicated locker on LockScreened.
+            Tap a phone to open that project’s experience.
           </p>
 
-          {/* LIVE ROW (5 across on desktop) */}
           <div className="cardsRow">
-            {liveProjects.map((p) => (
-              <Link key={p.name} href={p.lockerPath} className="cardLink">
-                <div className={`card card--${p.glow}`}>
-                  <div className="badge badgeLive">LIVE</div>
-
-                  <div className="phone">
-                    <div className="phoneGlass" />
-                    <div
-                      className="phoneImg"
-                      style={{
-                        backgroundImage: p.preview ? `url(${p.preview})` : "none",
-                      }}
-                    />
-                  </div>
-
-                  <div className="cardTitle">{p.name}</div>
-                  <div className="cardSub">{p.label}</div>
-                </div>
-              </Link>
+            {live.slice(0, 5).map((p) => (
+              <ProjectCard key={p.name} p={p} />
             ))}
           </div>
 
-          {/* COMING SOON ROW */}
-          {comingProjects.length > 0 && (
-            <div className="cardsRow cardsRowComing">
-              {comingProjects.map((p) => (
-                <div key={p.name} className={`card card--${p.glow} cardDisabled`}>
-                  <div className="badge badgeComing">COMING SOON</div>
-
-                  <div className="phone">
-                    <div className="phoneGlass" />
-                    <div
-                      className="phoneImg"
-                      style={{
-                        backgroundImage: p.preview ? `url(${p.preview})` : "none",
-                        filter: "grayscale(1)",
-                        opacity: 0.65,
-                      }}
-                    />
-                  </div>
-
-                  <div className="cardTitle">{p.name}</div>
-                  <div className="cardSub">{p.label}</div>
-                </div>
+          {/* Second row for anything extra (like MEOWGA) */}
+          {live.length > 5 && (
+            <div className="cardsRowComing">
+              {live.slice(5).map((p) => (
+                <ProjectCard key={p.name} p={p} />
+              ))}
+              {coming.map((p) => (
+                <ProjectCard key={p.name} p={p} />
               ))}
             </div>
           )}
-        </div>
-      </section>
+        </section>
 
-      {/* HOW IT WORKS / FAQ */}
-      <section id="how-it-works" className="how">
-        <div className="howInner">
+        {/* FAQ */}
+        <section id="how-it-works" className="faq">
           <LockscreenedFAQ />
-        </div>
-      </section>
+        </section>
+      </div>
 
       <style jsx>{`
         .home {
+          position: relative;
           min-height: 100vh;
-          background: #cfd7e6;
-          color: #0b0b12;
+          overflow-x: hidden;
         }
 
-        /* HERO */
-        .hero {
-          padding: 78px 18px 30px;
-          text-align: center;
+        .bg {
+          position: absolute;
+          inset: 0;
+          background-image: url(${BG});
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+          filter: saturate(1.03);
         }
-        .heroInner {
-          max-width: 980px;
+
+        .wrap {
+          position: relative;
+          z-index: 1;
+          max-width: 1100px;
           margin: 0 auto;
+          padding: 90px 18px 80px;
         }
+
+        .hero {
+          text-align: center;
+          padding: 18px 0 22px;
+        }
+
+        .logoRow {
+          display: grid;
+          place-items: center;
+          margin-bottom: 8px;
+        }
+
         .logo {
-          margin: 0;
-          font-size: 70px;
-          letter-spacing: -1px;
-          line-height: 1;
           font-weight: 900;
+          letter-spacing: -1px;
+          font-size: 64px;
+          line-height: 1;
+          text-transform: uppercase;
         }
-        .logoLock {
-          color: #0b0b12;
+        .lock {
+          color: #111214;
+          margin-right: 2px;
         }
-        .logoScreened {
-          color: #45c36b;
-          margin-left: 6px;
+        .screened {
+          color: #43c56a;
         }
-        .heroCopy {
-          margin: 14px 0 16px;
+
+        .tagline {
+          margin: 10px auto 14px;
+          max-width: 720px;
+          color: rgba(20, 24, 32, 0.75);
           font-size: 14px;
-          opacity: 0.82;
+          line-height: 1.5;
         }
-        .heroBtns {
+
+        .ctaRow {
           display: flex;
-          gap: 10px;
           justify-content: center;
+          gap: 10px;
           flex-wrap: wrap;
+          margin: 8px 0 0;
         }
-        .btnPrimary,
-        .btnSecondary {
+
+        .ctaPrimary,
+        .ctaGhost {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          height: 32px;
+          height: 34px;
           padding: 0 14px;
           border-radius: 999px;
-          font-size: 11px;
-          font-weight: 800;
-          letter-spacing: 0.5px;
+          font-size: 12px;
+          font-weight: 900;
+          letter-spacing: 0.2px;
           text-transform: uppercase;
           text-decoration: none;
-          border: 1px solid rgba(0, 0, 0, 0.12);
-        }
-        .btnPrimary {
-          background: #ff4fd6;
-          color: #110a14;
-          border-color: rgba(0, 0, 0, 0.06);
-        }
-        .btnSecondary {
-          background: rgba(255, 255, 255, 0.75);
-          color: #0b0b12;
         }
 
-        /* PARTNER LOCKERS */
-        .partner {
-          padding: 20px 18px 28px;
+        .ctaPrimary {
+          background: #ff3fb4;
+          color: #151019;
+          box-shadow: 0 10px 22px rgba(0, 0, 0, 0.15);
         }
-        .partnerInner {
-          max-width: 1120px;
-          margin: 0 auto;
+
+        .ctaGhost {
+          background: rgba(255, 255, 255, 0.55);
+          color: #111214;
+          border: 1px solid rgba(0, 0, 0, 0.08);
+          backdrop-filter: blur(4px);
+        }
+
+        .section {
+          margin-top: 26px;
           text-align: center;
         }
+
         .sectionTitle {
-          margin: 0;
           font-size: 12px;
-          letter-spacing: 2px;
+          letter-spacing: 0.22em;
           font-weight: 900;
-          opacity: 0.75;
+          color: rgba(20, 24, 32, 0.8);
+          margin: 12px 0 8px;
         }
-        .sectionCopy {
-          margin: 10px auto 18px;
-          max-width: 860px;
+
+        .sectionSub {
+          margin: 0 auto 16px;
+          max-width: 720px;
           font-size: 12px;
-          opacity: 0.75;
+          line-height: 1.5;
+          color: rgba(20, 24, 32, 0.62);
         }
 
         .cardsRow {
           display: grid;
           grid-template-columns: repeat(5, minmax(0, 1fr));
           gap: 18px;
-          justify-items: center;
           align-items: start;
+          justify-items: center;
+          margin: 12px auto 8px;
         }
+
         .cardsRowComing {
-          margin-top: 18px;
+          display: grid;
           grid-template-columns: repeat(5, minmax(0, 1fr));
+          gap: 18px;
+          align-items: start;
+          justify-items: center;
+          margin: 12px auto 0;
         }
 
-        .cardLink {
-          text-decoration: none;
-          color: inherit;
-          width: 100%;
-          display: flex;
-          justify-content: center;
+        .faq {
+          margin-top: 26px;
         }
 
-        .card {
-          position: relative;
-          width: 170px;
-          max-width: 100%;
-          background: rgba(35, 35, 50, 0.55);
-          border: 1px solid rgba(255, 255, 255, 0.18);
-          border-radius: 18px;
-          padding: 10px 10px 12px;
-          box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
-          backdrop-filter: blur(8px);
-          transition: transform 160ms ease, box-shadow 160ms ease;
-        }
-
-        .card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 22px 52px rgba(0, 0, 0, 0.45);
-        }
-
-        .cardDisabled {
-          cursor: not-allowed;
-        }
-        .cardDisabled:hover {
-          transform: none;
-          box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
-        }
-
-        .badge {
-          position: absolute;
-          top: 8px;
-          left: 8px;
-          font-size: 9px;
-          font-weight: 900;
-          letter-spacing: 1px;
-          padding: 4px 7px;
-          border-radius: 999px;
-          color: #0b0b12;
-        }
-        .badgeLive {
-          background: rgba(255, 255, 255, 0.75);
-        }
-        .badgeComing {
-          background: rgba(255, 255, 255, 0.55);
-        }
-
-        .phone {
-          margin: 16px auto 10px;
-          width: 120px;
-          aspect-ratio: 9 / 19.5;
-          border-radius: 18px;
-          background: rgba(0, 0, 0, 0.35);
-          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
-          overflow: hidden;
-          position: relative;
-        }
-        .phoneGlass {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(
-            140deg,
-            rgba(255, 255, 255, 0.12),
-            rgba(255, 255, 255, 0.02) 55%,
-            rgba(255, 255, 255, 0.0)
-          );
-          pointer-events: none;
-          z-index: 2;
-        }
-        .phoneImg {
-          position: absolute;
-          inset: 0;
-          background-size: cover;
-          background-position: center;
-          image-rendering: pixelated;
-          z-index: 1;
-        }
-
-        .cardTitle {
-          font-size: 10px;
-          font-weight: 900;
-          color: rgba(255, 255, 255, 0.92);
-          margin-top: 2px;
-        }
-        .cardSub {
-          font-size: 9px;
-          opacity: 0.75;
-          color: rgba(255, 255, 255, 0.75);
-          margin-top: 2px;
-        }
-
-        /* Subtle glow variants (optional, but helps match your “soft” cards) */
-        .card--retrograve {
-          box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35),
-            0 0 0 1px rgba(255, 255, 255, 0.16);
-        }
-        .card--gainz {
-          box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35),
-            0 0 0 1px rgba(255, 255, 255, 0.16);
-        }
-        .card--midevils {
-          box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35),
-            0 0 0 1px rgba(255, 255, 255, 0.16);
-        }
-        .card--enchanted {
-          box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35),
-            0 0 0 1px rgba(255, 255, 255, 0.16);
-        }
-        .card--magapixel {
-          box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35),
-            0 0 0 1px rgba(255, 255, 255, 0.16);
-        }
-        .card--meowga {
-          box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35),
-            0 0 0 1px rgba(255, 255, 255, 0.16);
-        }
-
-        /* HOW IT WORKS */
-        .how {
-          padding: 10px 18px 60px;
-        }
-        .howInner {
-          max-width: 1120px;
-          margin: 0 auto;
-        }
-
-        /* RESPONSIVE */
         @media (max-width: 1100px) {
           .cardsRow,
           .cardsRowComing {
             grid-template-columns: repeat(3, minmax(0, 1fr));
           }
         }
+
         @media (max-width: 720px) {
           .logo {
             font-size: 46px;
@@ -412,14 +289,107 @@ export default function HomePage() {
           .cardsRowComing {
             grid-template-columns: repeat(2, minmax(0, 1fr));
           }
-          .card {
-            width: 160px;
-          }
-          .phone {
-            width: 112px;
-          }
         }
       `}</style>
     </main>
   );
+}
+
+function ProjectCard({ p }: { p: LockerProject }) {
+  const CardInner = (
+    <div className="card">
+      <div className="pill">{p.label.toUpperCase()}</div>
+
+      <div className="phone">
+        {p.preview ? (
+          <img src={p.preview} alt={p.name} className="img" draggable={false} />
+        ) : (
+          <div className="img placeholder" />
+        )}
+      </div>
+
+      <div className="name">{p.name}</div>
+      <div className="sub">{p.status === "live" ? "Live" : "Coming soon"}</div>
+
+      <style jsx>{`
+        .card {
+          width: 170px;
+          border-radius: 20px;
+          background: rgba(55, 58, 70, 0.55);
+          box-shadow: 0 18px 36px rgba(0, 0, 0, 0.18);
+          padding: 10px 10px 12px;
+          position: relative;
+          display: grid;
+          justify-items: center;
+          gap: 8px;
+          text-decoration: none;
+          user-select: none;
+        }
+
+        .pill {
+          position: absolute;
+          top: 10px;
+          left: 10px;
+          font-size: 10px;
+          font-weight: 900;
+          color: rgba(0, 0, 0, 0.85);
+          background: rgba(255, 255, 255, 0.75);
+          padding: 3px 8px;
+          border-radius: 999px;
+          letter-spacing: 0.06em;
+        }
+
+        .phone {
+          width: 100%;
+          aspect-ratio: 9 / 19.5;
+          border-radius: 18px;
+          background: rgba(30, 30, 34, 0.25);
+          display: grid;
+          place-items: center;
+          overflow: hidden;
+          margin-top: 8px;
+        }
+
+        .img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+
+        .placeholder {
+          width: 100%;
+          height: 100%;
+        }
+
+        .name {
+          font-size: 11px;
+          font-weight: 900;
+          color: rgba(255, 255, 255, 0.92);
+        }
+
+        .sub {
+          font-size: 10px;
+          color: rgba(255, 255, 255, 0.7);
+          margin-top: -6px;
+        }
+
+        @media (max-width: 720px) {
+          .card {
+            width: 160px;
+          }
+        }
+      `}</style>
+    </div>
+  );
+
+  if (p.status === "live" && p.lockerPath && p.lockerPath !== "#") {
+    return (
+      <Link href={p.lockerPath} style={{ textDecoration: "none" }}>
+        {CardInner}
+      </Link>
+    );
+  }
+
+  return <div style={{ opacity: 0.9 }}>{CardInner}</div>;
 }

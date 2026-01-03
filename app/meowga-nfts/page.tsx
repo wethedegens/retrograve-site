@@ -6,9 +6,18 @@ import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useRouter } from "next/navigation";
 import NftGrid, { NFT } from "../components/NftGrid";
 
-const MEOWGA_COLLECTION = "GryRACtbbwn5aLXjGmimR2KLFNtb3vrcbM5dgDnaJp2g";
+/**
+ * MEOWGA COLLECTION
+ */
+const MEOWGA_COLLECTION =
+  "GryRACtbbwn5aLXjGmimR2KLFNtb3vrcbM5dgDnaJp2g";
 
-export default function MeowgaNftsPage() {
+/**
+ * ✅ MEOWGA NFT GRID BACKGROUND (ONLY HERE)
+ */
+const MEOWGA_BG_IMAGE = "/my-meowga-bg.png";
+
+export default function MeowgaNftGridPage() {
   const { publicKey, connected } = useWallet();
   const router = useRouter();
 
@@ -27,7 +36,7 @@ export default function MeowgaNftsPage() {
 
     let cancelled = false;
 
-    async function load() {
+    async function loadMeowga() {
       setLoading(true);
       setError(null);
 
@@ -70,8 +79,7 @@ export default function MeowgaNftsPage() {
       }
     }
 
-    load();
-
+    loadMeowga();
     return () => {
       cancelled = true;
     };
@@ -79,12 +87,17 @@ export default function MeowgaNftsPage() {
 
   return (
     <main
-      className="meowga-wrapper"
       style={{
         minHeight: "100vh",
         padding: "18px 0 80px",
         paddingTop: 64,
-        backgroundColor: "#0b0b12",
+
+        /* ✅ MEOWGA NFT GRID BACKGROUND */
+        backgroundImage: `url(${MEOWGA_BG_IMAGE})`,
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center center",
+        backgroundSize: "cover",
+        backgroundAttachment: "fixed",
       }}
     >
       <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 18px" }}>
@@ -96,7 +109,6 @@ export default function MeowgaNftsPage() {
               alignItems: "center",
               justifyContent: "center",
               textAlign: "center",
-              padding: "40px 0",
             }}
           >
             <div
@@ -104,62 +116,39 @@ export default function MeowgaNftsPage() {
                 maxWidth: 520,
                 padding: "22px 18px",
                 borderRadius: 18,
-                background: "rgba(10, 10, 14, 0.55)",
+                background: "rgba(10,10,14,0.55)",
                 border: "1px solid rgba(255,255,255,0.14)",
                 backdropFilter: "blur(10px)",
                 boxShadow: "0 18px 40px rgba(0,0,0,0.45)",
               }}
             >
-              <h1
-                style={{
-                  margin: "0 0 10px",
-                  fontSize: 28,
-                  letterSpacing: "0.04em",
-                }}
-              >
+              <h1 style={{ margin: "0 0 10px", fontSize: 28 }}>
                 MEOWGA
               </h1>
 
-              <p style={{ margin: "0 0 14px", opacity: 0.9, lineHeight: 1.6 }}>
-                Connect your wallet to view your MEOWGA NFTs, then tap one to
-                open it in the locker and export wallpapers.
+              <p style={{ margin: "0 0 14px", opacity: 0.9 }}>
+                Connect your wallet to view your MEOWGA NFTs.
               </p>
 
-              <div style={{ display: "flex", justifyContent: "center" }}>
-                <WalletMultiButton />
-              </div>
-
-              <p style={{ margin: "12px 0 0", opacity: 0.65, fontSize: 12 }}>
-                Your wallet is only used to read your NFTs — nothing can be
-                moved or signed without your approval.
-              </p>
+              <WalletMultiButton />
             </div>
           </div>
         ) : (
           <>
-            <h1
-              style={{
-                margin: "8px 0",
-                fontSize: 28,
-                letterSpacing: "0.04em",
-                color: "rgba(255,255,255,0.92)",
-              }}
-            >
+            <h1 style={{ margin: "8px 0", fontSize: 28 }}>
               MY MEOWGAS
             </h1>
 
-            <p style={{ margin: 0, opacity: 0.75, color: "rgba(255,255,255,0.8)" }}>
-              Showing MEOWGA NFTs owned by your connected wallet.
+            <p style={{ margin: 0, opacity: 0.75 }}>
+              Showing MEOWGA NFTs owned by your wallet.
             </p>
 
             <div style={{ height: 16 }} />
 
-            {loading && <p style={{ opacity: 0.85, color: "#fff" }}>Loading...</p>}
-
-            {error && <p style={{ opacity: 0.9, color: "#ffb3b3" }}>{error}</p>}
-
+            {loading && <p>Loading…</p>}
+            {error && <p style={{ color: "#ffb3b3" }}>{error}</p>}
             {!loading && !error && nfts.length === 0 && (
-              <p style={{ opacity: 0.85, color: "#fff" }}>No MEOWGA NFTs found.</p>
+              <p>No MEOWGA NFTs found.</p>
             )}
 
             {!loading && !error && nfts.length > 0 && (
@@ -169,7 +158,7 @@ export default function MeowgaNftsPage() {
                   const mint = nft.id || "";
                   const uri = nft.uri ? encodeURIComponent(nft.uri) : "";
                   router.push(
-                    `/locker?mint=${mint}${uri ? `&uri=${uri}` : ""}&project=meowga`
+                    `/locker?mint=${mint}${uri ? `&uri=${uri}` : ""}&project=magapixel`
                   );
                 }}
               />

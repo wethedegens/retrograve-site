@@ -3,12 +3,10 @@
 import PhoneShowcase from "../components/PhoneShowcase";
 
 export default function MeowgaLandingPage() {
-  // ⚠️ Make sure these filenames match your /public/demo folder EXACTLY (case-sensitive on Vercel)
   const previewImages = [
     "/demo/meowga-1.png",
     "/demo/meowga-2.png",
     "/demo/meowga-3.png",
-    "/demo/meowga-4.png",
   ];
 
   return (
@@ -23,7 +21,7 @@ export default function MeowgaLandingPage() {
             <span className="lp-copy-strong">Phone-native wallpapers</span> for
             MEOWGA NFTs.
             <br />
-            Connect your wallet, pick a MEOWGA, swap backgrounds, and export for
+            Connect your wallet, select your MEOWGA, and export lock screens for
             any device.
           </p>
         </div>
@@ -48,14 +46,13 @@ export default function MeowgaLandingPage() {
           min-height: 100vh;
           padding: 18px 18px 80px;
           padding-top: 64px; /* fixed nav */
-          background: #0b0b12;
-          /* Optional: if you add a MEOWGA bg later, swap this in:
-             background-image: url("/meowga-project-bg.png");
-             background-repeat: no-repeat;
-             background-position: center center;
-             background-size: cover;
-             background-attachment: fixed;
-          */
+
+          /* ✅ MEOWGA BACKGROUND IMAGE */
+          background-image: url("/meowga-bg.png");
+          background-repeat: no-repeat;
+          background-position: center center;
+          background-size: cover;
+          background-attachment: fixed;
         }
 
         .lp-inner {
@@ -72,33 +69,30 @@ export default function MeowgaLandingPage() {
 
         .lp-left {
           max-width: 640px;
-
           position: relative;
-          top: -100px;
-
+          top: -90px;
           margin-left: clamp(0px, 3vw, 28px);
         }
 
         .lp-title {
           margin: 0;
           font-size: 46px;
-          letter-spacing: 0.06em;
+          letter-spacing: 0.08em;
           text-transform: uppercase;
           font-weight: 900;
           line-height: 1.05;
-          color: rgba(255, 255, 255, 0.92);
-          text-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+          color: rgba(255, 255, 255, 0.95);
+          text-shadow: 0 10px 36px rgba(0, 0, 0, 0.6);
         }
 
         .lp-subtitle {
           margin: 8px 0 0;
           font-size: 34px;
-          letter-spacing: 0.12em;
+          letter-spacing: 0.14em;
           text-transform: uppercase;
           font-weight: 900;
-          line-height: 1.05;
-          color: rgba(255, 255, 255, 0.92);
-          text-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+          color: rgba(255, 255, 255, 0.9);
+          text-shadow: 0 10px 36px rgba(0, 0, 0, 0.6);
         }
 
         .lp-copy {
@@ -106,13 +100,13 @@ export default function MeowgaLandingPage() {
           font-size: 13px;
           line-height: 1.6;
           max-width: 520px;
-          color: rgba(255, 255, 255, 0.72);
+          color: rgba(255, 255, 255, 0.85);
         }
 
         .lp-copy-strong {
           font-weight: 900;
           font-size: 14px;
-          color: rgba(255, 255, 255, 0.9);
+          color: rgba(255, 255, 255, 0.95);
         }
 
         .lp-right {
@@ -123,14 +117,13 @@ export default function MeowgaLandingPage() {
         .phone-shell {
           transform: translateY(22px) scale(0.7);
           transform-origin: top center;
-          filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.35));
+          filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.45));
         }
 
         @media (max-width: 980px) {
           .lp-inner {
             grid-template-columns: 1fr;
             text-align: center;
-            min-height: auto;
           }
 
           .lp-left {
@@ -150,10 +143,6 @@ export default function MeowgaLandingPage() {
 
           .lp-subtitle {
             font-size: 24px;
-          }
-
-          .phone-shell {
-            transform: translateY(6px) scale(0.78);
           }
         }
       `}</style>
