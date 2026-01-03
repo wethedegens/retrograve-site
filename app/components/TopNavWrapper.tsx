@@ -1,11 +1,16 @@
-// app/components/TopNavWrapper.tsx
 "use client";
 
 import { useMemo } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import TopNav from "./TopNav";
 
-export type TopNavProject = "retrograve" | "magapixel" | "miners" | "gainz" | "midevils";
+export type TopNavProject =
+  | "retrograve"
+  | "magapixel"
+  | "miners"
+  | "gainz"
+  | "midevils"
+  | "meowga";
 
 function inferProjectFromRoute(
   pathname: string,
@@ -23,7 +28,7 @@ function inferProjectFromRoute(
 
   // Magapixel routes
   if (p.startsWith("/magapixel-nfts")) return "magapixel";
-  if (p.startsWith("/retrogs")) return "magapixel"; // if you still use this
+  if (p.startsWith("/retrogs")) return "magapixel"; // legacy
 
   // Retrograve routes
   if (p.startsWith("/retrograve")) return "retrograve";
@@ -32,12 +37,16 @@ function inferProjectFromRoute(
   if (p.startsWith("/enchanted-miners")) return "miners";
   if (p.startsWith("/enchanted-miners-nfts")) return "miners";
 
-  // ✅ MidEvils routes (NEW)
+  // MidEvils routes
   if (p.startsWith("/midevils")) return "midevils";
   if (p.startsWith("/midevils-nfts")) return "midevils";
 
   // Gainz routes
   if (p.startsWith("/gainz")) return "gainz";
+
+  // ✅ MEOWGA routes (NEW)
+  if (p.startsWith("/meowga")) return "meowga";
+  if (p.startsWith("/meowga-nfts")) return "meowga";
 
   // Generic locker route: uses ?project=
   if (p.startsWith("/locker")) {
@@ -47,6 +56,7 @@ function inferProjectFromRoute(
     if (qp === "retrograve") return "retrograve";
     if (qp === "gainz") return "gainz";
     if (qp === "midevils") return "midevils";
+    if (qp === "meowga") return "meowga";
     return "magapixel";
   }
 

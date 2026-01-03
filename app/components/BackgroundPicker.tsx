@@ -1,4 +1,3 @@
-// app/components/BackgroundPicker.tsx
 "use client";
 
 import type { ChangeEvent } from "react";
@@ -14,6 +13,7 @@ type Props = {
    *  - "miners"
    *  - "gainz"
    *  - "midevils"
+   *  - "meowga"
    *  - future projects...
    */
   project?: string;
@@ -53,7 +53,7 @@ const MINER_IMAGE_BACKGROUNDS: string[] = [
 ];
 
 /**
- * ✅ GAINZ: static phone-sized PNGs
+ * GAINZ: static phone-sized PNGs
  * Folder: /public/gainz/phone/bg-1.png ... bg-15.png
  */
 const GAINZ_IMAGE_BACKGROUNDS: string[] = [
@@ -75,12 +75,8 @@ const GAINZ_IMAGE_BACKGROUNDS: string[] = [
 ];
 
 /**
- * ✅ MIDEVILS: static phone-sized PNGs
+ * MIDEVILS: static phone-sized PNGs
  * Folder: /public/midevils/phone/bg-1.png ... bg-12.png (or more)
- *
- * IMPORTANT:
- * - This only affects project="midevils"
- * - It does NOT change Magapixel/Miners/Gainz behavior
  */
 const MIDEVILS_IMAGE_BACKGROUNDS: string[] = [
   "/midevils/phone/bg-1.png",
@@ -95,6 +91,30 @@ const MIDEVILS_IMAGE_BACKGROUNDS: string[] = [
   "/midevils/phone/bg-10.png",
   "/midevils/phone/bg-11.png",
   "/midevils/phone/bg-12.png",
+];
+
+/**
+ * ✅ MEOWGA: static phone-sized PNGs
+ * Folder: /public/meowga/phone/*.png
+ *
+ * These are your exact filenames from the screenshot.
+ */
+const MEOWGA_IMAGE_BACKGROUNDS: string[] = [
+  "/meowga/phone/bedroom-plotting.png",
+  "/meowga/phone/brownies.png",
+  "/meowga/phone/cabinet-speaker.png",
+  "/meowga/phone/dimz.png",
+  "/meowga/phone/golden-museum.png",
+  "/meowga/phone/greenz.png",
+  "/meowga/phone/halofang.png",
+  "/meowga/phone/heavenly-realm.png",
+  "/meowga/phone/limey.png",
+  "/meowga/phone/meowpheus.png",
+  "/meowga/phone/normie.png",
+  "/meowga/phone/patriots-lounge.png",
+  "/meowga/phone/smuthe-blue.png",
+  "/meowga/phone/touching-grass.png",
+  "/meowga/phone/vengeance.png",
 ];
 
 /**
@@ -122,7 +142,7 @@ const MAGAPIXEL_BACKGROUND_SLUGS: string[] = [
 ];
 
 /**
- * ✅ Future-proof mapping:
+ * Future-proof mapping:
  * Any project you add later can be routed here without touching the rest of the file.
  */
 const STATIC_PROJECT_STRIPS: Record<
@@ -143,6 +163,11 @@ const STATIC_PROJECT_STRIPS: Record<
     label: "MIDEVILS WALLPAPERS",
     images: MIDEVILS_IMAGE_BACKGROUNDS,
     filenamePrefix: "midevils-wallpaper",
+  },
+  meowga: {
+    label: "MEOWGA WALLPAPERS",
+    images: MEOWGA_IMAGE_BACKGROUNDS,
+    filenamePrefix: "meowga-wallpaper",
   },
 };
 
@@ -173,7 +198,7 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
     } as any as BgChoice);
   };
 
-  /** Static-strip projects (miners/gainz/midevils): click one of the phone PNGs */
+  /** Static-strip projects: click one of the phone PNGs */
   const handleStaticProjectImageClick = (
     src: string,
     index: number,
@@ -217,8 +242,8 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
 
   return (
     <section>
-      {/* ✅ STATIC PROJECT STRIP (miners/gainz/midevils/anything you add to STATIC_PROJECT_STRIPS) */}
-      {isStaticProject && (
+      {/* STATIC PROJECT STRIP */}
+      {isStaticProject && staticStrip ? (
         <div style={{ marginBottom: 8 }}>
           <div
             style={{
@@ -256,9 +281,7 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
                   }
                   style={{
                     borderRadius: 10,
-                    border: active
-                      ? "2px solid #ffffff"
-                      : "2px solid transparent",
+                    border: active ? "2px solid #ffffff" : "2px solid transparent",
                     padding: 0,
                     backgroundColor: "transparent",
                     cursor: "pointer",
@@ -281,7 +304,7 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
             })}
           </div>
         </div>
-      )}
+      ) : null}
 
       {/* MAGAPIXEL STRIP (default when not a static project) */}
       {isMagapixel && (
@@ -319,9 +342,7 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
                   onClick={() => handleMagapixelClick(slug, idx)}
                   style={{
                     borderRadius: 10,
-                    border: active
-                      ? "2px solid #ffffff"
-                      : "2px solid transparent",
+                    border: active ? "2px solid #ffffff" : "2px solid transparent",
                     padding: 0,
                     backgroundColor: "transparent",
                     cursor: "pointer",

@@ -1,4 +1,3 @@
-// app/components/TopNav.tsx
 "use client";
 
 import Link from "next/link";
@@ -46,7 +45,6 @@ const LINKS: Record<TopNavProject, ProjectLinks> = {
 
   gainz: {
     homeHref: "/",
-    // ✅ FIX: Gainz tab should go to the Gainz NFT grid page
     myHref: "/gainz-nft",
     myLabel: "GAINZ",
     collectHref: "https://magiceden.us/marketplace/gainz_",
@@ -54,7 +52,6 @@ const LINKS: Record<TopNavProject, ProjectLinks> = {
     xHref: "https://x.com/GotmLabz",
   },
 
-  // ✅ NEW: MidEvils
   midevils: {
     homeHref: "/",
     myHref: "/midevils-nfts",
@@ -62,6 +59,16 @@ const LINKS: Record<TopNavProject, ProjectLinks> = {
     collectHref: "https://magiceden.us/marketplace/midevils",
     communityHref: "https://discord.gg/StDJJYTYRSd",
     xHref: "https://x.com/MidEvilsNFT",
+  },
+
+  // ✅ NEW: MEOWGA
+  meowga: {
+    homeHref: "/",
+    myHref: "/meowga-nfts",
+    myLabel: "MY MEOWGAS",
+    collectHref: "https://magiceden.us/marketplace/meowga",
+    communityHref: "https://discord.gg/ZVGtHUpHfb",
+    xHref: "https://x.com/MAGApixel_NFT",
   },
 };
 

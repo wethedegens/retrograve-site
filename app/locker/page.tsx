@@ -1,4 +1,3 @@
-// app/locker/page.tsx
 "use client";
 
 import { useEffect, useMemo, useRef, useState, Suspense } from "react";
@@ -33,7 +32,7 @@ function LockerInner() {
   const uri = sp.get("uri") || "";
   const devMode = sp.get("devbg") === "1";
 
-  // "magapixel" (default), "miners", "gainz", "midevils"
+  // "magapixel" (default), "miners", "gainz", "midevils", "meowga"
   const project = (sp.get("project") || "magapixel").toLowerCase();
 
   const imageParam = sp.get("image") || "";
@@ -64,6 +63,8 @@ function LockerInner() {
       ? "/gainz-nft"
       : project === "midevils"
       ? "/midevils-nfts"
+      : project === "meowga"
+      ? "/meowga-nfts"
       : "/magapixel-nfts";
 
   useEffect(() => {
@@ -148,6 +149,7 @@ function LockerInner() {
   const isMagapixel = project === "magapixel";
   const isGainz = project === "gainz";
   const isMidevils = project === "midevils";
+  const isMeowga = project === "meowga";
 
   return (
     <main
@@ -187,11 +189,21 @@ function LockerInner() {
             }
           : {}),
 
-        // ✅ NEW: MIDEVILS locker background (from your /public screenshot)
         ...(isMidevils
           ? {
               backgroundColor: "#05020A",
               backgroundImage: 'url("/midevils-project-page-bg.jpg")',
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center center",
+              backgroundSize: "cover",
+              backgroundAttachment: "fixed",
+            }
+          : {}),
+
+        // ✅ MEOWGA locker (kept simple + safe)
+        ...(isMeowga
+          ? {
+              backgroundColor: "#0b0b12",
               backgroundRepeat: "no-repeat",
               backgroundPosition: "center center",
               backgroundSize: "cover",
