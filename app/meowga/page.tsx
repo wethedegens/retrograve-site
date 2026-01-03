@@ -43,8 +43,10 @@ export default function MeowgaLandingPage() {
               intervalMs={3000}
               title=""
               showHint={false}
-              fit="cover"
-              bg={{ kind: "color", value: "#1b1b1f" }}
+              // ✅ contain = no cropping
+              fit="contain"
+              // subtle dark fill behind images when they letterbox
+              bg={{ kind: "color", value: "#0f0f12" }}
             />
           </div>
         </div>
