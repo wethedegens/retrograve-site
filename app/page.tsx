@@ -1,4 +1,3 @@
-// app/page.tsx
 "use client";
 
 import Link from "next/link";
@@ -14,9 +13,6 @@ type LockerProject = {
 };
 
 const PROJECTS: LockerProject[] = [
-  // ✅ Desired order:
-  // RetroGrave, Gainz, MidEvils, Enchanted, then the other projects
-
   {
     name: "RetroGrave Locker",
     status: "live",
@@ -25,14 +21,16 @@ const PROJECTS: LockerProject[] = [
     glow: "retrograve",
     preview: "/lockscreened-previews/retrograve.png",
   },
+
   {
-    name: "Gainz",
+    name: "GAINZ",
     status: "live",
     label: "Live",
     lockerPath: "/gainz",
     glow: "gainz",
     preview: "/lockscreened-previews/gainz.png",
   },
+
   {
     name: "MidEvils",
     status: "live",
@@ -41,29 +39,22 @@ const PROJECTS: LockerProject[] = [
     glow: "midevils",
     preview: "/lockscreened-previews/midevils.png",
   },
+
   {
     name: "Enchanted Miners",
     status: "live",
     label: "Live",
     lockerPath: "/enchanted-miners",
     glow: "miners",
-    preview: "/lockscreened-previews/miners.png",
+    preview: "/lockscreened-previews/enchanted-miners.png",
   },
 
-  // --- other projects after ---
-  {
-    name: "MAGApixel Locker",
-    status: "live",
-    label: "Live",
-    lockerPath: "/locker/magapixel",
-    glow: "magapixel",
-    preview: "/lockscreened-previews/magapixel.png",
-  },
+  // ✅ MEOWGA — NOW LIVE & CLICKABLE
   {
     name: "MEOWGA",
-    status: "coming",
-    label: "Coming soon",
-    lockerPath: "#",
+    status: "live",
+    label: "Live",
+    lockerPath: "/meowga",
     glow: "meowga",
     preview: "/lockscreened-previews/meowga.png",
   },
@@ -71,282 +62,165 @@ const PROJECTS: LockerProject[] = [
 
 export default function HomePage() {
   return (
-    <main className="ls-home">
+    <main className="home-wrap">
       {/* HERO */}
-      <section className="ls-hero">
-        <div className="ls-hero-inner">
-          <img
-            className="ls-wordmark"
-            src="/lockscreened-wordmark-1.png"
-            alt="LockScreened"
-            draggable={false}
-          />
-
-          <p className="ls-sub">
-            Lock screens and wallpapers for Web3-native collectors.
-            <br />
-            A simple hub for partner projects, holders, and phone-first art.
-          </p>
-
-          <div className="ls-cta">
-            <a className="ls-btn primary" href="#partner-lockers">
-              VIEW PARTNER LOCKERS
-            </a>
-            <a className="ls-btn ghost" href="#how-it-works">
-              LEARN HOW IT WORKS
-            </a>
-          </div>
-        </div>
+      <section className="hero">
+        <h1 className="hero-title">LOCKSCREENED</h1>
+        <p className="hero-subtitle">
+          Phone-native NFT wallpapers. Built for the lockscreen.
+        </p>
       </section>
 
-      {/* PARTNER LOCKERS */}
-      <section className="ls-section" id="partner-lockers">
-        <div className="ls-section-inner">
-          <h2 className="ls-h2">PARTNER LOCKERS</h2>
-          <p className="ls-p">
-            Each project below has (or will have) its own dedicated locker on LockScreened. Tap a
-            phone to open that project&apos;s experience, connect your wallet, and start building
-            your daily lock screens.
-          </p>
+      {/* PROJECT GRID */}
+      <section className="projects">
+        {PROJECTS.map((p) => {
+          const Card = (
+            <div className={`project-card glow-${p.glow}`}>
+              {p.preview && (
+                <img
+                  src={p.preview}
+                  alt={p.name}
+                  className="project-preview"
+                  draggable={false}
+                />
+              )}
 
-          <div className="ls-grid">
-            {PROJECTS.map((p) => {
-              const isLive = p.status === "live";
-              const CardTag = isLive ? Link : ("div" as any);
-              const cardProps = isLive ? { href: p.lockerPath } : {};
+              <div className="project-meta">
+                <h3>{p.name}</h3>
+                <span className={`status ${p.status}`}>{p.label}</span>
+              </div>
+            </div>
+          );
 
-              return (
-                <div key={p.name} className={`ls-card-wrap ${p.glow}`}>
-                  <CardTag className="ls-card" {...cardProps}>
-                    <div className="ls-card-badge">{p.label.toUpperCase()}</div>
-
-                    <div className="ls-phone">
-                      <div className="ls-phone-screen">
-                        {p.preview ? (
-                          <img
-                            src={p.preview}
-                            alt={`${p.name} preview`}
-                            className="ls-phone-img"
-                            draggable={false}
-                          />
-                        ) : null}
-                      </div>
-                    </div>
-
-                    <div className="ls-card-title">{p.name}</div>
-                    <div className="ls-card-sub">{isLive ? "Live" : "Coming soon"}</div>
-                  </CardTag>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+          return p.status === "live" ? (
+            <Link
+              key={p.name}
+              href={p.lockerPath}
+              className="project-link"
+              aria-label={`Open ${p.name}`}
+            >
+              {Card}
+            </Link>
+          ) : (
+            <div key={p.name} className="project-link disabled">
+              {Card}
+            </div>
+          );
+        })}
       </section>
 
-      {/* HOW IT WORKS + FAQ */}
-      <section className="ls-section" id="how-it-works">
-        <div className="ls-section-inner">
-          <h2 className="ls-h2">HOW LOCKSCREENED WORKS</h2>
-          <LockscreenedFAQ />
-        </div>
-      </section>
+      <LockscreenedFAQ />
 
       <style jsx>{`
-        .ls-home {
-          min-height: 100dvh;
-          padding-bottom: 80px;
-
-          background-color: #cddaf0;
-          background-image: url("/lockscreened-main-bg-2.png");
-          background-repeat: no-repeat;
-          background-position: top center;
-          background-size: cover;
-          background-attachment: fixed;
+        .home-wrap {
+          min-height: 100vh;
+          padding: 64px 18px 80px;
+          background: radial-gradient(
+            circle at top,
+            #1b1236 0%,
+            #090610 55%,
+            #05020a 100%
+          );
         }
 
-        .ls-hero {
-          padding: 84px 18px 28px;
-        }
-
-        .ls-hero-inner {
-          max-width: 1100px;
-          margin: 0 auto;
+        .hero {
+          max-width: 900px;
+          margin: 0 auto 48px;
           text-align: center;
         }
 
-        .ls-wordmark {
-          width: min(860px, 92vw);
-          height: auto;
-          display: block;
-          margin: 0 auto 14px;
-          filter: drop-shadow(0 14px 34px rgba(0, 0, 0, 0.25));
-        }
-
-        .ls-sub {
-          margin: 0 auto;
-          max-width: 820px;
-          font-size: 14px;
-          line-height: 1.5;
-          color: rgba(0, 0, 0, 0.7);
-          text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
-        }
-
-        .ls-cta {
-          margin-top: 16px;
-          display: flex;
-          gap: 10px;
-          justify-content: center;
-          flex-wrap: wrap;
-        }
-
-        .ls-btn {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          height: 40px;
-          padding: 0 18px;
-          border-radius: 999px;
-          font-size: 11px;
-          letter-spacing: 0.14em;
-          font-weight: 800;
-          text-decoration: none;
-          user-select: none;
-        }
-
-        .ls-btn.primary {
-          background: #ff49d7;
-          color: #1a0620;
-          box-shadow: 0 14px 28px rgba(255, 73, 215, 0.28);
-        }
-
-        .ls-btn.ghost {
-          background: rgba(255, 255, 255, 0.35);
-          border: 1px solid rgba(0, 0, 0, 0.18);
-          color: rgba(0, 0, 0, 0.7);
-        }
-
-        .ls-section {
-          padding: 22px 18px;
-        }
-
-        .ls-section-inner {
-          max-width: 1100px;
-          margin: 0 auto;
-          text-align: center;
-        }
-
-        .ls-h2 {
-          margin: 0 0 6px;
-          font-size: 14px;
-          letter-spacing: 0.2em;
-          font-weight: 900;
-          color: rgba(0, 0, 0, 0.85);
-        }
-
-        .ls-p {
-          margin: 0 auto 18px;
-          max-width: 860px;
-          font-size: 12px;
-          color: rgba(0, 0, 0, 0.62);
-          line-height: 1.5;
-        }
-
-        .ls-grid {
-          display: grid;
-          grid-template-columns: repeat(5, minmax(160px, 1fr));
-          gap: 18px;
-          align-items: stretch;
-          justify-items: center;
-        }
-
-        .ls-card-wrap {
-          width: 100%;
-          display: flex;
-          justify-content: center;
-        }
-
-        .ls-card {
-          width: 100%;
-          max-width: 190px;
-          background: rgba(35, 35, 45, 0.72);
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          border-radius: 18px;
-          padding: 12px 12px 14px;
-          box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
-          text-decoration: none;
-          color: rgba(255, 255, 255, 0.92);
-          position: relative;
-          overflow: hidden;
-          transition: transform 0.12s ease, box-shadow 0.12s ease;
-        }
-
-        .ls-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 22px 48px rgba(0, 0, 0, 0.45);
-        }
-
-        .ls-card-badge {
-          position: absolute;
-          top: 10px;
-          left: 10px;
-          font-size: 9px;
+        .hero-title {
+          margin: 0;
+          font-size: clamp(36px, 6vw, 64px);
           letter-spacing: 0.18em;
-          padding: 5px 10px;
-          border-radius: 999px;
-          background: rgba(0, 0, 0, 0.38);
-          border: 1px solid rgba(255, 255, 255, 0.14);
-          color: rgba(255, 255, 255, 0.9);
+          font-weight: 900;
         }
 
-        .ls-phone {
+        .hero-subtitle {
           margin-top: 14px;
-          display: flex;
-          justify-content: center;
-        }
-
-        .ls-phone-screen {
-          width: 118px;
-          aspect-ratio: 9 / 19.5;
-          border-radius: 18px;
-          overflow: hidden;
-          background: rgba(0, 0, 0, 0.55);
-          box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.12);
-        }
-
-        .ls-phone-img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-        }
-
-        .ls-card-title {
-          margin-top: 12px;
-          font-size: 11px;
-          font-weight: 800;
-        }
-
-        .ls-card-sub {
-          margin-top: 2px;
-          font-size: 10px;
           opacity: 0.75;
+          font-size: 14px;
+          letter-spacing: 0.06em;
         }
 
-        @media (max-width: 1050px) {
-          .ls-grid {
-            grid-template-columns: repeat(3, minmax(160px, 1fr));
-          }
+        .projects {
+          max-width: 1200px;
+          margin: 0 auto;
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 22px;
         }
 
-        @media (max-width: 620px) {
-          .ls-grid {
-            grid-template-columns: repeat(2, minmax(150px, 1fr));
-          }
-          .ls-hero {
-            padding-top: 72px;
-          }
-          .ls-home {
-            background-attachment: scroll;
+        .project-link {
+          text-decoration: none;
+          color: inherit;
+        }
+
+        .project-link.disabled {
+          pointer-events: none;
+          opacity: 0.5;
+        }
+
+        .project-card {
+          position: relative;
+          border-radius: 22px;
+          overflow: hidden;
+          background: rgba(10, 8, 20, 0.55);
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          backdrop-filter: blur(10px);
+          box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .project-link:hover .project-card {
+          transform: translateY(-4px);
+          box-shadow: 0 26px 60px rgba(0, 0, 0, 0.55);
+        }
+
+        .project-preview {
+          display: block;
+          width: 100%;
+          aspect-ratio: 9 / 19.5;
+          object-fit: cover;
+        }
+
+        .project-meta {
+          padding: 12px 14px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          background: rgba(0, 0, 0, 0.35);
+        }
+
+        .project-meta h3 {
+          margin: 0;
+          font-size: 13px;
+          letter-spacing: 0.08em;
+        }
+
+        .status {
+          font-size: 10px;
+          padding: 4px 8px;
+          border-radius: 999px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+
+        .status.live {
+          background: rgba(40, 200, 120, 0.15);
+        }
+
+        /* Optional glow hooks */
+        .glow-meowga {}
+        .glow-retrograve {}
+        .glow-gainz {}
+        .glow-miners {}
+        .glow-midevils {}
+
+        @media (max-width: 600px) {
+          .hero {
+            margin-bottom: 32px;
           }
         }
       `}</style>
