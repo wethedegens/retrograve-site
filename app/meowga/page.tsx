@@ -1,177 +1,195 @@
 // app/meowga/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { useWallet } from "@solana/wallet-adapter-react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { useRouter } from "next/navigation";
-import NftGrid, { NFT } from "../components/NftGrid";
+import Link from "next/link";
+import PhoneShowcase from "../components/PhoneShowcase";
 
-const MEOWGA_BG_IMAGE = "/my-meowgas-bg.png";
-// If you want to filter ONLY MEOWGA later, put the collection id here:
-// const MEOWGA_COLLECTION = "PASTE_MEOWGA_COLLECTION_ID_HERE";
-
-export default function MeowgaOwnerGridPage() {
-  const { publicKey, connected } = useWallet();
-  const router = useRouter();
-
-  const [cats, setCats] = useState<NFT[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // ✅ Only load AFTER wallet is connected (same as your miners page)
-  useEffect(() => {
-    const owner = publicKey?.toBase58();
-    if (!owner) {
-      setCats([]);
-      setError(null);
-      setLoading(false);
-      return;
-    }
-
-    let cancelled = false;
-
-    async function loadMeowgas() {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const r = await fetch("/api/nfts", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            owner,
-            // If you later add a MEOWGA collection id, you can pass:
-            // collection: MEOWGA_COLLECTION,
-            // collectionId: MEOWGA_COLLECTION,
-          }),
-          cache: "no-store",
-        });
-
-        const data = await r.json().catch(() => null);
-
-        if (!r.ok) {
-          const msg =
-            (data && (data.error || data.message)) ||
-            (typeof data === "string" ? data : "") ||
-            `Request failed (${r.status})`;
-          throw new Error(msg);
-        }
-
-        const list: NFT[] = Array.isArray(data)
-          ? data
-          : Array.isArray(data?.nfts)
-          ? data.nfts
-          : [];
-
-        if (!cancelled) setCats(list);
-      } catch (e: any) {
-        if (!cancelled) {
-          setError(e?.message || "Failed to load NFTs");
-          setCats([]);
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    loadMeowgas();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [publicKey]);
+export default function MeowgaLandingPage() {
+  const previewImages = [
+    "/demo/meowga-1.png",
+    "/demo/meowga-2.png",
+    "/demo/meowga-3.png",
+    "/demo/meowga-4.png",
+  ];
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        padding: "18px 0 80px",
-        paddingTop: 64, // fixed nav
-        backgroundImage: `url(${MEOWGA_BG_IMAGE})`,
-        backgroundRepeat: "no-repeat",
-        backgroundPosition: "center center",
-        backgroundSize: "cover",
-        backgroundAttachment: "fixed",
-      }}
-    >
-      <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 18px" }}>
-        {!connected ? (
-          <div
-            style={{
-              minHeight: "calc(100vh - 64px - 98px)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              textAlign: "center",
-              padding: "40px 0",
-            }}
-          >
-            <div
-              style={{
-                maxWidth: 520,
-                padding: "22px 18px",
-                borderRadius: 18,
-                background: "rgba(10, 10, 14, 0.55)",
-                border: "1px solid rgba(255,255,255,0.14)",
-                backdropFilter: "blur(10px)",
-                boxShadow: "0 18px 40px rgba(0,0,0,0.45)",
-              }}
-            >
-              <h1 style={{ margin: "0 0 10px", fontSize: 28, letterSpacing: "0.04em" }}>
-                MEOWGA
-              </h1>
+    <main className="lp-wrap">
+      <section className="lp-inner">
+        {/* LEFT */}
+        <div className="lp-left">
+          <h1 className="lp-title">MEOWGA</h1>
+          <h2 className="lp-subtitle">LOCKSCREEN LOCKER</h2>
 
-              <p style={{ margin: "0 0 14px", opacity: 0.9, lineHeight: 1.6 }}>
-                Connect your wallet to view your MEOWGAs, then tap one to open it in
-                the locker and export wallpapers.
-              </p>
+          <p className="lp-copy">
+            <span className="lp-copy-strong">Phone-native wallpapers</span> for
+            MEOWGA.
+            <br />
+            Connect your wallet, pick a MEOWGA, swap backgrounds, and export for
+            any device.
+          </p>
 
-              <div style={{ display: "flex", justifyContent: "center" }}>
-                <WalletMultiButton />
-              </div>
-
-              <p style={{ margin: "12px 0 0", opacity: 0.65, fontSize: 12 }}>
-                Your wallet is only used to read your NFTs — nothing can be moved or
-                signed without your approval.
-              </p>
-            </div>
-          </div>
-        ) : (
-          <>
-            <h1 style={{ margin: "8px 0", fontSize: 28, letterSpacing: "0.04em" }}>
+          <div className="lp-actions">
+            <Link className="lp-btn" href="/meowga-nfts">
               MY MEOWGAS
-            </h1>
+            </Link>
+          </div>
+        </div>
 
-            <p style={{ margin: 0, opacity: 0.75 }}>
-              Showing NFTs owned by your connected wallet.
-            </p>
-
-            <div style={{ height: 16 }} />
-
-            {loading && <p style={{ opacity: 0.85 }}>Loading...</p>}
-
-            {error && <p style={{ opacity: 0.9, color: "#ffb3b3" }}>{error}</p>}
-
-            {!loading && !error && cats.length === 0 && (
-              <p style={{ opacity: 0.85 }}>No NFTs found.</p>
-            )}
-
-            {!loading && !error && cats.length > 0 && (
-              <NftGrid
-                nfts={cats}
-                onPick={(nft) => {
-                  const mint = nft.id || "";
-                  const uri = nft.uri ? encodeURIComponent(nft.uri) : "";
-                  router.push(
-                    `/locker?mint=${mint}${uri ? `&uri=${uri}` : ""}&project=meowga`
-                  );
-                }}
-              />
-            )}
-          </>
-        )}
+        {/* RIGHT */}
+        <div className="lp-right">
+          <div className="phone-shell">
+            <PhoneShowcase
+              images={previewImages}
+              intervalMs={3000}
+              title=""
+              showHint={false}
+              fit="cover"
+              bg={{ kind: "color", value: "#1b1b1f" }}
+            />
+          </div>
+        </div>
       </section>
+
+      <style jsx>{`
+        .lp-wrap {
+          min-height: 100vh;
+          padding: 18px 18px 80px;
+          padding-top: 64px;
+          background-image: url("/meowga-bg.png");
+          background-repeat: no-repeat;
+          background-position: center center;
+          background-size: cover;
+          background-attachment: fixed;
+        }
+
+        .lp-inner {
+          max-width: 1200px;
+          margin: 0 auto;
+
+          display: grid;
+          grid-template-columns: 1fr 520px;
+          gap: 28px;
+
+          align-items: center;
+          min-height: calc(100vh - 64px - 80px);
+        }
+
+        .lp-left {
+          max-width: 640px;
+          position: relative;
+          top: -100px;
+          margin-left: clamp(0px, 3vw, 28px);
+        }
+
+        .lp-title {
+          margin: 0;
+          font-size: 46px;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          font-weight: 900;
+          line-height: 1.05;
+          color: rgba(255, 255, 255, 0.92);
+          text-shadow: 0 6px 28px rgba(0, 0, 0, 0.2);
+        }
+
+        .lp-subtitle {
+          margin: 8px 0 0;
+          font-size: 34px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          font-weight: 900;
+          line-height: 1.05;
+          color: rgba(255, 255, 255, 0.92);
+          text-shadow: 0 6px 28px rgba(0, 0, 0, 0.2);
+        }
+
+        .lp-copy {
+          margin: 14px 0 0;
+          font-size: 13px;
+          line-height: 1.6;
+          max-width: 520px;
+          color: rgba(255, 255, 255, 0.74);
+        }
+
+        .lp-copy-strong {
+          font-weight: 900;
+          font-size: 14px;
+          color: rgba(255, 255, 255, 0.92);
+        }
+
+        .lp-actions {
+          margin-top: 16px;
+          display: flex;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+
+        .lp-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          height: 38px;
+          padding: 0 16px;
+          border-radius: 999px;
+          font-size: 12px;
+          font-weight: 900;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          text-decoration: none;
+
+          background: rgba(255, 255, 255, 0.18);
+          color: rgba(255, 255, 255, 0.92);
+          border: 1px solid rgba(255, 255, 255, 0.18);
+          backdrop-filter: blur(8px);
+          box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+        }
+
+        .lp-right {
+          display: flex;
+          justify-content: center;
+        }
+
+        .phone-shell {
+          transform: translateY(22px) scale(0.7);
+          transform-origin: top center;
+          filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.22));
+        }
+
+        @media (max-width: 980px) {
+          .lp-inner {
+            grid-template-columns: 1fr;
+            text-align: center;
+            min-height: auto;
+          }
+
+          .lp-left {
+            top: 0;
+            margin: 0 auto;
+          }
+
+          .lp-actions {
+            justify-content: center;
+          }
+
+          .phone-shell {
+            transform: translateY(10px) scale(0.75);
+          }
+        }
+
+        @media (max-width: 520px) {
+          .lp-title {
+            font-size: 34px;
+          }
+
+          .lp-subtitle {
+            font-size: 24px;
+          }
+
+          .phone-shell {
+            transform: translateY(6px) scale(0.78);
+          }
+        }
+      `}</style>
     </main>
   );
 }

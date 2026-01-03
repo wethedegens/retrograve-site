@@ -7,9 +7,7 @@ import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useRouter } from "next/navigation";
 import NftGrid, { NFT } from "../components/NftGrid";
 
-// TODO: set this to the REAL MEOWGA collection id when you have it
-// If you already know it, paste it here and you’re done.
-const MEOWGA_COLLECTION = "REPLACE_MEOWGA_COLLECTION_ID";
+const MEOWGA_COLLECTION_ID = "GryRACtbbwn5aLXjGmimR2KLFNtb3vrcbM5dgDnaJp2g";
 const MEOWGA_BG_IMAGE = "/my-meowgas-bg.png";
 
 export default function MeowgaNftsPage() {
@@ -20,6 +18,7 @@ export default function MeowgaNftsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Only load AFTER wallet is connected
   useEffect(() => {
     const owner = publicKey?.toBase58();
     if (!owner) {
@@ -31,19 +30,24 @@ export default function MeowgaNftsPage() {
 
     let cancelled = false;
 
-    async function loadMeowgas() {
+    async function load() {
       setLoading(true);
       setError(null);
 
       try {
+        const body: any = { owner };
+
+        // filter by collection id (always a string)
+        const collection = MEOWGA_COLLECTION_ID.trim();
+        if (collection.length > 0) {
+          body.collection = collection;
+          body.collectionId = collection;
+        }
+
         const r = await fetch("/api/nfts", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            owner,
-            collection: MEOWGA_COLLECTION,
-            collectionId: MEOWGA_COLLECTION,
-          }),
+          body: JSON.stringify(body),
           cache: "no-store",
         });
 
@@ -66,7 +70,7 @@ export default function MeowgaNftsPage() {
         if (!cancelled) setMeowgas(list);
       } catch (e: any) {
         if (!cancelled) {
-          setError(e?.message || "Failed to load MEOWGA NFTs");
+          setError(e?.message || "Failed to load MEOWGAs");
           setMeowgas([]);
         }
       } finally {
@@ -74,7 +78,7 @@ export default function MeowgaNftsPage() {
       }
     }
 
-    loadMeowgas();
+    load();
 
     return () => {
       cancelled = true;
@@ -122,12 +126,20 @@ export default function MeowgaNftsPage() {
                   margin: "0 0 10px",
                   fontSize: 28,
                   letterSpacing: "0.04em",
+                  color: "rgba(255,255,255,0.95)",
                 }}
               >
                 MEOWGA
               </h1>
 
-              <p style={{ margin: "0 0 14px", opacity: 0.9, lineHeight: 1.6 }}>
+              <p
+                style={{
+                  margin: "0 0 14px",
+                  opacity: 0.9,
+                  lineHeight: 1.6,
+                  color: "rgba(255,255,255,0.85)",
+                }}
+              >
                 Connect your wallet to view your MEOWGAs, then tap one to open it
                 in the locker and export wallpapers.
               </p>
@@ -140,20 +152,22 @@ export default function MeowgaNftsPage() {
                 Your wallet is only used to read your NFTs — nothing can be
                 moved or signed without your approval.
               </p>
-
-              <p style={{ margin: "12px 0 0", opacity: 0.65, fontSize: 12 }}>
-                ⚠️ If you still see “No MEOWGAs found”, set the correct
-                MEOWGA_COLLECTION id in this file.
-              </p>
             </div>
           </div>
         ) : (
           <>
-            <h1 style={{ margin: "8px 0", fontSize: 28, letterSpacing: "0.04em" }}>
+            <h1
+              style={{
+                margin: "8px 0",
+                fontSize: 28,
+                letterSpacing: "0.04em",
+                color: "rgba(255,255,255,0.95)",
+              }}
+            >
               MY MEOWGAS
             </h1>
 
-            <p style={{ margin: 0, opacity: 0.75 }}>
+            <p style={{ margin: 0, opacity: 0.75, color: "rgba(255,255,255,0.85)" }}>
               Showing MEOWGA NFTs owned by your connected wallet.
             </p>
 
@@ -173,7 +187,6 @@ export default function MeowgaNftsPage() {
                 onPick={(nft) => {
                   const mint = nft.id || "";
                   const uri = nft.uri ? encodeURIComponent(nft.uri) : "";
-                  // ✅ critical: send project=meowga so locker uses MEOWGA backgrounds
                   router.push(
                     `/locker?mint=${mint}${uri ? `&uri=${uri}` : ""}&project=meowga`
                   );

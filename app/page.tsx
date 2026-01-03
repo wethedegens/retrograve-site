@@ -57,14 +57,15 @@ const PROJECTS: LockerProject[] = [
 
   // ✅ MEOWGA is LIVE and MUST link to the MEOWGA NFT grid
   // (So users can connect wallet → pick MEOWGA → open locker)
-  {
-    name: "MEOWGA",
-    status: "live",
-    label: "Live",
-    lockerPath: "/meowga-nfts",
-    glow: "meowga",
-    preview: "/lockscreened-previews/meowga.png",
-  },
+ {
+  name: "MEOWGA",
+  status: "live",
+  label: "Live",
+  lockerPath: "/meowga", // ✅ project landing page
+  glow: "meowga",
+  preview: "/lockscreened-previews/meowga.png",
+},
+
 ];
 
 const BG = "/lockscreened-main-bg-2.png";
