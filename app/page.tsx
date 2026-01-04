@@ -52,7 +52,7 @@ const PROJECTS: LockerProject[] = [
     label: "Live",
     lockerPath: "/zeromonkebiz",
     glow: "zeromonkebiz",
-    preview: "/lockscreened-previews/zeromonkeybiz-1.png",
+    preview: "/lockscreened-previews/zeromonkebiz-1.png",
   },
 
   // ✅ SagaMonkes (LIVE)
