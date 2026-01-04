@@ -21,8 +21,8 @@ const LINKS: Record<TopNavProject, ProjectLinks> = {
     myHref: "/retrograve",
     myLabel: "RETROGRAVE",
     collectHref: "https://magiceden.io",
-    communityHref: "https://discord.com",
-    xHref: "https://x.com",
+    communityHref: "https://discord.gg/rRG2YDbHYA",
+    xHref: "https://x.com/RETROGRAVE_NFT",
   },
 
   magapixel: {
