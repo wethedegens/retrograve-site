@@ -4,7 +4,12 @@ import Link from "next/link";
 import PhoneShowcase from "../components/PhoneShowcase";
 
 export default function ZeroMonkeBizLandingPage() {
-  const previewImages = ["/zeromonkebiz/phone/bg-1.png"];
+  // ✅ MUST match /public/demo filenames exactly
+  const previewImages = [
+    "/demo/zeromonkebiz-1.png",
+    "/demo/zeromonkebiz-2.png",
+    "/demo/zeromonkebiz-3.png",
+  ];
 
   return (
     <main className="lp-wrap">
