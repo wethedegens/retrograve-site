@@ -8,6 +8,9 @@ export type LockerProject = {
   accentColor?: string; // Optional 2nd gradient color
   lockerPath: string; // Where the phone/card goes when LIVE
   status: "live" | "coming-soon";
+
+  // ✅ Optional mint/collection id (safe add)
+  collectionId?: string;
 };
 
 export const PROJECTS: LockerProject[] = [
@@ -30,7 +33,7 @@ export const PROJECTS: LockerProject[] = [
     status: "live",
   },
 
-  // ✅ NEW: ZeroMonkeBiz (LIVE)
+  // ✅ ZeroMonkeBiz (LIVE)
   {
     slug: "zeromonkebiz",
     name: "ZeroMonkeBiz",
@@ -39,8 +42,10 @@ export const PROJECTS: LockerProject[] = [
     accentColor: "#111111",
     lockerPath: "/zeromonkebiz",
     status: "live",
+    collectionId: "EwMMBSEiZVxbDnroRB7vPiCaF2GjGEmALWyUPProrVXY",
   },
 
+  // ✅ MEOWGA (as you currently have it)
   {
     slug: "meowga",
     name: "MEOWGA",
@@ -50,6 +55,19 @@ export const PROJECTS: LockerProject[] = [
     lockerPath: "/meowga",
     status: "coming-soon",
   },
+
+  // ✅ NEW: SagaMonkes (LIVE)
+  {
+    slug: "sagamonkes",
+    name: "SagaMonkes",
+    tagline: "Phone-native lock screens for SagaMonkes NFTs.",
+    primaryColor: "#0b0b0f",
+    accentColor: "#22ff88",
+    lockerPath: "/saga-monkes",
+    status: "live",
+    collectionId: "HCwFN2CpdwPbfRUFerVUWaYhtV7J587X9cEuZ3Cn8Hst",
+  },
+
   {
     slug: "enchanted-miners",
     name: "Enchanted Miners",

@@ -15,6 +15,7 @@ type Props = {
    *  - "midevils"
    *  - "meowga"
    *  - "zeromonkebiz"
+   *  - "sagamonkes"
    *  - future projects...
    */
   project?: string;
@@ -129,6 +130,18 @@ const ZEROMONKEBIZ_IMAGE_BACKGROUNDS: string[] = [
 ];
 
 /**
+ * ✅ SAGAMONKES: static phone-sized PNGs
+ * Folder: /public/saga-monkes/phone/bg-1.png ... bg-5.png
+ */
+const SAGAMONKES_IMAGE_BACKGROUNDS: string[] = [
+  "/saga-monkes/phone/bg-1.png",
+  "/saga-monkes/phone/bg-2.png",
+  "/saga-monkes/phone/bg-3.png",
+  "/saga-monkes/phone/bg-4.png",
+  "/saga-monkes/phone/bg-5.png",
+];
+
+/**
  * MAGAPIXEL: background packs with phone / ipad / desktop / thumb
  * Folder structure:
  *   /public/backgrounds/<slug>/thumb.png
@@ -186,6 +199,13 @@ const STATIC_PROJECT_STRIPS: Record<
     label: "ZEROMONKEBIZ WALLPAPERS",
     images: ZEROMONKEBIZ_IMAGE_BACKGROUNDS,
     filenamePrefix: "zeromonkebiz-wallpaper",
+  },
+
+  // ✅ NEW: SAGAMONKES (5)
+  sagamonkes: {
+    label: "SAGAMONKES WALLPAPERS",
+    images: SAGAMONKES_IMAGE_BACKGROUNDS,
+    filenamePrefix: "sagamonkes-wallpaper",
   },
 };
 

@@ -70,7 +70,7 @@ const LINKS: Record<TopNavProject, ProjectLinks> = {
     xHref: "https://x.com/MAGApixel_NFT",
   },
 
-  // ✅ NEW: ZEROMONKEBIZ
+  // ✅ ZEROMONKEBIZ
   zeromonkebiz: {
     homeHref: "/",
     myHref: "/zeromonkebiz-nfts",
@@ -78,6 +78,16 @@ const LINKS: Record<TopNavProject, ProjectLinks> = {
     collectHref: "https://t.co/GHLBvIWXrR",
     communityHref: "https://www.discord.gg/zeromonkebiz",
     xHref: "https://x.com/zeromonkebiz",
+  },
+
+  // ✅ NEW: SAGAMONKES
+  sagamonkes: {
+    homeHref: "/",
+    myHref: "/saga-monkes-nfts",
+    myLabel: "MY SAGAMONKES",
+    collectHref: "https://magiceden.us/marketplace/sagamonkes",
+    communityHref: "https://www.discord.gg/tPPAukA9Af",
+    xHref: "https://www.twitter.com/sagamonkes",
   },
 };
 

@@ -11,7 +11,8 @@ export type TopNavProject =
   | "gainz"
   | "midevils"
   | "meowga"
-  | "zeromonkebiz";
+  | "zeromonkebiz"
+  | "sagamonkes";
 
 function inferProjectFromRoute(
   pathname: string,
@@ -49,9 +50,13 @@ function inferProjectFromRoute(
   if (p.startsWith("/meowga")) return "meowga";
   if (p.startsWith("/meowga-nfts")) return "meowga";
 
-  // ✅ ZeroMonkeBiz routes (NEW)
+  // ZeroMonkeBiz routes
   if (p.startsWith("/zeromonkebiz")) return "zeromonkebiz";
   if (p.startsWith("/zeromonkebiz-nfts")) return "zeromonkebiz";
+
+  // ✅ NEW: SagaMonkes routes
+  if (p.startsWith("/saga-monkes")) return "sagamonkes";
+  if (p.startsWith("/saga-monkes-nfts")) return "sagamonkes";
 
   // Generic locker route: uses ?project=
   if (p.startsWith("/locker")) {
@@ -63,6 +68,7 @@ function inferProjectFromRoute(
     if (qp === "midevils") return "midevils";
     if (qp === "meowga") return "meowga";
     if (qp === "zeromonkebiz") return "zeromonkebiz";
+    if (qp === "sagamonkes") return "sagamonkes";
     return "magapixel";
   }
 
