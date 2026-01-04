@@ -9,7 +9,7 @@ import NftGrid, { NFT } from "../components/NftGrid";
 const ZEROMONKEBIZ_COLLECTION_ID = "EwMMBSEiZVxbDnroRB7vPiCaF2GjGEmALWyUPProrVXY";
 
 // ✅ Use the background image that exists in /public (per your screenshot)
-const ZEROMONKEBIZ_BG_IMAGE = "/zeromonkebiz-bg.png";
+const ZEROMONKEBIZ_BG_IMAGE = "/zeromonkebiz-bg-nfts.png";
 
 export default function ZeroMonkeBizNftsPage() {
   const { publicKey, connected } = useWallet();
