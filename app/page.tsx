@@ -137,18 +137,17 @@ export default function HomePage() {
           overflow-x: hidden;
         }
 
-        /* ⬆️ background pulled UP more */
+        /* ✅ MOVE BACKGROUND GRAPHIC UP (match your 2nd screenshot) */
         .bg {
           position: absolute;
-          inset: -220px 0 0 0;
+          inset: 0;
           background-image: url(${BG});
           background-size: cover;
-          background-position: center top;
           background-repeat: no-repeat;
+          background-position: center -260px; /* ⬅️ higher */
           filter: saturate(1.03);
         }
 
-        /* ⬆️ whole page content pulled UP */
         .wrap {
           position: relative;
           z-index: 1;
@@ -168,7 +167,6 @@ export default function HomePage() {
           margin-bottom: 4px;
         }
 
-        /* 🔥 LOGO ~2× larger */
         .logoImage {
           width: min(900px, 96vw);
           height: auto;
@@ -261,6 +259,11 @@ export default function HomePage() {
         }
 
         @media (max-width: 720px) {
+          /* keep it “higher” on mobile but not too extreme */
+          .bg {
+            background-position: center -160px;
+          }
+
           .logoImage {
             width: 96vw;
           }
