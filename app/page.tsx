@@ -137,9 +137,10 @@ export default function HomePage() {
           overflow-x: hidden;
         }
 
+        /* ⬆️ background pulled UP more */
         .bg {
           position: absolute;
-          inset: -140px 0 0 0;
+          inset: -220px 0 0 0;
           background-image: url(${BG});
           background-size: cover;
           background-position: center top;
@@ -147,32 +148,34 @@ export default function HomePage() {
           filter: saturate(1.03);
         }
 
+        /* ⬆️ whole page content pulled UP */
         .wrap {
           position: relative;
           z-index: 1;
           max-width: 1100px;
           margin: 0 auto;
-          padding: 80px 18px 80px;
+          padding: 40px 18px 80px;
         }
 
         .hero {
           text-align: center;
-          padding: 10px 0 18px;
+          padding: 0 0 12px;
         }
 
         .logoRow {
           display: grid;
           place-items: center;
-          margin-bottom: 6px;
+          margin-bottom: 4px;
         }
 
+        /* 🔥 LOGO ~2× larger */
         .logoImage {
-          width: min(520px, 92vw);
+          width: min(900px, 96vw);
           height: auto;
         }
 
         .tagline {
-          margin: 10px auto 14px;
+          margin: 8px auto 12px;
           max-width: 720px;
           color: rgba(20, 24, 32, 0.75);
           font-size: 14px;
@@ -184,7 +187,7 @@ export default function HomePage() {
           justify-content: center;
           gap: 10px;
           flex-wrap: wrap;
-          margin: 8px 0 0;
+          margin: 6px 0 0;
         }
 
         .ctaPrimary,
@@ -216,7 +219,7 @@ export default function HomePage() {
         }
 
         .section {
-          margin-top: 26px;
+          margin-top: 22px;
           text-align: center;
         }
 
@@ -247,7 +250,7 @@ export default function HomePage() {
         }
 
         .faq {
-          margin-top: 26px;
+          margin-top: 24px;
         }
 
         @media (max-width: 1100px) {
@@ -258,6 +261,10 @@ export default function HomePage() {
         }
 
         @media (max-width: 720px) {
+          .logoImage {
+            width: 96vw;
+          }
+
           .cardsRow,
           .cardsRowComing {
             grid-template-columns: repeat(2, minmax(0, 1fr));
