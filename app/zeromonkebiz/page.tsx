@@ -54,7 +54,7 @@ export default function ZeroMonkeBizLandingPage() {
           min-height: 100vh;
           padding: 18px 18px 80px;
           padding-top: 64px;
-          background-image: url("/zeromonkeybiz-bg.png");
+          background-image: url("/zeromonkeybiz-bg-1.png");
           background-repeat: no-repeat;
           background-position: center center;
           background-size: cover;
