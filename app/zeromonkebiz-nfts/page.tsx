@@ -125,7 +125,7 @@ export default function ZeroMonkeBizNftsPage() {
                   margin: "0 0 10px",
                   fontSize: 28,
                   letterSpacing: "0.04em",
-                  color: "rgba(255,255,255,0.95)",
+                  color: "rgba(17, 16, 16, 0.95)",
                 }}
               >
                 ZEROMONKEBIZ
@@ -136,7 +136,7 @@ export default function ZeroMonkeBizNftsPage() {
                   margin: "0 0 14px",
                   opacity: 0.9,
                   lineHeight: 1.6,
-                  color: "rgba(255,255,255,0.85)",
+                  color: "rgba(17, 16, 16, 0.95)",
                 }}
               >
                 Connect your wallet to view your ZeroMonkeBiz NFTs, then tap one
@@ -160,7 +160,7 @@ export default function ZeroMonkeBizNftsPage() {
                 margin: "8px 0",
                 fontSize: 28,
                 letterSpacing: "0.04em",
-                color: "rgba(255,255,255,0.95)",
+                color: "rgba(39, 37, 37, 0.95)",
               }}
             >
               MY ZEROMONKES
