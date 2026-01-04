@@ -7,17 +7,14 @@ import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useRouter } from "next/navigation";
 import NftGrid, { NFT } from "../components/NftGrid";
 
-const SAGAMONKES_COLLECTION_ID =
-  "HCwFN2CpdwPbfRUFerVUWaYhtV7J587X9cEuZ3Cn8Hst";
-
-// ✅ Put your SagaMonkes NFT grid background here (matches how you did meowga)
-const SAGAMONKES_BG_IMAGE = "/saga-monkes-bg-nfts.jpg";
+const SAGAMONKES_COLLECTION_ID = "HCwFN2CpdwPbfRUFerVUWaYhtV7J587X9cEuZ3Cn8Hst";
+const SAGAMONKES_BG_IMAGE = "/saga-monkes-bg.png"; // ✅ you have this in /public
 
 export default function SagaMonkesNftsPage() {
   const { publicKey, connected } = useWallet();
   const router = useRouter();
 
-  const [sagamonkes, setSagamonkes] = useState<NFT[]>([]);
+  const [items, setItems] = useState<NFT[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,7 +22,7 @@ export default function SagaMonkesNftsPage() {
   useEffect(() => {
     const owner = publicKey?.toBase58();
     if (!owner) {
-      setSagamonkes([]);
+      setItems([]);
       setError(null);
       setLoading(false);
       return;
@@ -40,7 +37,6 @@ export default function SagaMonkesNftsPage() {
       try {
         const body: any = { owner };
 
-        // filter by collection id (always a string)
         const collection = SAGAMONKES_COLLECTION_ID.trim();
         if (collection.length > 0) {
           body.collection = collection;
@@ -70,11 +66,11 @@ export default function SagaMonkesNftsPage() {
           ? data.nfts
           : [];
 
-        if (!cancelled) setSagamonkes(list);
+        if (!cancelled) setItems(list);
       } catch (e: any) {
         if (!cancelled) {
           setError(e?.message || "Failed to load SagaMonkes");
-          setSagamonkes([]);
+          setItems([]);
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -102,10 +98,48 @@ export default function SagaMonkesNftsPage() {
       }}
     >
       <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 18px" }}>
+        {/* ✅ readable header block */}
+        <div
+          style={{
+            maxWidth: 720,
+            margin: "10px auto 16px",
+            padding: "18px 18px",
+            borderRadius: 18,
+            background: "rgba(10, 10, 14, 0.62)",
+            border: "1px solid rgba(255,255,255,0.14)",
+            backdropFilter: "blur(10px)",
+            boxShadow: "0 18px 40px rgba(0,0,0,0.45)",
+            textAlign: "center",
+          }}
+        >
+          <h1
+            style={{
+              margin: "0 0 8px",
+              fontSize: 28,
+              letterSpacing: "0.04em",
+              color: "rgba(255,255,255,0.95)",
+            }}
+          >
+            MY SAGAMONKES
+          </h1>
+
+          <p
+            style={{
+              margin: 0,
+              opacity: 0.9,
+              lineHeight: 1.6,
+              color: "rgba(255,255,255,0.85)",
+              fontSize: 13,
+            }}
+          >
+            Connect your wallet to view your SagaMonkes, then tap one to open it in the locker and export wallpapers.
+          </p>
+        </div>
+
         {!connected ? (
           <div
             style={{
-              minHeight: "calc(100vh - 64px - 98px)",
+              minHeight: "calc(100vh - 64px - 170px)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -118,23 +152,12 @@ export default function SagaMonkesNftsPage() {
                 maxWidth: 520,
                 padding: "22px 18px",
                 borderRadius: 18,
-                background: "rgba(10, 10, 14, 0.55)",
+                background: "rgba(10, 10, 14, 0.62)",
                 border: "1px solid rgba(255,255,255,0.14)",
                 backdropFilter: "blur(10px)",
                 boxShadow: "0 18px 40px rgba(0,0,0,0.45)",
               }}
             >
-              <h1
-                style={{
-                  margin: "0 0 10px",
-                  fontSize: 28,
-                  letterSpacing: "0.04em",
-                  color: "rgba(255,255,255,0.95)",
-                }}
-              >
-                SAGAMONKES
-              </h1>
-
               <p
                 style={{
                   margin: "0 0 14px",
@@ -143,56 +166,45 @@ export default function SagaMonkesNftsPage() {
                   color: "rgba(255,255,255,0.85)",
                 }}
               >
-                Connect your wallet to view your SagaMonkes, then tap one to open
-                it in the locker and export wallpapers.
+                Connect your wallet to view your SagaMonkes.
               </p>
 
               <div style={{ display: "flex", justifyContent: "center" }}>
                 <WalletMultiButton />
               </div>
 
-              <p style={{ margin: "12px 0 0", opacity: 0.65, fontSize: 12 }}>
-                Your wallet is only used to read your NFTs — nothing can be
-                moved or signed without your approval.
+              <p style={{ margin: "12px 0 0", opacity: 0.65, fontSize: 12, color: "rgba(255,255,255,0.75)" }}>
+                Wallet is only used to read your NFTs — nothing can be moved or signed without approval.
               </p>
             </div>
           </div>
         ) : (
           <>
-            <h1
-              style={{
-                margin: "8px 0",
-                fontSize: 28,
-                letterSpacing: "0.04em",
-                color: "rgba(255,255,255,0.95)",
-              }}
-            >
-              MY SAGAMONKES
-            </h1>
-
-            <p style={{ margin: 0, opacity: 0.75, color: "rgba(255,255,255,0.85)" }}>
-              Showing SagaMonkes NFTs owned by your connected wallet.
-            </p>
-
-            <div style={{ height: 16 }} />
-
-            {loading && <p style={{ opacity: 0.85 }}>Loading...</p>}
-
-            {error && <p style={{ opacity: 0.9, color: "#ffb3b3" }}>{error}</p>}
-
-            {!loading && !error && sagamonkes.length === 0 && (
-              <p style={{ opacity: 0.85 }}>No SagaMonkes NFTs found.</p>
+            {loading && (
+              <p style={{ opacity: 0.9, color: "rgba(255,255,255,0.9)", textAlign: "center" }}>
+                Loading...
+              </p>
             )}
 
-            {!loading && !error && sagamonkes.length > 0 && (
+            {error && (
+              <p style={{ opacity: 0.95, color: "#ffb3b3", textAlign: "center" }}>
+                {error}
+              </p>
+            )}
+
+            {!loading && !error && items.length === 0 && (
+              <p style={{ opacity: 0.9, color: "rgba(255,255,255,0.9)", textAlign: "center" }}>
+                No SagaMonkes found.
+              </p>
+            )}
+
+            {!loading && !error && items.length > 0 && (
               <NftGrid
-                nfts={sagamonkes}
+                nfts={items}
                 onPick={(nft) => {
                   const mint = nft.id || "";
                   const uri = nft.uri ? encodeURIComponent(nft.uri) : "";
-                  router.push(
-                    `/locker?mint=${mint}${uri ? `&uri=${uri}` : ""}&project=sagamonkes`
-                  );
+                  router.push(`/locker?mint=${mint}${uri ? `&uri=${uri}` : ""}&project=saga-monkes`);
                 }}
               />
             )}
