@@ -55,14 +55,15 @@ const PROJECTS: LockerProject[] = [
     preview: "/lockscreened-previews/zeromonkebiz.png",
   },
 
-  // ✅ NEW: SagaMonkes (LIVE)
+  // ✅ SagaMonkes (LIVE)
   {
     name: "SagaMonkes",
     status: "live",
     label: "Live",
     lockerPath: "/saga-monkes",
     glow: "sagamonkes",
-    preview: "/lockscreened-previews/sagamonkes.png",
+    // ✅ FIXED: must match /public/lockscreened-previews/saga-monkes.png
+    preview: "/lockscreened-previews/saga-monkes.png",
   },
 
   {
