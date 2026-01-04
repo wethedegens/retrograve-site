@@ -14,6 +14,7 @@ type Props = {
    *  - "gainz"
    *  - "midevils"
    *  - "meowga"
+   *  - "zeromonkebiz"
    *  - future projects...
    */
   project?: string;
@@ -118,6 +119,16 @@ const MEOWGA_IMAGE_BACKGROUNDS: string[] = [
 ];
 
 /**
+ * ✅ ZEROMONKEBIZ: static phone-sized PNGs (ONLY 3)
+ * Folder: /public/zeromonkebiz/phone/bg-1.png ... bg-3.png
+ */
+const ZEROMONKEBIZ_IMAGE_BACKGROUNDS: string[] = [
+  "/zeromonkebiz/phone/bg-1.png",
+  "/zeromonkebiz/phone/bg-2.png",
+  "/zeromonkebiz/phone/bg-3.png",
+];
+
+/**
  * MAGAPIXEL: background packs with phone / ipad / desktop / thumb
  * Folder structure:
  *   /public/backgrounds/<slug>/thumb.png
@@ -168,6 +179,13 @@ const STATIC_PROJECT_STRIPS: Record<
     label: "MEOWGA WALLPAPERS",
     images: MEOWGA_IMAGE_BACKGROUNDS,
     filenamePrefix: "meowga-wallpaper",
+  },
+
+  // ✅ NEW: ZEROMONKEBIZ (3 only)
+  zeromonkebiz: {
+    label: "ZEROMONKEBIZ WALLPAPERS",
+    images: ZEROMONKEBIZ_IMAGE_BACKGROUNDS,
+    filenamePrefix: "zeromonkebiz-wallpaper",
   },
 };
 

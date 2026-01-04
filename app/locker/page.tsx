@@ -32,7 +32,7 @@ function LockerInner() {
   const uri = sp.get("uri") || "";
   const devMode = sp.get("devbg") === "1";
 
-  // "magapixel" (default), "miners", "gainz", "midevils", "meowga"
+  // "magapixel" (default), "miners", "gainz", "midevils", "meowga", "zeromonkebiz"
   const project = (sp.get("project") || "magapixel").toLowerCase();
 
   const imageParam = sp.get("image") || "";
@@ -65,6 +65,8 @@ function LockerInner() {
       ? "/midevils-nfts"
       : project === "meowga"
       ? "/meowga-nfts"
+      : project === "zeromonkebiz"
+      ? "/zeromonkebiz-nfts"
       : "/magapixel-nfts";
 
   useEffect(() => {
@@ -150,6 +152,7 @@ function LockerInner() {
   const isGainz = project === "gainz";
   const isMidevils = project === "midevils";
   const isMeowga = project === "meowga";
+  const isZeromonkebiz = project === "zeromonkebiz";
 
   return (
     <main
@@ -204,6 +207,18 @@ function LockerInner() {
         ...(isMeowga
           ? {
               backgroundColor: "#0b0b12",
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center center",
+              backgroundSize: "cover",
+              backgroundAttachment: "fixed",
+            }
+          : {}),
+
+        // ✅ ZEROMONKEBIZ locker (kept simple + safe)
+        ...(isZeromonkebiz
+          ? {
+              backgroundColor: "#0b0b12",
+              backgroundImage: 'url("/zeromonkeybiz-bg.png")',
               backgroundRepeat: "no-repeat",
               backgroundPosition: "center center",
               backgroundSize: "cover",
