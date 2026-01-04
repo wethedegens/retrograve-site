@@ -1,3 +1,4 @@
+// app/zeromonkebiz/page.tsx
 "use client";
 
 import Link from "next/link";
@@ -54,7 +55,10 @@ export default function ZeroMonkeBizLandingPage() {
           min-height: 100vh;
           padding: 18px 18px 80px;
           padding-top: 64px;
-          background-image: url("/zeromonkeybiz-bg-1.png");
+
+          /* ✅ FIX: match the real file in /public */
+          background-image: url("/zeromonkebiz-bg-1.png");
+
           background-repeat: no-repeat;
           background-position: center center;
           background-size: cover;
