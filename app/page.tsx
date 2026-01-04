@@ -1,4 +1,3 @@
-// app/page.tsx
 "use client";
 
 import Link from "next/link";
@@ -54,18 +53,14 @@ const PROJECTS: LockerProject[] = [
     glow: "magapixel",
     preview: "/lockscreened-previews/magapixel.png",
   },
-
-  // ✅ MEOWGA is LIVE and MUST link to the MEOWGA NFT grid
-  // (So users can connect wallet → pick MEOWGA → open locker)
- {
-  name: "MEOWGA",
-  status: "live",
-  label: "Live",
-  lockerPath: "/meowga", // ✅ project landing page
-  glow: "meowga",
-  preview: "/lockscreened-previews/meowga.png",
-},
-
+  {
+    name: "MEOWGA",
+    status: "live",
+    label: "Live",
+    lockerPath: "/meowga",
+    glow: "meowga",
+    preview: "/lockscreened-previews/meowga.png",
+  },
 ];
 
 const BG = "/lockscreened-main-bg-2.png";
@@ -81,16 +76,18 @@ export default function HomePage() {
       <section className="wrap">
         <header className="hero">
           <div className="logoRow">
-            <div className="logo">
-              <span className="lock">LOCK</span>
-              <span className="screened">SCREENED</span>
-            </div>
+            <img
+              src="/lockscreened-wordmark-1.png"
+              alt="LockScreened"
+              className="logoImage"
+              draggable={false}
+            />
           </div>
 
           <p className="tagline">
             Lock screens and wallpapers for Web3-native collectors.
             <br />
-            A simple hub for partner projects, holders, and phones-first art.
+            A simple hub for partner projects, holders, and phone-first art.
           </p>
 
           <div className="ctaRow">
@@ -142,10 +139,10 @@ export default function HomePage() {
 
         .bg {
           position: absolute;
-          inset: 0;
+          inset: -140px 0 0 0;
           background-image: url(${BG});
           background-size: cover;
-          background-position: center;
+          background-position: center top;
           background-repeat: no-repeat;
           filter: saturate(1.03);
         }
@@ -155,33 +152,23 @@ export default function HomePage() {
           z-index: 1;
           max-width: 1100px;
           margin: 0 auto;
-          padding: 90px 18px 80px;
+          padding: 80px 18px 80px;
         }
 
         .hero {
           text-align: center;
-          padding: 18px 0 22px;
+          padding: 10px 0 18px;
         }
 
         .logoRow {
           display: grid;
           place-items: center;
-          margin-bottom: 8px;
+          margin-bottom: 6px;
         }
 
-        .logo {
-          font-weight: 900;
-          letter-spacing: -1px;
-          font-size: 64px;
-          line-height: 1;
-          text-transform: uppercase;
-        }
-        .lock {
-          color: #111214;
-          margin-right: 2px;
-        }
-        .screened {
-          color: #43c56a;
+        .logoImage {
+          width: min(520px, 92vw);
+          height: auto;
         }
 
         .tagline {
@@ -249,22 +236,14 @@ export default function HomePage() {
           color: rgba(20, 24, 32, 0.62);
         }
 
-        .cardsRow {
-          display: grid;
-          grid-template-columns: repeat(5, minmax(0, 1fr));
-          gap: 18px;
-          align-items: start;
-          justify-items: center;
-          margin: 12px auto 8px;
-        }
-
+        .cardsRow,
         .cardsRowComing {
           display: grid;
           grid-template-columns: repeat(5, minmax(0, 1fr));
           gap: 18px;
           align-items: start;
           justify-items: center;
-          margin: 12px auto 0;
+          margin: 12px auto;
         }
 
         .faq {
@@ -279,9 +258,6 @@ export default function HomePage() {
         }
 
         @media (max-width: 720px) {
-          .logo {
-            font-size: 46px;
-          }
           .cardsRow,
           .cardsRowComing {
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -353,11 +329,6 @@ function ProjectCard({ p }: { p: LockerProject }) {
           display: block;
         }
 
-        .placeholder {
-          width: 100%;
-          height: 100%;
-        }
-
         .name {
           font-size: 11px;
           font-weight: 900;
@@ -368,12 +339,6 @@ function ProjectCard({ p }: { p: LockerProject }) {
           font-size: 10px;
           color: rgba(255, 255, 255, 0.7);
           margin-top: -6px;
-        }
-
-        @media (max-width: 720px) {
-          .card {
-            width: 160px;
-          }
         }
       `}</style>
     </div>
