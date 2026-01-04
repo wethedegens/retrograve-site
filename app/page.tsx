@@ -45,6 +45,17 @@ const PROJECTS: LockerProject[] = [
     glow: "miners",
     preview: "/lockscreened-previews/miners.png",
   },
+
+  // ✅ NEW: ZeroMonkeBiz (LIVE) — inserted right after Enchanted
+  {
+    name: "ZeroMonkeBiz",
+    status: "live",
+    label: "Live",
+    lockerPath: "/zeromonkebiz",
+    glow: "zeromonkebiz",
+    preview: "/lockscreened-previews/zeromonkeybiz.png",
+  },
+
   {
     name: "MAGApixel Locker",
     status: "live",
