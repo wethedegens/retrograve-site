@@ -1,3 +1,4 @@
+// app/components/TopNav.tsx
 "use client";
 
 import Link from "next/link";
@@ -7,12 +8,12 @@ import type { TopNavProject } from "./TopNavWrapper";
 
 type ProjectLinks = {
   homeHref: string;
-  myHref?: string; // internal
+  myHref?: string;
   myLabel?: string;
 
-  collectHref: string; // external
-  communityHref: string; // external
-  xHref: string; // external
+  collectHref: string;
+  communityHref: string;
+  xHref: string;
 };
 
 const LINKS: Record<TopNavProject, ProjectLinks> = {
@@ -70,7 +71,6 @@ const LINKS: Record<TopNavProject, ProjectLinks> = {
     xHref: "https://x.com/MAGApixel_NFT",
   },
 
-  // ✅ ZEROMONKEBIZ
   zeromonkebiz: {
     homeHref: "/",
     myHref: "/zeromonkebiz-nfts",
@@ -80,7 +80,7 @@ const LINKS: Record<TopNavProject, ProjectLinks> = {
     xHref: "https://x.com/zeromonkebiz",
   },
 
-  // ✅ NEW: SAGAMONKES
+  // ✅ NEW: SagaMonkes
   sagamonkes: {
     homeHref: "/",
     myHref: "/saga-monkes-nfts",

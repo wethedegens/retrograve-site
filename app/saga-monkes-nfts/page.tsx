@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import NftGrid, { NFT } from "../components/NftGrid";
 
 const SAGAMONKES_COLLECTION_ID = "HCwFN2CpdwPbfRUFerVUWaYhtV7J587X9cEuZ3Cn8Hst";
-const SAGAMONKES_BG_IMAGE = "/saga-monkes-bg.png"; // ✅ you have this in /public
+const SAGAMONKES_BG_IMAGE = "/saga-monkes-bg-nfts.jpg";
 
 export default function SagaMonkesNftsPage() {
   const { publicKey, connected } = useWallet();
@@ -18,7 +18,6 @@ export default function SagaMonkesNftsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Only load AFTER wallet is connected
   useEffect(() => {
     const owner = publicKey?.toBase58();
     if (!owner) {
@@ -98,48 +97,10 @@ export default function SagaMonkesNftsPage() {
       }}
     >
       <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 18px" }}>
-        {/* ✅ readable header block */}
-        <div
-          style={{
-            maxWidth: 720,
-            margin: "10px auto 16px",
-            padding: "18px 18px",
-            borderRadius: 18,
-            background: "rgba(10, 10, 14, 0.62)",
-            border: "1px solid rgba(255,255,255,0.14)",
-            backdropFilter: "blur(10px)",
-            boxShadow: "0 18px 40px rgba(0,0,0,0.45)",
-            textAlign: "center",
-          }}
-        >
-          <h1
-            style={{
-              margin: "0 0 8px",
-              fontSize: 28,
-              letterSpacing: "0.04em",
-              color: "rgba(255,255,255,0.95)",
-            }}
-          >
-            MY SAGAMONKES
-          </h1>
-
-          <p
-            style={{
-              margin: 0,
-              opacity: 0.9,
-              lineHeight: 1.6,
-              color: "rgba(255,255,255,0.85)",
-              fontSize: 13,
-            }}
-          >
-            Connect your wallet to view your SagaMonkes, then tap one to open it in the locker and export wallpapers.
-          </p>
-        </div>
-
         {!connected ? (
           <div
             style={{
-              minHeight: "calc(100vh - 64px - 170px)",
+              minHeight: "calc(100vh - 64px - 98px)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -153,20 +114,32 @@ export default function SagaMonkesNftsPage() {
                 padding: "22px 18px",
                 borderRadius: 18,
                 background: "rgba(10, 10, 14, 0.62)",
-                border: "1px solid rgba(255,255,255,0.14)",
+                border: "1px solid rgba(255,255,255,0.16)",
                 backdropFilter: "blur(10px)",
-                boxShadow: "0 18px 40px rgba(0,0,0,0.45)",
+                boxShadow: "0 18px 40px rgba(0,0,0,0.55)",
               }}
             >
+              <h1
+                style={{
+                  margin: "0 0 10px",
+                  fontSize: 28,
+                  letterSpacing: "0.04em",
+                  color: "rgba(255,255,255,0.95)",
+                }}
+              >
+                SAGAMONKES
+              </h1>
+
               <p
                 style={{
                   margin: "0 0 14px",
                   opacity: 0.9,
                   lineHeight: 1.6,
-                  color: "rgba(255,255,255,0.85)",
+                  color: "rgba(255,255,255,0.86)",
                 }}
               >
-                Connect your wallet to view your SagaMonkes.
+                Connect your wallet to view your SagaMonkes, then tap one to open
+                it in the locker and export wallpapers.
               </p>
 
               <div style={{ display: "flex", justifyContent: "center" }}>
@@ -174,26 +147,48 @@ export default function SagaMonkesNftsPage() {
               </div>
 
               <p style={{ margin: "12px 0 0", opacity: 0.65, fontSize: 12, color: "rgba(255,255,255,0.75)" }}>
-                Wallet is only used to read your NFTs — nothing can be moved or signed without approval.
+                Your wallet is only used to read your NFTs — nothing can be
+                moved or signed without your approval.
               </p>
             </div>
           </div>
         ) : (
           <>
-            {loading && (
-              <p style={{ opacity: 0.9, color: "rgba(255,255,255,0.9)", textAlign: "center" }}>
-                Loading...
-              </p>
-            )}
+            <div
+              style={{
+                display: "inline-block",
+                padding: "12px 14px",
+                borderRadius: 16,
+                background: "rgba(10, 10, 14, 0.62)",
+                border: "1px solid rgba(255,255,255,0.16)",
+                backdropFilter: "blur(10px)",
+                boxShadow: "0 18px 40px rgba(0,0,0,0.55)",
+              }}
+            >
+              <h1
+                style={{
+                  margin: "0 0 6px",
+                  fontSize: 28,
+                  letterSpacing: "0.04em",
+                  color: "rgba(255,255,255,0.95)",
+                }}
+              >
+                MY SAGAMONKES
+              </h1>
 
-            {error && (
-              <p style={{ opacity: 0.95, color: "#ffb3b3", textAlign: "center" }}>
-                {error}
+              <p style={{ margin: 0, opacity: 0.8, color: "rgba(255,255,255,0.86)" }}>
+                Showing SagaMonkes owned by your connected wallet.
               </p>
-            )}
+            </div>
+
+            <div style={{ height: 16 }} />
+
+            {loading && <p style={{ opacity: 0.9, color: "rgba(255,255,255,0.9)" }}>Loading...</p>}
+
+            {error && <p style={{ opacity: 0.95, color: "#ffb3b3" }}>{error}</p>}
 
             {!loading && !error && items.length === 0 && (
-              <p style={{ opacity: 0.9, color: "rgba(255,255,255,0.9)", textAlign: "center" }}>
+              <p style={{ opacity: 0.9, color: "rgba(255,255,255,0.9)" }}>
                 No SagaMonkes found.
               </p>
             )}
@@ -204,7 +199,9 @@ export default function SagaMonkesNftsPage() {
                 onPick={(nft) => {
                   const mint = nft.id || "";
                   const uri = nft.uri ? encodeURIComponent(nft.uri) : "";
-                  router.push(`/locker?mint=${mint}${uri ? `&uri=${uri}` : ""}&project=saga-monkes`);
+                  router.push(
+                    `/locker?mint=${mint}${uri ? `&uri=${uri}` : ""}&project=sagamonkes`
+                  );
                 }}
               />
             )}

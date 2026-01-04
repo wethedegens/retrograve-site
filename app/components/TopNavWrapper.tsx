@@ -1,3 +1,4 @@
+// app/components/TopNavWrapper.tsx
 "use client";
 
 import { useMemo } from "react";
@@ -20,45 +21,35 @@ function inferProjectFromRoute(
 ): TopNavProject {
   const p = (pathname || "").toLowerCase();
 
-  // Core hub pages default to RetroGrave mode (safe default)
   if (p === "/" || p.startsWith("/community") || p.startsWith("/my-retrograves"))
     return "retrograve";
 
-  // Explicit locker subroutes
   if (p.startsWith("/locker/magapixel")) return "magapixel";
   if (p.startsWith("/locker/retrograve")) return "retrograve";
 
-  // Magapixel routes
   if (p.startsWith("/magapixel-nfts")) return "magapixel";
-  if (p.startsWith("/retrogs")) return "magapixel"; // legacy
+  if (p.startsWith("/retrogs")) return "magapixel";
 
-  // Retrograve routes
   if (p.startsWith("/retrograve")) return "retrograve";
 
-  // Miners routes
   if (p.startsWith("/enchanted-miners")) return "miners";
   if (p.startsWith("/enchanted-miners-nfts")) return "miners";
 
-  // MidEvils routes
   if (p.startsWith("/midevils")) return "midevils";
   if (p.startsWith("/midevils-nfts")) return "midevils";
 
-  // Gainz routes
   if (p.startsWith("/gainz")) return "gainz";
 
-  // MEOWGA routes
   if (p.startsWith("/meowga")) return "meowga";
   if (p.startsWith("/meowga-nfts")) return "meowga";
 
-  // ZeroMonkeBiz routes
   if (p.startsWith("/zeromonkebiz")) return "zeromonkebiz";
   if (p.startsWith("/zeromonkebiz-nfts")) return "zeromonkebiz";
 
-  // ✅ NEW: SagaMonkes routes
+  // ✅ SagaMonkes routes
   if (p.startsWith("/saga-monkes")) return "sagamonkes";
   if (p.startsWith("/saga-monkes-nfts")) return "sagamonkes";
 
-  // Generic locker route: uses ?project=
   if (p.startsWith("/locker")) {
     const qp = (searchParams.get("project") || "").toLowerCase();
     if (qp === "miners") return "miners";
