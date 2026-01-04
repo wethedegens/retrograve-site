@@ -1,3 +1,4 @@
+// app/components/BackgroundPicker.tsx
 "use client";
 
 import type { ChangeEvent } from "react";
@@ -21,10 +22,6 @@ type Props = {
   project?: string;
 };
 
-/**
- * ENCHANTED MINERS: static phone-sized PNGs
- * Folder: /public/enchanted-miners/phone/bg-1.png ... bg-28.png
- */
 const MINER_IMAGE_BACKGROUNDS: string[] = [
   "/enchanted-miners/phone/bg-1.png",
   "/enchanted-miners/phone/bg-2.png",
@@ -54,10 +51,6 @@ const MINER_IMAGE_BACKGROUNDS: string[] = [
   "/enchanted-miners/phone/bg-28.png",
 ];
 
-/**
- * GAINZ: static phone-sized PNGs
- * Folder: /public/gainz/phone/bg-1.png ... bg-15.png
- */
 const GAINZ_IMAGE_BACKGROUNDS: string[] = [
   "/gainz/phone/bg-1.png",
   "/gainz/phone/bg-2.png",
@@ -76,10 +69,6 @@ const GAINZ_IMAGE_BACKGROUNDS: string[] = [
   "/gainz/phone/bg-15.png",
 ];
 
-/**
- * MIDEVILS: static phone-sized PNGs
- * Folder: /public/midevils/phone/bg-1.png ... bg-12.png (or more)
- */
 const MIDEVILS_IMAGE_BACKGROUNDS: string[] = [
   "/midevils/phone/bg-1.png",
   "/midevils/phone/bg-2.png",
@@ -95,12 +84,6 @@ const MIDEVILS_IMAGE_BACKGROUNDS: string[] = [
   "/midevils/phone/bg-12.png",
 ];
 
-/**
- * ✅ MEOWGA: static phone-sized PNGs
- * Folder: /public/meowga/phone/*.png
- *
- * These are your exact filenames from the screenshot.
- */
 const MEOWGA_IMAGE_BACKGROUNDS: string[] = [
   "/meowga/phone/bedroom-plotting.png",
   "/meowga/phone/brownies.png",
@@ -119,20 +102,13 @@ const MEOWGA_IMAGE_BACKGROUNDS: string[] = [
   "/meowga/phone/vengeance.png",
 ];
 
-/**
- * ✅ ZEROMONKEBIZ: static phone-sized PNGs (ONLY 3)
- * Folder: /public/zeromonkebiz/phone/bg-1.png ... bg-3.png
- */
 const ZEROMONKEBIZ_IMAGE_BACKGROUNDS: string[] = [
   "/zeromonkebiz/phone/bg-1.png",
   "/zeromonkebiz/phone/bg-2.png",
   "/zeromonkebiz/phone/bg-3.png",
 ];
 
-/**
- * ✅ SAGAMONKES: static phone-sized PNGs
- * Folder: /public/saga-monkes/phone/bg-1.png ... bg-5.png
- */
+// ✅ SagaMonkes (5 only)
 const SAGAMONKES_IMAGE_BACKGROUNDS: string[] = [
   "/saga-monkes/phone/bg-1.png",
   "/saga-monkes/phone/bg-2.png",
@@ -141,12 +117,6 @@ const SAGAMONKES_IMAGE_BACKGROUNDS: string[] = [
   "/saga-monkes/phone/bg-5.png",
 ];
 
-/**
- * MAGAPIXEL: background packs with phone / ipad / desktop / thumb
- * Folder structure:
- *   /public/backgrounds/<slug>/thumb.png
- *   /public/backgrounds/<slug>/phone.png
- */
 const MAGAPIXEL_BACKGROUND_SLUGS: string[] = [
   "austere-grey",
   "bitcoined",
@@ -165,10 +135,6 @@ const MAGAPIXEL_BACKGROUND_SLUGS: string[] = [
   "whitehouse-hallway",
 ];
 
-/**
- * Future-proof mapping:
- * Any project you add later can be routed here without touching the rest of the file.
- */
 const STATIC_PROJECT_STRIPS: Record<
   string,
   { label: string; images: string[]; filenamePrefix: string }
@@ -193,15 +159,11 @@ const STATIC_PROJECT_STRIPS: Record<
     images: MEOWGA_IMAGE_BACKGROUNDS,
     filenamePrefix: "meowga-wallpaper",
   },
-
-  // ✅ NEW: ZEROMONKEBIZ (3 only)
   zeromonkebiz: {
     label: "ZEROMONKEBIZ WALLPAPERS",
     images: ZEROMONKEBIZ_IMAGE_BACKGROUNDS,
     filenamePrefix: "zeromonkebiz-wallpaper",
   },
-
-  // ✅ NEW: SAGAMONKES (5)
   sagamonkes: {
     label: "SAGAMONKES WALLPAPERS",
     images: SAGAMONKES_IMAGE_BACKGROUNDS,
@@ -215,15 +177,11 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
 
   const staticStrip = STATIC_PROJECT_STRIPS[key];
   const isStaticProject = !!staticStrip;
-
-  // Default behavior (Magapixel) if not a known static-strip project
   const isMagapixel = !isStaticProject;
 
-  // IMPORTANT: image variant uses `.image`, not `.value`
   const isImageActive = (src: string) =>
     current?.kind === "image" && current?.image === src;
 
-  /** Upload handler (works for all projects) */
   const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -236,7 +194,6 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
     } as any as BgChoice);
   };
 
-  /** Static-strip projects: click one of the phone PNGs */
   const handleStaticProjectImageClick = (
     src: string,
     index: number,
@@ -258,7 +215,6 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
     } as any as BgChoice);
   };
 
-  /** MAGAPIXEL: use /backgrounds/<slug>/phone.png as wallpaper */
   const handleMagapixelClick = (slug: string, index: number) => {
     const phoneSrc = `/backgrounds/${slug}/phone.png`;
 
@@ -280,7 +236,6 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
 
   return (
     <section>
-      {/* STATIC PROJECT STRIP */}
       {isStaticProject && staticStrip ? (
         <div style={{ marginBottom: 8 }}>
           <div
@@ -290,6 +245,7 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
               letterSpacing: "0.14em",
               opacity: 0.8,
               marginBottom: 4,
+              color: "rgba(255,255,255,0.9)",
             }}
           >
             {staticStrip.label}
@@ -344,7 +300,6 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
         </div>
       ) : null}
 
-      {/* MAGAPIXEL STRIP (default when not a static project) */}
       {isMagapixel && (
         <div style={{ marginBottom: 8 }}>
           <div
@@ -354,6 +309,7 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
               letterSpacing: "0.14em",
               opacity: 0.8,
               marginBottom: 4,
+              color: "rgba(255,255,255,0.9)",
             }}
           >
             MAGAPIXEL BACKGROUNDS
@@ -405,7 +361,6 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
         </div>
       )}
 
-      {/* UPLOAD (shared across all projects) */}
       <div style={{ marginTop: 12 }}>
         <div
           style={{
@@ -414,6 +369,7 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
             letterSpacing: "0.14em",
             opacity: 0.8,
             marginBottom: 4,
+            color: "rgba(255,255,255,0.9)",
           }}
         >
           Or upload a background

@@ -46,14 +46,13 @@ const PROJECTS: LockerProject[] = [
     glow: "miners",
     preview: "/lockscreened-previews/miners.png",
   },
-
   {
     name: "ZeroMonkeBiz",
     status: "live",
     label: "Live",
     lockerPath: "/zeromonkebiz",
     glow: "zeromonkebiz",
-    preview: "/lockscreened-previews/zeromonkeybiz.png",
+    preview: "/lockscreened-previews/zeromonkebiz.png",
   },
 
   // ✅ NEW: SagaMonkes (LIVE)
@@ -61,9 +60,9 @@ const PROJECTS: LockerProject[] = [
     name: "SagaMonkes",
     status: "live",
     label: "Live",
-    lockerPath: "/saga-monkes-nfts",
-    glow: "saga-monkes",
-    preview: "/lockscreened-previews/saga-monkes.png",
+    lockerPath: "/saga-monkes",
+    glow: "sagamonkes",
+    preview: "/lockscreened-previews/sagamonkes.png",
   },
 
   {
@@ -93,6 +92,7 @@ export default function HomePage() {
   return (
     <main className="home">
       <div className="bg" />
+      <div className="scrim" />
 
       <section className="wrap">
         <header className="hero">
@@ -168,6 +168,23 @@ export default function HomePage() {
           filter: saturate(1.03);
         }
 
+        /* ✅ readability layer */
+        .scrim {
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(
+              900px 520px at 50% 140px,
+              rgba(0, 0, 0, 0.55),
+              rgba(0, 0, 0, 0) 70%
+            ),
+            linear-gradient(
+              to bottom,
+              rgba(0, 0, 0, 0.35),
+              rgba(0, 0, 0, 0) 45%
+            );
+          pointer-events: none;
+        }
+
         .wrap {
           position: relative;
           z-index: 1;
@@ -195,9 +212,10 @@ export default function HomePage() {
         .tagline {
           margin: 8px auto 12px;
           max-width: 720px;
-          color: rgba(20, 24, 32, 0.75);
+          color: rgba(255, 255, 255, 0.88);
           font-size: 14px;
           line-height: 1.5;
+          text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
         }
 
         .ctaRow {
@@ -226,14 +244,14 @@ export default function HomePage() {
         .ctaPrimary {
           background: #ff3fb4;
           color: #151019;
-          box-shadow: 0 10px 22px rgba(0, 0, 0, 0.15);
+          box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
         }
 
         .ctaGhost {
-          background: rgba(255, 255, 255, 0.55);
-          color: #111214;
-          border: 1px solid rgba(0, 0, 0, 0.08);
-          backdrop-filter: blur(4px);
+          background: rgba(255, 255, 255, 0.14);
+          color: rgba(255, 255, 255, 0.92);
+          border: 1px solid rgba(255, 255, 255, 0.22);
+          backdrop-filter: blur(6px);
         }
 
         .section {
@@ -245,8 +263,9 @@ export default function HomePage() {
           font-size: 12px;
           letter-spacing: 0.22em;
           font-weight: 900;
-          color: rgba(20, 24, 32, 0.8);
+          color: rgba(255, 255, 255, 0.88);
           margin: 12px 0 8px;
+          text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
         }
 
         .sectionSub {
@@ -254,7 +273,8 @@ export default function HomePage() {
           max-width: 720px;
           font-size: 12px;
           line-height: 1.5;
-          color: rgba(20, 24, 32, 0.62);
+          color: rgba(255, 255, 255, 0.78);
+          text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
         }
 
         .cardsRow,
@@ -317,14 +337,16 @@ function ProjectCard({ p }: { p: LockerProject }) {
         .card {
           width: 170px;
           border-radius: 20px;
-          background: rgba(55, 58, 70, 0.55);
-          box-shadow: 0 18px 36px rgba(0, 0, 0, 0.18);
+          background: rgba(10, 8, 20, 0.58);
+          box-shadow: 0 18px 36px rgba(0, 0, 0, 0.22);
           padding: 10px 10px 12px;
           position: relative;
           display: grid;
           justify-items: center;
           gap: 8px;
           user-select: none;
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          backdrop-filter: blur(10px);
         }
 
         .pill {
@@ -333,8 +355,8 @@ function ProjectCard({ p }: { p: LockerProject }) {
           left: 10px;
           font-size: 10px;
           font-weight: 900;
-          color: rgba(0, 0, 0, 0.85);
-          background: rgba(255, 255, 255, 0.75);
+          color: rgba(0, 0, 0, 0.88);
+          background: rgba(255, 255, 255, 0.85);
           padding: 3px 8px;
           border-radius: 999px;
           letter-spacing: 0.06em;
@@ -344,7 +366,7 @@ function ProjectCard({ p }: { p: LockerProject }) {
           width: 100%;
           aspect-ratio: 9 / 19.5;
           border-radius: 18px;
-          background: rgba(30, 30, 34, 0.25);
+          background: rgba(30, 30, 34, 0.22);
           display: grid;
           place-items: center;
           overflow: hidden;
