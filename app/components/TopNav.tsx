@@ -61,7 +61,6 @@ const LINKS: Record<TopNavProject, ProjectLinks> = {
     xHref: "https://x.com/MidEvilsNFT",
   },
 
-  // ✅ NEW: MEOWGA
   meowga: {
     homeHref: "/",
     myHref: "/meowga-nfts",
@@ -69,6 +68,16 @@ const LINKS: Record<TopNavProject, ProjectLinks> = {
     collectHref: "https://magiceden.us/marketplace/meowga",
     communityHref: "https://discord.gg/ZVGtHUpHfb",
     xHref: "https://x.com/MAGApixel_NFT",
+  },
+
+  // ✅ NEW: ZEROMONKEBIZ
+  zeromonkebiz: {
+    homeHref: "/",
+    myHref: "/zeromonkebiz-nfts",
+    myLabel: "MY ZEROMONKES",
+    collectHref: "https://t.co/GHLBvIWXrR",
+    communityHref: "https://www.discord.gg/zeromonkebiz",
+    xHref: "https://x.com/zeromonkebiz",
   },
 };
 

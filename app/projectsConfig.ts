@@ -29,6 +29,18 @@ export const PROJECTS: LockerProject[] = [
     lockerPath: "https://retrograve.xyz/retrograve",
     status: "live",
   },
+
+  // ✅ NEW: ZeroMonkeBiz (LIVE)
+  {
+    slug: "zeromonkebiz",
+    name: "ZeroMonkeBiz",
+    tagline: "Phone-native lock screens for ZeroMonkeBiz NFTs.",
+    primaryColor: "#ffffff",
+    accentColor: "#111111",
+    lockerPath: "/zeromonkebiz",
+    status: "live",
+  },
+
   {
     slug: "meowga",
     name: "MEOWGA",
@@ -48,7 +60,7 @@ export const PROJECTS: LockerProject[] = [
     status: "live",
   },
 
-  // ✅ NEW: MidEvils
+  // ✅ MidEvils
   {
     slug: "midevils",
     name: "MidEvils",
