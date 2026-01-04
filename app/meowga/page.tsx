@@ -6,10 +6,10 @@ import PhoneShowcase from "../components/PhoneShowcase";
 
 export default function MeowgaLandingPage() {
   const previewImages = [
-    "/demo/meowga-1.png",
-    "/demo/meowga-2.png",
-    "/demo/meowga-3.png",
-    "/demo/meowga-4.png",
+    "/demo/meowga-1-1.png",
+    "/demo/meowga-2-2.png",
+    "/demo/meowga-3-3.png",
+    "/demo/meowga-4-4.png",
   ];
 
   return (
