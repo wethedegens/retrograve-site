@@ -7,10 +7,8 @@ import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useRouter } from "next/navigation";
 import NftGrid, { NFT } from "../components/NftGrid";
 
-// ✅ REAL verified collection key from on-chain metadata
 const GAINZ_COLLECTION_ID = "6a5FuaxdKmhjm5GnTXPcJnqCqFftvho2E5Wo7N7diXtx";
 
-// ✅ Optional: creator allowlist (gives you extra reliability)
 const GAINZ_CREATORS = [
   "6BJuVsENAMUEvR9ftviSVb5JokS12pF3FF2EnExdc2UD",
   "BZeN8afPfZNt33FiLmyVvzYm9xhzHtgXjaEJzZ2A8tru",
@@ -18,7 +16,7 @@ const GAINZ_CREATORS = [
   "wj5uDGjLajNjBPFzey4v1SSLjhFCGiLDp8W5REncm46",
 ];
 
-const GAINZ_BG_IMAGE = "/gainz-bg.png"; // keep if you have it; safe either way
+const GAINZ_BG_IMAGE = "/gainz-bg.png";
 
 export default function GainzNftGridPage() {
   const { publicKey, connected } = useWallet();
@@ -51,11 +49,10 @@ export default function GainzNftGridPage() {
           body: JSON.stringify({
             owner,
 
-            // ✅ use REAL collection key
+            // ✅ either key now works because API accepts both
             collectionId: GAINZ_COLLECTION_ID,
-            collection: GAINZ_COLLECTION_ID,
 
-            // ✅ extra-safe fallback
+            // ✅ extra reliability
             creators: GAINZ_CREATORS,
           }),
           cache: "no-store",

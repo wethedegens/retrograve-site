@@ -10,7 +10,7 @@ type DASAsset = {
     json_uri?: string;
     metadata?: { name?: string; symbol?: string };
   };
-  grouping?: { group_key: "collection" | string; group_value: string }[];
+  grouping?: { group_key: "collection"; group_value: string }[];
   creators?: { address: string; verified?: boolean }[];
   name?: string;
 };
@@ -27,10 +27,6 @@ function resolveHeliusRestBase() {
   return "https://api.helius.xyz";
 }
 
-function normAddr(v: any) {
-  return String(v ?? "").trim().toLowerCase();
-}
-
 /** ----- DAS (JSON-RPC) single page fetch ----- */
 async function fetchDASPage(
   owner: string,
@@ -45,12 +41,14 @@ async function fetchDASPage(
     params: { ownerAddress: owner, page, limit },
   };
 
-  return fetch(endpoint, {
+  const resp = await fetch(endpoint, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(body),
     cache: "no-store",
   });
+
+  return resp;
 }
 
 /** ----- Helius REST single page fetch (v0) ----- */
@@ -61,67 +59,65 @@ async function fetchRestPage(
   limit: number
 ) {
   const url = `${resolveHeliusRestBase()}/v0/addresses/${owner}/nfts?api-key=${apiKey}&pageNumber=${page}&pageSize=${limit}`;
-  return fetch(url, { cache: "no-store" });
+  const resp = await fetch(url, { cache: "no-store" });
+  return resp;
 }
 
-/** ----- Normalize + optional filtering (DAS fields) ----- */
+/** ----- Normalize + optional filtering ----- */
 function normalizeAndFilter(
   items: DASAsset[],
   opts: { collectionId?: string; creatorsCsv?: string }
 ) {
-  const collectionId = normAddr((opts?.collectionId || "").trim());
+  const collectionId = (opts?.collectionId || "").trim();
   const creatorsCsv = (opts?.creatorsCsv || "").trim();
 
   const allowCreators = creatorsCsv
     .split(",")
-    .map((s) => normAddr(s))
+    .map((s) => s.trim().toLowerCase())
     .filter(Boolean);
 
   let inCollectionCount = 0;
   let byCreatorCount = 0;
-
-  const anyFilterActive = !!collectionId || allowCreators.length > 0;
 
   const filtered = items.filter((a) => {
     const groups = a.grouping || [];
     const hasCollection = collectionId
       ? groups.some(
           (g) =>
-            normAddr(g?.group_key) === "collection" &&
-            normAddr(g?.group_value) === collectionId
+            g.group_key === "collection" &&
+            (g.group_value || "").trim() === collectionId
         )
       : false;
 
     const hasCreator = allowCreators.length
       ? (a.creators || []).some((c) =>
-          allowCreators.includes(normAddr(c?.address))
+          allowCreators.includes((c?.address || "").trim().toLowerCase())
         )
       : false;
 
     if (hasCollection) inCollectionCount++;
     if (hasCreator) byCreatorCount++;
 
+    const anyFilterActive = !!collectionId || allowCreators.length > 0;
     return anyFilterActive ? hasCollection || hasCreator : true;
   });
 
   console.log(
-    `Filter debug (DAS): input=${items.length} kept=${filtered.length} (collection matches=${inCollectionCount}, creator matches=${byCreatorCount})`
+    `Filter debug: input=${items.length} kept=${filtered.length} (inCollection matches=${inCollectionCount}, creator matches=${byCreatorCount})`
   );
 
-  return filtered.map((a) => normalizeAsset(a));
-}
+  return filtered.map((a) => {
+    const image =
+      a.content?.links?.image ||
+      a.content?.files?.[0]?.uri ||
+      a.content?.json_uri ||
+      null;
 
-function normalizeAsset(a: DASAsset) {
-  const image =
-    a.content?.links?.image ||
-    a.content?.files?.[0]?.uri ||
-    a.content?.json_uri ||
-    null;
+    const name = a.name || a.content?.metadata?.name || "";
+    const uri = a.content?.json_uri || null;
 
-  const name = a.name || a.content?.metadata?.name || "";
-  const uri = a.content?.json_uri || null;
-
-  return { id: a.id, name, image, uri };
+    return { id: a.id, name, image, uri };
+  });
 }
 
 /** ----- Adapt Helius REST item -> DASAsset ----- */
@@ -183,94 +179,53 @@ function adaptHeliusRestToDas(rest: any[]): DASAsset[] {
   });
 }
 
-/** ----- Small concurrency helper ----- */
-async function mapLimit<T, R>(
-  list: T[],
-  limit: number,
-  fn: (item: T, idx: number) => Promise<R>
-): Promise<R[]> {
-  const out: R[] = new Array(list.length) as any;
-  let i = 0;
+/** ----- NEW: Off-chain creator match (only when requested) ----- */
+async function offchainCreatorMatch(assets: DASAsset[], allowCreators: string[]) {
+  const allow = allowCreators.map((a) => a.trim().toLowerCase()).filter(Boolean);
+  if (!allow.length) return [];
 
-  async function worker() {
-    while (i < list.length) {
-      const idx = i++;
-      out[idx] = await fn(list[idx], idx);
+  async function fetchJson(uri: string) {
+    if (!uri) return null;
+    const u = String(uri);
+    const url = u.startsWith("ipfs://")
+      ? `/api/meta?u=${encodeURIComponent(u)}`
+      : `/api/meta?u=${encodeURIComponent(u)}`;
+
+    const r = await fetch(url, { cache: "no-store" });
+    if (!r.ok) return null;
+    return (await r.json().catch(() => null)) as any;
+  }
+
+  const matched: DASAsset[] = [];
+
+  // keep it simple + safe: sequential so you don't get rate-limited
+  for (const a of assets) {
+    const uri = a.content?.json_uri || "";
+    if (!uri) continue;
+
+    const j = await fetchJson(uri);
+    const creators =
+      j?.properties?.creators ||
+      j?.creators ||
+      j?.data?.creators ||
+      j?.properties?.files?.creators ||
+      [];
+
+    const addrs = Array.isArray(creators)
+      ? creators
+          .map((c: any) => String(c?.address || c?.creator || "").toLowerCase())
+          .filter(Boolean)
+      : [];
+
+    if (addrs.some((addr) => allow.includes(addr))) {
+      matched.push(a);
     }
   }
 
-  const workers = Array.from({ length: Math.min(limit, list.length) }, worker);
-  await Promise.all(workers);
-  return out;
-}
-
-/** ----- Off-chain creator fallback (json_uri -> properties.creators) ----- */
-async function offchainCreatorMatch(
-  all: DASAsset[],
-  allowCreators: string[]
-): Promise<DASAsset[]> {
-  const allow = new Set(allowCreators.map((x) => normAddr(x)).filter(Boolean));
-  if (allow.size === 0) return [];
-
-  // Only try candidates that have a json_uri (metadata url)
-  // and look somewhat relevant (name/symbol heuristic) to avoid tons of fetches.
-  const candidates = all.filter((a) => {
-    const uri = a.content?.json_uri;
-    if (!uri) return false;
-
-    const name = normAddr(a.name || a.content?.metadata?.name);
-    const sym = normAddr(a.content?.metadata?.symbol);
-
-    // broad heuristic (safe): MONKE / SAGA / etc.
-    return (
-      name.includes("monke") ||
-      name.includes("saga") ||
-      sym.includes("monke") ||
-      sym.includes("saga")
-    );
-  });
-
-  console.log(
-    `Offchain fallback: candidates=${candidates.length} (will fetch json_uri)`
-  );
-
-  const matchedFlags = await mapLimit(
-    candidates,
-    10, // concurrency cap (safe for serverless)
-    async (a) => {
-      const url = a.content?.json_uri || "";
-      if (!url) return false;
-
-      try {
-        const r = await fetch(url, {
-          cache: "no-store",
-          headers: { "user-agent": "LockscreenedMetaFetcher/1.0" },
-        });
-        if (!r.ok) return false;
-
-        const json = await r.json().catch(() => null);
-        const creators = json?.properties?.creators;
-
-        if (!Array.isArray(creators)) return false;
-
-        // creators: [{address, share}] in your metadata
-        const addrs = creators
-          .map((c: any) => normAddr(c?.address))
-          .filter(Boolean);
-
-        return addrs.some((addr) => allow.has(addr));
-      } catch {
-        return false;
-      }
-    }
-  );
-
-  const matched = candidates.filter((_, idx) => matchedFlags[idx]);
-  console.log(`Offchain fallback: matched=${matched.length}`);
   return matched;
 }
 
-/** ----- POST handler ----- */
+/** ----- POST ----- */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
@@ -293,7 +248,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ✅ Honor collectionId AND collection (back-compat)
+    // ✅ Accept BOTH keys: collectionId OR collection
     const bodyCollection =
       typeof body.collectionId === "string"
         ? body.collectionId.trim()
@@ -379,27 +334,24 @@ export async function POST(req: NextRequest) {
       creatorsCsv: effectiveCreators,
     });
 
-    // ✅ Second pass: Off-chain metadata creator fallback
-    // Only if:
-    // - we asked for creators filtering
-    // - and the first pass returned 0
+    // ✅ Second pass: off-chain creator fallback
+    // Only if: creators were requested AND first pass returned 0
     if (nfts.length === 0 && effectiveCreators.trim()) {
       const allowCreators = effectiveCreators
         .split(",")
-        .map((s) => s.trim())
+        .map((s: string) => s.trim())
         .filter(Boolean);
 
       const matchedAssets = await offchainCreatorMatch(ALL, allowCreators);
-      nfts = matchedAssets.map((a) => normalizeAsset(a));
+      nfts = normalizeAndFilter(matchedAssets, {
+        collectionId: "", // already filtered
+        creatorsCsv: "",  // already filtered
+      });
     }
 
-    // IMPORTANT: keep the same shape { nfts } so existing pages keep working
     return NextResponse.json({ nfts });
   } catch (e) {
     console.error("NFT fetch failed:", e);
-    return NextResponse.json(
-      { error: "Failed to fetch NFTs" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch NFTs" }, { status: 500 });
   }
 }
