@@ -7,8 +7,18 @@ import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useRouter } from "next/navigation";
 import NftGrid, { NFT } from "../components/NftGrid";
 
-const GAINZ_COLLECTION = "4xo6wAGXhFgV1oozb7QPKbBsmubsSVkbhzqwAvKifT6q";
-const GAINZ_BG_IMAGE = "/gainz-bg.png"; // optional; if you don't have one, keep or remove backgroundImage below.
+// ✅ REAL verified collection key from on-chain metadata
+const GAINZ_COLLECTION_ID = "6a5FuaxdKmhjm5GnTXPcJnqCqFftvho2E5Wo7N7diXtx";
+
+// ✅ Optional: creator allowlist (gives you extra reliability)
+const GAINZ_CREATORS = [
+  "6BJuVsENAMUEvR9ftviSVb5JokS12pF3FF2EnExdc2UD",
+  "BZeN8afPfZNt33FiLmyVvzYm9xhzHtgXjaEJzZ2A8tru",
+  "AKgkp823sYaFWBtDm559LX3J4QJ9rtpV4Y5po8BEvoQ5",
+  "wj5uDGjLajNjBPFzey4v1SSLjhFCGiLDp8W5REncm46",
+];
+
+const GAINZ_BG_IMAGE = "/gainz-bg.png"; // keep if you have it; safe either way
 
 export default function GainzNftGridPage() {
   const { publicKey, connected } = useWallet();
@@ -20,6 +30,7 @@ export default function GainzNftGridPage() {
 
   useEffect(() => {
     const owner = publicKey?.toBase58();
+
     if (!owner) {
       setNfts([]);
       setError(null);
@@ -39,8 +50,13 @@ export default function GainzNftGridPage() {
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             owner,
-            collection: GAINZ_COLLECTION,
-            collectionId: GAINZ_COLLECTION,
+
+            // ✅ use REAL collection key
+            collectionId: GAINZ_COLLECTION_ID,
+            collection: GAINZ_COLLECTION_ID,
+
+            // ✅ extra-safe fallback
+            creators: GAINZ_CREATORS,
           }),
           cache: "no-store",
         });
@@ -64,7 +80,7 @@ export default function GainzNftGridPage() {
         if (!cancelled) setNfts(list);
       } catch (e: any) {
         if (!cancelled) {
-          setError(e?.message || "Failed to load GAINZ NFTs");
+          setError(e?.message || "Failed to load GAINZ");
           setNfts([]);
         }
       } finally {
@@ -81,12 +97,10 @@ export default function GainzNftGridPage() {
 
   return (
     <main
-      className="gainz-nft-wrapper"
       style={{
         minHeight: "100vh",
         padding: "18px 0 80px",
         paddingTop: 64,
-        backgroundColor: "#05020A",
         backgroundImage: `url(${GAINZ_BG_IMAGE})`,
         backgroundRepeat: "no-repeat",
         backgroundPosition: "center center",
@@ -117,19 +131,13 @@ export default function GainzNftGridPage() {
                 boxShadow: "0 18px 40px rgba(0,0,0,0.45)",
               }}
             >
-              <h1
-                style={{
-                  margin: "0 0 10px",
-                  fontSize: 28,
-                  letterSpacing: "0.04em",
-                }}
-              >
+              <h1 style={{ margin: "0 0 10px", fontSize: 28, letterSpacing: "0.04em" }}>
                 GAINZ
               </h1>
 
               <p style={{ margin: "0 0 14px", opacity: 0.9, lineHeight: 1.6 }}>
-                Connect your wallet to view your GAINZ, then tap one to open it
-                in the locker and export wallpapers.
+                Connect your wallet to view your GAINZ, then tap one to open it in
+                the locker and export wallpapers.
               </p>
 
               <div style={{ display: "flex", justifyContent: "center" }}>
@@ -137,26 +145,14 @@ export default function GainzNftGridPage() {
               </div>
 
               <p style={{ margin: "12px 0 0", opacity: 0.65, fontSize: 12 }}>
-                Your wallet is only used to read your NFTs — nothing can be
-                moved or signed without your approval.
+                Your wallet is only used to read your NFTs — nothing can be moved
+                or signed without your approval.
               </p>
             </div>
           </div>
         ) : (
           <>
-            <p style={{ margin: "0 0 8px" }}>
-              <a href="/gainz" style={{ color: "#cfc2ff", opacity: 0.9 }}>
-                ← back to GAINZ
-              </a>
-            </p>
-
-            <h1
-              style={{
-                margin: "8px 0",
-                fontSize: 28,
-                letterSpacing: "0.04em",
-              }}
-            >
+            <h1 style={{ margin: "8px 0", fontSize: 28, letterSpacing: "0.04em" }}>
               MY GAINZ
             </h1>
 
