@@ -12,6 +12,24 @@ const SAGAMONKES_BG_IMAGE = "/saga-monkes-bg-nfts.jpg";
 const MAGICEDEN_COLLECTION_URL =
   "https://magiceden.us/marketplace/saga_monkes";
 
+/**
+ * ✅ SagaMonkes reality:
+ * Helius "grouping.collection" often DOES NOT match what marketplaces call the "collection id".
+ * The most reliable match is by creators from the NFT metadata.
+ *
+ * These are from your MONKE metadata:
+ * 8McVhmNjsYSkwQ34QXJb2ADgLWERcHcpqxSzRZUCRZfQ
+ * niFtyPVUnA4dd3gaoajiwmX1keTsTi4k626szinHE5Z
+ * 4rgwWRhLsmUhRJNifP4BD73QJksbYhLdpHZVgksTiPLb
+ * 6gXSWgv7x4Qn77DakyLYYDJtoohZWJACzAVch8HTHsnm
+ */
+const SAGAMONKES_CREATORS = [
+  "8McVhmNjsYSkwQ34QXJb2ADgLWERcHcpqxSzRZUCRZfQ",
+  "niFtyPVUnA4dd3gaoajiwmX1keTsTi4k626szinHE5Z",
+  "4rgwWRhLsmUhRJNifP4BD73QJksbYhLdpHZVgksTiPLb",
+  "6gXSWgv7x4Qn77DakyLYYDJtoohZWJACzAVch8HTHsnm",
+];
+
 export default function SagaMonkesNftsPage() {
   const { publicKey, connected } = useWallet();
   const router = useRouter();
@@ -42,8 +60,19 @@ export default function SagaMonkesNftsPage() {
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             owner,
+
+            /**
+             * Keep these (harmless). If Helius grouping DOES match, you'll get strict matches.
+             * If not, creators filter will still catch them.
+             */
             collection: SAGAMONKES_COLLECTION_ID,
             collectionId: SAGAMONKES_COLLECTION_ID,
+
+            /**
+             * ✅ The important part:
+             * Filter by known SagaMonkes creators.
+             */
+            creators: SAGAMONKES_CREATORS,
           }),
           cache: "no-store",
         });
@@ -228,10 +257,9 @@ export default function SagaMonkesNftsPage() {
                     lineHeight: 1.5,
                   }}
                 >
-                  If you&apos;re sure you own one, the collection filter may not
-                  match how the indexer labels this collection. In that case,
-                  we need to fix filtering in <code>/api/nfts</code> (recommended)
-                  instead of guessing on the client.
+                  If you&apos;re sure you own one, this collection may not be
+                  grouped under a standard DAS collection id. This page uses a
+                  creator-based filter to catch SagaMonkes reliably.
                 </p>
 
                 <div style={{ height: 10 }} />
