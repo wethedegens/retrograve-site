@@ -10,15 +10,9 @@ type DASAsset = {
     json_uri?: string;
     metadata?: { name?: string; symbol?: string };
   };
-  grouping?: { group_key: "collection"; group_value: string }[];
+  grouping?: { group_key: "collection" | string; group_value: string }[];
   creators?: { address: string; verified?: boolean }[];
   name?: string;
-
-  // Some indexers/versions include extra fields (we use defensively)
-  updateAuthority?: string;
-  authority?: string;
-  ownership?: any;
-  compression?: any;
 };
 
 /** ----- Config helpers ----- */
@@ -50,13 +44,13 @@ async function fetchDASPage(
     method: "getAssetsByOwner",
     params: { ownerAddress: owner, page, limit },
   };
-  const resp = await fetch(endpoint, {
+
+  return fetch(endpoint, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(body),
     cache: "no-store",
   });
-  return resp;
 }
 
 /** ----- Helius REST single page fetch (v0) ----- */
@@ -67,83 +61,67 @@ async function fetchRestPage(
   limit: number
 ) {
   const url = `${resolveHeliusRestBase()}/v0/addresses/${owner}/nfts?api-key=${apiKey}&pageNumber=${page}&pageSize=${limit}`;
-  const resp = await fetch(url, { cache: "no-store" });
-  return resp;
+  return fetch(url, { cache: "no-store" });
 }
 
-/** ----- Normalize + optional filtering ----- */
+/** ----- Normalize + optional filtering (DAS fields) ----- */
 function normalizeAndFilter(
   items: DASAsset[],
   opts: { collectionId?: string; creatorsCsv?: string }
 ) {
-  const collectionIdRaw = (opts?.collectionId || "").trim();
-  const collectionId = normAddr(collectionIdRaw);
-
+  const collectionId = normAddr((opts?.collectionId || "").trim());
   const creatorsCsv = (opts?.creatorsCsv || "").trim();
+
   const allowCreators = creatorsCsv
     .split(",")
     .map((s) => normAddr(s))
     .filter(Boolean);
 
   let inCollectionCount = 0;
-  let byCreatorAllowlistCount = 0;
-  let byCollectionAsCreatorFallbackCount = 0;
+  let byCreatorCount = 0;
 
   const anyFilterActive = !!collectionId || allowCreators.length > 0;
 
   const filtered = items.filter((a) => {
-    const groups = Array.isArray(a.grouping) ? a.grouping : [];
+    const groups = a.grouping || [];
+    const hasCollection = collectionId
+      ? groups.some(
+          (g) =>
+            normAddr(g?.group_key) === "collection" &&
+            normAddr(g?.group_value) === collectionId
+        )
+      : false;
 
-    // 1) Primary: verified collection grouping match
-    const hasCollection =
-      !!collectionId &&
-      groups.some(
-        (g) =>
-          g?.group_key === "collection" &&
-          normAddr(g?.group_value) === collectionId
-      );
-
-    // 2) Optional: explicit creator allowlist support
-    const hasCreatorAllowlist =
-      allowCreators.length > 0 &&
-      (Array.isArray(a.creators) ? a.creators : []).some((c) =>
-        allowCreators.includes(normAddr(c?.address))
-      );
-
-    // 3) Fallback: treat collectionId as a creator address too
-    // This helps collections that aren’t grouped as "collection" by the indexer,
-    // but are consistently identifiable via creators.
-    const hasCollectionAsCreatorFallback =
-      !!collectionId &&
-      (Array.isArray(a.creators) ? a.creators : []).some(
-        (c) => normAddr(c?.address) === collectionId
-      );
+    const hasCreator = allowCreators.length
+      ? (a.creators || []).some((c) =>
+          allowCreators.includes(normAddr(c?.address))
+        )
+      : false;
 
     if (hasCollection) inCollectionCount++;
-    if (hasCreatorAllowlist) byCreatorAllowlistCount++;
-    if (hasCollectionAsCreatorFallback) byCollectionAsCreatorFallbackCount++;
+    if (hasCreator) byCreatorCount++;
 
-    if (!anyFilterActive) return true;
-
-    return hasCollection || hasCreatorAllowlist || hasCollectionAsCreatorFallback;
+    return anyFilterActive ? hasCollection || hasCreator : true;
   });
 
   console.log(
-    `Filter debug: input=${items.length} kept=${filtered.length} (collection matches=${inCollectionCount}, creator-allowlist matches=${byCreatorAllowlistCount}, collection-as-creator matches=${byCollectionAsCreatorFallbackCount})`
+    `Filter debug (DAS): input=${items.length} kept=${filtered.length} (collection matches=${inCollectionCount}, creator matches=${byCreatorCount})`
   );
 
-  return filtered.map((a) => {
-    const image =
-      a.content?.links?.image ||
-      a.content?.files?.[0]?.uri ||
-      a.content?.json_uri ||
-      null;
+  return filtered.map((a) => normalizeAsset(a));
+}
 
-    const name = a.name || a.content?.metadata?.name || "";
-    const uri = a.content?.json_uri || null;
+function normalizeAsset(a: DASAsset) {
+  const image =
+    a.content?.links?.image ||
+    a.content?.files?.[0]?.uri ||
+    a.content?.json_uri ||
+    null;
 
-    return { id: a.id, name, image, uri };
-  });
+  const name = a.name || a.content?.metadata?.name || "";
+  const uri = a.content?.json_uri || null;
+
+  return { id: a.id, name, image, uri };
 }
 
 /** ----- Adapt Helius REST item -> DASAsset ----- */
@@ -179,12 +157,6 @@ function adaptHeliusRestToDas(rest: any[]): DASAsset[] {
       n?.onChainMetadata?.metadata?.collection?.key ||
       undefined;
 
-    const updateAuthority =
-      n?.updateAuthority ||
-      n?.onChainMetadata?.metadata?.updateAuthority ||
-      n?.onChainMetadata?.updateAuthority ||
-      undefined;
-
     return {
       id: n?.mint || n?.id || "",
       name:
@@ -207,12 +179,98 @@ function adaptHeliusRestToDas(rest: any[]): DASAsset[] {
         ? [{ group_key: "collection", group_value: String(collectionAddr) }]
         : [],
       creators,
-      updateAuthority,
     } as DASAsset;
   });
 }
 
-/** ----- GET all pages from DAS; fall back to REST ----- */
+/** ----- Small concurrency helper ----- */
+async function mapLimit<T, R>(
+  list: T[],
+  limit: number,
+  fn: (item: T, idx: number) => Promise<R>
+): Promise<R[]> {
+  const out: R[] = new Array(list.length) as any;
+  let i = 0;
+
+  async function worker() {
+    while (i < list.length) {
+      const idx = i++;
+      out[idx] = await fn(list[idx], idx);
+    }
+  }
+
+  const workers = Array.from({ length: Math.min(limit, list.length) }, worker);
+  await Promise.all(workers);
+  return out;
+}
+
+/** ----- Off-chain creator fallback (json_uri -> properties.creators) ----- */
+async function offchainCreatorMatch(
+  all: DASAsset[],
+  allowCreators: string[]
+): Promise<DASAsset[]> {
+  const allow = new Set(allowCreators.map((x) => normAddr(x)).filter(Boolean));
+  if (allow.size === 0) return [];
+
+  // Only try candidates that have a json_uri (metadata url)
+  // and look somewhat relevant (name/symbol heuristic) to avoid tons of fetches.
+  const candidates = all.filter((a) => {
+    const uri = a.content?.json_uri;
+    if (!uri) return false;
+
+    const name = normAddr(a.name || a.content?.metadata?.name);
+    const sym = normAddr(a.content?.metadata?.symbol);
+
+    // broad heuristic (safe): MONKE / SAGA / etc.
+    return (
+      name.includes("monke") ||
+      name.includes("saga") ||
+      sym.includes("monke") ||
+      sym.includes("saga")
+    );
+  });
+
+  console.log(
+    `Offchain fallback: candidates=${candidates.length} (will fetch json_uri)`
+  );
+
+  const matchedFlags = await mapLimit(
+    candidates,
+    10, // concurrency cap (safe for serverless)
+    async (a) => {
+      const url = a.content?.json_uri || "";
+      if (!url) return false;
+
+      try {
+        const r = await fetch(url, {
+          cache: "no-store",
+          headers: { "user-agent": "LockscreenedMetaFetcher/1.0" },
+        });
+        if (!r.ok) return false;
+
+        const json = await r.json().catch(() => null);
+        const creators = json?.properties?.creators;
+
+        if (!Array.isArray(creators)) return false;
+
+        // creators: [{address, share}] in your metadata
+        const addrs = creators
+          .map((c: any) => normAddr(c?.address))
+          .filter(Boolean);
+
+        return addrs.some((addr) => allow.has(addr));
+      } catch {
+        return false;
+      }
+    }
+  );
+
+  const matched = candidates.filter((_, idx) => matchedFlags[idx]);
+  console.log(`Offchain fallback: matched=${matched.length}`);
+  return matched;
+}
+
+/** ----- POST handler ----- */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
@@ -235,8 +293,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ----- Allow per-request filters, fallback to env -----
-    // ✅ FIX: honor body.collectionId AND body.collection (back-compat)
+    // ✅ Honor collectionId AND collection (back-compat)
     const bodyCollection =
       typeof body.collectionId === "string"
         ? body.collectionId.trim()
@@ -274,18 +331,16 @@ export async function POST(req: NextRequest) {
       for (let page = 1; page < 9999; page++) {
         const r = await fetchDASPage(owner, rpcEndpoint, page, LIMIT);
         lastStatus = r.status;
+
         if (!r.ok) {
-          console.error(
-            "DAS RPC page error:",
-            page,
-            r.status,
-            await r.text()
-          );
+          console.error("DAS RPC page error:", page, r.status, await r.text());
           break;
         }
+
         const j = await r.json();
         const items = (j?.result?.items as DASAsset[]) || [];
         if (!items.length) break;
+
         ALL.push(...items);
         if (items.length < LIMIT) break;
       }
@@ -296,13 +351,16 @@ export async function POST(req: NextRequest) {
       for (let page = 1; page < 9999; page++) {
         const rr = await fetchRestPage(owner, apiKey, page, LIMIT);
         lastStatus = rr.status;
+
         if (!rr.ok) {
           console.error("REST page error:", page, rr.status, await rr.text());
           break;
         }
+
         const json = await rr.json();
         const adapted = adaptHeliusRestToDas(json);
         if (!adapted.length) break;
+
         ALL.push(...adapted);
         if (adapted.length < LIMIT) break;
       }
@@ -315,10 +373,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const nfts = normalizeAndFilter(ALL, {
+    // First pass: DAS-native filtering
+    let nfts = normalizeAndFilter(ALL, {
       collectionId: effectiveCollection,
       creatorsCsv: effectiveCreators,
     });
+
+    // ✅ Second pass: Off-chain metadata creator fallback
+    // Only if:
+    // - we asked for creators filtering
+    // - and the first pass returned 0
+    if (nfts.length === 0 && effectiveCreators.trim()) {
+      const allowCreators = effectiveCreators
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      const matchedAssets = await offchainCreatorMatch(ALL, allowCreators);
+      nfts = matchedAssets.map((a) => normalizeAsset(a));
+    }
 
     // IMPORTANT: keep the same shape { nfts } so existing pages keep working
     return NextResponse.json({ nfts });
