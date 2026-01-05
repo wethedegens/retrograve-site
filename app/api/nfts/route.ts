@@ -13,6 +13,12 @@ type DASAsset = {
   grouping?: { group_key: "collection"; group_value: string }[];
   creators?: { address: string; verified?: boolean }[];
   name?: string;
+
+  // Some indexers/versions include extra fields (we use defensively)
+  updateAuthority?: string;
+  authority?: string;
+  ownership?: any;
+  compression?: any;
 };
 
 /** ----- Config helpers ----- */
@@ -25,6 +31,10 @@ function resolveHeliusRpc(): string {
 }
 function resolveHeliusRestBase() {
   return "https://api.helius.xyz";
+}
+
+function normAddr(v: any) {
+  return String(v ?? "").trim().toLowerCase();
 }
 
 /** ----- DAS (JSON-RPC) single page fetch ----- */
@@ -66,42 +76,60 @@ function normalizeAndFilter(
   items: DASAsset[],
   opts: { collectionId?: string; creatorsCsv?: string }
 ) {
-  const collectionId = (opts?.collectionId || "").trim();
-  const creatorsCsv = (opts?.creatorsCsv || "").trim();
+  const collectionIdRaw = (opts?.collectionId || "").trim();
+  const collectionId = normAddr(collectionIdRaw);
 
+  const creatorsCsv = (opts?.creatorsCsv || "").trim();
   const allowCreators = creatorsCsv
     .split(",")
-    .map((s) => s.trim().toLowerCase())
+    .map((s) => normAddr(s))
     .filter(Boolean);
 
   let inCollectionCount = 0;
-  let byCreatorCount = 0;
+  let byCreatorAllowlistCount = 0;
+  let byCollectionAsCreatorFallbackCount = 0;
+
+  const anyFilterActive = !!collectionId || allowCreators.length > 0;
 
   const filtered = items.filter((a) => {
-    const groups = a.grouping || [];
-    const hasCollection = collectionId
-      ? groups.some(
-          (g) =>
-            g.group_key === "collection" &&
-            (g.group_value || "").trim() === collectionId
-        )
-      : false;
+    const groups = Array.isArray(a.grouping) ? a.grouping : [];
 
-    const hasCreator = allowCreators.length
-      ? (a.creators || []).some((c) =>
-          allowCreators.includes((c?.address || "").trim().toLowerCase())
-        )
-      : false;
+    // 1) Primary: verified collection grouping match
+    const hasCollection =
+      !!collectionId &&
+      groups.some(
+        (g) =>
+          g?.group_key === "collection" &&
+          normAddr(g?.group_value) === collectionId
+      );
+
+    // 2) Optional: explicit creator allowlist support
+    const hasCreatorAllowlist =
+      allowCreators.length > 0 &&
+      (Array.isArray(a.creators) ? a.creators : []).some((c) =>
+        allowCreators.includes(normAddr(c?.address))
+      );
+
+    // 3) Fallback: treat collectionId as a creator address too
+    // This helps collections that aren’t grouped as "collection" by the indexer,
+    // but are consistently identifiable via creators.
+    const hasCollectionAsCreatorFallback =
+      !!collectionId &&
+      (Array.isArray(a.creators) ? a.creators : []).some(
+        (c) => normAddr(c?.address) === collectionId
+      );
 
     if (hasCollection) inCollectionCount++;
-    if (hasCreator) byCreatorCount++;
+    if (hasCreatorAllowlist) byCreatorAllowlistCount++;
+    if (hasCollectionAsCreatorFallback) byCollectionAsCreatorFallbackCount++;
 
-    const anyFilterActive = !!collectionId || allowCreators.length > 0;
-    return anyFilterActive ? hasCollection || hasCreator : true;
+    if (!anyFilterActive) return true;
+
+    return hasCollection || hasCreatorAllowlist || hasCollectionAsCreatorFallback;
   });
 
   console.log(
-    `Filter debug: input=${items.length} kept=${filtered.length} (inCollection matches=${inCollectionCount}, creator matches=${byCreatorCount})`
+    `Filter debug: input=${items.length} kept=${filtered.length} (collection matches=${inCollectionCount}, creator-allowlist matches=${byCreatorAllowlistCount}, collection-as-creator matches=${byCollectionAsCreatorFallbackCount})`
   );
 
   return filtered.map((a) => {
@@ -112,7 +140,6 @@ function normalizeAndFilter(
       null;
 
     const name = a.name || a.content?.metadata?.name || "";
-
     const uri = a.content?.json_uri || null;
 
     return { id: a.id, name, image, uri };
@@ -152,6 +179,12 @@ function adaptHeliusRestToDas(rest: any[]): DASAsset[] {
       n?.onChainMetadata?.metadata?.collection?.key ||
       undefined;
 
+    const updateAuthority =
+      n?.updateAuthority ||
+      n?.onChainMetadata?.metadata?.updateAuthority ||
+      n?.onChainMetadata?.updateAuthority ||
+      undefined;
+
     return {
       id: n?.mint || n?.id || "",
       name:
@@ -174,6 +207,7 @@ function adaptHeliusRestToDas(rest: any[]): DASAsset[] {
         ? [{ group_key: "collection", group_value: String(collectionAddr) }]
         : [],
       creators,
+      updateAuthority,
     } as DASAsset;
   });
 }
@@ -201,9 +235,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ----- NEW: allow per-request filters, fallback to env -----
+    // ----- Allow per-request filters, fallback to env -----
+    // ✅ FIX: honor body.collectionId AND body.collection (back-compat)
     const bodyCollection =
-      typeof body.collection === "string" ? body.collection.trim() : "";
+      typeof body.collectionId === "string"
+        ? body.collectionId.trim()
+        : typeof body.collection === "string"
+        ? body.collection.trim()
+        : "";
+
     const bodyCreators =
       Array.isArray(body.creators) && body.creators.length
         ? body.creators.join(",")
@@ -219,10 +259,7 @@ export async function POST(req: NextRequest) {
     const effectiveCollection = (bodyCollection || envCollection).trim();
     const effectiveCreators = (bodyCreators || envCreators).trim();
 
-    console.log(
-      "CFG collection:",
-      effectiveCollection || "(none)"
-    );
+    console.log("CFG collection:", effectiveCollection || "(none)");
     console.log("CFG creators:", effectiveCreators || "(none)");
 
     const ALL: DASAsset[] = [];
@@ -283,7 +320,7 @@ export async function POST(req: NextRequest) {
       creatorsCsv: effectiveCreators,
     });
 
-    // IMPORTANT: keep the same shape { nfts } so MAGApixel keeps working
+    // IMPORTANT: keep the same shape { nfts } so existing pages keep working
     return NextResponse.json({ nfts });
   } catch (e) {
     console.error("NFT fetch failed:", e);
