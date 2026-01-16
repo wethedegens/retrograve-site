@@ -42,7 +42,7 @@ const PROJECTS: LockerProject[] = [
     name: "Enchanted Miners",
     status: "live",
     label: "Live",
-    lockerPath: "/enchanted-miners-nfts",
+    lockerPath: "/enchanted-miners",
     glow: "miners",
     preview: "/lockscreened-previews/miners.png",
   },
