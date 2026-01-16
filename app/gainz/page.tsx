@@ -27,6 +27,39 @@ export default function GainzLandingPage() {
             Connect your wallet, pick a Gainz NFT, swap backgrounds, and export
             for any device.
           </p>
+
+          <div className="lp-actions">
+            <a className="btn btn-primary" href="/gainz-nft">
+              VIEW MY GAINZ
+            </a>
+
+            <a
+              className="btn btn-ghost"
+              href="https://magiceden.us/marketplace/gainz_"
+              target="_blank"
+              rel="noreferrer"
+            >
+              COLLECT NOW
+            </a>
+          </div>
+
+          <div className="lp-links">
+            <a
+              href="https://discord.gg/NeeU7zcQ"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Community
+            </a>
+            <span className="dot">•</span>
+            <a
+              href="https://x.com/GotmLabz"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Follow on X
+            </a>
+          </div>
         </div>
 
         {/* RIGHT */}
@@ -43,6 +76,9 @@ export default function GainzLandingPage() {
           </div>
         </div>
       </section>
+
+      {/* Keeping this imported for future use (no behavior change) */}
+      {/* <div className="faq-wrap"><LockscreenedFAQ /></div> */}
 
       <style jsx>{`
         .lp-wrap {
@@ -114,6 +150,65 @@ export default function GainzLandingPage() {
           color: rgba(255, 255, 255, 0.9);
         }
 
+        .lp-actions {
+          margin-top: 16px;
+          display: flex;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+
+        .btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          height: 40px;
+          padding: 0 14px;
+          border-radius: 999px;
+          font-size: 11px;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          font-weight: 900;
+          text-decoration: none;
+          border: 1px solid rgba(255, 255, 255, 0.16);
+          backdrop-filter: blur(10px);
+          box-shadow: 0 14px 28px rgba(0, 0, 0, 0.35);
+          transition: transform 0.12s ease, opacity 0.12s ease;
+        }
+
+        .btn:hover {
+          transform: translateY(-1px);
+          opacity: 1;
+        }
+
+        .btn-primary {
+          background: rgba(255, 255, 255, 0.12);
+          color: rgba(255, 255, 255, 0.92);
+        }
+
+        .btn-ghost {
+          background: rgba(0, 0, 0, 0.25);
+          color: rgba(255, 255, 255, 0.88);
+        }
+
+        .lp-links {
+          margin-top: 14px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-size: 12px;
+          opacity: 0.92;
+        }
+
+        .lp-links a {
+          color: rgba(255, 255, 255, 0.88);
+          text-decoration: none;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .dot {
+          opacity: 0.6;
+        }
+
         .lp-right {
           display: flex;
           justify-content: center;
@@ -141,6 +236,14 @@ export default function GainzLandingPage() {
           .lp-left {
             top: 0;
             margin: 0 auto;
+          }
+
+          .lp-actions {
+            justify-content: center;
+          }
+
+          .lp-links {
+            justify-content: center;
           }
 
           .phone-shell {
