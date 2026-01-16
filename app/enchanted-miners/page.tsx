@@ -26,6 +26,41 @@ export default function EnchantedMinersLandingPage() {
             Connect your wallet, pick a Miner, swap backgrounds, and export for
             any device.
           </p>
+
+          {/* ✅ NEW: same MidEvils-style buttons */}
+          <div className="lp-actions">
+            <a className="btn btn-primary" href="/enchanted-miners-nfts">
+              VIEW MY MINERS
+            </a>
+
+            <a
+              className="btn btn-ghost"
+              href="https://magiceden.us/marketplace/enchanted_miner"
+              target="_blank"
+              rel="noreferrer"
+            >
+              COLLECT NOW
+            </a>
+          </div>
+
+          {/* ✅ NEW: same MidEvils-style quick links */}
+          <div className="lp-links">
+            <a
+              href="https://discord.gg/9Py5japbSe"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Community
+            </a>
+            <span className="dot">•</span>
+            <a
+              href="https://x.com/enchanted_nfts"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Follow on X
+            </a>
+          </div>
         </div>
 
         {/* RIGHT */}
@@ -69,7 +104,6 @@ export default function EnchantedMinersLandingPage() {
           min-height: calc(100vh - 64px - 80px);
         }
 
-        /* 🔑 THIS IS THE FIX */
         .lp-left {
           max-width: 640px;
 
@@ -116,6 +150,69 @@ export default function EnchantedMinersLandingPage() {
           color: rgba(20, 35, 24, 0.9);
         }
 
+        /* ✅ NEW: buttons (matched to MidEvils layout) */
+        .lp-actions {
+          margin-top: 16px;
+          display: flex;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+
+        .btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          height: 40px;
+          padding: 0 14px;
+          border-radius: 999px;
+          font-size: 11px;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          font-weight: 900;
+          text-decoration: none;
+
+          border: 1px solid rgba(20, 35, 24, 0.18);
+          backdrop-filter: blur(10px);
+          box-shadow: 0 14px 28px rgba(0, 0, 0, 0.18);
+          transition: transform 0.12s ease, opacity 0.12s ease;
+          opacity: 0.98;
+        }
+
+        .btn:hover {
+          transform: translateY(-1px);
+          opacity: 1;
+        }
+
+        .btn-primary {
+          background: rgba(255, 255, 255, 0.22);
+          color: rgba(20, 35, 24, 0.92);
+        }
+
+        .btn-ghost {
+          background: rgba(20, 35, 24, 0.12);
+          color: rgba(20, 35, 24, 0.9);
+        }
+
+        /* ✅ NEW: simple quick links row (matched to MidEvils layout) */
+        .lp-links {
+          margin-top: 14px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-size: 12px;
+          opacity: 0.95;
+        }
+
+        .lp-links a {
+          color: rgba(20, 35, 24, 0.9);
+          text-decoration: none;
+          border-bottom: 1px solid rgba(20, 35, 24, 0.22);
+        }
+
+        .dot {
+          opacity: 0.6;
+        }
+
         .lp-right {
           display: flex;
           justify-content: center;
@@ -137,6 +234,14 @@ export default function EnchantedMinersLandingPage() {
           .lp-left {
             top: 0;
             margin: 0 auto;
+          }
+
+          .lp-actions {
+            justify-content: center;
+          }
+
+          .lp-links {
+            justify-content: center;
           }
 
           .phone-shell {
