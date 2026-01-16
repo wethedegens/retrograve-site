@@ -145,6 +145,41 @@ export default function HomePage() {
         <p className="subtitle">
           Download your NFT with the perfect background—sized for any phone.
         </p>
+
+        {/* ✅ NEW: action buttons + links (MidEvils style) */}
+        <div className="hero-actions">
+          <a className="btn btn-primary" href="/retrograves-nfts">
+            VIEW MY RETROGRAVES
+          </a>
+
+          <a
+            className="btn btn-ghost"
+            href="https://magiceden.io"
+            target="_blank"
+            rel="noreferrer"
+          >
+            COLLECT NOW
+          </a>
+        </div>
+
+        <div className="hero-links">
+          <a
+            href="https://discord.gg/rRG2YDbHYA"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Community
+          </a>
+          <span className="dot">•</span>
+          <a
+            href="https://x.com/RETROGRAVE_NFT"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Follow on X
+          </a>
+        </div>
+
         <CountdownSmall targetIso={TARGET_PST} />
       </section>
 
@@ -203,6 +238,70 @@ export default function HomePage() {
           font-size: 15px;
         }
 
+        /* ✅ NEW: button row (same vibe as MidEvils) */
+        .hero-actions {
+          margin-top: 14px;
+          display: flex;
+          gap: 10px;
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+
+        .btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          height: 40px;
+          padding: 0 14px;
+          border-radius: 999px;
+          font-size: 11px;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          font-weight: 900;
+          text-decoration: none;
+          border: 1px solid rgba(255, 255, 255, 0.16);
+          backdrop-filter: blur(10px);
+          box-shadow: 0 14px 28px rgba(0, 0, 0, 0.35);
+          transition: transform 0.12s ease, opacity 0.12s ease;
+          opacity: 0.98;
+        }
+
+        .btn:hover {
+          transform: translateY(-1px);
+          opacity: 1;
+        }
+
+        .btn-primary {
+          background: rgba(255, 255, 255, 0.12);
+          color: rgba(255, 255, 255, 0.92);
+        }
+
+        .btn-ghost {
+          background: rgba(0, 0, 0, 0.25);
+          color: rgba(255, 255, 255, 0.88);
+        }
+
+        /* ✅ NEW: simple links row */
+        .hero-links {
+          margin-top: 10px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-size: 12px;
+          opacity: 0.92;
+          justify-content: center;
+        }
+
+        .hero-links a {
+          color: rgba(255, 255, 255, 0.88);
+          text-decoration: none;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .dot {
+          opacity: 0.6;
+        }
+
         /* ✅ KEY FIX:
            PhoneShowcase likely reserves extra vertical space.
            We "collapse" the container by controlling height and absolutely positioning the phone. */
@@ -212,8 +311,7 @@ export default function HomePage() {
           display: flex;
           justify-content: center;
 
-          /* roughly the visible phone height area after scale(0.7)
-             (tweakable, but this removes the giant dead space) */
+          /* roughly the visible phone height area after scale(0.7) */
           height: 740px;
 
           margin-top: 15px;
@@ -250,6 +348,9 @@ export default function HomePage() {
         @media (max-width: 520px) {
           .showcase-wrap {
             height: 520px;
+          }
+          .hero-actions {
+            margin-top: 12px;
           }
         }
       `}</style>
