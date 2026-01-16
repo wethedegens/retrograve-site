@@ -30,6 +30,9 @@ function inferProjectFromRoute(
   if (p.startsWith("/magapixel-nfts")) return "magapixel";
   if (p.startsWith("/retrogs")) return "magapixel";
 
+  // ✅ NEW: RetroGraves grid page route
+  if (p.startsWith("/retrograves-nfts")) return "retrograve";
+
   if (p.startsWith("/retrograve")) return "retrograve";
 
   if (p.startsWith("/enchanted-miners")) return "miners";
@@ -46,7 +49,6 @@ function inferProjectFromRoute(
   if (p.startsWith("/zeromonkebiz")) return "zeromonkebiz";
   if (p.startsWith("/zeromonkebiz-nfts")) return "zeromonkebiz";
 
-  // ✅ SagaMonkes routes
   if (p.startsWith("/saga-monkes")) return "sagamonkes";
   if (p.startsWith("/saga-monkes-nfts")) return "sagamonkes";
 

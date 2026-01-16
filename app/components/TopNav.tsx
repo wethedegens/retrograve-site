@@ -19,8 +19,9 @@ type ProjectLinks = {
 const LINKS: Record<TopNavProject, ProjectLinks> = {
   retrograve: {
     homeHref: "/",
-    myHref: "/retrograve",
-    myLabel: "RETROGRAVE",
+    // ✅ NEW: point to the new grid page
+    myHref: "/retrograves-nfts",
+    myLabel: "MY RETROGRAVES",
     collectHref: "https://magiceden.io",
     communityHref: "https://discord.gg/rRG2YDbHYA",
     xHref: "https://x.com/RETROGRAVE_NFT",
@@ -80,7 +81,6 @@ const LINKS: Record<TopNavProject, ProjectLinks> = {
     xHref: "https://x.com/zeromonkebiz",
   },
 
-  // ✅ NEW: SagaMonkes
   sagamonkes: {
     homeHref: "/",
     myHref: "/saga-monkes-nfts",

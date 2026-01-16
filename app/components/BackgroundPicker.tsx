@@ -17,6 +17,7 @@ type Props = {
    *  - "meowga"
    *  - "zeromonkebiz"
    *  - "sagamonkes"
+   *  - "retrograve"
    *  - future projects...
    */
   project?: string;
@@ -117,6 +118,42 @@ const SAGAMONKES_IMAGE_BACKGROUNDS: string[] = [
   "/saga-monkes/phone/bg-5.png",
 ];
 
+// ✅ RetroGrave (from your screenshot folder: public/Retrograve-backgrounds/phone)
+const RETROGRAVE_IMAGE_BACKGROUNDS: string[] = [
+  "/Retrograve-backgrounds/phone/adventure.png",
+  "/Retrograve-backgrounds/phone/combat.png",
+  "/Retrograve-backgrounds/phone/dark-grey.png",
+  "/Retrograve-backgrounds/phone/dark-mode.png",
+  "/Retrograve-backgrounds/phone/dead-waters.png",
+  "/Retrograve-backgrounds/phone/deep-glitch.png",
+  "/Retrograve-backgrounds/phone/digital-jungle.png",
+  "/Retrograve-backgrounds/phone/doppelganger.png",
+  "/Retrograve-backgrounds/phone/dungeon-lanterns.png",
+  "/Retrograve-backgrounds/phone/easter-egg.png",
+  "/Retrograve-backgrounds/phone/fitpall.png",
+  "/Retrograve-backgrounds/phone/game-over.png",
+  "/Retrograve-backgrounds/phone/glitched.png",
+  "/Retrograve-backgrounds/phone/gloom.png",
+  "/Retrograve-backgrounds/phone/gradiential.png",
+  "/Retrograve-backgrounds/phone/graveyard.png",
+  "/Retrograve-backgrounds/phone/green-screened.png",
+  "/Retrograve-backgrounds/phone/gremlin-escape-plan.png",
+  "/Retrograve-backgrounds/phone/infrared.png",
+  "/Retrograve-backgrounds/phone/invalid.png",
+  "/Retrograve-backgrounds/phone/i-saw-blue.png",
+  "/Retrograve-backgrounds/phone/jedis-revenge.png",
+  "/Retrograve-backgrounds/phone/laguna-fair.png",
+  "/Retrograve-backgrounds/phone/lite-mode.png",
+  "/Retrograve-backgrounds/phone/mac-pan.png",
+  "/Retrograve-backgrounds/phone/moods.png",
+  "/Retrograve-backgrounds/phone/pew-pew.png",
+  "/Retrograve-backgrounds/phone/seeing-red.png",
+  "/Retrograve-backgrounds/phone/shalom.png",
+  "/Retrograve-backgrounds/phone/tenticede.png",
+  "/Retrograve-backgrounds/phone/triforce.png",
+  "/Retrograve-backgrounds/phone/wavy.png",
+];
+
 const MAGAPIXEL_BACKGROUND_SLUGS: string[] = [
   "austere-grey",
   "bitcoined",
@@ -168,6 +205,13 @@ const STATIC_PROJECT_STRIPS: Record<
     label: "SAGAMONKES WALLPAPERS",
     images: SAGAMONKES_IMAGE_BACKGROUNDS,
     filenamePrefix: "sagamonkes-wallpaper",
+  },
+
+  // ✅ NEW: RetroGrave
+  retrograve: {
+    label: "RETROGRAVE WALLPAPERS",
+    images: RETROGRAVE_IMAGE_BACKGROUNDS,
+    filenamePrefix: "retrograve-wallpaper",
   },
 };
 
