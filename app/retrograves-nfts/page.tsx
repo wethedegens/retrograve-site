@@ -48,8 +48,6 @@ export default function RetrogravesOwnerGridPage() {
               type="button"
               className="card"
               onClick={() => {
-                // For now we just keep you on the project ecosystem.
-                // Later: this will route into the locker with the selected NFT.
                 alert(
                   `Selected: ${it.name}\n\nNext step:\nOnce collection is live, this click will open the locker with your NFT.`
                 );
@@ -128,12 +126,17 @@ export default function RetrogravesOwnerGridPage() {
           text-shadow: 0 2px 18px rgba(0, 0, 0, 0.35);
         }
 
+        /* ✅ Grid layout stays the same, but cards are "phone-sized" like project page */
         .demo-grid {
           display: grid;
           grid-template-columns: repeat(4, minmax(0, 1fr));
           gap: 14px;
+          align-items: start;
         }
 
+        /* ✅ KEY CHANGE:
+           keep the same aspect ratio + styling,
+           but cap the card width so the "phone" is ~2/3 the old size. */
         .card {
           border: 0;
           background: rgba(15, 10, 28, 0.55);
@@ -148,6 +151,11 @@ export default function RetrogravesOwnerGridPage() {
             0 18px 34px rgba(0, 0, 0, 0.35);
 
           transition: transform 0.12s ease, box-shadow 0.12s ease;
+
+          /* phone-sized cards */
+          width: 100%;
+          max-width: 190px; /* ✅ ~2/3 feel */
+          margin: 0 auto;   /* ✅ center within grid column */
         }
 
         .card:hover {
@@ -202,11 +210,17 @@ export default function RetrogravesOwnerGridPage() {
           .demo-grid {
             grid-template-columns: repeat(3, minmax(0, 1fr));
           }
+          .card {
+            max-width: 200px;
+          }
         }
 
         @media (max-width: 760px) {
           .demo-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+          .card {
+            max-width: 210px;
           }
         }
 
@@ -214,11 +228,11 @@ export default function RetrogravesOwnerGridPage() {
           .demo-grid {
             grid-template-columns: 1fr;
           }
+          .card {
+            max-width: 240px;
+          }
         }
       `}</style>
-
-      {/* Optional: RetroGrave-only topnav tint, if you ever want it.
-         Leaving default for now to reduce moving parts. */}
     </main>
   );
 }
