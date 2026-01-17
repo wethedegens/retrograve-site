@@ -46,6 +46,17 @@ const PROJECTS: LockerProject[] = [
     glow: "miners",
     preview: "/lockscreened-previews/miners.png",
   },
+
+  // ✅ NEW — Doge Miners (Inscription loader)
+  {
+    name: "Doge Miners",
+    status: "live",
+    label: "Live",
+    lockerPath: "/doge-miners",
+    glow: "dogeminers",
+    preview: "/lockscreened-previews/doge-miners.png",
+  },
+
   {
     name: "ZeroMonkeBiz",
     status: "live",
