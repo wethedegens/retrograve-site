@@ -18,7 +18,7 @@ type Props = {
    *  - "zeromonkebiz"
    *  - "sagamonkes"
    *  - "retrograve"
-   *  - "dogeminers"   ✅ NEW
+   *  - "dogeminers"
    *  - future projects...
    */
   project?: string;
@@ -153,7 +153,7 @@ const RETROGRAVE_IMAGE_BACKGROUNDS: string[] = [
   "/retrograve-backgrounds/phone/wavy.png",
 ];
 
-// ✅ NEW: Doge Miners (your folder: public/doge-miners-backgrounds/phone)
+// ✅ NEW: Doge Miners (your folder: public/doge-miners-backgrounds/phone/bg-#.png)
 const DOGEMINERS_IMAGE_BACKGROUNDS: string[] = [
   "/doge-miners-backgrounds/phone/bg-1.png",
   "/doge-miners-backgrounds/phone/bg-2.png",
