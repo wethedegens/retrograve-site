@@ -20,7 +20,6 @@ async function validateImageUrl(url: string): Promise<{
   ok: boolean;
   contentType?: string;
 }> {
-  // Some CDNs block HEAD; we try HEAD then fall back to GET (range not guaranteed).
   try {
     const head = await fetch(url, { method: "HEAD" });
     if (head.ok) {
@@ -55,11 +54,10 @@ export default function DogeMinersNftsPage() {
   }, [inscription]);
 
   const [status, setStatus] = useState<
-    | { kind: "idle" }
     | { kind: "loading" }
     | { kind: "error"; message: string }
     | { kind: "ready"; contentType?: string }
-  >({ kind: "idle" });
+  >({ kind: "loading" });
 
   useEffect(() => {
     let cancelled = false;
@@ -93,10 +91,10 @@ export default function DogeMinersNftsPage() {
     };
   }, [item]);
 
-  function openInProjectNft() {
+  function openInLocker() {
     if (!item) return;
 
-    // Save a fallback selection (optional, but useful)
+    // keep a fallback copy (optional but useful)
     try {
       localStorage.setItem(
         "lockscreened:selectedNft",
@@ -110,14 +108,13 @@ export default function DogeMinersNftsPage() {
       );
     } catch {}
 
-    // Send to your existing project-nft page
-    const target = `/project-nft?chain=doge&id=${encodeURIComponent(
-      item.id
-    )}&name=${encodeURIComponent(item.name)}&image=${encodeURIComponent(
-      item.imageUrl
-    )}`;
-
-    router.push(target);
+    // ✅ IMPORTANT: go straight to your existing locker route
+    // We use project=retrograve so it uses RetroGrave’s composer behavior & backgrounds.
+    router.push(
+      `/locker?project=retrograve&name=${encodeURIComponent(
+        item.name
+      )}&image=${encodeURIComponent(item.imageUrl)}`
+    );
   }
 
   return (
@@ -131,7 +128,7 @@ export default function DogeMinersNftsPage() {
 
         <header className="page-header">
           <h1 className="page-title">DOGE MINERS</h1>
-          <p className="page-subtitle">Paste-inscription loader</p>
+          <p className="page-subtitle">Inscription preview</p>
         </header>
 
         {!item ? (
@@ -188,17 +185,15 @@ export default function DogeMinersNftsPage() {
                 {item.imageUrl}
               </div>
 
-              {status.kind === "ready" && status.contentType ? (
-                <div style={{ marginTop: 10, fontSize: 12, opacity: 0.85 }}>
-                  Content-Type: {status.contentType}
+              {status.kind === "ready" ? (
+                <div style={{ marginTop: 10, fontSize: 12, opacity: 0.8 }}>
+                  Content-Type: {status.contentType || "unknown"}
                 </div>
               ) : null}
             </div>
 
             <div
-              onClick={() => {
-                if (status.kind === "ready") openInProjectNft();
-              }}
+              onClick={() => status.kind === "ready" && openInLocker()}
               style={{
                 cursor: status.kind === "ready" ? "pointer" : "default",
                 padding: 16,
@@ -233,7 +228,6 @@ export default function DogeMinersNftsPage() {
                     {status.message}
                   </div>
                 ) : (
-                  // Show the image (webp is fine in modern browsers / iOS)
                   <img
                     src={item.imageUrl}
                     alt={item.name}
@@ -250,7 +244,7 @@ export default function DogeMinersNftsPage() {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (status.kind === "ready") openInProjectNft();
+                  if (status.kind === "ready") openInLocker();
                 }}
                 disabled={status.kind !== "ready"}
                 style={{
@@ -271,10 +265,6 @@ export default function DogeMinersNftsPage() {
               >
                 Use this in Locker →
               </button>
-
-              <div style={{ fontSize: 12, opacity: 0.75, textAlign: "center" }}>
-                Click the preview card or the button to open your project-nft page.
-              </div>
             </div>
           </div>
         )}
