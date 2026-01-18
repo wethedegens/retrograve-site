@@ -1,4 +1,3 @@
-// app/doge-miners-nfts/page.tsx
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -11,6 +10,7 @@ type LoadedItem = {
 };
 
 const DOGGY_CDN = "https://cdn.doggy.market/content/";
+const DOGE_BG5_COLOR = "#2b2440"; // ✅ tweak if you want it lighter/darker
 
 function shortId(id: string) {
   return id.length > 10 ? `${id.slice(0, 6)}…${id.slice(-4)}` : id;
@@ -91,10 +91,9 @@ export default function DogeMinersNftsPage() {
     };
   }, [item]);
 
-  function openInLocker() {
+  function openInProjectNft() {
     if (!item) return;
 
-    // save fallback selection
     try {
       localStorage.setItem(
         "lockscreened:selectedNft",
@@ -108,9 +107,8 @@ export default function DogeMinersNftsPage() {
       );
     } catch {}
 
-    // ✅ go straight to locker, with project=dogeminers so BackgroundPicker shows your doge strip
     router.push(
-      `/locker?project=dogeminers&name=${encodeURIComponent(
+      `/project-nft?chain=doge&id=${encodeURIComponent(item.id)}&name=${encodeURIComponent(
         item.name
       )}&image=${encodeURIComponent(item.imageUrl)}`
     );
@@ -120,13 +118,9 @@ export default function DogeMinersNftsPage() {
     <main
       className="magapixel-grid-page"
       style={{
-        backgroundColor: "#05020A",
-        backgroundImage: 'url("/doge-miners-backgrounds/phone/bg-5.png")',
-        backgroundRepeat: "no-repeat",
-        backgroundPosition: "center center",
-        backgroundSize: "cover",
-        backgroundAttachment: "fixed",
         minHeight: "100vh",
+        backgroundColor: DOGE_BG5_COLOR,
+        backgroundImage: "none",
       }}
     >
       <div className="inner">
@@ -181,7 +175,7 @@ export default function DogeMinersNftsPage() {
             </div>
 
             <div
-              onClick={() => status.kind === "ready" && openInLocker()}
+              onClick={() => status.kind === "ready" && openInProjectNft()}
               style={{
                 cursor: status.kind === "ready" ? "pointer" : "default",
                 padding: 16,
@@ -232,7 +226,7 @@ export default function DogeMinersNftsPage() {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (status.kind === "ready") openInLocker();
+                  if (status.kind === "ready") openInProjectNft();
                 }}
                 disabled={status.kind !== "ready"}
                 style={{

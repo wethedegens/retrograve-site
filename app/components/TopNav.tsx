@@ -1,4 +1,3 @@
-// app/components/TopNav.tsx
 "use client";
 
 import Link from "next/link";
@@ -19,7 +18,6 @@ type ProjectLinks = {
 const LINKS: Record<TopNavProject, ProjectLinks> = {
   retrograve: {
     homeHref: "/",
-    // ✅ NEW: point to the new grid page
     myHref: "/retrograves-nfts",
     myLabel: "MY RETROGRAVES",
     collectHref: "https://magiceden.io",
@@ -43,6 +41,16 @@ const LINKS: Record<TopNavProject, ProjectLinks> = {
     collectHref: "https://magiceden.us/marketplace/enchanted_miner",
     communityHref: "https://discord.gg/9Py5japbSe",
     xHref: "https://x.com/enchanted_nfts",
+  },
+
+  // ✅ NEW: DOGE MINERS
+  dogeminers: {
+    homeHref: "/",
+    myHref: "/doge-miners-nfts",
+    myLabel: "MY DOGE MINERS",
+    collectHref: "https://doggy.market/nfts/emod",
+    communityHref: "https://discord.gg/M6pbQPkZfV",
+    xHref: "https://www.twitter.com/enchanted_nfts",
   },
 
   gainz: {

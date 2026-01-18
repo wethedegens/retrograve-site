@@ -1,152 +1,156 @@
-// app/doge-miners/page.tsx
 "use client";
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
-function normalizeInscriptionId(raw: string) {
-  return raw.trim();
-}
+const EXAMPLE_INSCRIPTION =
+  "f362c61d2d77abea3fff98f86ef2c45f13710692d38f13740f74d2f7ca6063b2i0";
 
-export default function DogeMinersLandingPage() {
+export default function DogeMinersPage() {
   const router = useRouter();
-  const [inscription, setInscription] = useState("");
+  const [value, setValue] = useState("");
 
-  const cleaned = useMemo(
-    () => normalizeInscriptionId(inscription),
-    [inscription]
-  );
+  const trimmed = useMemo(() => value.trim(), [value]);
 
-  const canSearch = cleaned.length >= 20;
+  function go() {
+    const id = trimmed;
+    if (!id) return;
+    router.push(`/doge-miners-nfts?inscription=${encodeURIComponent(id)}`);
+  }
 
-  function goSearch() {
-    if (!canSearch) return;
-    router.push(`/doge-miners-nfts?inscription=${encodeURIComponent(cleaned)}`);
+  function pasteExample() {
+    setValue(EXAMPLE_INSCRIPTION);
   }
 
   return (
     <main
-      className="lp-wrap"
       style={{
+        minHeight: "100vh",
+        padding: "0 0 80px",
         backgroundColor: "#05020A",
         backgroundImage: 'url("/doge-miners-bg.png")',
         backgroundRepeat: "no-repeat",
-        backgroundPosition: "bottom center",
+        backgroundPosition: "center top",
         backgroundSize: "cover",
         backgroundAttachment: "fixed",
-        minHeight: "100vh",
       }}
     >
-      <section className="lp-inner">
-        <div className="lp-left">
-          <h1 className="lp-title">DOGE MINERS</h1>
-          <h2 className="lp-subtitle">INSCRIPTION LOADER</h2>
+      <section style={{ maxWidth: 1200, margin: "0 auto", padding: "26px 18px 0" }}>
+        <header style={{ color: "white" }}>
+          <h1 style={{ fontSize: 40, margin: "0 0 14px", letterSpacing: "0.02em" }}>
+            DOGE MINERS
+          </h1>
 
-          <p className="lp-copy">
-            Paste a <span className="lp-copy-strong">Doge inscription ID</span>{" "}
-            and we’ll load the image from Doggy Market, then send it into your
-            Locker flow.
+          <h2 style={{ margin: "0 0 12px", fontSize: 18, opacity: 0.92 }}>
+            INSCRIPTION LOADER
+          </h2>
+
+          <p style={{ margin: "0 0 18px", opacity: 0.9, maxWidth: 720 }}>
+            Paste a Doge inscription ID and we&apos;ll load the image from Doggy Market,
+            then send it into your Locker flow.
             <br />
-            <span style={{ opacity: 0.85 }}>
+            <span style={{ opacity: 0.8 }}>
               (No wallet connect needed for this mode.)
             </span>
           </p>
+        </header>
 
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "minmax(280px, 520px) 1fr",
+            gap: 22,
+            alignItems: "start",
+          }}
+        >
           <div
             style={{
-              marginTop: 18,
-              display: "flex",
-              gap: 10,
-              alignItems: "center",
-              flexWrap: "wrap",
+              padding: 16,
+              borderRadius: 18,
+              background: "rgba(10, 8, 20, 0.55)",
+              border: "1px solid rgba(255,255,255,0.14)",
+              backdropFilter: "blur(10px)",
+              color: "white",
             }}
           >
-            <input
-              value={inscription}
-              onChange={(e) => setInscription(e.target.value)}
-              placeholder="Paste Inscription ID…"
-              spellCheck={false}
-              autoCapitalize="none"
-              autoCorrect="off"
-              style={{
-                width: "min(560px, 92vw)",
-                padding: "12px 14px",
-                borderRadius: 12,
-                border: "1px solid rgba(255,255,255,0.18)",
-                background: "rgba(0,0,0,0.35)",
-                color: "white",
-                outline: "none",
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") goSearch();
-              }}
-            />
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <input
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                placeholder="Paste Inscription ID..."
+                style={{
+                  flex: "1 1 320px",
+                  height: 40,
+                  padding: "0 12px",
+                  borderRadius: 12,
+                  border: "1px solid rgba(255,255,255,0.18)",
+                  background: "rgba(0,0,0,0.25)",
+                  color: "white",
+                  outline: "none",
+                }}
+              />
 
-            <button
-              onClick={goSearch}
-              disabled={!canSearch}
-              style={{
-                padding: "12px 14px",
-                borderRadius: 12,
-                border: "1px solid rgba(255,255,255,0.18)",
-                background: canSearch
-                  ? "rgba(255,255,255,0.12)"
-                  : "rgba(255,255,255,0.06)",
-                color: canSearch ? "white" : "rgba(255,255,255,0.55)",
-                cursor: canSearch ? "pointer" : "not-allowed",
-              }}
-            >
-              Load Inscription →
-            </button>
+              <button
+                onClick={go}
+                disabled={!trimmed}
+                style={{
+                  height: 40,
+                  padding: "0 14px",
+                  borderRadius: 12,
+                  border: "1px solid rgba(255,255,255,0.18)",
+                  background: trimmed ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)",
+                  color: trimmed ? "white" : "rgba(255,255,255,0.55)",
+                  cursor: trimmed ? "pointer" : "not-allowed",
+                  fontWeight: 700,
+                }}
+              >
+                Load Inscription →
+              </button>
 
-            <button
-              onClick={() =>
-                setInscription(
-                  "a03d4c509d286db0f570b717b6ab08e691188d3b1ae22d61628ac50a9064014li0"
-                )
-              }
-              style={{
-                padding: "12px 14px",
-                borderRadius: 12,
-                border: "1px solid rgba(255,255,255,0.18)",
-                background: "rgba(0,0,0,0.25)",
-                color: "rgba(255,255,255,0.9)",
-                cursor: "pointer",
-              }}
-            >
-              Paste Example
-            </button>
+              <button
+                onClick={pasteExample}
+                style={{
+                  height: 40,
+                  padding: "0 14px",
+                  borderRadius: 12,
+                  border: "1px solid rgba(255,255,255,0.18)",
+                  background: "rgba(0,0,0,0.25)",
+                  color: "white",
+                  cursor: "pointer",
+                  fontWeight: 700,
+                }}
+              >
+                Paste Example
+              </button>
+            </div>
+
+            <p style={{ marginTop: 10, fontSize: 12, opacity: 0.85 }}>
+              Tip: In Doggy Market, open an item → NFT Details → copy “Inscription ID”. Paste it here.
+            </p>
           </div>
 
-          <p style={{ marginTop: 14, opacity: 0.75, maxWidth: 720 }}>
-            Tip: In Doggy Market, open an item → NFT Details → copy “Inscription
-            ID”. Paste it here.
-          </p>
-        </div>
-
-        <div className="lp-right">
           <div
             style={{
-              width: 320,
-              maxWidth: "92vw",
-              height: 640,
-              borderRadius: 28,
-              border: "1px solid rgba(255,255,255,0.14)",
-              background:
-                "linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.25))",
-              boxShadow: "0 18px 50px rgba(0,0,0,0.45)",
+              minHeight: 260,
+              borderRadius: 26,
+              border: "1px solid rgba(255,255,255,0.12)",
+              background: "rgba(0,0,0,0.22)",
+              boxShadow: "0 18px 44px rgba(0,0,0,0.25)",
               display: "grid",
               placeItems: "center",
-              padding: 18,
-              textAlign: "center",
+              color: "rgba(255,255,255,0.75)",
+              position: "relative",
+              overflow: "hidden",
             }}
           >
-            <div style={{ opacity: 0.85 }}>
-              <div style={{ fontSize: 14, letterSpacing: 2 }}>LOCKSCREENED</div>
-              <div style={{ marginTop: 10, fontSize: 18, fontWeight: 700 }}>
+            <div style={{ textAlign: "center", padding: 18, maxWidth: 520 }}>
+              <div style={{ fontSize: 12, letterSpacing: "0.18em", textTransform: "uppercase", opacity: 0.85 }}>
+                LOCKSCREENED
+              </div>
+              <div style={{ fontSize: 18, fontWeight: 800, marginTop: 8 }}>
                 Doge Miners
               </div>
-              <div style={{ marginTop: 8, fontSize: 13, opacity: 0.8 }}>
+              <div style={{ fontSize: 12, marginTop: 8, opacity: 0.85 }}>
                 Paste inscription → preview → open in locker
               </div>
             </div>
