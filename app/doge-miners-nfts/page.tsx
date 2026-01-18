@@ -109,11 +109,12 @@ export default function DogeMinersNftsPage() {
     } catch {}
 
     // ✅ Send directly to your existing locker page with the correct project key
-    router.push(
-      `/locker?project=doge-miners&name=${encodeURIComponent(
-        item.name
-      )}&image=${encodeURIComponent(item.imageUrl)}`
-    );
+     router.push(
+       `/locker?project=dogeminers&name=${encodeURIComponent(
+         item.name
+       )}&image=${encodeURIComponent(item.imageUrl)}`
+);
+
   }
 
   return (

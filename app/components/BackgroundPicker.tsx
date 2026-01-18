@@ -18,6 +18,7 @@ type Props = {
    *  - "zeromonkebiz"
    *  - "sagamonkes"
    *  - "retrograve"
+   *  - "dogeminers"   ✅ NEW
    *  - future projects...
    */
   project?: string;
@@ -109,7 +110,6 @@ const ZEROMONKEBIZ_IMAGE_BACKGROUNDS: string[] = [
   "/zeromonkebiz/phone/bg-3.png",
 ];
 
-// ✅ SagaMonkes (5 only)
 const SAGAMONKES_IMAGE_BACKGROUNDS: string[] = [
   "/saga-monkes/phone/bg-1.png",
   "/saga-monkes/phone/bg-2.png",
@@ -118,7 +118,6 @@ const SAGAMONKES_IMAGE_BACKGROUNDS: string[] = [
   "/saga-monkes/phone/bg-5.png",
 ];
 
-// ✅ RetroGrave (from your screenshot folder: public/Retrograve-backgrounds/phone)
 const RETROGRAVE_IMAGE_BACKGROUNDS: string[] = [
   "/retrograve-backgrounds/phone/adventure.png",
   "/retrograve-backgrounds/phone/combat.png",
@@ -152,6 +151,24 @@ const RETROGRAVE_IMAGE_BACKGROUNDS: string[] = [
   "/retrograve-backgrounds/phone/tenticede.png",
   "/retrograve-backgrounds/phone/triforce.png",
   "/retrograve-backgrounds/phone/wavy.png",
+];
+
+// ✅ NEW: Doge Miners (your folder: public/doge-miners-backgrounds/phone)
+const DOGEMINERS_IMAGE_BACKGROUNDS: string[] = [
+  "/doge-miners-backgrounds/phone/bg-1.png",
+  "/doge-miners-backgrounds/phone/bg-2.png",
+  "/doge-miners-backgrounds/phone/bg-3.png",
+  "/doge-miners-backgrounds/phone/bg-4.png",
+  "/doge-miners-backgrounds/phone/bg-5.png",
+  "/doge-miners-backgrounds/phone/bg-6.png",
+  "/doge-miners-backgrounds/phone/bg-7.png",
+  "/doge-miners-backgrounds/phone/bg-8.png",
+  "/doge-miners-backgrounds/phone/bg-9.png",
+  "/doge-miners-backgrounds/phone/bg-10.png",
+  "/doge-miners-backgrounds/phone/bg-11.png",
+  "/doge-miners-backgrounds/phone/bg-12.png",
+  "/doge-miners-backgrounds/phone/bg-13.png",
+  "/doge-miners-backgrounds/phone/bg-14.png",
 ];
 
 const MAGAPIXEL_BACKGROUND_SLUGS: string[] = [
@@ -206,12 +223,17 @@ const STATIC_PROJECT_STRIPS: Record<
     images: SAGAMONKES_IMAGE_BACKGROUNDS,
     filenamePrefix: "sagamonkes-wallpaper",
   },
-
-  // ✅ NEW: RetroGrave
   retrograve: {
     label: "RETROGRAVE WALLPAPERS",
     images: RETROGRAVE_IMAGE_BACKGROUNDS,
     filenamePrefix: "retrograve-wallpaper",
+  },
+
+  // ✅ NEW: Doge Miners
+  dogeminers: {
+    label: "DOGE MINERS WALLPAPERS",
+    images: DOGEMINERS_IMAGE_BACKGROUNDS,
+    filenamePrefix: "dogeminers-wallpaper",
   },
 };
 
