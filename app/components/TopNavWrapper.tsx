@@ -9,12 +9,12 @@ export type TopNavProject =
   | "retrograve"
   | "magapixel"
   | "miners"
+  | "dogeminers"
   | "gainz"
   | "midevils"
   | "meowga"
   | "zeromonkebiz"
-  | "sagamonkes"
-  | "dogeminers";
+  | "sagamonkes";
 
 function inferProjectFromRoute(
   pathname: string,
@@ -24,9 +24,6 @@ function inferProjectFromRoute(
 
   if (p === "/" || p.startsWith("/community") || p.startsWith("/my-retrograves"))
     return "retrograve";
-
-  if (p.startsWith("/doge-miners")) return "dogeminers";
-  if (p.startsWith("/doge-miners-nfts")) return "dogeminers";
 
   if (p.startsWith("/locker/magapixel")) return "magapixel";
   if (p.startsWith("/locker/retrograve")) return "retrograve";
@@ -39,6 +36,10 @@ function inferProjectFromRoute(
 
   if (p.startsWith("/enchanted-miners")) return "miners";
   if (p.startsWith("/enchanted-miners-nfts")) return "miners";
+
+  // ✅ NEW: DOGE MINERS routes
+  if (p.startsWith("/doge-miners")) return "dogeminers";
+  if (p.startsWith("/doge-miners-nfts")) return "dogeminers";
 
   if (p.startsWith("/midevils")) return "midevils";
   if (p.startsWith("/midevils-nfts")) return "midevils";
@@ -64,7 +65,10 @@ function inferProjectFromRoute(
     if (qp === "meowga") return "meowga";
     if (qp === "zeromonkebiz") return "zeromonkebiz";
     if (qp === "sagamonkes") return "sagamonkes";
-    if (qp === "dogeminers" || qp === "doge-miners") return "dogeminers";
+
+    // ✅ NEW: doge miners locker param
+    if (qp === "dogeminers") return "dogeminers";
+
     return "magapixel";
   }
 

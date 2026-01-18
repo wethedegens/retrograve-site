@@ -44,6 +44,16 @@ const LINKS: Record<TopNavProject, ProjectLinks> = {
     xHref: "https://x.com/enchanted_nfts",
   },
 
+  // ✅ NEW: DOGE MINERS
+  dogeminers: {
+    homeHref: "/",
+    myHref: "/doge-miners-nfts",
+    myLabel: "MY DOGE MINERS",
+    collectHref: "https://doggy.market/nfts/emod",
+    communityHref: "https://discord.gg/M6pbQPkZfV",
+    xHref: "https://www.twitter.com/enchanted_nfts",
+  },
+
   gainz: {
     homeHref: "/",
     myHref: "/gainz-nft",
@@ -87,16 +97,6 @@ const LINKS: Record<TopNavProject, ProjectLinks> = {
     collectHref: "https://magiceden.us/marketplace/sagamonkes",
     communityHref: "https://www.discord.gg/tPPAukA9Af",
     xHref: "https://www.twitter.com/sagamonkes",
-  },
-
-  // ✅ NEW: DOGE MINERS
-  dogeminers: {
-    homeHref: "/",
-    myHref: "/doge-miners-nfts",
-    myLabel: "MY DOGE MINERS",
-    collectHref: "https://doggy.market/nfts/emod",
-    communityHref: "https://discord.gg/M6pbQPkZfV",
-    xHref: "https://www.twitter.com/enchanted_nfts",
   },
 };
 
