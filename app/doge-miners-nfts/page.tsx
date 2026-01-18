@@ -94,7 +94,7 @@ export default function DogeMinersNftsPage() {
   function openInLocker() {
     if (!item) return;
 
-    // keep a fallback copy (optional but useful)
+    // Optional: store selection (harmless)
     try {
       localStorage.setItem(
         "lockscreened:selectedNft",
@@ -108,10 +108,9 @@ export default function DogeMinersNftsPage() {
       );
     } catch {}
 
-    // ✅ IMPORTANT: go straight to your existing locker route
-    // We use project=retrograve so it uses RetroGrave’s composer behavior & backgrounds.
+    // ✅ Send directly to your existing locker page with the correct project key
     router.push(
-      `/locker?project=retrograve&name=${encodeURIComponent(
+      `/locker?project=doge-miners&name=${encodeURIComponent(
         item.name
       )}&image=${encodeURIComponent(item.imageUrl)}`
     );
@@ -187,7 +186,7 @@ export default function DogeMinersNftsPage() {
 
               {status.kind === "ready" ? (
                 <div style={{ marginTop: 10, fontSize: 12, opacity: 0.8 }}>
-                  Content-Type: {status.contentType || "unknown"}
+                  Content-Type: {status.contentType || "(unknown)"}
                 </div>
               ) : null}
             </div>
