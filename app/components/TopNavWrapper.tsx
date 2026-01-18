@@ -1,3 +1,4 @@
+// app/components/TopNavWrapper.tsx
 "use client";
 
 import { useMemo } from "react";
@@ -8,12 +9,12 @@ export type TopNavProject =
   | "retrograve"
   | "magapixel"
   | "miners"
-  | "dogeminers" // ✅ NEW
   | "gainz"
   | "midevils"
   | "meowga"
   | "zeromonkebiz"
-  | "sagamonkes";
+  | "sagamonkes"
+  | "dogeminers";
 
 function inferProjectFromRoute(
   pathname: string,
@@ -23,6 +24,9 @@ function inferProjectFromRoute(
 
   if (p === "/" || p.startsWith("/community") || p.startsWith("/my-retrograves"))
     return "retrograve";
+
+  if (p.startsWith("/doge-miners")) return "dogeminers";
+  if (p.startsWith("/doge-miners-nfts")) return "dogeminers";
 
   if (p.startsWith("/locker/magapixel")) return "magapixel";
   if (p.startsWith("/locker/retrograve")) return "retrograve";
@@ -35,10 +39,6 @@ function inferProjectFromRoute(
 
   if (p.startsWith("/enchanted-miners")) return "miners";
   if (p.startsWith("/enchanted-miners-nfts")) return "miners";
-
-  // ✅ NEW: Doge Miners routes
-  if (p.startsWith("/doge-miners")) return "dogeminers";
-  if (p.startsWith("/doge-miners-nfts")) return "dogeminers";
 
   if (p.startsWith("/midevils")) return "midevils";
   if (p.startsWith("/midevils-nfts")) return "midevils";
@@ -56,17 +56,15 @@ function inferProjectFromRoute(
 
   if (p.startsWith("/locker")) {
     const qp = (searchParams.get("project") || "").toLowerCase();
-
     if (qp === "miners") return "miners";
     if (qp === "magapixel") return "magapixel";
     if (qp === "retrograve") return "retrograve";
-    if (qp === "dogeminers") return "dogeminers"; // ✅ NEW
     if (qp === "gainz") return "gainz";
     if (qp === "midevils") return "midevils";
     if (qp === "meowga") return "meowga";
     if (qp === "zeromonkebiz") return "zeromonkebiz";
     if (qp === "sagamonkes") return "sagamonkes";
-
+    if (qp === "dogeminers" || qp === "doge-miners") return "dogeminers";
     return "magapixel";
   }
 
