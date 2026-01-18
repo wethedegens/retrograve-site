@@ -169,6 +169,9 @@ const DOGEMINERS_IMAGE_BACKGROUNDS: string[] = [
   "/doge-miners-backgrounds/phone/bg-12.png",
   "/doge-miners-backgrounds/phone/bg-13.png",
   "/doge-miners-backgrounds/phone/bg-14.png",
+  "/doge-miners-backgrounds/phone/bg-15.png",
+  "/doge-miners-backgrounds/phone/bg-16.png",
+  "/doge-miners-backgrounds/phone/bg-17.png",
 ];
 
 const MAGAPIXEL_BACKGROUND_SLUGS: string[] = [
