@@ -1,230 +1,240 @@
-// app/doge-miners/page.tsx
 "use client";
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
-const PASTE_EXAMPLE =
+const EXAMPLE_INSCRIPTION =
   "f362c61d2d77abea3fff98f86ef2c45f13710692d38f13740f74d2f7ca6063b2i0";
-
-function cleanInscription(raw: string) {
-  return (raw || "").trim();
-}
 
 export default function DogeMinersPage() {
   const router = useRouter();
   const [inscription, setInscription] = useState("");
 
-  const canLoad = useMemo(() => cleanInscription(inscription).length > 0, [inscription]);
+  const clean = useMemo(() => (inscription || "").trim(), [inscription]);
 
-  const goToPreviewPage = (id: string) => {
-    const cleaned = cleanInscription(id);
-    if (!cleaned) return;
-
+  const go = (id: string) => {
+    const v = (id || "").trim();
+    if (!v) return;
     const qs = new URLSearchParams();
-    qs.set("inscription", cleaned);
+    qs.set("inscription", v);
 
-    // ✅ This is the "page like before"
+    // ✅ IMPORTANT: go to the working preview page (not /project-nft)
     router.push(`/doge-miners-nfts?${qs.toString()}`);
   };
 
   return (
-    <main style={styles.page}>
-      <div style={styles.overlay} />
+    <main className="dm-wrap">
+      <section className="dm-inner">
+        <div className="left">
+          <h1 className="title">DOGE MINERS</h1>
+          <h2 className="subtitle">INSCRIPTION LOADER</h2>
 
-      <section style={styles.inner}>
-        <h1 style={styles.h1}>DOGE MINERS</h1>
-        <h2 style={styles.h2}>INSCRIPTION LOADER</h2>
+          <p className="copy">
+            Paste a Doge inscription ID and we’ll load the image from Doggy Market, then send it into
+            your Locker flow.
+            <br />
+            <span className="muted">(No wallet connect needed for this mode.)</span>
+          </p>
 
-        <p style={styles.p}>
-          Paste a Doge inscription ID and we’ll load the image from Doggy Market,
-          then send it into your Locker flow.
-          <br />
-          <span style={{ opacity: 0.8 }}>(No wallet connect needed for this mode.)</span>
-        </p>
+          <div className="row">
+            <input
+              className="input"
+              placeholder="Paste Inscription ID…"
+              value={inscription}
+              onChange={(e) => setInscription(e.target.value)}
+              spellCheck={false}
+            />
 
-        <div style={styles.row}>
-          <input
-            value={inscription}
-            onChange={(e) => setInscription(e.target.value)}
-            placeholder="Paste Inscription ID..."
-            style={styles.input}
-            spellCheck={false}
-            autoCapitalize="none"
-            autoCorrect="off"
-          />
+            <button className="btn" type="button" onClick={() => go(clean)} disabled={!clean}>
+              Load Inscription →
+            </button>
 
-          <button
-            type="button"
-            onClick={() => goToPreviewPage(inscription)}
-            disabled={!canLoad}
-            style={{
-              ...styles.btn,
-              ...(canLoad ? styles.btnOn : styles.btnOff),
-            }}
-          >
-            Load Inscription →
-          </button>
+            <button
+              className="btn ghost"
+              type="button"
+              onClick={() => {
+                setInscription(EXAMPLE_INSCRIPTION);
+                go(EXAMPLE_INSCRIPTION);
+              }}
+            >
+              Paste Example
+            </button>
+          </div>
 
-          <button
-            type="button"
-            onClick={() => {
-              setInscription(PASTE_EXAMPLE);
-              goToPreviewPage(PASTE_EXAMPLE);
-            }}
-            style={{ ...styles.btn, ...styles.btnGhost }}
-          >
-            Paste Example
-          </button>
+          <p className="tip">
+            Tip: In Doggy Market, open an item → NFT Details → copy “Inscription ID”. Paste it here.
+          </p>
         </div>
 
-        <div style={styles.tip}>
-          Tip: In Doggy Market, open an item → NFT Details → copy “Inscription ID”. Paste it here.
-        </div>
-
-        {/* Little “phone card” like your screenshot (cosmetic) */}
-        <div style={styles.previewCard}>
-          <div style={styles.previewPhone}>
-            <div style={styles.previewPhoneInner}>
-              <div style={styles.previewKicker}>LOCKSCREENED</div>
-              <div style={styles.previewTitle}>Doge Miners</div>
-              <div style={styles.previewSub}>Paste inscription → preview → open in locker</div>
+        <div className="right">
+          <div className="phoneMock">
+            <div className="phoneMockInner">
+              <div className="brandSmall">LOCKSCREENED</div>
+              <div className="projSmall">Doge Miners</div>
+              <div className="descSmall">Paste inscription → preview → open in locker</div>
             </div>
           </div>
         </div>
       </section>
+
+      <style jsx>{`
+        .dm-wrap {
+          min-height: 100vh;
+          padding: 28px 16px 60px;
+          background-color: #05020a;
+          background-image: url("/doge-miners-bg.png");
+          background-repeat: no-repeat;
+          background-position: center top;
+          background-size: cover;
+          background-attachment: fixed;
+        }
+
+        .dm-inner {
+          max-width: 1200px;
+          margin: 0 auto;
+          display: grid;
+          grid-template-columns: 1.1fr 0.9fr;
+          gap: 22px;
+          align-items: start;
+          background: rgba(10, 8, 20, 0.45);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: 22px;
+          padding: 18px;
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+        }
+
+        .title {
+          margin: 2px 0 6px;
+          font-size: 34px;
+          font-weight: 950;
+          letter-spacing: 0.02em;
+          color: white;
+          text-transform: uppercase;
+        }
+
+        .subtitle {
+          margin: 0 0 12px;
+          font-size: 14px;
+          font-weight: 900;
+          letter-spacing: 0.18em;
+          color: rgba(255, 255, 255, 0.85);
+          text-transform: uppercase;
+        }
+
+        .copy {
+          margin: 0 0 14px;
+          color: rgba(255, 255, 255, 0.88);
+          line-height: 1.45;
+          font-size: 13px;
+        }
+
+        .muted {
+          opacity: 0.9;
+        }
+
+        .row {
+          display: grid;
+          grid-template-columns: 1fr auto auto;
+          gap: 10px;
+          align-items: center;
+          margin-top: 10px;
+        }
+
+        .input {
+          height: 42px;
+          border-radius: 12px;
+          border: 1px solid rgba(255, 255, 255, 0.16);
+          background: rgba(0, 0, 0, 0.35);
+          color: rgba(255, 255, 255, 0.95);
+          padding: 0 12px;
+          outline: none;
+        }
+
+        .btn {
+          height: 42px;
+          padding: 0 14px;
+          border-radius: 12px;
+          border: 1px solid rgba(255, 255, 255, 0.18);
+          background: rgba(140, 90, 255, 0.28);
+          color: white;
+          font-weight: 900;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          font-size: 11px;
+          cursor: pointer;
+        }
+
+        .btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        .btn.ghost {
+          background: rgba(255, 255, 255, 0.08);
+        }
+
+        .tip {
+          margin: 10px 0 0;
+          font-size: 12px;
+          color: rgba(255, 255, 255, 0.78);
+        }
+
+        .right {
+          display: grid;
+          justify-items: center;
+        }
+
+        .phoneMock {
+          width: min(360px, 92vw);
+          aspect-ratio: 9 / 19.5;
+          border-radius: 28px;
+          border: 1px solid rgba(255, 255, 255, 0.16);
+          background: rgba(0, 0, 0, 0.22);
+          box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
+          overflow: hidden;
+          display: grid;
+          place-items: end center;
+          padding: 18px;
+        }
+
+        .phoneMockInner {
+          width: 100%;
+          padding: 14px;
+          border-radius: 18px;
+          background: rgba(10, 8, 20, 0.55);
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          text-align: center;
+        }
+
+        .brandSmall {
+          font-weight: 900;
+          letter-spacing: 0.16em;
+          font-size: 11px;
+          color: rgba(255, 255, 255, 0.75);
+          text-transform: uppercase;
+        }
+
+        .projSmall {
+          margin-top: 6px;
+          font-weight: 950;
+          letter-spacing: 0.04em;
+          font-size: 16px;
+          color: white;
+        }
+
+        .descSmall {
+          margin-top: 6px;
+          font-size: 12px;
+          color: rgba(255, 255, 255, 0.78);
+        }
+
+        @media (max-width: 900px) {
+          .dm-inner {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
     </main>
   );
 }
-
-const styles: Record<string, any> = {
-  page: {
-    minHeight: "100vh",
-    padding: "26px 18px 80px",
-    position: "relative",
-    backgroundImage: "url(/doge-miners-bg.png)",
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
-  },
-  overlay: {
-    position: "absolute",
-    inset: 0,
-    background: "rgba(0,0,0,0.55)",
-  },
-  inner: {
-    position: "relative",
-    maxWidth: 1200,
-    margin: "0 auto",
-    color: "white",
-  },
-  h1: {
-    margin: "0 0 8px",
-    fontSize: 42,
-    fontWeight: 1000,
-    letterSpacing: "0.02em",
-    textTransform: "uppercase",
-  },
-  h2: {
-    margin: "0 0 10px",
-    fontSize: 18,
-    fontWeight: 1000,
-    letterSpacing: "0.12em",
-    textTransform: "uppercase",
-    opacity: 0.95,
-  },
-  p: {
-    margin: "0 0 18px",
-    maxWidth: 740,
-    lineHeight: 1.35,
-    opacity: 0.92,
-  },
-  row: {
-    display: "grid",
-    gridTemplateColumns: "minmax(280px, 560px) auto auto",
-    gap: 10,
-    alignItems: "center",
-    maxWidth: 980,
-  },
-  input: {
-    height: 42,
-    borderRadius: 12,
-    border: "1px solid rgba(255,255,255,0.18)",
-    background: "rgba(0,0,0,0.35)",
-    color: "white",
-    padding: "0 12px",
-    outline: "none",
-    fontSize: 13,
-  },
-  btn: {
-    height: 42,
-    borderRadius: 12,
-    border: "1px solid rgba(255,255,255,0.18)",
-    fontWeight: 1000,
-    letterSpacing: "0.10em",
-    textTransform: "uppercase",
-    fontSize: 11,
-    padding: "0 14px",
-    whiteSpace: "nowrap",
-  },
-  btnOn: {
-    background: "rgba(140, 90, 255, 0.35)",
-    color: "white",
-    cursor: "pointer",
-  },
-  btnOff: {
-    background: "rgba(255,255,255,0.06)",
-    color: "rgba(255,255,255,0.55)",
-    cursor: "not-allowed",
-  },
-  btnGhost: {
-    background: "rgba(0,0,0,0.25)",
-    color: "rgba(255,255,255,0.92)",
-    cursor: "pointer",
-  },
-  tip: {
-    marginTop: 10,
-    fontSize: 12,
-    opacity: 0.85,
-  },
-  previewCard: {
-    marginTop: 22,
-    width: 360,
-    maxWidth: "100%",
-    borderRadius: 22,
-    background: "rgba(0,0,0,0.28)",
-    border: "1px solid rgba(255,255,255,0.12)",
-    padding: 14,
-  },
-  previewPhone: {
-    width: "100%",
-    height: 430,
-    borderRadius: 26,
-    background: "rgba(255,255,255,0.06)",
-    border: "1px solid rgba(255,255,255,0.10)",
-    display: "grid",
-    placeItems: "center",
-  },
-  previewPhoneInner: {
-    textAlign: "center",
-    opacity: 0.9,
-  },
-  previewKicker: {
-    fontSize: 11,
-    fontWeight: 1000,
-    letterSpacing: "0.22em",
-    textTransform: "uppercase",
-    opacity: 0.85,
-  },
-  previewTitle: {
-    marginTop: 6,
-    fontSize: 18,
-    fontWeight: 1000,
-    letterSpacing: "0.04em",
-  },
-  previewSub: {
-    marginTop: 6,
-    fontSize: 12,
-    opacity: 0.85,
-  },
-};

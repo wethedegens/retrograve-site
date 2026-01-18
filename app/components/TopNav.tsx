@@ -1,4 +1,3 @@
-// app/components/TopNav.tsx
 "use client";
 
 import Link from "next/link";
@@ -44,11 +43,9 @@ const LINKS: Record<TopNavProject, ProjectLinks> = {
     xHref: "https://x.com/enchanted_nfts",
   },
 
-  // ✅ NEW: DOGE MINERS
+  // ✅ NEW: DOGE MINERS (no "MY ..." link)
   dogeminers: {
     homeHref: "/",
-    myHref: "/doge-miners-nfts",
-    myLabel: "MY DOGE MINERS",
     collectHref: "https://doggy.market/nfts/emod",
     communityHref: "https://discord.gg/M6pbQPkZfV",
     xHref: "https://www.twitter.com/enchanted_nfts",

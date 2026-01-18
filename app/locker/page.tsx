@@ -1,4 +1,3 @@
-// app/locker/page.tsx
 "use client";
 
 import { useEffect, useMemo, useRef, useState, Suspense } from "react";
@@ -33,7 +32,7 @@ function LockerInner() {
   const uri = sp.get("uri") || "";
   const devMode = sp.get("devbg") === "1";
 
-  // "magapixel" (default), "miners", "gainz", "midevils", "meowga", "zeromonkebiz", "sagamonkes", "dogeminers"
+  // "magapixel" (default), "miners", "dogeminers", "gainz", "midevils", "meowga", "zeromonkebiz", "sagamonkes"
   const project = (sp.get("project") || "magapixel").toLowerCase();
 
   const imageParam = sp.get("image") || "";
@@ -41,7 +40,7 @@ function LockerInner() {
 
   const composerRef = useRef<ComposerHandle | null>(null);
 
-  // ✅ Default BG: DogeMiners should start solid (your "bg-5 vibe")
+  // ✅ Doge default bg = your “bg-5 vibe” solid
   const initialBg = useMemo<BgChoice>(() => {
     if (project === "dogeminers") return { kind: "color", value: "#2f2a45" };
     return { kind: "color", value: "#3e2d75" };
@@ -61,7 +60,6 @@ function LockerInner() {
   const [loading, setLoading] = useState(false);
   const [hint, setHint] = useState<null | string>(null);
 
-  // ✅ Back target: DogeMiners goes back to the finder page, not a Solana grid
   const gridHref =
     project === "dogeminers"
       ? "/doge-miners"

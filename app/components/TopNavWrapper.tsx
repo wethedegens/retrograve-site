@@ -1,4 +1,3 @@
-// app/components/TopNavWrapper.tsx
 "use client";
 
 import { useMemo } from "react";
@@ -16,14 +15,10 @@ export type TopNavProject =
   | "zeromonkebiz"
   | "sagamonkes";
 
-function inferProjectFromRoute(
-  pathname: string,
-  searchParams: URLSearchParams
-): TopNavProject {
+function inferProjectFromRoute(pathname: string, searchParams: URLSearchParams): TopNavProject {
   const p = (pathname || "").toLowerCase();
 
-  if (p === "/" || p.startsWith("/community") || p.startsWith("/my-retrograves"))
-    return "retrograve";
+  if (p === "/" || p.startsWith("/community") || p.startsWith("/my-retrograves")) return "retrograve";
 
   if (p.startsWith("/locker/magapixel")) return "magapixel";
   if (p.startsWith("/locker/retrograve")) return "retrograve";
@@ -34,12 +29,11 @@ function inferProjectFromRoute(
   if (p.startsWith("/retrograves-nfts")) return "retrograve";
   if (p.startsWith("/retrograve")) return "retrograve";
 
-  if (p.startsWith("/enchanted-miners")) return "miners";
-  if (p.startsWith("/enchanted-miners-nfts")) return "miners";
-
-  // ✅ NEW: DOGE MINERS routes
   if (p.startsWith("/doge-miners")) return "dogeminers";
   if (p.startsWith("/doge-miners-nfts")) return "dogeminers";
+
+  if (p.startsWith("/enchanted-miners")) return "miners";
+  if (p.startsWith("/enchanted-miners-nfts")) return "miners";
 
   if (p.startsWith("/midevils")) return "midevils";
   if (p.startsWith("/midevils-nfts")) return "midevils";
@@ -58,6 +52,7 @@ function inferProjectFromRoute(
   if (p.startsWith("/locker")) {
     const qp = (searchParams.get("project") || "").toLowerCase();
     if (qp === "miners") return "miners";
+    if (qp === "dogeminers") return "dogeminers";
     if (qp === "magapixel") return "magapixel";
     if (qp === "retrograve") return "retrograve";
     if (qp === "gainz") return "gainz";
@@ -65,10 +60,6 @@ function inferProjectFromRoute(
     if (qp === "meowga") return "meowga";
     if (qp === "zeromonkebiz") return "zeromonkebiz";
     if (qp === "sagamonkes") return "sagamonkes";
-
-    // ✅ NEW: doge miners locker param
-    if (qp === "dogeminers") return "dogeminers";
-
     return "magapixel";
   }
 
