@@ -25,7 +25,18 @@ export default function DogeMinersLandingPage() {
   }
 
   return (
-    <main className="lp-wrap">
+    <main
+      className="lp-wrap"
+      style={{
+        backgroundColor: "#05020A",
+        backgroundImage: 'url("/doge-miners-bg.png")',
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "bottom center",
+        backgroundSize: "cover",
+        backgroundAttachment: "fixed",
+        minHeight: "100vh",
+      }}
+    >
       <section className="lp-inner">
         <div className="lp-left">
           <h1 className="lp-title">DOGE MINERS</h1>

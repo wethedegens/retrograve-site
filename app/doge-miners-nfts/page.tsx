@@ -94,7 +94,7 @@ export default function DogeMinersNftsPage() {
   function openInLocker() {
     if (!item) return;
 
-    // Optional: store selection (harmless)
+    // save fallback selection
     try {
       localStorage.setItem(
         "lockscreened:selectedNft",
@@ -108,17 +108,27 @@ export default function DogeMinersNftsPage() {
       );
     } catch {}
 
-    // ✅ Send directly to your existing locker page with the correct project key
-     router.push(
-       `/locker?project=dogeminers&name=${encodeURIComponent(
-         item.name
-       )}&image=${encodeURIComponent(item.imageUrl)}`
-);
-
+    // ✅ go straight to locker, with project=dogeminers so BackgroundPicker shows your doge strip
+    router.push(
+      `/locker?project=dogeminers&name=${encodeURIComponent(
+        item.name
+      )}&image=${encodeURIComponent(item.imageUrl)}`
+    );
   }
 
   return (
-    <main className="magapixel-grid-page">
+    <main
+      className="magapixel-grid-page"
+      style={{
+        backgroundColor: "#05020A",
+        backgroundImage: 'url("/doge-miners-backgrounds/phone/bg-5.png")',
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center center",
+        backgroundSize: "cover",
+        backgroundAttachment: "fixed",
+        minHeight: "100vh",
+      }}
+    >
       <div className="inner">
         <p className="back-row">
           <a href="/doge-miners" className="back-link">
@@ -168,28 +178,6 @@ export default function DogeMinersNftsPage() {
               >
                 {item.id}
               </div>
-
-              <div style={{ marginTop: 10, fontSize: 12, opacity: 0.8 }}>
-                Image URL
-              </div>
-              <div
-                style={{
-                  marginTop: 6,
-                  fontFamily:
-                    "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-                  fontSize: 12,
-                  wordBreak: "break-all",
-                  opacity: 0.95,
-                }}
-              >
-                {item.imageUrl}
-              </div>
-
-              {status.kind === "ready" ? (
-                <div style={{ marginTop: 10, fontSize: 12, opacity: 0.8 }}>
-                  Content-Type: {status.contentType || "(unknown)"}
-                </div>
-              ) : null}
             </div>
 
             <div
