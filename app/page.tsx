@@ -73,7 +73,6 @@ const PROJECTS: LockerProject[] = [
     label: "Live",
     lockerPath: "/saga-monkes",
     glow: "sagamonkes",
-    // ✅ FIXED: must match /public/lockscreened-previews/saga-monkes.png
     preview: "/lockscreened-previews/saga-monkes.png",
   },
 
@@ -168,22 +167,34 @@ export default function HomePage() {
           position: relative;
           min-height: 100vh;
           overflow-x: hidden;
+          background: #07060d; /* fallback so you never see “empty” */
         }
 
+        /**
+         * ✅ FIX: background should never “run out” on tall pages
+         * - fixed to viewport
+         * - uses safe % positioning instead of huge negative px offsets
+         */
         .bg {
-          position: absolute;
+          position: fixed;
           inset: 0;
+          z-index: 0;
           background-image: url(${BG});
           background-size: cover;
           background-repeat: no-repeat;
-          background-position: center -260px;
+
+          /* focus the art higher without creating blank space */
+          background-position: 50% 12%;
+
           filter: saturate(1.03);
+          pointer-events: none;
         }
 
         /* ✅ readability layer */
         .scrim {
-          position: absolute;
+          position: fixed;
           inset: 0;
+          z-index: 0;
           background: radial-gradient(
               900px 520px at 50% 140px,
               rgba(0, 0, 0, 0.55),
@@ -311,8 +322,9 @@ export default function HomePage() {
         }
 
         @media (max-width: 720px) {
+          /* slightly different focal point on mobile */
           .bg {
-            background-position: center -160px;
+            background-position: 50% 16%;
           }
 
           .logoImage {
