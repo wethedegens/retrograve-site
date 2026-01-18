@@ -33,7 +33,7 @@ function LockerInner() {
   const uri = sp.get("uri") || "";
   const devMode = sp.get("devbg") === "1";
 
-  // "magapixel" (default), "miners", "gainz", "midevils", "meowga", "zeromonkebiz", "sagamonkes"
+  // "magapixel" (default), "miners", "gainz", "midevils", "meowga", "zeromonkebiz", "sagamonkes", "dogeminers"
   const project = (sp.get("project") || "magapixel").toLowerCase();
 
   const imageParam = sp.get("image") || "";
@@ -41,7 +41,12 @@ function LockerInner() {
 
   const composerRef = useRef<ComposerHandle | null>(null);
 
-  const initialBg = useMemo<BgChoice>(() => ({ kind: "color", value: "#3e2d75" }), []);
+  // ✅ Default BG: DogeMiners should start solid (your "bg-5 vibe")
+  const initialBg = useMemo<BgChoice>(() => {
+    if (project === "dogeminers") return { kind: "color", value: "#2f2a45" };
+    return { kind: "color", value: "#3e2d75" };
+  }, [project]);
+
   const [bg, setBg] = useState<BgChoice>(initialBg);
 
   const [nft, setNft] = useState<SimpleNft | null>(() => {
@@ -56,8 +61,11 @@ function LockerInner() {
   const [loading, setLoading] = useState(false);
   const [hint, setHint] = useState<null | string>(null);
 
+  // ✅ Back target: DogeMiners goes back to the finder page, not a Solana grid
   const gridHref =
-    project === "miners"
+    project === "dogeminers"
+      ? "/doge-miners"
+      : project === "miners"
       ? "/enchanted-miners-nfts"
       : project === "gainz"
       ? "/gainz-nft"
@@ -70,6 +78,8 @@ function LockerInner() {
       : project === "sagamonkes"
       ? "/saga-monkes-nfts"
       : "/magapixel-nfts";
+
+  const backLabel = project === "dogeminers" ? "← back to miner finder" : "← back to grid";
 
   useEffect(() => {
     setBg(initialBg);
@@ -227,7 +237,6 @@ function LockerInner() {
             }
           : {}),
 
-        // ✅ SagaMonkes locker background (uses your public root image)
         ...(isSagamonkes
           ? {
               backgroundColor: "#0b0b12",
@@ -250,7 +259,7 @@ function LockerInner() {
             textShadow: "0 2px 12px rgba(0,0,0,0.35)",
           }}
         >
-          ← back to grid
+          {backLabel}
         </a>
 
         <div
