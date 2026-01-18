@@ -26,6 +26,33 @@ type NftFetchResp =
     }
   | null;
 
+/** ===== Doge color helper (stable per inscription) ===== */
+function hashToHue(input: string) {
+  let h = 0;
+  for (let i = 0; i < input.length; i++) {
+    h = (h * 31 + input.charCodeAt(i)) >>> 0;
+  }
+  return h % 360;
+}
+
+function dogeBgFromId(id: string) {
+  const base = (id || "").trim();
+  if (!base) return "#0b0816";
+  const hue = hashToHue(base);
+  // rich, dark-ish but colorful
+  return `hsl(${hue} 55% 18%)`;
+}
+
+function extractDogeIdFromImageUrl(url: string) {
+  // supports: https://cdn.doggy.market/content/<id>  OR  https://.../content/<id>?...
+  const u = (url || "").trim();
+  if (!u) return "";
+  const idx = u.indexOf("/content/");
+  if (idx === -1) return "";
+  const tail = u.slice(idx + "/content/".length);
+  return tail.split("?")[0] || "";
+}
+
 function LockerInner() {
   const sp = useSearchParams();
   const mint = sp.get("mint") || "";
@@ -37,11 +64,25 @@ function LockerInner() {
 
   const imageParam = sp.get("image") || "";
   const nameParam = sp.get("name") || "";
+  const idParam = sp.get("id") || ""; // ✅ Doge passes this
 
   const composerRef = useRef<ComposerHandle | null>(null);
 
-  // ✅ Doge default bg = your “bg-5 vibe” solid
+  // ✅ Doge uses a stable “NFT-matched” page background based on inscription id.
+  const dogeId = useMemo(() => {
+    if (project !== "dogeminers") return "";
+    return idParam || extractDogeIdFromImageUrl(imageParam);
+  }, [project, idParam, imageParam]);
+
+  const dogePageBg = useMemo(() => {
+    if (project !== "dogeminers") return "";
+    // If you want to FORCE the orange always, replace with "#a55a00"
+    return dogeBgFromId(dogeId);
+  }, [project, dogeId]);
+
   const initialBg = useMemo<BgChoice>(() => {
+    // This is the *Composer* background choice, not the page.
+    // Keep it purple-ish default; user can swap with BackgroundPicker.
     if (project === "dogeminers") return { kind: "color", value: "#2f2a45" };
     return { kind: "color", value: "#3e2d75" };
   }, [project]);
@@ -157,6 +198,7 @@ function LockerInner() {
     };
   }, [mint, uri, imageParam, nameParam]);
 
+  const isDogeminers = project === "dogeminers";
   const isMiners = project === "miners";
   const isMagapixel = project === "magapixel";
   const isGainz = project === "gainz";
@@ -170,6 +212,14 @@ function LockerInner() {
       className="locker-page"
       style={{
         padding: "0 0 80px",
+
+        // ✅ Doge: NFT-based color background (no RetroGrave mountains)
+        ...(isDogeminers
+          ? {
+              backgroundColor: dogePageBg || "#0b0816",
+              backgroundImage: "none",
+            }
+          : {}),
 
         ...(isMiners
           ? {
