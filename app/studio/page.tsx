@@ -1,5 +1,5 @@
 // app/studio/page.tsx
-import StudioTraitImporter from "../components/studio/StudioTraitImporter";
+import StudioTraitImporter from "../components/studio/StudioTraitImporter";\nimport StudioBackgroundBuilder from "../components/studio/StudioBackgroundBuilder";
 import { FLAGSHIP_PROJECTS } from "../lib/lockscreened/flagshipProjects";
 import styles from "./studio.module.css";
 
@@ -135,7 +135,7 @@ export default function CreatorStudioPage() {
 
                   <div className={styles.projectActions}>
                     <a href={project.routes.landing}>OPEN PROJECT</a>
-                    <span>MANAGE · SOON</span>
+                    <a href={"/studio/projects/" + project.slug}>MANAGE</a>
                   </div>
                 </div>
               </article>
@@ -180,9 +180,13 @@ export default function CreatorStudioPage() {
           <StudioTraitImporter />
         </div>
 
+        <div className={styles.importer} id="background-builder">
+          <StudioBackgroundBuilder />
+        </div>
+
         <p className={styles.note}>
-          ALPHA SAFETY MODE · TRAIT ANALYSIS HAPPENS IN YOUR BROWSER · NOTHING
-          ON THIS PAGE UPLOADS OR PUBLISHES ART YET
+          ALPHA SAFETY MODE · TRAIT AND BACKGROUND TESTING HAPPENS IN YOUR
+          BROWSER · NOTHING ON THIS PAGE UPLOADS OR PUBLISHES ART YET
         </p>
       </div>
     </main>
