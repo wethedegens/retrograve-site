@@ -1,7 +1,12 @@
 // app/components/studio/StudioBackgroundBuilder.tsx
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import {
+  formatBytes,
+  validateBackgroundFile,
+  validateBackgroundPackage,
+} from "../../lib/lockscreened/costGuardrails";
 
 type LocalAsset = {
   file: File;
@@ -120,15 +125,40 @@ export default function StudioBackgroundBuilder() {
   const [phone, setPhone] = useState<LocalAsset | null>(null);
   const [ipad, setIpad] = useState<LocalAsset | null>(null);
   const [desktop, setDesktop] = useState<LocalAsset | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
 
   function replace(
     current: LocalAsset | null,
     setter: (next: LocalAsset | null) => void,
     file: File | null
   ) {
+    if (!file) {
+      if (current) URL.revokeObjectURL(current.url);
+      setter(null);
+      setFileError(null);
+      return;
+    }
+
+    const result = validateBackgroundFile(file);
+    if (!result.ok) {
+      setFileError(result.errors[0] || "This file exceeds the beta upload limit.");
+      return;
+    }
+
     if (current) URL.revokeObjectURL(current.url);
-    setter(file ? { file, url: URL.createObjectURL(file) } : null);
+    setter({ file, url: URL.createObjectURL(file) });
+    setFileError(result.warnings[0] || null);
   }
+
+  const packageBudget = useMemo(
+    () =>
+      validateBackgroundPackage([
+        phone?.file || null,
+        ipad?.file || null,
+        desktop?.file || null,
+      ]),
+    [phone, ipad, desktop]
+  );
 
   const complete = Boolean(phone && ipad && desktop);
   const mode = complete
@@ -224,6 +254,22 @@ export default function StudioBackgroundBuilder() {
         />
       </div>
 
+      {fileError ? (
+        <div
+          style={{
+            marginTop: 12,
+            borderRadius: 12,
+            padding: "9px 11px",
+            border: "1px solid rgba(255,174,108,.18)",
+            background: "rgba(255,174,108,.07)",
+            color: "#ffd7b8",
+            fontSize: 10,
+          }}
+        >
+          {fileError}
+        </div>
+      ) : null}
+
       <div
         style={{
           marginTop: 13,
@@ -270,7 +316,7 @@ export default function StudioBackgroundBuilder() {
           </strong>
           <span style={{ fontSize: 10, color: "rgba(255,255,255,.5)" }}>
             {phone
-              ? "Local package ready. Storage and publishing stay disabled until the collection is verified."
+              ? `Local package: ${formatBytes(packageBudget.totalBytes)}. Storage and publishing stay disabled until the collection is verified.`
               : "Choose a phone image to create the package."}
           </span>
         </div>
@@ -282,10 +328,19 @@ export default function StudioBackgroundBuilder() {
             fontSize: 9,
             fontWeight: 900,
             letterSpacing: ".1em",
-            color: phone ? "#a8ffd2" : "rgba(255,255,255,.34)",
+            color:
+              phone && packageBudget.ok
+                ? "#a8ffd2"
+                : phone
+                  ? "#ffd1b3"
+                  : "rgba(255,255,255,.34)",
           }}
         >
-          {phone ? "LOCAL PREVIEW READY" : "NOT UPLOADED"}
+          {phone
+            ? packageBudget.ok
+              ? "LOCAL PREVIEW READY"
+              : "PACKAGE TOO LARGE"
+            : "NOT UPLOADED"}
         </div>
       </div>
     </section>

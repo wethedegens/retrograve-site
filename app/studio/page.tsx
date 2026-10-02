@@ -1,5 +1,7 @@
 // app/studio/page.tsx
-import StudioTraitImporter from "../components/studio/StudioTraitImporter";\nimport StudioBackgroundBuilder from "../components/studio/StudioBackgroundBuilder";
+import StudioTraitImporter from "../components/studio/StudioTraitImporter";
+import StudioBackgroundBuilder from "../components/studio/StudioBackgroundBuilder";
+import StudioCostGuardrails from "../components/studio/StudioCostGuardrails";
 import { FLAGSHIP_PROJECTS } from "../lib/lockscreened/flagshipProjects";
 import styles from "./studio.module.css";
 
@@ -94,6 +96,8 @@ export default function CreatorStudioPage() {
             TEST A TRAIT FOLDER
           </a>
         </div>
+
+        <StudioCostGuardrails />
 
         <section className={styles.section}>
           <div className={styles.sectionHead}>

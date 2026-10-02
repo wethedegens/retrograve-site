@@ -7,6 +7,11 @@ import {
   type TraitImportAnalysis,
   type UploadedTraitFile,
 } from "../../lib/lockscreened/traitImport";
+import {
+  formatBytes,
+  validateTraitImportFiles,
+  type UploadGuardrailResult,
+} from "../../lib/lockscreened/costGuardrails";
 
 function fileListToTraitFiles(files: FileList): UploadedTraitFile[] {
   return Array.from(files).map((file) => ({
@@ -22,6 +27,7 @@ function fileListToTraitFiles(files: FileList): UploadedTraitFile[] {
 export default function StudioTraitImporter() {
   const [analysis, setAnalysis] = useState<TraitImportAnalysis | null>(null);
   const [folderName, setFolderName] = useState("");
+  const [guardrail, setGuardrail] = useState<UploadGuardrailResult | null>(null);
 
   const totals = useMemo(() => {
     if (!analysis) return { layers: 0, traits: 0 };
@@ -41,7 +47,15 @@ export default function StudioTraitImporter() {
     const firstPath = converted[0]?.relativePath || "";
     const firstFolder = firstPath.split("/")[0] || "Trait folder";
 
+    const budget = validateTraitImportFiles(converted);
     setFolderName(firstFolder);
+    setGuardrail(budget);
+
+    if (!budget.ok) {
+      setAnalysis(null);
+      return;
+    }
+
     setAnalysis(analyzeTraitFolder(converted));
   }
 
@@ -72,6 +86,24 @@ export default function StudioTraitImporter() {
         <strong>CHOOSE TRAIT FOLDER</strong>
         <span>PNG / WebP · LMNFT-style layer folders supported</span>
       </label>
+
+      {guardrail ? (
+        <div className={guardrail.ok ? "budgetOk" : "budgetBad"}>
+          <strong>
+            {guardrail.ok ? "✓ Upload budget check passed" : "Upload blocked"}
+          </strong>
+          <span>
+            {formatBytes(guardrail.totalBytes)} source folder · cost guardrails
+            checked before any future upload
+          </span>
+          {guardrail.errors.map((message) => (
+            <span key={message}>• {message}</span>
+          ))}
+          {guardrail.warnings.map((message) => (
+            <span key={message}>• {message}</span>
+          ))}
+        </div>
+      ) : null}
 
       {!analysis ? (
         <div className="empty">
@@ -229,6 +261,29 @@ export default function StudioTraitImporter() {
         .dropzone span {
           font-size:11px;
           color:rgba(255,255,255,.55);
+        }
+        .budgetOk,.budgetBad {
+          margin-top:12px;
+          padding:11px 13px;
+          border-radius:14px;
+          display:grid;
+          gap:3px;
+          font-size:10px;
+        }
+        .budgetOk {
+          color:#a8ffd2;
+          border:1px solid rgba(72,205,135,.18);
+          background:rgba(72,205,135,.07);
+        }
+        .budgetBad {
+          color:#ffd1b3;
+          border:1px solid rgba(255,137,76,.2);
+          background:rgba(255,137,76,.08);
+        }
+        .budgetOk span,.budgetBad span {
+          font-size:9px;
+          color:inherit;
+          opacity:.82;
         }
         .empty {
           margin-top:14px;
