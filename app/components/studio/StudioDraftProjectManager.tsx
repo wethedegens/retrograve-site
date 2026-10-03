@@ -14,6 +14,7 @@ import {
 import StudioTraitValidation from "./StudioTraitValidation";
 import StudioPublicProfileEditor from "./StudioPublicProfileEditor";
 import StudioLayerOrderEditor from "./StudioLayerOrderEditor";
+import StudioMintOverrides from "./StudioMintOverrides";
 
 export default function StudioDraftProjectManager({
   collectionId,
@@ -191,6 +192,8 @@ export default function StudioDraftProjectManager({
     traitAssets,
     publishedTraitAssets,
     backgrounds,
+    mintOverrides,
+    publishedMintOverrides,
   } = data;
   const verified = claim?.status === "verified";
 
@@ -322,6 +325,15 @@ export default function StudioDraftProjectManager({
         verified={verified}
         layers={layers}
         traitAssets={traitAssets || []}
+      />
+
+      <StudioMintOverrides
+        session={session}
+        collection={collection}
+        verified={verified}
+        overrides={mintOverrides || []}
+        publishedOverrides={publishedMintOverrides || []}
+        onChanged={load}
       />
 
       <section style={panel}>
