@@ -363,10 +363,27 @@ export async function getStudioCollection(
   const collection = collections?.[0];
   if (!collection) throw new Error("Collection draft was not found.");
 
+  const layerIds = (layers || []).map((layer: any) => layer.id).filter(Boolean);
+  let traitAssets: any[] = [];
+
+  if (layerIds.length) {
+    const encodedIds = layerIds
+      .map((id: string) => `"${String(id).replace(/"/g, "")}"`)
+      .join(",");
+
+    traitAssets = await request<any[]>(
+      session,
+      "trait_assets?layer_id=in.(" +
+        encodeURIComponent(encodedIds) +
+        ")&select=id,layer_id,trait_value,storage_bucket,storage_path,bytes,mime_type"
+    );
+  }
+
   return {
     collection,
     claim: claims?.[0] || null,
     layers: layers || [],
+    traitAssets: traitAssets || [],
     backgrounds: backgrounds || [],
   };
 }

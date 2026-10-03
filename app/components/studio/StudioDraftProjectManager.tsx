@@ -11,6 +11,7 @@ import {
   getStudioCollection,
   publishStudioCollection,
 } from "../../lib/lockscreened/studioDataClient";
+import StudioTraitValidation from "./StudioTraitValidation";
 
 export default function StudioDraftProjectManager({
   collectionId,
@@ -141,7 +142,7 @@ export default function StudioDraftProjectManager({
     );
   }
 
-  const { collection, claim, layers, backgrounds } = data;
+  const { collection, claim, layers, traitAssets, backgrounds } = data;
   const verified = claim?.status === "verified";
 
   return (
@@ -235,6 +236,14 @@ export default function StudioDraftProjectManager({
           </div>
         )}
       </section>
+
+      <StudioTraitValidation
+        session={session}
+        collectionId={collectionId}
+        verified={verified}
+        layers={layers}
+        traitAssets={traitAssets || []}
+      />
 
       <section style={panel}>
         <div style={eyebrow}>OFFICIAL BACKGROUNDS</div>
