@@ -639,3 +639,27 @@ export async function upsertMintOverrideMetadata(args: {
     }
   );
 }
+
+export async function assertCollectionStorageBudget(args: {
+  session: LockScreenedSession;
+  collectionId: string;
+  incomingBytes: number;
+}) {
+  const data = await getStudioCollection(args.session, args.collectionId);
+  const currentBytes =
+    (data.traitAssets || []).reduce((sum: number, item: any) => sum + Number(item.bytes || 0), 0) +
+    (data.backgroundSourceAssets || []).reduce((sum: number, item: any) => sum + Number(item.bytes || 0), 0) +
+    (data.mintOverrides || []).reduce((sum: number, item: any) => sum + Number(item.bytes || 0), 0);
+
+  const hardLimit = 150 * 1024 * 1024;
+  const projectedBytes = currentBytes + Math.max(0, Number(args.incomingBytes || 0));
+
+  if (projectedBytes > hardLimit) {
+    const mb = (projectedBytes / (1024 * 1024)).toFixed(1);
+    throw new Error(
+      "This upload would bring the collection to " + mb + " MB of private source art, above the 150 MB beta hard cap."
+    );
+  }
+
+  return { currentBytes, projectedBytes, hardLimit };
+}

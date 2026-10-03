@@ -13,6 +13,7 @@ import {
   type LockScreenedSession,
 } from "../../lib/lockscreened/web3AuthClient";
 import {
+  assertCollectionStorageBudget,
   listMyStudioCollections,
   saveBackgroundPackageDraft,
   upsertBackgroundSourceAssetMetadata,
@@ -241,6 +242,12 @@ export default function StudioBackgroundBuilder() {
     setDraftMessage("");
 
     try {
+      await assertCollectionStorageBudget({
+        session,
+        collectionId: selectedCollectionId,
+        incomingBytes: packageBudget.totalBytes,
+      });
+
       const packageRow =
         savedPackage?.collection_id === selectedCollectionId
           ? savedPackage

@@ -18,6 +18,7 @@ import {
   type LockScreenedSession,
 } from "../../lib/lockscreened/web3AuthClient";
 import {
+  assertCollectionStorageBudget,
   listMyStudioCollections,
   saveTraitLayerMap,
   upsertTraitAssetMetadata,
@@ -156,6 +157,17 @@ export default function StudioTraitImporter() {
     setUploadProgress({ done: 0, total: allAssets.length });
 
     try {
+      const incomingBytes = rawFiles.reduce(
+        (sum, file) => sum + Number(file.size || 0),
+        0
+      );
+
+      await assertCollectionStorageBudget({
+        session,
+        collectionId: selectedCollectionId,
+        incomingBytes,
+      });
+
       const savedLayers = await saveTraitLayerMap({
         session,
         collectionId: selectedCollectionId,

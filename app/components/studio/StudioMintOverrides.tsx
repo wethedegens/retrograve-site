@@ -5,7 +5,10 @@ import { useState } from "react";
 import type { LockScreenedSession } from "../../lib/lockscreened/web3AuthClient";
 import { STORAGE_BUCKETS, mintOverrideSourcePath } from "../../lib/lockscreened/storagePaths";
 import { uploadStorageFile } from "../../lib/lockscreened/studioStorageClient";
-import { upsertMintOverrideMetadata } from "../../lib/lockscreened/studioDataClient";
+import {
+  assertCollectionStorageBudget,
+  upsertMintOverrideMetadata,
+} from "../../lib/lockscreened/studioDataClient";
 import { validateBackgroundFile } from "../../lib/lockscreened/costGuardrails";
 
 export default function StudioMintOverrides({
@@ -37,6 +40,12 @@ export default function StudioMintOverrides({
     try {
       const guard = validateBackgroundFile(file);
       if (!guard.ok) throw new Error(guard.errors.join(" "));
+
+      await assertCollectionStorageBudget({
+        session,
+        collectionId: collection.id,
+        incomingBytes: file.size,
+      });
 
       const path = mintOverrideSourcePath({
         studioId: collection.studio_id,
