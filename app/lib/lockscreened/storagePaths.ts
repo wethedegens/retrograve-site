@@ -86,3 +86,31 @@ export function publicPreviewPath(args: {
     safeFileName(args.fileName),
   ].join("/");
 }
+
+
+export function traitSourcePathFromRelative(args: {
+  studioId: string;
+  collectionId: string;
+  relativePath: string;
+}) {
+  const relativeSegments = String(args.relativePath || "")
+    .replace(/\\/g, "/")
+    .split("/")
+    .filter(Boolean)
+    .map((segment, index, all) =>
+      index === all.length - 1 ? safeFileName(segment) : safeSegment(segment)
+    )
+    .filter(Boolean);
+
+  if (!relativeSegments.length) {
+    throw new Error("Trait source path is empty.");
+  }
+
+  return [
+    safeSegment(args.studioId),
+    "collections",
+    safeSegment(args.collectionId),
+    "traits",
+    ...relativeSegments,
+  ].join("/");
+}

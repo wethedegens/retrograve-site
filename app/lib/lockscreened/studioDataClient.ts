@@ -229,9 +229,9 @@ export async function saveTraitLayerMap(args: {
 
   if (!rows.length) throw new Error("No trait layers were detected.");
 
-  await request<any[]>(
+  const savedLayers = await request<any[]>(
     args.session,
-    "trait_layers?on_conflict=collection_id,trait_type&select=id,trait_type,layer_order,is_background",
+    "trait_layers?on_conflict=collection_id,trait_type&select=id,trait_type,display_name,layer_order,is_background",
     {
       method: "POST",
       headers: {
@@ -260,6 +260,34 @@ export async function saveTraitLayerMap(args: {
   if (typeof window !== "undefined") {
     window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
   }
+
+  return savedLayers || [];
+}
+
+export async function upsertTraitAssetMetadata(args: {
+  session: LockScreenedSession;
+  rows: Array<{
+    layer_id: string;
+    trait_value: string;
+    storage_bucket: string;
+    storage_path: string;
+    bytes: number;
+    mime_type?: string | null;
+  }>;
+}) {
+  if (!args.rows.length) return [];
+
+  return await request<any[]>(
+    args.session,
+    "trait_assets?on_conflict=layer_id,trait_value&select=id,layer_id,trait_value,storage_bucket,storage_path,bytes,mime_type",
+    {
+      method: "POST",
+      headers: {
+        Prefer: "resolution=merge-duplicates,return=representation",
+      },
+      body: JSON.stringify(args.rows),
+    }
+  );
 }
 
 

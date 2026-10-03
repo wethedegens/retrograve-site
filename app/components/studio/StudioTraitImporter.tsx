@@ -20,8 +20,14 @@ import {
 import {
   listMyStudioCollections,
   saveTraitLayerMap,
+  upsertTraitAssetMetadata,
   type StudioCollectionRow,
 } from "../../lib/lockscreened/studioDataClient";
+import { STORAGE_BUCKETS, traitSourcePathFromRelative } from "../../lib/lockscreened/storagePaths";
+import {
+  deleteStorageFile,
+  uploadStorageFile,
+} from "../../lib/lockscreened/studioStorageClient";
 
 function fileListToTraitFiles(files: FileList): UploadedTraitFile[] {
   return Array.from(files).map((file) => ({
@@ -43,6 +49,9 @@ export default function StudioTraitImporter() {
   const [selectedCollectionId, setSelectedCollectionId] = useState("");
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
+  const [rawFiles, setRawFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ done: 0, total: 0 });
 
   useEffect(() => {
     let active = true;
@@ -94,6 +103,153 @@ export default function StudioTraitImporter() {
     };
   }, [analysis]);
 
+  function rawFileFor(relativePath: string) {
+    const target = String(relativePath || "").replace(/\\/g, "/");
+
+    return rawFiles.find((file) => {
+      const full = String(
+        (file as File & { webkitRelativePath?: string }).webkitRelativePath ||
+          file.name
+      ).replace(/\\/g, "/");
+
+      return full === target || full.endsWith("/" + target);
+    });
+  }
+
+  async function uploadPrivateTraitSources() {
+    if (!analysis || !session || !selectedCollectionId) return;
+
+    const selectedCollection = collections.find(
+      (collection: any) => collection.id === selectedCollectionId
+    ) as any;
+
+    if (!selectedCollection) {
+      setSaveMessage("Choose a Studio collection first.");
+      return;
+    }
+
+    if (selectedCollection.claim_status !== "verified") {
+      setSaveMessage(
+        "Source uploads stay locked until this collection claim is verified."
+      );
+      return;
+    }
+
+    const duplicateWarning = analysis.warnings.some(
+      (warning) => warning.code === "duplicate_trait_value"
+    );
+
+    if (duplicateWarning) {
+      setSaveMessage(
+        "Resolve duplicate trait values before uploading source artwork."
+      );
+      return;
+    }
+
+    setUploading(true);
+    setSaveMessage("");
+
+    const allAssets = analysis.layers.flatMap((layer) =>
+      layer.assets.map((asset) => ({ layer, asset }))
+    );
+
+    setUploadProgress({ done: 0, total: allAssets.length });
+
+    try {
+      const savedLayers = await saveTraitLayerMap({
+        session,
+        collectionId: selectedCollectionId,
+        layers: analysis.layers.map((layer) => ({
+          name: layer.name,
+          suggestedOrder: layer.suggestedOrder,
+          likelyBackground: layer.likelyBackground,
+        })),
+      });
+
+      const layerIdByName = new Map(
+        savedLayers.map((layer: any) => [
+          String(layer.trait_type).trim().toLowerCase(),
+          String(layer.id),
+        ])
+      );
+
+      let done = 0;
+
+      for (const { layer, asset } of allAssets) {
+        const file = rawFileFor(asset.relativePath);
+        if (!file) {
+          throw new Error(
+            `Could not find the source file for ${asset.relativePath}.`
+          );
+        }
+
+        const layerId = layerIdByName.get(
+          String(layer.name).trim().toLowerCase()
+        );
+
+        if (!layerId) {
+          throw new Error(`No saved layer ID was found for ${layer.name}.`);
+        }
+
+        const storagePath = traitSourcePathFromRelative({
+          studioId: selectedCollection.studio_id,
+          collectionId: selectedCollectionId,
+          relativePath: asset.relativePath,
+        });
+
+        await uploadStorageFile({
+          session,
+          bucket: STORAGE_BUCKETS.creatorSourcePrivate,
+          path: storagePath,
+          file,
+          upsert: true,
+        });
+
+        try {
+          await upsertTraitAssetMetadata({
+            session,
+            rows: [
+              {
+                layer_id: layerId,
+                trait_value: asset.traitValue,
+                storage_bucket: STORAGE_BUCKETS.creatorSourcePrivate,
+                storage_path: storagePath,
+                bytes: file.size,
+                mime_type: file.type || null,
+              },
+            ],
+          });
+        } catch (error) {
+          try {
+            await deleteStorageFile({
+              session,
+              bucket: STORAGE_BUCKETS.creatorSourcePrivate,
+              path: storagePath,
+            });
+          } catch {}
+
+          throw error;
+        }
+
+        done += 1;
+        setUploadProgress({ done, total: allAssets.length });
+      }
+
+      setSaveMessage(
+        `${done} private trait source files uploaded and indexed successfully.`
+      );
+      window.dispatchEvent(
+        new CustomEvent("lockscreened-studio-data-changed")
+      );
+    } catch (error) {
+      setSaveMessage(
+        error instanceof Error ? error.message : "Trait upload failed."
+      );
+    } finally {
+      setUploading(false);
+    }
+  }
+
   async function persistLayerMap() {
     if (!analysis || !session || !selectedCollectionId) return;
 
@@ -124,6 +280,9 @@ export default function StudioTraitImporter() {
 
   function handleFiles(files: FileList | null) {
     if (!files?.length) return;
+
+    const selected = Array.from(files);
+    setRawFiles(selected);
 
     const converted = fileListToTraitFiles(files);
     const firstPath = converted[0]?.relativePath || "";
@@ -273,9 +432,29 @@ export default function StudioTraitImporter() {
                 </select>
                 <button
                   onClick={persistLayerMap}
-                  disabled={saving || !selectedCollectionId}
+                  disabled={saving || uploading || !selectedCollectionId}
                 >
                   {saving ? "SAVING…" : "SAVE LAYER MAP"}
+                </button>
+                <button
+                  onClick={uploadPrivateTraitSources}
+                  disabled={
+                    uploading ||
+                    saving ||
+                    !selectedCollectionId ||
+                    !(collections.find(
+                      (collection: any) =>
+                        collection.id === selectedCollectionId
+                    ) as any)?.claim_status ||
+                    (collections.find(
+                      (collection: any) =>
+                        collection.id === selectedCollectionId
+                    ) as any)?.claim_status !== "verified"
+                  }
+                >
+                  {uploading
+                    ? `UPLOADING ${uploadProgress.done}/${uploadProgress.total}`
+                    : "UPLOAD PRIVATE SOURCES"}
                 </button>
               </div>
             ) : (
@@ -529,7 +708,7 @@ export default function StudioTraitImporter() {
         }
         .persistControls {
           display:grid;
-          grid-template-columns:1fr auto;
+          grid-template-columns:minmax(0,1fr) auto auto;
           gap:8px;
         }
         .persistControls select {
@@ -579,6 +758,7 @@ export default function StudioTraitImporter() {
           .panelHead{display:grid}
           .status{justify-self:start}
           .summary{grid-template-columns:1fr 1fr}
+          .persistControls{grid-template-columns:1fr}
         }
       `}</style>
     </section>
