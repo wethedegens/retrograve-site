@@ -15,8 +15,17 @@ import {
 import {
   listMyStudioCollections,
   saveBackgroundPackageDraft,
+  upsertBackgroundSourceAssetMetadata,
   type StudioCollectionRow,
 } from "../../lib/lockscreened/studioDataClient";
+import {
+  STORAGE_BUCKETS,
+  backgroundSourcePath,
+} from "../../lib/lockscreened/storagePaths";
+import {
+  deleteStorageFile,
+  uploadStorageFile,
+} from "../../lib/lockscreened/studioStorageClient";
 
 type LocalAsset = {
   file: File;
@@ -141,6 +150,9 @@ export default function StudioBackgroundBuilder() {
   const [selectedCollectionId, setSelectedCollectionId] = useState("");
   const [savingDraft, setSavingDraft] = useState(false);
   const [draftMessage, setDraftMessage] = useState("");
+  const [savedPackage, setSavedPackage] = useState<any>(null);
+  const [uploadingSources, setUploadingSources] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ done: 0, total: 0 });
 
   useEffect(() => {
     let active = true;
@@ -188,11 +200,12 @@ export default function StudioBackgroundBuilder() {
     setDraftMessage("");
 
     try {
-      await saveBackgroundPackageDraft({
+      const created = await saveBackgroundPackageDraft({
         session,
         collectionId: selectedCollectionId,
         name,
       });
+      setSavedPackage(created);
       setDraftMessage(
         "Background package metadata saved. The source images remain local and have not been uploaded."
       );
@@ -202,6 +215,115 @@ export default function StudioBackgroundBuilder() {
       );
     } finally {
       setSavingDraft(false);
+    }
+  }
+
+  async function uploadPrivateSources() {
+    if (!session || !selectedCollectionId || !phone || !packageBudget.ok) return;
+
+    const selectedCollection = collections.find(
+      (collection: any) => collection.id === selectedCollectionId
+    ) as any;
+
+    if (!selectedCollection) {
+      setDraftMessage("Choose a Studio collection first.");
+      return;
+    }
+
+    if (selectedCollection.claim_status !== "verified") {
+      setDraftMessage(
+        "Background source uploads stay locked until this collection claim is verified."
+      );
+      return;
+    }
+
+    setUploadingSources(true);
+    setDraftMessage("");
+
+    try {
+      const packageRow =
+        savedPackage?.collection_id === selectedCollectionId
+          ? savedPackage
+          : await saveBackgroundPackageDraft({
+              session,
+              collectionId: selectedCollectionId,
+              name,
+            });
+
+      setSavedPackage(packageRow);
+
+      const sourceFiles = [
+        { device: "phone" as const, asset: phone },
+        { device: "ipad" as const, asset: ipad },
+        { device: "desktop" as const, asset: desktop },
+      ].filter((item) => Boolean(item.asset));
+
+      setUploadProgress({ done: 0, total: sourceFiles.length });
+
+      let done = 0;
+
+      for (const item of sourceFiles) {
+        const local = item.asset as LocalAsset;
+        const storagePath = backgroundSourcePath({
+          studioId: selectedCollection.studio_id,
+          collectionId: selectedCollectionId,
+          backgroundId: packageRow.id,
+          device: item.device,
+          fileName: local.file.name,
+        });
+
+        await uploadStorageFile({
+          session,
+          bucket: STORAGE_BUCKETS.creatorSourcePrivate,
+          path: storagePath,
+          file: local.file,
+          upsert: true,
+        });
+
+        try {
+          await upsertBackgroundSourceAssetMetadata({
+            session,
+            rows: [
+              {
+                package_id: packageRow.id,
+                device: item.device,
+                storage_bucket: STORAGE_BUCKETS.creatorSourcePrivate,
+                storage_path: storagePath,
+                bytes: local.file.size,
+                mime_type: local.file.type || null,
+              },
+            ],
+          });
+        } catch (error) {
+          try {
+            await deleteStorageFile({
+              session,
+              bucket: STORAGE_BUCKETS.creatorSourcePrivate,
+              path: storagePath,
+            });
+          } catch {}
+
+          throw error;
+        }
+
+        done += 1;
+        setUploadProgress({ done, total: sourceFiles.length });
+      }
+
+      setDraftMessage(
+        `${done} private background source file${done === 1 ? "" : "s"} uploaded and indexed.`
+      );
+      window.dispatchEvent(
+        new CustomEvent("lockscreened-studio-data-changed")
+      );
+    } catch (error) {
+      setDraftMessage(
+        error instanceof Error
+          ? error.message
+          : "Background source upload failed."
+      );
+    } finally {
+      setUploadingSources(false);
     }
   }
 
@@ -401,7 +523,7 @@ export default function StudioBackgroundBuilder() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "1fr auto",
+              gridTemplateColumns: "minmax(0,1fr) auto auto",
               gap: 8,
             }}
           >
@@ -428,6 +550,7 @@ export default function StudioBackgroundBuilder() {
               onClick={saveDraft}
               disabled={
                 savingDraft ||
+                uploadingSources ||
                 !phone ||
                 !packageBudget.ok ||
                 !selectedCollectionId
@@ -444,6 +567,34 @@ export default function StudioBackgroundBuilder() {
               }}
             >
               {savingDraft ? "SAVING…" : "SAVE PACKAGE DRAFT"}
+            </button>
+            <button
+              onClick={uploadPrivateSources}
+              disabled={
+                uploadingSources ||
+                savingDraft ||
+                !phone ||
+                !packageBudget.ok ||
+                !selectedCollectionId ||
+                (collections.find(
+                  (collection: any) =>
+                    collection.id === selectedCollectionId
+                ) as any)?.claim_status !== "verified"
+              }
+              style={{
+                borderRadius: 999,
+                border: "1px solid rgba(142,231,255,.18)",
+                background: "rgba(77,185,224,.12)",
+                color: "#fff",
+                fontSize: 9,
+                fontWeight: 900,
+                letterSpacing: ".1em",
+                padding: "0 12px",
+              }}
+            >
+              {uploadingSources
+                ? `UPLOADING ${uploadProgress.done}/${uploadProgress.total}`
+                : "UPLOAD PRIVATE SOURCES"}
             </button>
           </div>
         ) : (

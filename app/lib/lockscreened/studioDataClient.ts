@@ -408,3 +408,30 @@ export async function publishBackgroundPackage(args: {
     window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
   }
 }
+
+
+export async function upsertBackgroundSourceAssetMetadata(args: {
+  session: LockScreenedSession;
+  rows: Array<{
+    package_id: string;
+    device: "phone" | "ipad" | "desktop" | "thumb";
+    storage_bucket: string;
+    storage_path: string;
+    bytes: number;
+    mime_type?: string | null;
+  }>;
+}) {
+  if (!args.rows.length) return [];
+
+  return await request<any[]>(
+    args.session,
+    "background_source_assets?on_conflict=package_id,device&select=id,package_id,device,storage_bucket,storage_path,bytes,mime_type",
+    {
+      method: "POST",
+      headers: {
+        Prefer: "resolution=merge-duplicates,return=representation",
+      },
+      body: JSON.stringify(args.rows),
+    }
+  );
+}
