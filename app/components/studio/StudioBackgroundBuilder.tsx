@@ -397,7 +397,7 @@ export default function StudioBackgroundBuilder() {
         <div>
           <div
             style={{
-              color: "#8ee7ff",
+              color: "#ff8dce",
               fontSize: 10,
               fontWeight: 900,
               letterSpacing: ".22em",
@@ -427,7 +427,7 @@ export default function StudioBackgroundBuilder() {
             fontSize: 9,
             fontWeight: 900,
             letterSpacing: ".12em",
-            color: "#9ee9ff",
+            color: "#ff9bd8",
             textAlign: "right",
           }}
         >
@@ -454,7 +454,7 @@ export default function StudioBackgroundBuilder() {
             borderRadius: 12,
             border: "1px solid rgba(255,255,255,.12)",
             background: "rgba(0,0,0,.22)",
-            color: "#fff",
+            color: "#151019",
             padding: "0 12px",
             outline: "none",
           }}
@@ -509,15 +509,15 @@ export default function StudioBackgroundBuilder() {
         style={{
           marginTop: 14,
           borderRadius: 14,
-          border: "1px solid rgba(142,231,255,.13)",
-          background: "rgba(77,185,224,.04)",
+          border: "1px solid rgba(255,99,194,.13)",
+          background: "linear-gradient(135deg, rgba(255,63,180,.035), rgba(130,93,255,.035))",
           padding: 12,
           display: "grid",
           gap: 9,
         }}
       >
         <div style={{ display: "grid", gap: 3 }}>
-          <strong style={{ fontSize: 10, color: "#aeeeff", letterSpacing: ".1em" }}>
+          <strong style={{ fontSize: 10, color: "#ff9bd8", letterSpacing: ".1em" }}>
             SAVE PACKAGE DRAFT
           </strong>
           <span style={{ fontSize: 9, color: "rgba(255,255,255,.5)" }}>
@@ -543,7 +543,7 @@ export default function StudioBackgroundBuilder() {
                 borderRadius: 11,
                 border: "1px solid rgba(255,255,255,.1)",
                 background: "#11101a",
-                color: "#fff",
+                color: "#151019",
                 padding: "0 10px",
               }}
             >
@@ -564,9 +564,9 @@ export default function StudioBackgroundBuilder() {
               }
               style={{
                 borderRadius: 999,
-                border: "1px solid rgba(142,231,255,.18)",
-                background: "rgba(77,185,224,.12)",
-                color: "#fff",
+                border: "1px solid rgba(255,255,255,.12)",
+                background: "#ff3fb4",
+                color: "#151019",
                 fontSize: 9,
                 fontWeight: 900,
                 letterSpacing: ".1em",
@@ -590,9 +590,9 @@ export default function StudioBackgroundBuilder() {
               }
               style={{
                 borderRadius: 999,
-                border: "1px solid rgba(142,231,255,.18)",
-                background: "rgba(77,185,224,.12)",
-                color: "#fff",
+                border: "1px solid rgba(255,255,255,.12)",
+                background: "#ff3fb4",
+                color: "#151019",
                 fontSize: 9,
                 fontWeight: 900,
                 letterSpacing: ".1em",

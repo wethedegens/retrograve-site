@@ -65,13 +65,13 @@ export default function StudioPublicProfileEditor({
 
   return (
     <section style={panel}>
-      <div style={eyebrow}>PUBLIC PROJECT IDENTITY</div>
+      <div style={eyebrow}>LOCKSCREENED PUBLIC PROJECT IDENTITY</div>
       <h2 style={heading}>Brand this locker</h2>
       <p style={copy}>
         These fields power the public Creator Studio project page. They do not alter any flagship page or legacy asset.
       </p>
 
-      <div style={grid}>
+      <div className="profile-grid" style={grid}>
         <Field label="PROJECT NAME">
           <input value={name} onChange={(e) => setName(e.target.value)} />
         </Field>
@@ -133,9 +133,9 @@ function Field({ label, children, wide = false }: { label: string; children: Rea
 }
 
 const panel = { borderRadius: 22, padding: 20, border: "1px solid rgba(255,255,255,.09)", background: "rgba(10,8,20,.72)", boxShadow: "0 20px 60px rgba(0,0,0,.25)" } as const;
-const eyebrow = { color: "#f6c989", fontSize: 9, fontWeight: 900, letterSpacing: ".17em" } as const;
+const eyebrow = { color: "#ff8dce", fontSize: 9, fontWeight: 900, letterSpacing: ".17em" } as const;
 const heading = { margin: "6px 0 5px", fontSize: 19 } as const;
 const copy = { margin: 0, color: "rgba(255,255,255,.55)", fontSize: 11, lineHeight: 1.55 } as const;
 const grid = { marginTop: 13, display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 9 } as const;
-const button = { minHeight: 36, borderRadius: 999, padding: "0 12px", border: "1px solid rgba(246,201,137,.2)", background: "rgba(246,201,137,.08)", color: "#fff", fontSize: 9, fontWeight: 900, letterSpacing: ".08em" } as const;
+const button = { minHeight: 36, borderRadius: 999, padding: "0 12px", border: "1px solid rgba(255,255,255,.12)", background: "#ff3fb4", color: "#151019", fontSize: 9, fontWeight: 900, letterSpacing: ".08em" } as const;
 const status = { color: "#a9ffd2", fontSize: 9 } as const;

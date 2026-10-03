@@ -42,7 +42,7 @@ export default function StudioLaunchReadiness({ data }: { data: any }) {
     <section style={panel}>
       <div style={topRow}>
         <div>
-          <div style={eyebrow}>LAUNCH READINESS</div>
+          <div style={eyebrow}>LOCKSCREENED LAUNCH READINESS</div>
           <h2 style={heading}>{ready ? "Ready for launch" : "Finish setup before launch"}</h2>
         </div>
         <div style={{ ...pill, color: ready ? "#a9ffd2" : "#ffd99d" }}>
@@ -101,13 +101,13 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 const panel = { borderRadius: 22, padding: 20, border: "1px solid rgba(255,255,255,.09)", background: "rgba(10,8,20,.72)" } as const;
 const topRow = { display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" } as const;
-const eyebrow = { color: "#a9ffd2", fontSize: 9, fontWeight: 900, letterSpacing: ".17em" } as const;
+const eyebrow = { color: "#ff8dce", fontSize: 9, fontWeight: 900, letterSpacing: ".17em" } as const;
 const heading = { margin: "6px 0 0", fontSize: 19 } as const;
 const pill = { borderRadius: 999, padding: "7px 9px", border: "1px solid rgba(255,255,255,.08)", fontSize: 8, fontWeight: 900, letterSpacing: ".1em" } as const;
 const row = { borderRadius: 11, padding: "8px 9px", border: "1px solid rgba(255,255,255,.06)", background: "rgba(255,255,255,.02)", display: "flex", gap: 8, alignItems: "center", color: "rgba(255,255,255,.62)", fontSize: 9 } as const;
 const meterHeader = { display: "flex", justifyContent: "space-between", gap: 10, fontSize: 8, color: "rgba(255,255,255,.48)" } as const;
 const meterTrack = { marginTop: 6, height: 8, borderRadius: 999, overflow: "hidden", background: "rgba(255,255,255,.06)" } as const;
-const meterFill = { height: "100%", borderRadius: 999, background: "linear-gradient(90deg, rgba(142,231,255,.7), rgba(174,255,210,.8))" } as const;
+const meterFill = { height: "100%", borderRadius: 999, background: "linear-gradient(90deg, #ff3fb4, #8f6bff)" } as const;
 const meterFooter = { marginTop: 5, display: "flex", justifyContent: "space-between", gap: 10, color: "rgba(255,255,255,.32)", fontSize: 7 } as const;
 const warning = { marginTop: 8, borderRadius: 10, padding: 8, border: "1px solid rgba(255,196,118,.12)", color: "#ffd5a2", fontSize: 8, background: "rgba(255,196,118,.05)" } as const;
 const miniStats = { marginTop: 12, display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(120px,1fr))", gap: 7 } as const;

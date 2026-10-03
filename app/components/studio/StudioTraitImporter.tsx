@@ -516,7 +516,7 @@ export default function StudioTraitImporter() {
           font-size:10px;
           font-weight:900;
           letter-spacing:.22em;
-          color:#cdb7ff;
+          color:#ff8dce;
         }
         h2 {
           margin:6px 0 6px;
@@ -544,8 +544,8 @@ export default function StudioTraitImporter() {
         .dropzone {
           margin-top:18px;
           min-height:160px;
-          border:1px dashed rgba(205,183,255,.42);
-          background:rgba(130,93,255,.06);
+          border:1px dashed rgba(255,99,194,.38);
+          background:linear-gradient(135deg,rgba(255,63,180,.045),rgba(130,93,255,.06));
           border-radius:20px;
           display:grid;
           place-items:center;
@@ -556,8 +556,8 @@ export default function StudioTraitImporter() {
           transition:.15s ease;
         }
         .dropzone:hover {
-          border-color:rgba(205,183,255,.8);
-          background:rgba(130,93,255,.1);
+          border-color:rgba(255,99,194,.72);
+          background:rgba(255,63,180,.07);
           transform:translateY(-1px);
         }
         .dropzone input { display:none; }
@@ -568,7 +568,7 @@ export default function StudioTraitImporter() {
           background:rgba(205,183,255,.12);
           border:1px solid rgba(205,183,255,.24);
           font-size:26px;
-          color:#d9caff;
+          color:#ff9bd8;
         }
         .dropzone strong {
           font-size:12px;

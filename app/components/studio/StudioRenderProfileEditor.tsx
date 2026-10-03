@@ -72,7 +72,7 @@ export default function StudioRenderProfileEditor({
 
   return (
     <section style={panel}>
-      <div style={eyebrow}>DEVICE RENDER PROFILE</div>
+      <div style={eyebrow}>LOCKSCREENED DEVICE RENDER PROFILE</div>
       <h2 style={heading}>Art placement by device</h2>
       <p style={copy}>
         Tune the universal renderer without writing project-specific code. These settings apply only to Creator Studio projects.
@@ -143,11 +143,11 @@ export default function StudioRenderProfileEditor({
 }
 
 const panel = { borderRadius: 22, padding: 20, border: "1px solid rgba(255,255,255,.09)", background: "rgba(10,8,20,.72)" } as const;
-const eyebrow = { color: "#b8c7ff", fontSize: 9, fontWeight: 900, letterSpacing: ".17em" } as const;
+const eyebrow = { color: "#ff8dce", fontSize: 9, fontWeight: 900, letterSpacing: ".17em" } as const;
 const heading = { margin: "6px 0 5px", fontSize: 19 } as const;
 const copy = { margin: 0, color: "rgba(255,255,255,.55)", fontSize: 11, lineHeight: 1.55 } as const;
 const grid = { marginTop: 12, display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 8 } as const;
 const card = { borderRadius: 13, padding: 10, border: "1px solid rgba(255,255,255,.07)", background: "rgba(255,255,255,.025)", display: "grid", gap: 10 } as const;
 const field = { display: "grid", gap: 5, color: "rgba(255,255,255,.45)", fontSize: 8, fontWeight: 900, letterSpacing: ".07em" } as const;
-const button = { minHeight: 36, borderRadius: 999, padding: "0 12px", border: "1px solid rgba(184,199,255,.16)", background: "rgba(114,133,219,.09)", color: "#fff", fontSize: 9, fontWeight: 900, letterSpacing: ".08em" } as const;
+const button = { minHeight: 36, borderRadius: 999, padding: "0 12px", border: "1px solid rgba(255,255,255,.12)", background: "#ff3fb4", color: "#151019", fontSize: 9, fontWeight: 900, letterSpacing: ".08em" } as const;
 const status = { color: "#a9ffd2", fontSize: 9 } as const;

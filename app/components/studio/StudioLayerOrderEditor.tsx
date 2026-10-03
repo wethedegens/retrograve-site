@@ -180,7 +180,7 @@ const panel = {
   boxShadow: "0 20px 60px rgba(0,0,0,.25)",
 } as const;
 const eyebrow = {
-  color: "#9ee9ff",
+  color: "#ff8dce",
   fontSize: 9,
   fontWeight: 900,
   letterSpacing: ".17em",
@@ -246,9 +246,9 @@ const button = {
   minHeight: 36,
   borderRadius: 999,
   padding: "0 12px",
-  border: "1px solid rgba(142,231,255,.16)",
-  background: "rgba(77,185,224,.09)",
-  color: "#fff",
+  border: "1px solid rgba(255,255,255,.12)",
+  background: "#ff3fb4",
+  color: "#151019",
   fontSize: 9,
   fontWeight: 900,
   letterSpacing: ".08em",

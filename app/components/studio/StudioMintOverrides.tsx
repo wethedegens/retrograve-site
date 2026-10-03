@@ -120,7 +120,7 @@ export default function StudioMintOverrides({
 
   return (
     <section style={panel}>
-      <div style={eyebrow}>1/1 + MINT OVERRIDES</div>
+      <div style={eyebrow}>LOCKSCREENED 1/1 + MINT OVERRIDES</div>
       <h2 style={heading}>Special-case individual NFTs</h2>
       <p style={copy}>
         Use this only when a mint cannot be reproduced cleanly from the normal trait library. The special file stays private until you explicitly publish its render derivative.
@@ -171,7 +171,7 @@ export default function StudioMintOverrides({
           padding: 0 10px;
           font-size: 9px;
         }
-        section :global(button) { font-weight: 900; letter-spacing: .06em; }
+        section :global(button) { font-weight: 900; letter-spacing: .06em; background: #ff3fb4; color: #151019; border-color: rgba(255,255,255,.12); }
         @media (max-width: 700px) { .override-grid { grid-template-columns: 1fr !important; } }
       `}</style>
     </section>
@@ -179,7 +179,7 @@ export default function StudioMintOverrides({
 }
 
 const panel = { borderRadius: 22, padding: 20, border: "1px solid rgba(255,255,255,.09)", background: "rgba(10,8,20,.72)" } as const;
-const eyebrow = { color: "#ffb7dc", fontSize: 9, fontWeight: 900, letterSpacing: ".17em" } as const;
+const eyebrow = { color: "#ff8dce", fontSize: 9, fontWeight: 900, letterSpacing: ".17em" } as const;
 const heading = { margin: "6px 0 5px", fontSize: 19 } as const;
 const copy = { margin: 0, color: "rgba(255,255,255,.55)", fontSize: 11, lineHeight: 1.55 } as const;
 const grid = { marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } as const;

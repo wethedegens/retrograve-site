@@ -44,20 +44,20 @@ export default function StudioCostGuardrails() {
         marginTop: 28,
         borderRadius: 24,
         padding: 22,
-        border: "1px solid rgba(129,255,191,.13)",
-        background: "rgba(9,18,15,.64)",
+        border: "1px solid rgba(255,99,194,.13)",
+        background: "linear-gradient(135deg, rgba(14,10,28,.76), rgba(9,8,18,.64))",
         boxShadow: "0 24px 70px rgba(0,0,0,.25)",
       }}
     >
       <div
         style={{
-          color: "#9fffd0",
+          color: "#ff8dce",
           fontSize: 10,
           fontWeight: 900,
           letterSpacing: ".2em",
         }}
       >
-        COST GUARDRAILS · FREE-TIER FIRST
+        LOCKSCREENED COST GUARDRAILS · FREE-TIER FIRST
       </div>
       <h2 style={{ margin: "7px 0 6px", fontSize: 23 }}>
         Cheap by construction
