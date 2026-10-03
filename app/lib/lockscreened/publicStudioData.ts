@@ -35,7 +35,7 @@ export async function getPublishedStudioProjectBySlug(slug: string) {
       encodeURIComponent(safeSlug) +
       ")" +
       "&publish_status=eq.published" +
-      "&select=id,slug,public_slug,name,source_type,source_config,render_mode,render_profile,public_profile,publish_status,flagship,legacy_assets_locked&limit=1"
+      "&select=id,slug,public_slug,name,source_type,source_config,render_mode,render_profile,public_profile,publish_status,published_at,flagship,legacy_assets_locked&limit=1"
   );
 
   const collection = collections?.[0];

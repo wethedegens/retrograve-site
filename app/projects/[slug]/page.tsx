@@ -61,6 +61,16 @@ export default async function PublishedStudioProjectPage({
               "Phone-native collectible wallpapers powered by LockScreened Creator Studio. Connect your wallet, choose an NFT you own, and build a device-ready lockscreen."}
           </p>
 
+          <div style={trustBox}>
+            <div style={trustBadge}>✓ AUTHORITY VERIFIED</div>
+            <div style={trustText}>
+              LockScreened verified current collection authority before this
+              Creator Locker could be published. This confirms project control;
+              it is not an endorsement of NFT value, investment quality, or any
+              external marketplace.
+            </div>
+          </div>
+
           <div style={{ marginTop: 18, display: "flex", gap: 9, flexWrap: "wrap" }}>
             <a href={"/projects/" + (project.route_slug || project.slug) + "/collection"} style={primary}>
               VIEW MY COLLECTION
@@ -126,6 +136,14 @@ export default async function PublishedStudioProjectPage({
             <Stat label="RENDER MODE" value={String(project.render_mode).replace(/_/g, " ")} />
             <Stat label="BACKGROUNDS" value={String(project.backgrounds.length)} />
             <Stat label="STATUS" value="LIVE" />
+            <Stat
+              label="PUBLISHED"
+              value={
+                project.published_at
+                  ? new Date(project.published_at).toLocaleDateString()
+                  : "LIVE"
+              }
+            />
           </div>
         </div>
 
@@ -274,4 +292,29 @@ const textLink = {
   fontWeight: 900,
   letterSpacing: ".08em",
   borderBottom: "1px solid rgba(213,199,255,.22)",
+} as const;
+
+
+const trustBox = {
+  marginTop: 14,
+  maxWidth: 650,
+  borderRadius: 14,
+  padding: 11,
+  border: "1px solid rgba(169,255,210,.14)",
+  background: "rgba(93,255,170,.035)",
+  display: "grid",
+  gap: 5,
+} as const;
+
+const trustBadge = {
+  color: "#a9ffd2",
+  fontSize: 8,
+  fontWeight: 900,
+  letterSpacing: ".1em",
+} as const;
+
+const trustText = {
+  color: "rgba(255,255,255,.48)",
+  fontSize: 8,
+  lineHeight: 1.5,
 } as const;
