@@ -198,3 +198,20 @@ export async function consumeStudioActionRateLimit(
   const allowed = await response.json();
   return allowed === true;
 }
+
+
+export function isTrustedStudioRequestOrigin(request: Request) {
+  const origin = request.headers.get("origin");
+
+  // Same-origin browser requests carry Origin. Server-to-server/internal
+  // requests may omit it, so absence alone is not treated as hostile.
+  if (!origin) return true;
+
+  try {
+    const requestUrl = new URL(request.url);
+    const requestOrigin = requestUrl.origin;
+    return origin === requestOrigin;
+  } catch {
+    return false;
+  }
+}

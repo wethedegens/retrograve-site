@@ -7,6 +7,7 @@ import {
 } from "../../../lib/lockscreened/server/heliusAuthority";
 import {
   consumeStudioActionRateLimit,
+  isTrustedStudioRequestOrigin,
   getAuthenticatedUser,
   hasSupabaseAdminKey,
   restAsAdmin,
@@ -17,6 +18,12 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   try {
+    if (!isTrustedStudioRequestOrigin(request)) {
+      return NextResponse.json(
+        { error: "Cross-site Creator Studio request blocked." },
+        { status: 403 }
+      );
+    }
     const authHeader = request.headers.get("authorization") || "";
     const accessToken = authHeader.startsWith("Bearer ")
       ? authHeader.slice("Bearer ".length).trim()

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { publicPreviewPath, STORAGE_BUCKETS } from "../../../lib/lockscreened/storagePaths";
 import {
   consumeStudioActionRateLimit,
+  isTrustedStudioRequestOrigin,
   copyStorageObjectAsAdmin,
   deleteStorageObjectsAsAdmin,
   getAuthenticatedUser,
@@ -23,6 +24,12 @@ function extension(path: string) {
 
 export async function POST(request: Request) {
   try {
+    if (!isTrustedStudioRequestOrigin(request)) {
+      return NextResponse.json(
+        { error: "Cross-site Creator Studio request blocked." },
+        { status: 403 }
+      );
+    }
     const authHeader = request.headers.get("authorization") || "";
     const accessToken = authHeader.startsWith("Bearer ")
       ? authHeader.slice("Bearer ".length).trim()

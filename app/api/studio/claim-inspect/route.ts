@@ -1,7 +1,10 @@
 // app/api/studio/claim-inspect/route.ts
 import { NextResponse } from "next/server";
 import { getPublicSupabaseConfig } from "../../../lib/lockscreened/backendConfig";
-import { consumeStudioActionRateLimit } from "../../../lib/lockscreened/server/supabaseServer";
+import {
+  consumeStudioActionRateLimit,
+  isTrustedStudioRequestOrigin,
+} from "../../../lib/lockscreened/server/supabaseServer";
 import { extractSolanaWalletAddress } from "../../../lib/lockscreened/authIdentity";
 import {
   inspectCollectionAuthority,
@@ -29,6 +32,12 @@ async function authenticatedUser(accessToken: string) {
 
 export async function POST(request: Request) {
   try {
+    if (!isTrustedStudioRequestOrigin(request)) {
+      return NextResponse.json(
+        { error: "Cross-site Creator Studio request blocked." },
+        { status: 403 }
+      );
+    }
     const authHeader = request.headers.get("authorization") || "";
     const token = authHeader.startsWith("Bearer ")
       ? authHeader.slice("Bearer ".length).trim()
