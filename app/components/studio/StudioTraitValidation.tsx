@@ -4,6 +4,7 @@
 import { useMemo, useState } from "react";
 import type { LockScreenedSession } from "../../lib/lockscreened/web3AuthClient";
 import { matchMetadataToTraitAssets } from "../../lib/lockscreened/traitMapping";
+import StudioReconstructionPreview from "./StudioReconstructionPreview";
 
 type Props = {
   session: LockScreenedSession;
@@ -218,6 +219,14 @@ export default function StudioTraitValidation({
                             </span>
                           ))}
                       </div>
+                    ) : null}
+
+                    {!problemCount && match.matched.length ? (
+                      <StudioReconstructionPreview
+                        session={session}
+                        nft={nft}
+                        matched={match.matched}
+                      />
                     ) : null}
                   </div>
 
