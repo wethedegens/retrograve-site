@@ -168,7 +168,7 @@ export default function StudioTraitImporter() {
         incomingBytes,
       });
 
-      const selectedCollection = projects.find(
+      const selectedCollection = collections.find(
         (project: any) => project.id === selectedCollectionId
       );
 
@@ -274,9 +274,14 @@ export default function StudioTraitImporter() {
     setSaveMessage("");
 
     try {
+      const selectedCollection = collections.find(
+        (project: any) => project.id === selectedCollectionId
+      );
+
       await saveTraitLayerMap({
         session,
         collectionId: selectedCollectionId,
+        currentRenderProfile: selectedCollection?.render_profile,
         layers: analysis.layers.map((layer) => ({
           name: layer.name,
           suggestedOrder: layer.suggestedOrder,
