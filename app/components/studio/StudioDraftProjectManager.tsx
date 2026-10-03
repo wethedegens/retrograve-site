@@ -305,6 +305,25 @@ export default function StudioDraftProjectManager({
     publishedMintOverrides,
   } = data;
   const verified = claim?.status === "verified";
+  const layered = collection.render_mode === "layered_traits";
+  const profile = collection.public_profile || {};
+  const hasProjectIdentity = Boolean(
+    String(profile.description || profile.tagline || "").trim()
+  );
+  const hasPublishedPhoneBackground = (data.publishedBackgroundAssets || []).some(
+    (item: any) => item.device === "phone"
+  );
+  const hasPublishedRenderAssets =
+    !layered || Boolean(publishedTraitAssets?.length);
+  const validationPassed =
+    !layered || data.validationRun?.status === "passed";
+
+  const launchReady =
+    verified &&
+    hasProjectIdentity &&
+    hasPublishedPhoneBackground &&
+    hasPublishedRenderAssets &&
+    validationPassed;
 
   return (
     <div style={{ display: "grid", gap: 13 }}>
@@ -396,9 +415,18 @@ export default function StudioDraftProjectManager({
               <button
                 style={primaryButton}
                 onClick={publishProject}
-                disabled={busy || !verified}
+                disabled={busy || !launchReady}
+                title={
+                  launchReady
+                    ? "Publish this LockScreened project"
+                    : "Complete the Launch Readiness checklist first"
+                }
               >
-                {verified ? "PUBLISH PROJECT" : "VERIFY CLAIM TO PUBLISH"}
+                {launchReady
+                  ? "PUBLISH PROJECT"
+                  : verified
+                    ? "FINISH LAUNCH CHECKLIST"
+                    : "VERIFY CLAIM TO PUBLISH"}
               </button>
               <button
                 style={secondaryDangerButton}
