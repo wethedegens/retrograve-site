@@ -104,3 +104,73 @@ export async function restAsAdmin<T>(
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
 }
+
+
+function adminStorageHeaders() {
+  const key = adminKey();
+  const headers: Record<string, string> = {
+    apikey: key,
+    "content-type": "application/json",
+  };
+
+  if (!key.startsWith("sb_secret_")) {
+    headers.Authorization = "Bearer " + key;
+  }
+
+  return headers;
+}
+
+export async function deleteStorageObjectsAsAdmin(args: {
+  bucket: string;
+  paths: string[];
+}) {
+  if (!args.paths.length) return;
+
+  const { url } = publicConfig();
+  const response = await fetch(
+    `${url}/storage/v1/object/${encodeURIComponent(args.bucket)}`,
+    {
+      method: "DELETE",
+      headers: adminStorageHeaders(),
+      body: JSON.stringify({ prefixes: args.paths }),
+      cache: "no-store",
+    }
+  );
+
+  if (!response.ok) throw new Error(await parseError(response));
+}
+
+export async function copyStorageObjectAsAdmin(args: {
+  sourceBucket: string;
+  sourcePath: string;
+  destinationBucket: string;
+  destinationPath: string;
+}) {
+  const { url } = publicConfig();
+
+  const response = await fetch(url + "/storage/v1/object/copy", {
+    method: "POST",
+    headers: adminStorageHeaders(),
+    body: JSON.stringify({
+      bucketId: args.sourceBucket,
+      sourceKey: args.sourcePath,
+      destinationKey: args.destinationPath,
+      destinationBucket: args.destinationBucket,
+    }),
+    cache: "no-store",
+  });
+
+  if (!response.ok) throw new Error(await parseError(response));
+  return await response.json();
+}
+
+export function publicStorageUrl(bucket: string, path: string) {
+  const { url } = publicConfig();
+  const encoded = String(path || "")
+    .split("/")
+    .filter(Boolean)
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+
+  return `${url}/storage/v1/object/public/${encodeURIComponent(bucket)}/${encoded}`;
+}

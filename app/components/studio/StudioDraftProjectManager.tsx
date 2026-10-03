@@ -9,7 +9,6 @@ import {
 } from "../../lib/lockscreened/web3AuthClient";
 import {
   getStudioCollection,
-  publishBackgroundPackage,
   publishStudioCollection,
 } from "../../lib/lockscreened/studioDataClient";
 
@@ -83,11 +82,31 @@ export default function StudioDraftProjectManager({
     setMessage("");
 
     try {
-      await publishBackgroundPackage({
-        session,
-        packageId,
+      const response = await fetch("/api/studio/publish-background", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          Authorization: "Bearer " + session.access_token,
+        },
+        body: JSON.stringify({ packageId }),
       });
-      setMessage("Background package published.");
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        if (result?.needsServerSecret) {
+          setMessage(
+            "Background is ready, but secure server publishing is waiting for the server-only Supabase secret."
+          );
+          return;
+        }
+
+        throw new Error(result?.error || "Background publishing was blocked.");
+      }
+
+      setMessage(
+        `Background package published with ${result.assets?.length || 0} device asset${result.assets?.length === 1 ? "" : "s"}.`
+      );
       await load();
     } catch (error) {
       setMessage(
