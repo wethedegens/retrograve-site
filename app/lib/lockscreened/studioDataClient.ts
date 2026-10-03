@@ -261,3 +261,41 @@ export async function saveTraitLayerMap(args: {
     window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
   }
 }
+
+
+export async function saveBackgroundPackageDraft(args: {
+  session: LockScreenedSession;
+  collectionId: string;
+  name: string;
+}) {
+  const userId = String(args.session.user?.id || "");
+  if (!userId) throw new Error("Supabase user ID is missing.");
+
+  const name = String(args.name || "").trim();
+  if (!name) throw new Error("Background name is required.");
+
+  const created = await request<any[]>(
+    args.session,
+    "background_packages?select=id,collection_id,name,source,locked,publish_status,created_at",
+    {
+      method: "POST",
+      headers: { Prefer: "return=representation" },
+      body: JSON.stringify({
+        collection_id: args.collectionId,
+        name,
+        source: "official_creator",
+        locked: false,
+        publish_status: "draft",
+        created_by: userId,
+      }),
+    }
+  );
+
+  if (!created?.[0]) throw new Error("Could not save background package.");
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
+  }
+
+  return created[0];
+}

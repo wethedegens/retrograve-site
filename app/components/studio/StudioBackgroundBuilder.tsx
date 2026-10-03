@@ -1,12 +1,22 @@
 // app/components/studio/StudioBackgroundBuilder.tsx
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   formatBytes,
   validateBackgroundFile,
   validateBackgroundPackage,
 } from "../../lib/lockscreened/costGuardrails";
+import {
+  getFreshSession,
+  readStoredSession,
+  type LockScreenedSession,
+} from "../../lib/lockscreened/web3AuthClient";
+import {
+  listMyStudioCollections,
+  saveBackgroundPackageDraft,
+  type StudioCollectionRow,
+} from "../../lib/lockscreened/studioDataClient";
 
 type LocalAsset = {
   file: File;
@@ -126,6 +136,74 @@ export default function StudioBackgroundBuilder() {
   const [ipad, setIpad] = useState<LocalAsset | null>(null);
   const [desktop, setDesktop] = useState<LocalAsset | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
+  const [session, setSession] = useState<LockScreenedSession | null>(null);
+  const [collections, setCollections] = useState<StudioCollectionRow[]>([]);
+  const [selectedCollectionId, setSelectedCollectionId] = useState("");
+  const [savingDraft, setSavingDraft] = useState(false);
+  const [draftMessage, setDraftMessage] = useState("");
+
+  useEffect(() => {
+    let active = true;
+
+    async function sync() {
+      const current = await getFreshSession();
+      if (!active) return;
+
+      const next = current || readStoredSession();
+      setSession(next);
+
+      if (!next) {
+        setCollections([]);
+        setSelectedCollectionId("");
+        return;
+      }
+
+      try {
+        const rows = await listMyStudioCollections(next);
+        if (!active) return;
+        setCollections(rows);
+        if (!selectedCollectionId && rows[0]?.id) {
+          setSelectedCollectionId(rows[0].id);
+        }
+      } catch {
+        if (active) setCollections([]);
+      }
+    }
+
+    sync();
+    const listener = () => sync();
+    window.addEventListener("lockscreened-auth-changed", listener);
+    window.addEventListener("lockscreened-studio-data-changed", listener);
+    return () => {
+      active = false;
+      window.removeEventListener("lockscreened-auth-changed", listener);
+      window.removeEventListener("lockscreened-studio-data-changed", listener);
+    };
+  }, [selectedCollectionId]);
+
+  async function saveDraft() {
+    if (!session || !selectedCollectionId || !phone || !packageBudget.ok) return;
+
+    setSavingDraft(true);
+    setDraftMessage("");
+
+    try {
+      await saveBackgroundPackageDraft({
+        session,
+        collectionId: selectedCollectionId,
+        name,
+      });
+      setDraftMessage(
+        "Background package metadata saved. The source images remain local and have not been uploaded."
+      );
+    } catch (error) {
+      setDraftMessage(
+        error instanceof Error ? error.message : "Could not save package draft."
+      );
+    } finally {
+      setSavingDraft(false);
+    }
+  }
 
   function replace(
     current: LocalAsset | null,
@@ -296,6 +374,89 @@ export default function StudioBackgroundBuilder() {
           asset={desktop}
           onPick={(file) => replace(desktop, setDesktop, file)}
         />
+      </div>
+
+      <div
+        style={{
+          marginTop: 14,
+          borderRadius: 14,
+          border: "1px solid rgba(142,231,255,.13)",
+          background: "rgba(77,185,224,.04)",
+          padding: 12,
+          display: "grid",
+          gap: 9,
+        }}
+      >
+        <div style={{ display: "grid", gap: 3 }}>
+          <strong style={{ fontSize: 10, color: "#aeeeff", letterSpacing: ".1em" }}>
+            SAVE PACKAGE DRAFT
+          </strong>
+          <span style={{ fontSize: 9, color: "rgba(255,255,255,.5)" }}>
+            Save the package name/collection relationship in Supabase. Image
+            files stay local until private storage is enabled.
+          </span>
+        </div>
+
+        {session && collections.length ? (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr auto",
+              gap: 8,
+            }}
+          >
+            <select
+              value={selectedCollectionId}
+              onChange={(event) => setSelectedCollectionId(event.target.value)}
+              style={{
+                minWidth: 0,
+                height: 38,
+                borderRadius: 11,
+                border: "1px solid rgba(255,255,255,.1)",
+                background: "#11101a",
+                color: "#fff",
+                padding: "0 10px",
+              }}
+            >
+              {collections.map((collection) => (
+                <option key={collection.id} value={collection.id}>
+                  {collection.name} · {collection.publish_status}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={saveDraft}
+              disabled={
+                savingDraft ||
+                !phone ||
+                !packageBudget.ok ||
+                !selectedCollectionId
+              }
+              style={{
+                borderRadius: 999,
+                border: "1px solid rgba(142,231,255,.18)",
+                background: "rgba(77,185,224,.12)",
+                color: "#fff",
+                fontSize: 9,
+                fontWeight: 900,
+                letterSpacing: ".1em",
+                padding: "0 12px",
+              }}
+            >
+              {savingDraft ? "SAVING…" : "SAVE PACKAGE DRAFT"}
+            </button>
+          </div>
+        ) : (
+          <span style={{ fontSize: 9, color: "rgba(255,255,255,.46)" }}>
+            {session
+              ? "Create a collection claim draft first."
+              : "Sign in to Studio to save background drafts."}
+          </span>
+        )}
+
+        {draftMessage ? (
+          <span style={{ fontSize: 9, color: "#a8ffd2" }}>{draftMessage}</span>
+        ) : null}
       </div>
 
       <div
