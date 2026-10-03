@@ -333,7 +333,7 @@ export async function getStudioCollection(
   session: LockScreenedSession,
   collectionId: string
 ) {
-  const [collections, claims, layers, backgrounds] = await Promise.all([
+  const [collections, claims, layers, backgrounds, mintOverrides, publishedMintOverrides] = await Promise.all([
     request<any[]>(
       session,
       "collections?id=eq." +
@@ -357,6 +357,18 @@ export async function getStudioCollection(
       "background_packages?collection_id=eq." +
         encodeURIComponent(collectionId) +
         "&select=id,name,source,locked,publish_status,created_at&order=created_at.desc"
+    ),
+    request<any[]>(
+      session,
+      "mint_overrides?collection_id=eq." +
+        encodeURIComponent(collectionId) +
+        "&select=id,collection_id,asset_id,storage_bucket,storage_path,bytes,notes,created_at&order=created_at.desc"
+    ),
+    request<any[]>(
+      session,
+      "published_mint_overrides?collection_id=eq." +
+        encodeURIComponent(collectionId) +
+        "&select=id,collection_id,asset_id,storage_bucket,storage_path,bytes,mime_type,created_at"
     ),
   ]);
 
@@ -400,6 +412,8 @@ export async function getStudioCollection(
     traitAssets: traitAssets || [],
     publishedTraitAssets: publishedTraitAssets || [],
     backgrounds: backgrounds || [],
+    mintOverrides: mintOverrides || [],
+    publishedMintOverrides: publishedMintOverrides || [],
   };
 }
 
@@ -566,4 +580,35 @@ export async function saveTraitLayerConfiguration(args: {
   if (typeof window !== "undefined") {
     window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
   }
+}
+
+export async function upsertMintOverrideMetadata(args: {
+  session: LockScreenedSession;
+  collectionId: string;
+  assetId: string;
+  storageBucket: string;
+  storagePath: string;
+  bytes: number;
+  notes?: string;
+}) {
+  return await request<any[]>(
+    args.session,
+    "mint_overrides?on_conflict=collection_id,asset_id&select=id,collection_id,asset_id,storage_bucket,storage_path,bytes,notes,created_at",
+    {
+      method: "POST",
+      headers: {
+        Prefer: "resolution=merge-duplicates,return=representation",
+      },
+      body: JSON.stringify([
+        {
+          collection_id: args.collectionId,
+          asset_id: String(args.assetId || "").trim(),
+          storage_bucket: args.storageBucket,
+          storage_path: args.storagePath,
+          bytes: args.bytes,
+          notes: String(args.notes || "").trim().slice(0, 500),
+        },
+      ]),
+    }
+  );
 }

@@ -74,7 +74,7 @@ export function backgroundSourcePath(args: {
 
 export function publicPreviewPath(args: {
   collectionSlug: string;
-  assetType: "background" | "project" | "thumbnail" | "trait";
+  assetType: "background" | "project" | "thumbnail" | "trait" | "mint";
   assetId: string;
   fileName: string;
 }) {
@@ -112,5 +112,21 @@ export function traitSourcePathFromRelative(args: {
     safeSegment(args.collectionId),
     "traits",
     ...relativeSegments,
+  ].join("/");
+}
+
+export function mintOverrideSourcePath(args: {
+  studioId: string;
+  collectionId: string;
+  assetId: string;
+  fileName: string;
+}) {
+  return [
+    safeSegment(args.studioId),
+    "collections",
+    safeSegment(args.collectionId),
+    "mint-overrides",
+    safeSegment(args.assetId),
+    safeFileName(args.fileName),
   ].join("/");
 }
