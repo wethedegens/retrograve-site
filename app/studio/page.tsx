@@ -6,6 +6,7 @@ import StudioBackendStatus from "../components/studio/StudioBackendStatus";
 import StudioWalletAuth from "../components/studio/StudioWalletAuth";
 import StudioCollectionClaim from "../components/studio/StudioCollectionClaim";
 import StudioMyProjects from "../components/studio/StudioMyProjects";
+import StudioFlagshipProtection from "../components/studio/StudioFlagshipProtection";
 import { FLAGSHIP_PROJECTS } from "../lib/lockscreened/flagshipProjects";
 import styles from "./studio.module.css";
 
@@ -71,6 +72,7 @@ export default function CreatorStudioPage() {
 
         <StudioBackendStatus />
         <StudioWalletAuth />
+        <StudioFlagshipProtection />
         <StudioMyProjects />
 
         <section className={styles.quickGrid}>

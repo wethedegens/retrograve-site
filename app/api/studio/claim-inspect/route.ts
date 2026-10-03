@@ -6,6 +6,7 @@ import {
   inspectCollectionAuthority,
   walletHasAuthorityEvidence,
 } from "../../../lib/lockscreened/server/heliusAuthority";
+import { getFlagshipProjectByCollectionId } from "../../../lib/lockscreened/flagshipProjects";
 
 export const dynamic = "force-dynamic";
 
@@ -62,6 +63,23 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Collection address is required." },
         { status: 400 }
+      );
+    }
+
+    const flagship = getFlagshipProjectByCollectionId(collectionAddress);
+    if (flagship) {
+      return NextResponse.json(
+        {
+          error:
+            flagship.name +
+            " is a protected LockScreened flagship. It is managed through the curated flagship lane rather than normal founder claiming.",
+          reservedFlagship: true,
+          flagship: {
+            slug: flagship.slug,
+            name: flagship.name,
+          },
+        },
+        { status: 409 }
       );
     }
 

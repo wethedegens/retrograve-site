@@ -238,3 +238,22 @@ export function getFlagshipProjectByLockerKey(key?: string | null) {
     (project) => project.routes.lockerProjectKey === normalized
   );
 }
+
+
+export function getFlagshipProjectByCollectionId(
+  collectionId?: string | null
+) {
+  const normalized = String(collectionId || "").trim();
+  if (!normalized) return undefined;
+
+  return FLAGSHIP_PROJECTS.find((project) => {
+    if (project.source.kind !== "solana_collection") return false;
+    return (project.source.collectionIds || []).includes(normalized);
+  });
+}
+
+export function isReservedFlagshipCollectionId(
+  collectionId?: string | null
+) {
+  return Boolean(getFlagshipProjectByCollectionId(collectionId));
+}
