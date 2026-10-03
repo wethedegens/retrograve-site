@@ -12,6 +12,7 @@ type Props = {
   verified: boolean;
   layers: any[];
   traitAssets: any[];
+  validationRun?: any;
 };
 
 export default function StudioTraitValidation({
@@ -20,10 +21,14 @@ export default function StudioTraitValidation({
   verified,
   layers,
   traitAssets,
+  validationRun,
 }: Props) {
   const [busy, setBusy] = useState(false);
   const [sample, setSample] = useState<any[]>([]);
   const [message, setMessage] = useState("");
+  const [serverStatus, setServerStatus] = useState<string>(
+    validationRun?.status || ""
+  );
 
   const importedLayers = useMemo(
     () =>
@@ -77,7 +82,7 @@ export default function StudioTraitValidation({
     setSample([]);
 
     try {
-      const response = await fetch("/api/studio/validation-sample", {
+      const response = await fetch("/api/studio/run-validation", {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -92,9 +97,26 @@ export default function StudioTraitValidation({
       }
 
       setSample(data.sample || []);
-      setMessage(
-        `Checked ${data.sample?.length || 0} minted NFTs against the private trait library.`
-      );
+      setServerStatus(data.status || "");
+
+      if (data.needsServerSecret) {
+        setMessage(
+          "Validation finished " +
+            String(data.status || "").toUpperCase() +
+            ", but the result cannot be recorded until the server-only Supabase secret is added."
+        );
+      } else {
+        setMessage(
+          "Server validation " +
+            String(data.status || "").toUpperCase() +
+            " across " +
+            String(data.totals?.sampledNfts || 0) +
+            " minted NFTs."
+        );
+        window.dispatchEvent(
+          new CustomEvent("lockscreened-studio-data-changed")
+        );
+      }
     } catch (error) {
       setMessage(
         error instanceof Error ? error.message : "Validation failed."
@@ -106,14 +128,14 @@ export default function StudioTraitValidation({
 
   return (
     <section style={panel}>
-      <div style={eyebrow}>RECONSTRUCTION VALIDATION</div>
+      <div style={eyebrow}>LOCKSCREENED RECONSTRUCTION VALIDATION</div>
       <h2 style={heading}>Check real minted metadata</h2>
       <p style={copy}>
         Pull a small Helius sample and verify that each minted trait can find
         the founder&apos;s uploaded source asset before visual reconstruction.
       </p>
 
-      <div style={{ marginTop: 11, display: "flex", gap: 8, flexWrap: "wrap" }}>
+      <div style={{ marginTop: 11, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
         <button
           onClick={runValidation}
           disabled={
@@ -126,6 +148,25 @@ export default function StudioTraitValidation({
         >
           {busy ? "CHECKING SAMPLE…" : "RUN TRAIT VALIDATION"}
         </button>
+
+        {serverStatus ? (
+          <span
+            style={{
+              ...pill,
+              color: serverStatus === "passed" ? "#a9ffd2" : "#ffd49e",
+              border:
+                serverStatus === "passed"
+                  ? "1px solid rgba(110,255,183,.18)"
+                  : "1px solid rgba(255,184,78,.16)",
+            }}
+          >
+            SERVER {serverStatus.toUpperCase()}
+          </span>
+        ) : validationRun?.status ? (
+          <span style={{ ...pill, color: "#a9ffd2" }}>
+            SERVER {String(validationRun.status).toUpperCase()}
+          </span>
+        ) : null}
 
         {!verified ? <span style={pill}>VERIFY CLAIM FIRST</span> : null}
         {verified && !traitAssets.length ? (

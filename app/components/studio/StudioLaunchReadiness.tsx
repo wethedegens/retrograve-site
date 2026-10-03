@@ -13,6 +13,7 @@ export default function StudioLaunchReadiness({ data }: { data: any }) {
   const bgSources = data.backgroundSourceAssets || [];
   const publicBgs = data.publishedBackgroundAssets || [];
   const mintOverrides = data.mintOverrides || [];
+  const validationRun = data.validationRun;
 
   const privateBytes =
     traitAssets.reduce((sum: number, item: any) => sum + Number(item.bytes || 0), 0) +
@@ -31,6 +32,7 @@ export default function StudioLaunchReadiness({ data }: { data: any }) {
     { label: "At least one published phone background", ok: hasPhoneBackground },
     { label: "Trait layer order confirmed", ok: !layered || layers.length > 0 },
     { label: "Private trait library uploaded", ok: !layered || traitAssets.length > 0 },
+    { label: "Server reconstruction validation passed", ok: !layered || validationRun?.status === "passed" },
     { label: "Public render derivatives published", ok: !layered || publicTraits.length > 0 },
     { label: "Private source storage under hard cap", ok: privateBytes <= hardTarget },
   ];

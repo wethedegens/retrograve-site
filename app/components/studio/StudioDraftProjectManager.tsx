@@ -475,6 +475,7 @@ export default function StudioDraftProjectManager({
         verified={verified}
         layers={layers}
         traitAssets={traitAssets || []}
+        validationRun={data.validationRun}
       />
 
       <StudioMintOverrides
