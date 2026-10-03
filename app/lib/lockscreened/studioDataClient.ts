@@ -190,7 +190,7 @@ export async function listMyStudioCollections(
       session,
       "collections?created_by=eq." +
         encodeURIComponent(userId) +
-        "&select=id,studio_id,slug,name,source_type,render_mode,publish_status,created_at&order=created_at.desc"
+        "&select=id,studio_id,slug,name,source_type,render_mode,render_profile,publish_status,created_at&order=created_at.desc"
     ),
     request<StudioClaimRow[]>(
       session,
@@ -213,6 +213,7 @@ export async function listMyStudioCollections(
 export async function saveTraitLayerMap(args: {
   session: LockScreenedSession;
   collectionId: string;
+  currentRenderProfile?: any;
   layers: Array<{
     name: string;
     suggestedOrder: number;
@@ -250,8 +251,11 @@ export async function saveTraitLayerMap(args: {
       body: JSON.stringify({
         render_mode: "layered_traits",
         render_profile: {
+          ...(args.currentRenderProfile || {}),
           engine: "universal_trait_engine",
-          backgroundHandling: "creator_designated",
+          backgroundHandling:
+            args.currentRenderProfile?.backgroundHandling ||
+            "creator_designated",
         },
       }),
     }

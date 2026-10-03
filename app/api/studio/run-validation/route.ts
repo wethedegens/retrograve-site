@@ -138,13 +138,15 @@ export async function POST(request: Request) {
     }
 
     const importedLayers = layers.map((layer: any) => ({
-      name: layer.display_name || layer.trait_type,
+      // Metadata matching must use the immutable trait_type. display_name is
+      // founder-facing presentation only and may be renamed freely.
+      name: layer.trait_type,
       suggestedOrder: Number(layer.layer_order || 0),
       likelyBackground: Boolean(layer.is_background),
       assets: traitAssets
         .filter((asset: any) => asset.layer_id === layer.id)
         .map((asset: any) => ({
-          layerName: layer.display_name || layer.trait_type,
+          layerName: layer.trait_type,
           traitValue: asset.trait_value,
           relativePath: asset.storage_path,
         })),
