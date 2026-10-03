@@ -11,6 +11,7 @@ type CommunityProject = {
   render_mode: string;
   public_profile?: { tagline?: string };
   preview?: string;
+  published_at?: string | null;
 };
 
 export default function CommunityLockerStrip() {
@@ -50,9 +51,18 @@ export default function CommunityLockerStrip() {
       </p>
 
       <div className="grid">
-        {featured.map((project) => (
+        {featured.map((project) => {
+          const publishedAt = project.published_at
+            ? new Date(project.published_at).getTime()
+            : 0;
+          const isNew =
+            publishedAt > 0 &&
+            Date.now() - publishedAt < 14 * 24 * 60 * 60 * 1000;
+
+          return (
           <Link key={project.id} href={"/projects/" + project.slug} className="card">
             <div className="verified">AUTHORITY VERIFIED</div>
+            {isNew ? <div className="newBadge">NEW</div> : null}
             <div className="phone">
               {project.preview ? (
                 <img src={project.preview} alt={project.name} />
@@ -63,7 +73,8 @@ export default function CommunityLockerStrip() {
             <strong>{project.name}</strong>
             <span>{project.public_profile?.tagline || "Creator Studio locker"}</span>
           </Link>
-        ))}
+          );
+        })}
       </div>
 
       {projects.length > featured.length ? (
@@ -126,6 +137,19 @@ export default function CommunityLockerStrip() {
           transition: transform .16s ease, border-color .16s ease;
         }
         .card:hover { transform: translateY(-2px); border-color: rgba(255,99,194,.28); }
+        .newBadge {
+          position: absolute;
+          top: 13px;
+          right: 13px;
+          z-index: 2;
+          border-radius: 999px;
+          padding: 4px 6px;
+          background: #ff3fb4;
+          color: #151019;
+          font-size: 6px;
+          font-weight: 900;
+          letter-spacing: .08em;
+        }
         .verified {
           position: absolute;
           top: 13px;

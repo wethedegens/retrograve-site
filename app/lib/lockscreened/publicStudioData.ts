@@ -147,7 +147,7 @@ export async function getPublishedStudioProjectBySlug(slug: string) {
 
 export async function listPublishedStudioProjects() {
   const collections = await publicRequest<any[]>(
-    "collections?publish_status=eq.published&flagship=eq.false&select=id,slug,public_slug,name,render_mode,public_profile,created_at&order=created_at.desc&limit=24"
+    "collections?publish_status=eq.published&flagship=eq.false&select=id,slug,public_slug,name,render_mode,public_profile,published_at,created_at&order=published_at.desc.nullslast,created_at.desc&limit=100"
   );
 
   if (!collections.length) return [];
@@ -203,6 +203,7 @@ export async function listPublishedStudioProjects() {
       name: collection.name,
       render_mode: collection.render_mode,
       public_profile: collection.public_profile || {},
+      published_at: collection.published_at || null,
       preview: phoneAsset
         ? publicUrl(phoneAsset.storage_bucket, phoneAsset.storage_path)
         : "",
