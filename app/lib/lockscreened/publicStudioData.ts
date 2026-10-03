@@ -140,3 +140,68 @@ export async function getPublishedStudioProjectBySlug(slug: string) {
     publishedMintOverrides: publicMintOverrides,
   };
 }
+
+export async function listPublishedStudioProjects() {
+  const collections = await publicRequest<any[]>(
+    "collections?publish_status=eq.published&flagship=eq.false&select=id,slug,name,render_mode,public_profile,created_at&order=created_at.desc&limit=24"
+  );
+
+  if (!collections.length) return [];
+
+  const collectionIds = collections.map((item) => item.id);
+  const collectionIn = collectionIds
+    .map((id: string) => '"' + String(id).replace(/"/g, "") + '"')
+    .join(",");
+
+  const packages = await publicRequest<any[]>(
+    "background_packages?collection_id=in.(" +
+      encodeURIComponent(collectionIn) +
+      ")&publish_status=eq.published&select=id,collection_id,name,created_at&order=created_at.asc"
+  );
+
+  const packageIds = packages.map((item) => item.id);
+  let assets: any[] = [];
+
+  if (packageIds.length) {
+    const packageIn = packageIds
+      .map((id: string) => '"' + String(id).replace(/"/g, "") + '"')
+      .join(",");
+
+    assets = await publicRequest<any[]>(
+      "background_assets?package_id=in.(" +
+        encodeURIComponent(packageIn) +
+        ")&device=eq.phone&select=id,package_id,storage_bucket,storage_path"
+    );
+  }
+
+  const { url } = config();
+  const publicUrl = (bucket: string, path: string) => {
+    const encoded = String(path || "")
+      .split("/")
+      .filter(Boolean)
+      .map((segment) => encodeURIComponent(segment))
+      .join("/");
+    return url + "/storage/v1/object/public/" + encodeURIComponent(bucket) + "/" + encoded;
+  };
+
+  return collections.map((collection) => {
+    const projectPackages = packages.filter(
+      (item) => item.collection_id === collection.id
+    );
+    const firstPackage = projectPackages[0];
+    const phoneAsset = firstPackage
+      ? assets.find((item) => item.package_id === firstPackage.id)
+      : null;
+
+    return {
+      id: collection.id,
+      slug: collection.slug,
+      name: collection.name,
+      render_mode: collection.render_mode,
+      public_profile: collection.public_profile || {},
+      preview: phoneAsset
+        ? publicUrl(phoneAsset.storage_bucket, phoneAsset.storage_path)
+        : "",
+    };
+  });
+}

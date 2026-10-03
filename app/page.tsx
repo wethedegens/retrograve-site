@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import LockscreenedFAQ from "./components/LockscreenedFAQ";
+import CommunityLockerStrip from "./components/CommunityLockerStrip";
 
 type LockerProject = {
   name: string;
@@ -156,6 +157,8 @@ export default function HomePage() {
             </div>
           )}
         </section>
+
+        <CommunityLockerStrip />
 
         <section id="how-it-works" className="faq">
           <LockscreenedFAQ />
