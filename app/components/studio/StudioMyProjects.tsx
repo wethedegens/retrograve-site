@@ -152,7 +152,7 @@ export default function StudioMyProjects() {
                 </span>
               </div>
 
-              <div style={{ textAlign: "right" }}>
+              <div style={{ textAlign: "right", display: "grid", gap: 5, justifyItems: "end" }}>
                 <span
                   style={{
                     display: "block",
@@ -175,6 +175,18 @@ export default function StudioMyProjects() {
                 >
                   PROJECT {row.publish_status.toUpperCase()}
                 </span>
+                <a
+                  href={"/studio/manage/" + row.id}
+                  style={{
+                    color: "#d3c3ff",
+                    fontSize: 8,
+                    fontWeight: 900,
+                    letterSpacing: ".08em",
+                    textDecoration: "none",
+                  }}
+                >
+                  MANAGE →
+                </a>
               </div>
             </div>
           ))}

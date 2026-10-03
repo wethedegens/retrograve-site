@@ -299,3 +299,84 @@ export async function saveBackgroundPackageDraft(args: {
 
   return created[0];
 }
+
+
+export async function getStudioCollection(
+  session: LockScreenedSession,
+  collectionId: string
+) {
+  const [collections, claims, layers, backgrounds] = await Promise.all([
+    request<any[]>(
+      session,
+      "collections?id=eq." +
+        encodeURIComponent(collectionId) +
+        "&select=id,studio_id,slug,name,source_type,source_config,render_mode,render_profile,publish_status,created_at&limit=1"
+    ),
+    request<any[]>(
+      session,
+      "collection_claims?collection_id=eq." +
+        encodeURIComponent(collectionId) +
+        "&select=id,status,wallet_address,evidence,verified_at&limit=1"
+    ),
+    request<any[]>(
+      session,
+      "trait_layers?collection_id=eq." +
+        encodeURIComponent(collectionId) +
+        "&select=id,trait_type,display_name,layer_order,is_background&order=layer_order.asc"
+    ),
+    request<any[]>(
+      session,
+      "background_packages?collection_id=eq." +
+        encodeURIComponent(collectionId) +
+        "&select=id,name,source,locked,publish_status,created_at&order=created_at.desc"
+    ),
+  ]);
+
+  const collection = collections?.[0];
+  if (!collection) throw new Error("Collection draft was not found.");
+
+  return {
+    collection,
+    claim: claims?.[0] || null,
+    layers: layers || [],
+    backgrounds: backgrounds || [],
+  };
+}
+
+export async function publishStudioCollection(args: {
+  session: LockScreenedSession;
+  collectionId: string;
+}) {
+  await request<void>(
+    args.session,
+    "collections?id=eq." + encodeURIComponent(args.collectionId),
+    {
+      method: "PATCH",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({ publish_status: "published" }),
+    }
+  );
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
+  }
+}
+
+export async function publishBackgroundPackage(args: {
+  session: LockScreenedSession;
+  packageId: string;
+}) {
+  await request<void>(
+    args.session,
+    "background_packages?id=eq." + encodeURIComponent(args.packageId),
+    {
+      method: "PATCH",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({ publish_status: "published" }),
+    }
+  );
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
+  }
+}
