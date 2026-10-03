@@ -1,5 +1,6 @@
 // app/components/studio/StudioBackendStatus.tsx
 import { getBackendStatus } from "../../lib/lockscreened/backendConfig";
+import { checkSupabaseHealth } from "../../lib/lockscreened/server/supabaseHealth";
 
 function Dot({ ok }: { ok: boolean }) {
   return (
@@ -19,8 +20,11 @@ function Dot({ ok }: { ok: boolean }) {
   );
 }
 
-export default function StudioBackendStatus() {
+export default async function StudioBackendStatus() {
   const status = getBackendStatus();
+  const supabaseHealth = await checkSupabaseHealth();
+  const persistenceReady =
+    status.heliusConfigured && status.supabaseConfigured && supabaseHealth.ok;
 
   return (
     <section
@@ -55,7 +59,7 @@ export default function StudioBackendStatus() {
             BACKEND STATUS
           </div>
           <strong style={{ fontSize: 13 }}>
-            {status.readyForPersistence
+            {persistenceReady
               ? "Creator Studio backend is configured"
               : "Creator Studio is running in local-preview mode"}
           </strong>
@@ -66,13 +70,13 @@ export default function StudioBackendStatus() {
             borderRadius: 999,
             padding: "7px 9px",
             border: "1px solid rgba(255,255,255,.09)",
-            color: status.readyForPersistence ? "#a9ffd2" : "#ffd99d",
+            color: persistenceReady ? "#a9ffd2" : "#ffd99d",
             fontSize: 9,
             fontWeight: 900,
             letterSpacing: ".1em",
           }}
         >
-          {status.readyForPersistence ? "PERSISTENCE READY" : "SAFE PREVIEW"}
+          {persistenceReady ? "PERSISTENCE READY" : "SAFE PREVIEW"}
         </div>
       </div>
 
@@ -87,7 +91,11 @@ export default function StudioBackendStatus() {
           <Dot ok={status.supabaseConfigured} />
           <span>Supabase</span>
           <strong>
-            {status.supabaseConfigured ? "Configured" : "Waiting for project keys"}
+            {supabaseHealth.ok
+              ? "Connected to LockScreened Development"
+              : status.supabaseConfigured
+                ? "Configured · health check failed"
+                : "Waiting for project keys"}
           </strong>
         </div>
 
@@ -100,7 +108,7 @@ export default function StudioBackendStatus() {
         </div>
       </div>
 
-      {!status.readyForPersistence ? (
+      {!persistenceReady ? (
         <p
           style={{
             margin: 0,
