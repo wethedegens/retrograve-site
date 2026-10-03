@@ -12,6 +12,7 @@ import {
   publishStudioCollection,
 } from "../../lib/lockscreened/studioDataClient";
 import StudioTraitValidation from "./StudioTraitValidation";
+import StudioPublicProfileEditor from "./StudioPublicProfileEditor";
 
 export default function StudioDraftProjectManager({
   collectionId,
@@ -275,6 +276,13 @@ export default function StudioDraftProjectManager({
 
         {message ? <div style={notice}>{message}</div> : null}
       </section>
+
+      <StudioPublicProfileEditor
+        session={session}
+        collectionId={collectionId}
+        name={collection.name}
+        profile={collection.public_profile}
+      />
 
       <section style={panel}>
         <div style={eyebrow}>TRAIT ENGINE</div>
