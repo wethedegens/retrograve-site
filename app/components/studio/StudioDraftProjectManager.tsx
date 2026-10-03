@@ -10,6 +10,8 @@ import {
 import {
   getStudioCollection,
   publishStudioCollection,
+  unpublishBackgroundPackage,
+  unpublishStudioCollection,
 } from "../../lib/lockscreened/studioDataClient";
 import StudioTraitValidation from "./StudioTraitValidation";
 import StudioPublicProfileEditor from "./StudioPublicProfileEditor";
@@ -117,6 +119,64 @@ export default function StudioDraftProjectManager({
         error instanceof Error
           ? error.message
           : "Publishing was blocked."
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function unpublishProject() {
+    if (!session) return;
+
+    const confirmed = window.confirm(
+      "Unpublish this LockScreened project? Its public Creator Studio page will become unavailable, but all Studio data and private source files will remain."
+    );
+
+    if (!confirmed) return;
+
+    setBusy(true);
+    setMessage("");
+
+    try {
+      await unpublishStudioCollection({
+        session,
+        collectionId,
+      });
+      setMessage("Project unpublished. Studio data and source assets were preserved.");
+      await load();
+    } catch (error) {
+      setMessage(
+        error instanceof Error ? error.message : "Could not unpublish project."
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function unpublishBackground(packageId: string) {
+    if (!session) return;
+
+    const confirmed = window.confirm(
+      "Unpublish this background package? Public render files stay stored, but collectors will no longer see this package."
+    );
+
+    if (!confirmed) return;
+
+    setBusy(true);
+    setMessage("");
+
+    try {
+      await unpublishBackgroundPackage({
+        session,
+        packageId,
+      });
+      setMessage("Background package unpublished.");
+      await load();
+    } catch (error) {
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "Background unpublishing was blocked."
       );
     } finally {
       setBusy(false);
@@ -266,17 +326,23 @@ export default function StudioDraftProjectManager({
             </button>
           ) : null}
 
-          <button
-            style={button}
-            onClick={publishProject}
-            disabled={busy || !verified || collection.publish_status === "published"}
-          >
-            {collection.publish_status === "published"
-              ? "PROJECT PUBLISHED"
-              : verified
-                ? "PUBLISH PROJECT"
-                : "VERIFY CLAIM TO PUBLISH"}
-          </button>
+          {collection.publish_status === "published" ? (
+            <button
+              style={dangerButton}
+              onClick={unpublishProject}
+              disabled={busy}
+            >
+              UNPUBLISH PROJECT
+            </button>
+          ) : (
+            <button
+              style={primaryButton}
+              onClick={publishProject}
+              disabled={busy || !verified}
+            >
+              {verified ? "PUBLISH PROJECT" : "VERIFY CLAIM TO PUBLISH"}
+            </button>
+          )}
           <a href="/studio#trait-import" style={button}>EDIT TRAITS</a>
           <a href="/studio#background-builder" style={button}>ADD BACKGROUND</a>
           <a href={"/studio/preview/" + collectionId} style={button}>PREVIEW PUBLIC EXPERIENCE</a>
@@ -371,21 +437,23 @@ export default function StudioDraftProjectManager({
                   </div>
                 </div>
 
-                <button
-                  style={{ ...button, minHeight: 30 }}
-                  disabled={
-                    busy ||
-                    !verified ||
-                    background.publish_status === "published"
-                  }
-                  onClick={() => publishBackground(background.id)}
-                >
-                  {background.publish_status === "published"
-                    ? "PUBLISHED"
-                    : verified
-                      ? "PUBLISH"
-                      : "LOCKED"}
-                </button>
+                {background.publish_status === "published" ? (
+                  <button
+                    style={{ ...dangerButton, minHeight: 30 }}
+                    disabled={busy || !verified}
+                    onClick={() => unpublishBackground(background.id)}
+                  >
+                    UNPUBLISH
+                  </button>
+                ) : (
+                  <button
+                    style={{ ...primaryButton, minHeight: 30 }}
+                    disabled={busy || !verified}
+                    onClick={() => publishBackground(background.id)}
+                  >
+                    {verified ? "PUBLISH" : "LOCKED"}
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -486,6 +554,19 @@ const button = {
   fontWeight: 900,
   letterSpacing: ".08em",
   cursor: "pointer",
+} as const;
+
+const primaryButton = {
+  ...button,
+  background: "#ff3fb4",
+  color: "#151019",
+} as const;
+
+const dangerButton = {
+  ...button,
+  border: "1px solid rgba(255,118,118,.18)",
+  background: "rgba(255,88,88,.07)",
+  color: "#ffc2c2",
 } as const;
 
 const notice = {
