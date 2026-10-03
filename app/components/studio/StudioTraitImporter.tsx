@@ -316,7 +316,7 @@ export default function StudioTraitImporter() {
     <section className="panel">
       <div className="panelHead">
         <div>
-          <div className="eyebrow">UNIVERSAL TRAIT ENGINE</div>
+          <div className="eyebrow">LOCKSCREENED UNIVERSAL TRAIT ENGINE</div>
           <h2>Import a collection trait folder</h2>
           <p>
             Choose the same layered art folder used to generate the collection.

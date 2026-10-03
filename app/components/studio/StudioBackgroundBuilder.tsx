@@ -403,7 +403,7 @@ export default function StudioBackgroundBuilder() {
               letterSpacing: ".22em",
             }}
           >
-            OFFICIAL BACKGROUNDS
+            LOCKSCREENED OFFICIAL BACKGROUNDS
           </div>
           <h2 style={{ margin: "6px 0", fontSize: 24 }}>
             Build a background package
@@ -454,7 +454,7 @@ export default function StudioBackgroundBuilder() {
             borderRadius: 12,
             border: "1px solid rgba(255,255,255,.12)",
             background: "rgba(0,0,0,.22)",
-            color: "#151019",
+            color: "#fff",
             padding: "0 12px",
             outline: "none",
           }}
@@ -543,7 +543,7 @@ export default function StudioBackgroundBuilder() {
                 borderRadius: 11,
                 border: "1px solid rgba(255,255,255,.1)",
                 background: "#11101a",
-                color: "#151019",
+                color: "#fff",
                 padding: "0 10px",
               }}
             >
