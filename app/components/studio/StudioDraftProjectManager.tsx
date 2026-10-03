@@ -8,8 +8,10 @@ import {
   type LockScreenedSession,
 } from "../../lib/lockscreened/web3AuthClient";
 import {
+  archiveStudioCollection,
   getStudioCollection,
   publishStudioCollection,
+  restoreStudioCollection,
   unpublishBackgroundPackage,
   unpublishStudioCollection,
 } from "../../lib/lockscreened/studioDataClient";
@@ -61,6 +63,50 @@ export default function StudioDraftProjectManager({
       window.removeEventListener("lockscreened-studio-data-changed", listener);
     };
   }, [collectionId]);
+
+  async function archiveProject() {
+    if (!session) return;
+
+    const confirmed = window.confirm(
+      "Archive this Creator Studio project? It will disappear from your active workflow, but its source art, mappings and settings will be preserved."
+    );
+
+    if (!confirmed) return;
+
+    setBusy(true);
+    setMessage("");
+
+    try {
+      await archiveStudioCollection({ session, collectionId });
+      setMessage("Project archived. Nothing was deleted.");
+      await load();
+    } catch (error) {
+      setMessage(
+        error instanceof Error ? error.message : "Could not archive project."
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function restoreProject() {
+    if (!session) return;
+
+    setBusy(true);
+    setMessage("");
+
+    try {
+      await restoreStudioCollection({ session, collectionId });
+      setMessage("Project restored to draft.");
+      await load();
+    } catch (error) {
+      setMessage(
+        error instanceof Error ? error.message : "Could not restore project."
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function publishRenderAssets() {
     if (!session) return;
@@ -314,7 +360,18 @@ export default function StudioDraftProjectManager({
         </div>
 
         <div style={{ marginTop: 13, display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {collection.render_mode === "layered_traits" ? (
+          {collection.publish_status === "archived" ? (
+            <button
+              style={primaryButton}
+              onClick={restoreProject}
+              disabled={busy}
+            >
+              RESTORE PROJECT
+            </button>
+          ) : null}
+
+          {collection.render_mode === "layered_traits" &&
+          collection.publish_status !== "archived" ? (
             <button
               style={button}
               onClick={publishRenderAssets}
@@ -334,15 +391,24 @@ export default function StudioDraftProjectManager({
             >
               UNPUBLISH PROJECT
             </button>
-          ) : (
-            <button
-              style={primaryButton}
-              onClick={publishProject}
-              disabled={busy || !verified}
-            >
-              {verified ? "PUBLISH PROJECT" : "VERIFY CLAIM TO PUBLISH"}
-            </button>
-          )}
+          ) : collection.publish_status === "draft" ? (
+            <>
+              <button
+                style={primaryButton}
+                onClick={publishProject}
+                disabled={busy || !verified}
+              >
+                {verified ? "PUBLISH PROJECT" : "VERIFY CLAIM TO PUBLISH"}
+              </button>
+              <button
+                style={secondaryDangerButton}
+                onClick={archiveProject}
+                disabled={busy}
+              >
+                ARCHIVE DRAFT
+              </button>
+            </>
+          ) : null}
           <a href="/studio#trait-import" style={button}>EDIT TRAITS</a>
           <a href="/studio#background-builder" style={button}>ADD BACKGROUND</a>
           <a href={"/studio/preview/" + collectionId} style={button}>PREVIEW PUBLIC EXPERIENCE</a>
@@ -567,6 +633,13 @@ const dangerButton = {
   border: "1px solid rgba(255,118,118,.18)",
   background: "rgba(255,88,88,.07)",
   color: "#ffc2c2",
+} as const;
+
+const secondaryDangerButton = {
+  ...button,
+  border: "1px solid rgba(255,202,122,.16)",
+  background: "rgba(255,184,78,.05)",
+  color: "#ffd5a2",
 } as const;
 
 const notice = {

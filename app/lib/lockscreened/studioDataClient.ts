@@ -745,3 +745,42 @@ export async function unpublishBackgroundPackage(args: {
     window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
   }
 }
+
+
+export async function archiveStudioCollection(args: {
+  session: LockScreenedSession;
+  collectionId: string;
+}) {
+  await request<void>(
+    args.session,
+    "collections?id=eq." + encodeURIComponent(args.collectionId),
+    {
+      method: "PATCH",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({ publish_status: "archived" }),
+    }
+  );
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
+  }
+}
+
+export async function restoreStudioCollection(args: {
+  session: LockScreenedSession;
+  collectionId: string;
+}) {
+  await request<void>(
+    args.session,
+    "collections?id=eq." + encodeURIComponent(args.collectionId),
+    {
+      method: "PATCH",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({ publish_status: "draft" }),
+    }
+  );
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
+  }
+}
