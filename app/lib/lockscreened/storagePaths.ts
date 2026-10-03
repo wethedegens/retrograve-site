@@ -74,7 +74,7 @@ export function backgroundSourcePath(args: {
 
 export function publicPreviewPath(args: {
   collectionSlug: string;
-  assetType: "background" | "project" | "thumbnail";
+  assetType: "background" | "project" | "thumbnail" | "trait";
   assetId: string;
   fileName: string;
 }) {

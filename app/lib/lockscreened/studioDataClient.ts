@@ -379,11 +379,26 @@ export async function getStudioCollection(
     );
   }
 
+  let publishedTraitAssets: any[] = [];
+  if (layerIds.length) {
+    const encodedIds = layerIds
+      .map((id: string) => '"' + String(id).replace(/"/g, "") + '"')
+      .join(",");
+
+    publishedTraitAssets = await request<any[]>(
+      session,
+      "published_trait_assets?layer_id=in.(" +
+        encodeURIComponent(encodedIds) +
+        ")&select=id,layer_id,trait_value,storage_bucket,storage_path,bytes,mime_type"
+    );
+  }
+
   return {
     collection,
     claim: claims?.[0] || null,
     layers: layers || [],
     traitAssets: traitAssets || [],
+    publishedTraitAssets: publishedTraitAssets || [],
     backgrounds: backgrounds || [],
   };
 }

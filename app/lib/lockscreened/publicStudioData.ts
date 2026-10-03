@@ -95,8 +95,36 @@ export async function getPublishedStudioProjectBySlug(slug: string) {
     };
   });
 
+  const layers = await publicRequest<any[]>(
+    "trait_layers?collection_id=eq." +
+      encodeURIComponent(collection.id) +
+      "&select=id,trait_type,display_name,layer_order,is_background&order=layer_order.asc"
+  );
+
+  let publishedTraitAssets: any[] = [];
+  const layerIds = (layers || []).map((layer) => layer.id).filter(Boolean);
+
+  if (layerIds.length) {
+    const inList = layerIds
+      .map((id: string) => '"' + String(id).replace(/"/g, "") + '"')
+      .join(",");
+
+    publishedTraitAssets = await publicRequest<any[]>(
+      "published_trait_assets?layer_id=in.(" +
+        encodeURIComponent(inList) +
+        ")&select=id,layer_id,trait_value,storage_bucket,storage_path,bytes,mime_type"
+    );
+  }
+
+  const publicTraitAssets = publishedTraitAssets.map((asset) => ({
+    ...asset,
+    url: publicAssetUrl(asset.storage_bucket, asset.storage_path),
+  }));
+
   return {
     ...collection,
     backgrounds,
+    layers,
+    publishedTraitAssets: publicTraitAssets,
   };
 }

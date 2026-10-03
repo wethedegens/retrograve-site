@@ -54,6 +54,46 @@ export default function StudioDraftProjectManager({
     };
   }, [collectionId]);
 
+  async function publishRenderAssets() {
+    if (!session) return;
+    setBusy(true);
+    setMessage("");
+
+    try {
+      const response = await fetch("/api/studio/publish-trait-renders", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          Authorization: "Bearer " + session.access_token,
+        },
+        body: JSON.stringify({ collectionId }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        if (result?.needsServerSecret) {
+          setMessage(
+            "Trait library is ready, but secure render publishing is waiting for the server-only Supabase secret."
+          );
+          return;
+        }
+        throw new Error(result?.error || "Render publishing was blocked.");
+      }
+
+      setMessage(
+        String(result.publishedCount || 0) +
+          " public render derivative assets published."
+      );
+      await load();
+    } catch (error) {
+      setMessage(
+        error instanceof Error ? error.message : "Could not publish render assets."
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function publishProject() {
     if (!session) return;
     setBusy(true);
@@ -142,7 +182,14 @@ export default function StudioDraftProjectManager({
     );
   }
 
-  const { collection, claim, layers, traitAssets, backgrounds } = data;
+  const {
+    collection,
+    claim,
+    layers,
+    traitAssets,
+    publishedTraitAssets,
+    backgrounds,
+  } = data;
   const verified = claim?.status === "verified";
 
   return (
@@ -187,6 +234,10 @@ export default function StudioDraftProjectManager({
         <div style={stats}>
           <Stat label="PROJECT" value={collection.publish_status.toUpperCase()} />
           <Stat label="TRAIT LAYERS" value={String(layers.length)} />
+          <Stat
+            label="PUBLIC RENDER ASSETS"
+            value={String(publishedTraitAssets?.length || 0)}
+          />
           <Stat label="BACKGROUND DRAFTS" value={String(backgrounds.length)} />
           <Stat
             label="PUBLISH GATE"
@@ -195,6 +246,18 @@ export default function StudioDraftProjectManager({
         </div>
 
         <div style={{ marginTop: 13, display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {collection.render_mode === "layered_traits" ? (
+            <button
+              style={button}
+              onClick={publishRenderAssets}
+              disabled={busy || !verified || !traitAssets?.length}
+            >
+              {publishedTraitAssets?.length
+                ? "REFRESH PUBLIC RENDER ASSETS"
+                : "PUBLISH RENDER ASSETS"}
+            </button>
+          ) : null}
+
           <button
             style={button}
             onClick={publishProject}

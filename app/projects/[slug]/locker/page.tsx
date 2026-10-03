@@ -34,7 +34,10 @@ export default async function PublishedStudioLockerPage({
         project={{
           slug: project.slug,
           name: project.name,
+          render_mode: project.render_mode,
           backgrounds: project.backgrounds,
+          layers: project.layers || [],
+          publishedTraitAssets: project.publishedTraitAssets || [],
         }}
       />
     </Suspense>

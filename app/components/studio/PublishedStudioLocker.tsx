@@ -12,6 +12,7 @@ import ExportButtons from "../ExportButtons";
 import ShareActions from "../ShareActions";
 import ClientOnly from "../ClientOnly";
 import PublishedBackgroundPicker from "./PublishedBackgroundPicker";
+import PublishedUniversalComposer from "./PublishedUniversalComposer";
 
 type Background = {
   id: string;
@@ -25,7 +26,10 @@ export default function PublishedStudioLocker({
   project: {
     slug: string;
     name: string;
+    render_mode: string;
     backgrounds: Background[];
+    layers: any[];
+    publishedTraitAssets: any[];
   };
 }) {
   const search = useSearchParams();
@@ -34,6 +38,7 @@ export default function PublishedStudioLocker({
 
   const composerRef = useRef<ComposerHandle | null>(null);
   const [nft, setNft] = useState<SimpleNft | null>(null);
+  const [attributes, setAttributes] = useState<any[]>([]);
   const [loading, setLoading] = useState(Boolean(mint));
   const [message, setMessage] = useState("");
 
@@ -100,6 +105,9 @@ export default function PublishedStudioLocker({
             image: data.image || undefined,
             uri: uri || null,
           });
+          setAttributes(
+            Array.isArray(data.attributes) ? data.attributes : []
+          );
         }
       } catch (error) {
         if (!cancelled) {
@@ -217,12 +225,24 @@ export default function PublishedStudioLocker({
               gap: 9,
             }}
           >
-            <Composer
-              ref={composerRef}
-              nft={nft}
-              bg={background}
-              project={"studio:" + project.slug}
-            />
+            {project.render_mode === "layered_traits" &&
+            project.publishedTraitAssets.length ? (
+              <PublishedUniversalComposer
+                ref={composerRef}
+                attributes={attributes}
+                layers={project.layers}
+                assets={project.publishedTraitAssets}
+                bg={background}
+                nftName={nft?.name || project.name}
+              />
+            ) : (
+              <Composer
+                ref={composerRef}
+                nft={nft}
+                bg={background}
+                project={"studio:" + project.slug}
+              />
+            )}
 
             <div
               style={{
@@ -233,10 +253,10 @@ export default function PublishedStudioLocker({
                 lineHeight: 1.5,
               }}
             >
-              Creator Studio public locker currently uses the NFT&apos;s minted
-              composite artwork. Universal trait reconstruction will activate
-              only from published render-safe derivatives, never private founder
-              source files.
+              {project.render_mode === "layered_traits" &&
+              project.publishedTraitAssets.length
+                ? "Universal trait reconstruction is active from published render derivatives. Private founder source files remain inaccessible."
+                : "This project is using the NFT's minted composite artwork with published device backgrounds."}
             </div>
           </div>
         </div>
