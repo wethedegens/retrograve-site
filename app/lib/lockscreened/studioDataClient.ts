@@ -338,7 +338,7 @@ export async function getStudioCollection(
       session,
       "collections?id=eq." +
         encodeURIComponent(collectionId) +
-        "&select=id,studio_id,slug,name,source_type,source_config,render_mode,render_profile,publish_status,created_at&limit=1"
+        "&select=id,studio_id,slug,name,source_type,source_config,render_mode,render_profile,public_profile,publish_status,created_at&limit=1"
     ),
     request<any[]>(
       session,
@@ -466,4 +466,52 @@ export async function upsertBackgroundSourceAssetMetadata(args: {
       body: JSON.stringify(args.rows),
     }
   );
+}
+
+
+export async function updateStudioPublicProfile(args: {
+  session: LockScreenedSession;
+  collectionId: string;
+  name: string;
+  profile: {
+    tagline?: string;
+    description?: string;
+    website?: string;
+    marketplace?: string;
+    discord?: string;
+    x?: string;
+  };
+}) {
+  const safeUrl = (value?: string) => {
+    const raw = String(value || "").trim();
+    if (!raw) return "";
+    try {
+      const url = new URL(raw);
+      return url.protocol === "https:" || url.protocol === "http:" ? url.toString() : "";
+    } catch {
+      return "";
+    }
+  };
+
+  const profile = {
+    tagline: String(args.profile.tagline || "").trim().slice(0, 160),
+    description: String(args.profile.description || "").trim().slice(0, 1200),
+    website: safeUrl(args.profile.website),
+    marketplace: safeUrl(args.profile.marketplace),
+    discord: safeUrl(args.profile.discord),
+    x: safeUrl(args.profile.x),
+  };
+
+  await request<void>(args.session, "collections?id=eq." + encodeURIComponent(args.collectionId), {
+    method: "PATCH",
+    headers: { Prefer: "return=minimal" },
+    body: JSON.stringify({
+      name: String(args.name || "").trim().slice(0, 120),
+      public_profile: profile,
+    }),
+  });
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
+  }
 }
