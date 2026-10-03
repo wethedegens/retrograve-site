@@ -1,6 +1,7 @@
 // app/projects/[slug]/page.tsx
 import { notFound } from "next/navigation";
 import { getPublishedStudioProjectBySlug } from "../../lib/lockscreened/publicStudioData";
+import LockScreenedPublicShell from "../../components/studio/LockScreenedPublicShell";
 
 export const dynamic = "force-dynamic";
 
@@ -18,15 +19,7 @@ export default async function PublishedStudioProjectPage({
     .filter(Boolean);
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        color: "#fff",
-        background:
-          "radial-gradient(900px 520px at 50% 0, rgba(93,68,174,.2), transparent 70%), #08070f",
-        padding: "72px 18px 90px",
-      }}
-    >
+    <LockScreenedPublicShell projectName={project.name}>
       <section
         style={{
           width: "min(1120px,100%)",
@@ -38,7 +31,7 @@ export default async function PublishedStudioProjectPage({
         }}
       >
         <div>
-          <div style={eyebrow}>LOCKSCREENED CREATOR PROJECT</div>
+          <div style={eyebrow}>CREATOR STUDIO LOCKER</div>
           <h1
             style={{
               margin: "8px 0 0",
@@ -204,7 +197,7 @@ export default async function PublishedStudioProjectPage({
           </div>
         </div>
       </section>
-    </main>
+    </LockScreenedPublicShell>
   );
 }
 
@@ -229,7 +222,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 const eyebrow = {
-  color: "#c9b7ff",
+  color: "#ff8dce",
   fontSize: 9,
   fontWeight: 900,
   letterSpacing: ".18em",
@@ -251,8 +244,8 @@ const primary = {
   borderRadius: 999,
   padding: "0 15px",
   textDecoration: "none",
-  background: "linear-gradient(180deg,#b89bff,#7655df)",
-  color: "#100c17",
+  background: "#ff3fb4",
+  color: "#151019",
   fontSize: 9,
   fontWeight: 900,
   letterSpacing: ".1em",

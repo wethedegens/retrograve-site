@@ -91,8 +91,8 @@ export default function StudioWalletAuth() {
       style={{
         marginBottom: 24,
         borderRadius: 20,
-        border: "1px solid rgba(205,183,255,.15)",
-        background: "rgba(14,10,28,.7)",
+        border: "1px solid rgba(255,99,194,.14)",
+        background: "linear-gradient(135deg, rgba(14,10,28,.78), rgba(9,8,18,.66))",
         padding: 18,
         display: "grid",
         gap: 13,
@@ -101,7 +101,7 @@ export default function StudioWalletAuth() {
       <div>
         <div
           style={{
-            color: "#cfbfff",
+            color: "#ff8dce",
             fontSize: 9,
             fontWeight: 900,
             letterSpacing: ".18em",
@@ -202,9 +202,9 @@ const primaryButton = {
   minHeight: 38,
   padding: "0 14px",
   borderRadius: 999,
-  border: "1px solid rgba(194,170,255,.35)",
-  background: "linear-gradient(180deg,#b595ff,#7c5ce7)",
-  color: "#120e18",
+  border: "1px solid rgba(255,255,255,.12)",
+  background: "#ff3fb4",
+  color: "#151019",
   fontSize: 9,
   fontWeight: 900,
   letterSpacing: ".11em",

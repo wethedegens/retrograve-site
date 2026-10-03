@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import PublishedStudioLocker from "../../../components/studio/PublishedStudioLocker";
 import { getPublishedStudioProjectBySlug } from "../../../lib/lockscreened/publicStudioData";
+import LockScreenedPublicShell from "../../../components/studio/LockScreenedPublicShell";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,11 @@ export default async function PublishedStudioLockerPage({
   if (!project) notFound();
 
   return (
+    <LockScreenedPublicShell
+      projectName={project.name}
+      backHref={"/projects/" + project.slug + "/collection"}
+      backLabel={"BACK TO " + project.name.toUpperCase()}
+    >
     <Suspense
       fallback={
         <main
@@ -43,5 +49,6 @@ export default async function PublishedStudioLockerPage({
         }}
       />
     </Suspense>
+    </LockScreenedPublicShell>
   );
 }

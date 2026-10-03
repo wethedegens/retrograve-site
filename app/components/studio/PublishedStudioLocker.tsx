@@ -137,29 +137,7 @@ export default function PublishedStudioLocker({
   }, [mint, uri]);
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        color: "#fff",
-        background:
-          "radial-gradient(900px 520px at 50% 0, rgba(93,68,174,.16), transparent 70%), #08070f",
-        padding: "72px 18px 90px",
-      }}
-    >
-      <section style={{ width: "min(1120px,100%)", margin: "0 auto" }}>
-        <a
-          href={"/projects/" + project.slug + "/collection"}
-          style={{
-            color: "#cdbbff",
-            textDecoration: "none",
-            fontSize: 9,
-            fontWeight: 900,
-            letterSpacing: ".1em",
-          }}
-        >
-          ← BACK TO {project.name.toUpperCase()}
-        </a>
-
+      <section style={{ width: "100%", margin: "0 auto" }}>
         <div
           style={{
             marginTop: 14,
@@ -182,7 +160,7 @@ export default function PublishedStudioLocker({
             <div>
               <div
                 style={{
-                  color: "#c9b7ff",
+                  color: "#ff8dce",
                   fontSize: 8,
                   fontWeight: 900,
                   letterSpacing: ".14em",
@@ -285,7 +263,6 @@ export default function PublishedStudioLocker({
           </div>
         </div>
       </section>
-    </main>
   );
 }
 

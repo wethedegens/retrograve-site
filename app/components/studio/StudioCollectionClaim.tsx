@@ -182,13 +182,13 @@ export default function StudioCollectionClaim() {
         borderRadius: 24,
         padding: 22,
         border: "1px solid rgba(255,255,255,.1)",
-        background: "rgba(9,8,18,.72)",
+        background: "linear-gradient(135deg, rgba(14,10,28,.78), rgba(9,8,18,.68))",
         boxShadow: "0 24px 70px rgba(0,0,0,.3)",
       }}
     >
       <div
         style={{
-          color: "#ffcf8c",
+          color: "#ff8dce",
           fontSize: 10,
           fontWeight: 900,
           letterSpacing: ".2em",
@@ -328,9 +328,9 @@ const buttonStyle = {
   minHeight: 42,
   borderRadius: 999,
   padding: "0 14px",
-  border: "1px solid rgba(255,255,255,.14)",
-  background: "rgba(142,104,255,.18)",
-  color: "#fff",
+  border: "1px solid rgba(255,255,255,.12)",
+  background: "#ff3fb4",
+  color: "#151019",
   fontSize: 9,
   fontWeight: 900,
   letterSpacing: ".1em",
