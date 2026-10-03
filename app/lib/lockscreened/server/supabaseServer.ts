@@ -174,3 +174,27 @@ export function publicStorageUrl(bucket: string, path: string) {
 
   return `${url}/storage/v1/object/public/${encodeURIComponent(bucket)}/${encoded}`;
 }
+
+
+export async function consumeStudioActionRateLimit(
+  accessToken: string,
+  action: string
+) {
+  const { url, publishableKey } = publicConfig();
+
+  const response = await fetch(url + "/rest/v1/rpc/consume_studio_action", {
+    method: "POST",
+    headers: {
+      apikey: publishableKey,
+      Authorization: "Bearer " + accessToken,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ action_name: action }),
+    cache: "no-store",
+  });
+
+  if (!response.ok) throw new Error(await parseError(response));
+
+  const allowed = await response.json();
+  return allowed === true;
+}

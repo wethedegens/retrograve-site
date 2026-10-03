@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { matchMetadataToTraitAssets } from "../../../lib/lockscreened/traitMapping";
 import { getCollectionValidationSample } from "../../../lib/lockscreened/server/heliusCollectionSample";
 import {
+  consumeStudioActionRateLimit,
   getAuthenticatedUser,
   hasSupabaseAdminKey,
   restAsAdmin,
@@ -25,6 +26,22 @@ export async function POST(request: Request) {
     const user = await getAuthenticatedUser(accessToken);
     if (!user?.id) {
       return NextResponse.json({ error: "Studio session expired." }, { status: 401 });
+    }
+
+    const allowed = await consumeStudioActionRateLimit(
+      accessToken,
+      "validation"
+    );
+
+    if (!allowed) {
+      return NextResponse.json(
+        {
+          error:
+            "Too many Creator Studio requests. Wait a few minutes and try again.",
+          rateLimited: true,
+        },
+        { status: 429 }
+      );
     }
 
     const body = await request.json();

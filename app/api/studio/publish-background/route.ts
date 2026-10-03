@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { publicPreviewPath, STORAGE_BUCKETS } from "../../../lib/lockscreened/storagePaths";
 import {
+  consumeStudioActionRateLimit,
   copyStorageObjectAsAdmin,
   deleteStorageObjectsAsAdmin,
   getAuthenticatedUser,
@@ -39,6 +40,22 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Your Studio session is invalid or expired." },
         { status: 401 }
+      );
+    }
+
+    const allowed = await consumeStudioActionRateLimit(
+      accessToken,
+      "publish_background"
+    );
+
+    if (!allowed) {
+      return NextResponse.json(
+        {
+          error:
+            "Too many Creator Studio requests. Wait a few minutes and try again.",
+          rateLimited: true,
+        },
+        { status: 429 }
       );
     }
 

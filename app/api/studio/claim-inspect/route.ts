@@ -1,6 +1,7 @@
 // app/api/studio/claim-inspect/route.ts
 import { NextResponse } from "next/server";
 import { getPublicSupabaseConfig } from "../../../lib/lockscreened/backendConfig";
+import { consumeStudioActionRateLimit } from "../../../lib/lockscreened/server/supabaseServer";
 import { extractSolanaWalletAddress } from "../../../lib/lockscreened/authIdentity";
 import {
   inspectCollectionAuthority,
@@ -45,6 +46,22 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Your Studio session is invalid or expired." },
         { status: 401 }
+      );
+    }
+
+    const allowed = await consumeStudioActionRateLimit(
+      token,
+      "claim_inspect"
+    );
+
+    if (!allowed) {
+      return NextResponse.json(
+        {
+          error:
+            "Too many Creator Studio requests. Wait a few minutes and try again.",
+          rateLimited: true,
+        },
+        { status: 429 }
       );
     }
 
