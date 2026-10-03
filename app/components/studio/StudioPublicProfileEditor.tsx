@@ -19,13 +19,16 @@ export default function StudioPublicProfileEditor({
   collectionId,
   name: initialName,
   profile,
+  publicSlug: initialPublicSlug,
 }: {
   session: LockScreenedSession;
   collectionId: string;
   name: string;
   profile?: Profile | null;
+  publicSlug?: string | null;
 }) {
   const [name, setName] = useState(initialName || "");
+  const [publicSlug, setPublicSlug] = useState(initialPublicSlug || "");
   const [tagline, setTagline] = useState(profile?.tagline || "");
   const [description, setDescription] = useState(profile?.description || "");
   const [website, setWebsite] = useState(profile?.website || "");
@@ -37,13 +40,14 @@ export default function StudioPublicProfileEditor({
 
   useEffect(() => {
     setName(initialName || "");
+    setPublicSlug(initialPublicSlug || "");
     setTagline(profile?.tagline || "");
     setDescription(profile?.description || "");
     setWebsite(profile?.website || "");
     setMarketplace(profile?.marketplace || "");
     setDiscord(profile?.discord || "");
     setX(profile?.x || "");
-  }, [initialName, profile]);
+  }, [initialName, initialPublicSlug, profile]);
 
   async function save() {
     setBusy(true);
@@ -53,6 +57,7 @@ export default function StudioPublicProfileEditor({
         session,
         collectionId,
         name,
+        publicSlug,
         profile: { tagline, description, website, marketplace, discord, x },
       });
       setMessage("Public project profile saved.");
@@ -74,6 +79,24 @@ export default function StudioPublicProfileEditor({
       <div className="profile-grid" style={grid}>
         <Field label="PROJECT NAME">
           <input value={name} onChange={(e) => setName(e.target.value)} />
+        </Field>
+        <Field label="PUBLIC LOCKER URL">
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ color: "rgba(255,255,255,.36)", fontSize: 9 }}>/projects/</span>
+            <input
+              value={publicSlug}
+              onChange={(e) =>
+                setPublicSlug(
+                  e.target.value
+                    .toLowerCase()
+                    .replace(/[^a-z0-9-]+/g, "-")
+                    .replace(/-{2,}/g, "-")
+                    .replace(/^-+/g, "")
+                )
+              }
+              placeholder="your-project"
+            />
+          </div>
         </Field>
         <Field label="TAGLINE">
           <input value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder="Phone-native art for collectors" />

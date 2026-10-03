@@ -290,6 +290,7 @@ export default function StudioDraftProjectManager({
         collectionId={collectionId}
         name={collection.name}
         profile={collection.public_profile}
+        publicSlug={collection.public_slug}
       />
 
       <StudioLayerOrderEditor

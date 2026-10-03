@@ -62,7 +62,7 @@ export default async function PublishedStudioProjectPage({
           </p>
 
           <div style={{ marginTop: 18, display: "flex", gap: 9, flexWrap: "wrap" }}>
-            <a href={"/projects/" + project.slug + "/collection"} style={primary}>
+            <a href={"/projects/" + (project.route_slug || project.slug) + "/collection"} style={primary}>
               VIEW MY COLLECTION
             </a>
             {profile.marketplace ? (

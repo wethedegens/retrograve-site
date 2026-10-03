@@ -29,10 +29,13 @@ export async function getPublishedStudioProjectBySlug(slug: string) {
   const safeSlug = String(slug || "").trim().toLowerCase();
 
   const collections = await publicRequest<any[]>(
-    "collections?slug=eq." +
+    "collections?or=(public_slug.eq." +
       encodeURIComponent(safeSlug) +
+      ",slug.eq." +
+      encodeURIComponent(safeSlug) +
+      ")" +
       "&publish_status=eq.published" +
-      "&select=id,slug,name,source_type,source_config,render_mode,render_profile,public_profile,publish_status,flagship,legacy_assets_locked&limit=1"
+      "&select=id,slug,public_slug,name,source_type,source_config,render_mode,render_profile,public_profile,publish_status,flagship,legacy_assets_locked&limit=1"
   );
 
   const collection = collections?.[0];
@@ -138,12 +141,13 @@ export async function getPublishedStudioProjectBySlug(slug: string) {
     layers,
     publishedTraitAssets: publicTraitAssets,
     publishedMintOverrides: publicMintOverrides,
+    route_slug: collection.public_slug || collection.slug,
   };
 }
 
 export async function listPublishedStudioProjects() {
   const collections = await publicRequest<any[]>(
-    "collections?publish_status=eq.published&flagship=eq.false&select=id,slug,name,render_mode,public_profile,created_at&order=created_at.desc&limit=24"
+    "collections?publish_status=eq.published&flagship=eq.false&select=id,slug,public_slug,name,render_mode,public_profile,created_at&order=created_at.desc&limit=24"
   );
 
   if (!collections.length) return [];
@@ -195,7 +199,7 @@ export async function listPublishedStudioProjects() {
 
     return {
       id: collection.id,
-      slug: collection.slug,
+      slug: collection.public_slug || collection.slug,
       name: collection.name,
       render_mode: collection.render_mode,
       public_profile: collection.public_profile || {},

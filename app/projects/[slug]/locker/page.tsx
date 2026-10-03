@@ -18,7 +18,7 @@ export default async function PublishedStudioLockerPage({
   return (
     <LockScreenedPublicShell
       projectName={project.name}
-      backHref={"/projects/" + project.slug + "/collection"}
+      backHref={"/projects/" + (project.route_slug || project.slug) + "/collection"}
       backLabel={"BACK TO " + project.name.toUpperCase()}
     >
     <Suspense
@@ -38,7 +38,7 @@ export default async function PublishedStudioLockerPage({
     >
       <PublishedStudioLocker
         project={{
-          slug: project.slug,
+          slug: (project.route_slug || project.slug),
           name: project.name,
           render_mode: project.render_mode,
           render_profile: project.render_profile,

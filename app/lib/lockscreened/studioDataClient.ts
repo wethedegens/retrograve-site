@@ -338,7 +338,7 @@ export async function getStudioCollection(
       session,
       "collections?id=eq." +
         encodeURIComponent(collectionId) +
-        "&select=id,studio_id,slug,name,source_type,source_config,render_mode,render_profile,public_profile,publish_status,created_at&limit=1"
+        "&select=id,studio_id,slug,public_slug,name,source_type,source_config,render_mode,render_profile,public_profile,publish_status,created_at&limit=1"
     ),
     request<any[]>(
       session,
@@ -514,6 +514,7 @@ export async function updateStudioPublicProfile(args: {
   session: LockScreenedSession;
   collectionId: string;
   name: string;
+  publicSlug?: string;
   profile: {
     tagline?: string;
     description?: string;
@@ -534,6 +535,14 @@ export async function updateStudioPublicProfile(args: {
     }
   };
 
+  const publicSlug = String(args.publicSlug || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/-{2,}/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 64);
+
   const profile = {
     tagline: String(args.profile.tagline || "").trim().slice(0, 160),
     description: String(args.profile.description || "").trim().slice(0, 1200),
@@ -548,6 +557,7 @@ export async function updateStudioPublicProfile(args: {
     headers: { Prefer: "return=minimal" },
     body: JSON.stringify({
       name: String(args.name || "").trim().slice(0, 120),
+      public_slug: publicSlug || null,
       public_profile: profile,
     }),
   });

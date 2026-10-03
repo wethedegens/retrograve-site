@@ -23,14 +23,14 @@ export default async function PublishedStudioCollectionPage({
   return (
     <LockScreenedPublicShell
       projectName={project.name}
-      backHref={"/projects/" + project.slug}
+      backHref={"/projects/" + (project.route_slug || project.slug)}
       backLabel={project.name.toUpperCase()}
       maxWidth={1180}
     >
       <NftGridByContract
           contract={collectionAddress}
           title={"MY " + project.name.toUpperCase()}
-          project={"studio:" + project.slug}
+          project={"studio:" + (project.route_slug || project.slug)}
         />
     </LockScreenedPublicShell>
   );
