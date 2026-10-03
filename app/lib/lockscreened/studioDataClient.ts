@@ -168,6 +168,7 @@ export type StudioCollectionRow = {
   name: string;
   source_type: string;
   render_mode: string;
+  render_profile?: any;
   publish_status: "draft" | "published" | "archived";
   created_at?: string;
 };
