@@ -515,3 +515,55 @@ export async function updateStudioPublicProfile(args: {
     window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
   }
 }
+
+
+export async function saveTraitLayerConfiguration(args: {
+  session: LockScreenedSession;
+  collectionId: string;
+  layers: Array<{
+    id: string;
+    trait_type: string;
+    display_name: string;
+    layer_order: number;
+    is_background: boolean;
+  }>;
+  omitOriginalBackgroundWhenCustom: boolean;
+}) {
+  for (const layer of args.layers) {
+    await request<void>(
+      args.session,
+      "trait_layers?id=eq." + encodeURIComponent(layer.id),
+      {
+        method: "PATCH",
+        headers: { Prefer: "return=minimal" },
+        body: JSON.stringify({
+          display_name: layer.display_name,
+          layer_order: layer.layer_order,
+          is_background: layer.is_background,
+        }),
+      }
+    );
+  }
+
+  await request<void>(
+    args.session,
+    "collections?id=eq." + encodeURIComponent(args.collectionId),
+    {
+      method: "PATCH",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({
+        render_mode: "layered_traits",
+        render_profile: {
+          engine: "universal_trait_engine",
+          backgroundHandling: args.omitOriginalBackgroundWhenCustom
+            ? "omit_original_when_custom"
+            : "keep_original_background",
+        },
+      }),
+    }
+  );
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
+  }
+}

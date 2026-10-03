@@ -13,6 +13,7 @@ import {
 } from "../../lib/lockscreened/studioDataClient";
 import StudioTraitValidation from "./StudioTraitValidation";
 import StudioPublicProfileEditor from "./StudioPublicProfileEditor";
+import StudioLayerOrderEditor from "./StudioLayerOrderEditor";
 
 export default function StudioDraftProjectManager({
   collectionId,
@@ -282,6 +283,13 @@ export default function StudioDraftProjectManager({
         collectionId={collectionId}
         name={collection.name}
         profile={collection.public_profile}
+      />
+
+      <StudioLayerOrderEditor
+        session={session}
+        collectionId={collectionId}
+        layers={layers}
+        renderProfile={collection.render_profile}
       />
 
       <section style={panel}>
