@@ -7,7 +7,8 @@
 import { getPublicSupabaseConfig } from "./backendConfig";
 import { extractSolanaWalletAddress } from "./authIdentity";
 
-const SESSION_KEY = "lockscreened.web3.session.v1";
+const SESSION_KEY = "lockscreened.web3.session.v2";
+const LEGACY_SESSION_KEY = "lockscreened.web3.session.v1";
 
 export type LockScreenedSession = {
   access_token: string;
@@ -58,9 +59,11 @@ function saveSession(session: LockScreenedSession | null) {
   if (typeof window === "undefined") return;
 
   if (!session) {
-    window.localStorage.removeItem(SESSION_KEY);
+    window.sessionStorage.removeItem(SESSION_KEY);
+    window.localStorage.removeItem(LEGACY_SESSION_KEY);
   } else {
-    window.localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    window.sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    window.localStorage.removeItem(LEGACY_SESSION_KEY);
   }
 
   window.dispatchEvent(new CustomEvent("lockscreened-auth-changed"));
@@ -70,8 +73,21 @@ export function readStoredSession(): LockScreenedSession | null {
   if (typeof window === "undefined") return null;
 
   try {
-    const raw = window.localStorage.getItem(SESSION_KEY);
+    let raw = window.sessionStorage.getItem(SESSION_KEY);
+
+    // One-time alpha migration: move any older persistent session into
+    // per-tab sessionStorage, then remove the localStorage copy.
+    if (!raw) {
+      const legacy = window.localStorage.getItem(LEGACY_SESSION_KEY);
+      if (legacy) {
+        raw = legacy;
+        window.sessionStorage.setItem(SESSION_KEY, legacy);
+        window.localStorage.removeItem(LEGACY_SESSION_KEY);
+      }
+    }
+
     if (!raw) return null;
+
     const parsed = JSON.parse(raw);
     if (!parsed?.access_token || !parsed?.refresh_token) return null;
     return parsed as LockScreenedSession;
