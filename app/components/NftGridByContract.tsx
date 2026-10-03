@@ -83,7 +83,17 @@ export default function NftGridByContract({
     // if we have a metadata URI, pass it too (helps /api/nft-by-mint resolve faster)
     if (n.uri) qs.set("uri", n.uri);
 
-    // ✅ pass project so locker knows which grid to go "back" to
+    // Creator Studio projects use a separate dynamic locker so legacy
+    // flagship behavior remains untouched.
+    if (project && String(project).startsWith("studio:")) {
+      const studioSlug = String(project).slice("studio:".length);
+      router.push(
+        `/projects/${encodeURIComponent(studioSlug)}/locker?${qs.toString()}`
+      );
+      return;
+    }
+
+    // ✅ pass project so the legacy locker knows which grid to go "back" to
     if (project) qs.set("project", String(project));
 
     // NOTE: we don't pass "image" here; locker will fetch via nft-by-mint
