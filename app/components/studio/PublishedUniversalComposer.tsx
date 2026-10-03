@@ -20,6 +20,7 @@ type Layer = {
   trait_type: string;
   display_name: string;
   layer_order: number;
+  is_background?: boolean;
 };
 
 type PublishedTraitAsset = {
@@ -88,8 +89,9 @@ const PublishedUniversalComposer = forwardRef<
     assets: PublishedTraitAsset[];
     bg: BgChoice;
     nftName?: string;
+    renderProfile?: any;
   }
->(({ attributes, layers, assets, bg, nftName }, ref) => {
+>(({ attributes, layers, assets, bg, nftName, renderProfile }, ref) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const matchedUrls = useMemo(() => {
@@ -100,6 +102,15 @@ const PublishedUniversalComposer = forwardRef<
     const results: string[] = [];
 
     for (const layer of ordered) {
+      const customBackgroundSelected = bg.kind === "image";
+      const omitOriginalBackground =
+        customBackgroundSelected &&
+        renderProfile?.backgroundHandling === "omit_original_when_custom";
+
+      if (omitOriginalBackground && layer.is_background) {
+        continue;
+      }
+
       const attr = attributes.find(
         (item) =>
           slug(String(item?.trait_type || "")) === slug(layer.trait_type)
@@ -116,7 +127,7 @@ const PublishedUniversalComposer = forwardRef<
     }
 
     return results;
-  }, [attributes, layers, assets]);
+  }, [attributes, layers, assets, bg, renderProfile]);
 
   async function draw(
     ctx: CanvasRenderingContext2D,

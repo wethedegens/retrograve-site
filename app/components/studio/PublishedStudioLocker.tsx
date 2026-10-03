@@ -27,6 +27,7 @@ export default function PublishedStudioLocker({
     slug: string;
     name: string;
     render_mode: string;
+    render_profile?: any;
     backgrounds: Background[];
     layers: any[];
     publishedTraitAssets: any[];
@@ -234,6 +235,7 @@ export default function PublishedStudioLocker({
                 assets={project.publishedTraitAssets}
                 bg={background}
                 nftName={nft?.name || project.name}
+                renderProfile={project.render_profile}
               />
             ) : (
               <Composer

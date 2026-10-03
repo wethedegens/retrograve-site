@@ -35,6 +35,7 @@ export default async function PublishedStudioLockerPage({
           slug: project.slug,
           name: project.name,
           render_mode: project.render_mode,
+          render_profile: project.render_profile,
           backgrounds: project.backgrounds,
           layers: project.layers || [],
           publishedTraitAssets: project.publishedTraitAssets || [],
