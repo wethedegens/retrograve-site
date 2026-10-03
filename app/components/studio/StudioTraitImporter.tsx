@@ -1,7 +1,7 @@
 // app/components/studio/StudioTraitImporter.tsx
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   analyzeTraitFolder,
   type TraitImportAnalysis,
@@ -12,6 +12,16 @@ import {
   validateTraitImportFiles,
   type UploadGuardrailResult,
 } from "../../lib/lockscreened/costGuardrails";
+import {
+  getFreshSession,
+  readStoredSession,
+  type LockScreenedSession,
+} from "../../lib/lockscreened/web3AuthClient";
+import {
+  listMyStudioCollections,
+  saveTraitLayerMap,
+  type StudioCollectionRow,
+} from "../../lib/lockscreened/studioDataClient";
 
 function fileListToTraitFiles(files: FileList): UploadedTraitFile[] {
   return Array.from(files).map((file) => ({
@@ -28,6 +38,50 @@ export default function StudioTraitImporter() {
   const [analysis, setAnalysis] = useState<TraitImportAnalysis | null>(null);
   const [folderName, setFolderName] = useState("");
   const [guardrail, setGuardrail] = useState<UploadGuardrailResult | null>(null);
+  const [session, setSession] = useState<LockScreenedSession | null>(null);
+  const [collections, setCollections] = useState<StudioCollectionRow[]>([]);
+  const [selectedCollectionId, setSelectedCollectionId] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
+
+  useEffect(() => {
+    let active = true;
+
+    async function sync() {
+      const current = await getFreshSession();
+      if (!active) return;
+
+      const next = current || readStoredSession();
+      setSession(next);
+
+      if (!next) {
+        setCollections([]);
+        setSelectedCollectionId("");
+        return;
+      }
+
+      try {
+        const rows = await listMyStudioCollections(next);
+        if (!active) return;
+        setCollections(rows);
+        if (!selectedCollectionId && rows[0]?.id) {
+          setSelectedCollectionId(rows[0].id);
+        }
+      } catch {
+        if (active) setCollections([]);
+      }
+    }
+
+    sync();
+    const listener = () => sync();
+    window.addEventListener("lockscreened-auth-changed", listener);
+    window.addEventListener("lockscreened-studio-data-changed", listener);
+    return () => {
+      active = false;
+      window.removeEventListener("lockscreened-auth-changed", listener);
+      window.removeEventListener("lockscreened-studio-data-changed", listener);
+    };
+  }, [selectedCollectionId]);
 
   const totals = useMemo(() => {
     if (!analysis) return { layers: 0, traits: 0 };
@@ -39,6 +93,34 @@ export default function StudioTraitImporter() {
       ),
     };
   }, [analysis]);
+
+  async function persistLayerMap() {
+    if (!analysis || !session || !selectedCollectionId) return;
+
+    setSaving(true);
+    setSaveMessage("");
+
+    try {
+      await saveTraitLayerMap({
+        session,
+        collectionId: selectedCollectionId,
+        layers: analysis.layers.map((layer) => ({
+          name: layer.name,
+          suggestedOrder: layer.suggestedOrder,
+          likelyBackground: layer.likelyBackground,
+        })),
+      });
+      setSaveMessage(
+        "Layer map saved to Supabase. Source images are still local/private and have not been uploaded."
+      );
+    } catch (error) {
+      setSaveMessage(
+        error instanceof Error ? error.message : "Could not save layer map."
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
 
   function handleFiles(files: FileList | null) {
     if (!files?.length) return;
@@ -164,6 +246,49 @@ export default function StudioTraitImporter() {
                 </div>
               </article>
             ))}
+          </div>
+
+          <div className="persistBox">
+            <div>
+              <strong>SAVE THIS LAYER MAP</strong>
+              <span>
+                Store layer names/order/background designation in Supabase
+                without uploading the source PNGs yet.
+              </span>
+            </div>
+
+            {session && collections.length ? (
+              <div className="persistControls">
+                <select
+                  value={selectedCollectionId}
+                  onChange={(event) =>
+                    setSelectedCollectionId(event.target.value)
+                  }
+                >
+                  {collections.map((collection) => (
+                    <option key={collection.id} value={collection.id}>
+                      {collection.name} · {collection.publish_status}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={persistLayerMap}
+                  disabled={saving || !selectedCollectionId}
+                >
+                  {saving ? "SAVING…" : "SAVE LAYER MAP"}
+                </button>
+              </div>
+            ) : (
+              <span className="persistHint">
+                {session
+                  ? "Create a collection claim draft above first."
+                  : "Sign in to Studio first to persist this map."}
+              </span>
+            )}
+
+            {saveMessage ? (
+              <span className="persistMessage">{saveMessage}</span>
+            ) : null}
           </div>
 
           {analysis.warnings.length ? (
@@ -380,6 +505,58 @@ export default function StudioTraitImporter() {
           color:rgba(255,255,255,.72);
         }
         .chip.more { color:#cfbfff; }
+        .persistBox {
+          margin-top:14px;
+          border-radius:16px;
+          padding:13px;
+          border:1px solid rgba(142,231,255,.14);
+          background:rgba(77,185,224,.045);
+          display:grid;
+          gap:10px;
+        }
+        .persistBox > div:first-child {
+          display:grid;
+          gap:3px;
+        }
+        .persistBox strong {
+          font-size:10px;
+          letter-spacing:.12em;
+          color:#aeeeff;
+        }
+        .persistBox span {
+          font-size:9px;
+          color:rgba(255,255,255,.52);
+        }
+        .persistControls {
+          display:grid;
+          grid-template-columns:1fr auto;
+          gap:8px;
+        }
+        .persistControls select {
+          min-width:0;
+          height:38px;
+          border-radius:11px;
+          border:1px solid rgba(255,255,255,.1);
+          background:#11101a;
+          color:white;
+          padding:0 10px;
+        }
+        .persistControls button {
+          border-radius:999px;
+          border:1px solid rgba(142,231,255,.18);
+          background:rgba(77,185,224,.12);
+          color:white;
+          font-size:9px;
+          font-weight:900;
+          letter-spacing:.1em;
+          padding:0 12px;
+        }
+        .persistHint,.persistMessage {
+          display:block;
+        }
+        .persistMessage {
+          color:#a8ffd2 !important;
+        }
         .warnings,.success {
           margin-top:14px;
           border-radius:14px;

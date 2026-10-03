@@ -5,6 +5,7 @@ import StudioCostGuardrails from "../components/studio/StudioCostGuardrails";
 import StudioBackendStatus from "../components/studio/StudioBackendStatus";
 import StudioWalletAuth from "../components/studio/StudioWalletAuth";
 import StudioCollectionClaim from "../components/studio/StudioCollectionClaim";
+import StudioMyProjects from "../components/studio/StudioMyProjects";
 import { FLAGSHIP_PROJECTS } from "../lib/lockscreened/flagshipProjects";
 import styles from "./studio.module.css";
 
@@ -70,6 +71,7 @@ export default function CreatorStudioPage() {
 
         <StudioBackendStatus />
         <StudioWalletAuth />
+        <StudioMyProjects />
 
         <section className={styles.quickGrid}>
           <div className={styles.quickCard}>
@@ -161,9 +163,10 @@ export default function CreatorStudioPage() {
               <p className={styles.kicker}>COLLECTION AUTHORITY</p>
               <h2>Claim an existing collection</h2>
               <p>
-                The production flow will verify the wallet that controls the
-                collection, then ask for a plain signed message. Owning one NFT
-                will never be enough to claim somebody else&apos;s project.
+                Studio sign-in already proves control of the connected wallet.
+                LockScreened then checks that authenticated wallet against
+                collection authority data. Owning one NFT will never be enough
+                to claim somebody else&apos;s project.
               </p>
             </div>
 
@@ -182,7 +185,7 @@ export default function CreatorStudioPage() {
               </div>
               <div>
                 <b>04</b>
-                <span>Sign verification message and unlock Studio</span>
+                <span>Confirm authority and create a protected draft</span>
               </div>
             </div>
           </div>

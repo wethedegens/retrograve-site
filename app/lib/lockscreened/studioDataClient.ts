@@ -159,3 +159,105 @@ export async function createPendingCollectionClaim(args: {
 
   return { studio, collection, claim: claims[0], created: true };
 }
+
+
+export type StudioCollectionRow = {
+  id: string;
+  studio_id: string;
+  slug: string;
+  name: string;
+  source_type: string;
+  render_mode: string;
+  publish_status: "draft" | "published" | "archived";
+  created_at?: string;
+};
+
+export type StudioClaimRow = {
+  id: string;
+  collection_id: string;
+  status: "pending" | "verified" | "rejected" | "manual_review";
+  wallet_address: string;
+};
+
+export async function listMyStudioCollections(
+  session: LockScreenedSession
+): Promise<Array<StudioCollectionRow & { claim_status?: string }>> {
+  const userId = String(session.user?.id || "");
+  if (!userId) return [];
+
+  const [collections, claims] = await Promise.all([
+    request<StudioCollectionRow[]>(
+      session,
+      "collections?created_by=eq." +
+        encodeURIComponent(userId) +
+        "&select=id,studio_id,slug,name,source_type,render_mode,publish_status,created_at&order=created_at.desc"
+    ),
+    request<StudioClaimRow[]>(
+      session,
+      "collection_claims?requested_by=eq." +
+        encodeURIComponent(userId) +
+        "&select=id,collection_id,status,wallet_address"
+    ),
+  ]);
+
+  const claimByCollection = new Map(
+    (claims || []).map((claim) => [claim.collection_id, claim.status])
+  );
+
+  return (collections || []).map((collection) => ({
+    ...collection,
+    claim_status: claimByCollection.get(collection.id),
+  }));
+}
+
+export async function saveTraitLayerMap(args: {
+  session: LockScreenedSession;
+  collectionId: string;
+  layers: Array<{
+    name: string;
+    suggestedOrder: number;
+    likelyBackground: boolean;
+  }>;
+}) {
+  const rows = args.layers.map((layer) => ({
+    collection_id: args.collectionId,
+    trait_type: layer.name,
+    display_name: layer.name,
+    layer_order: layer.suggestedOrder,
+    is_background: layer.likelyBackground,
+  }));
+
+  if (!rows.length) throw new Error("No trait layers were detected.");
+
+  await request<any[]>(
+    args.session,
+    "trait_layers?on_conflict=collection_id,trait_type&select=id,trait_type,layer_order,is_background",
+    {
+      method: "POST",
+      headers: {
+        Prefer: "resolution=merge-duplicates,return=representation",
+      },
+      body: JSON.stringify(rows),
+    }
+  );
+
+  await request<void>(
+    args.session,
+    "collections?id=eq." + encodeURIComponent(args.collectionId),
+    {
+      method: "PATCH",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({
+        render_mode: "layered_traits",
+        render_profile: {
+          engine: "universal_trait_engine",
+          backgroundHandling: "creator_designated",
+        },
+      }),
+    }
+  );
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
+  }
+}
