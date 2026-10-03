@@ -17,6 +17,7 @@ import StudioLayerOrderEditor from "./StudioLayerOrderEditor";
 import StudioMintOverrides from "./StudioMintOverrides";
 import StudioLaunchReadiness from "./StudioLaunchReadiness";
 import StudioRenderProfileEditor from "./StudioRenderProfileEditor";
+import StudioPublicLinkControls from "./StudioPublicLinkControls";
 
 export default function StudioDraftProjectManager({
   collectionId,
@@ -282,6 +283,11 @@ export default function StudioDraftProjectManager({
 
         {message ? <div style={notice}>{message}</div> : null}
       </section>
+
+      <StudioPublicLinkControls
+        slug={collection.public_slug || collection.slug}
+        published={collection.publish_status === "published"}
+      />
 
       <StudioLaunchReadiness data={data} />
 
