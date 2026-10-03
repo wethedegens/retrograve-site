@@ -31,8 +31,8 @@ export default async function StudioBackendStatus() {
       style={{
         marginBottom: 24,
         borderRadius: 18,
-        border: "1px solid rgba(255,255,255,.09)",
-        background: "rgba(8,8,16,.58)",
+        border: "1px solid rgba(255,99,194,.13)",
+        background: "linear-gradient(135deg, rgba(14,11,28,.78), rgba(9,8,18,.62))",
         padding: 14,
         display: "grid",
         gap: 10,
@@ -56,7 +56,7 @@ export default async function StudioBackendStatus() {
               color: "rgba(255,255,255,.46)",
             }}
           >
-            BACKEND STATUS
+            LOCKSCREENED SYSTEM STATUS
           </div>
           <strong style={{ fontSize: 13 }}>
             {persistenceReady

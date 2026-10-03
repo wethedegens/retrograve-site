@@ -164,7 +164,7 @@ export default function StudioReconstructionPreview({
             Visual reconstruction
           </strong>
           <span style={subtle}>
-            Private founder layers · browser canvas only · not published
+            LOCKSCREENED TEST LAB · PRIVATE LAYERS · NOT PUBLISHED
           </span>
         </div>
 
@@ -252,8 +252,8 @@ function PreviewCard({
 const wrap = {
   marginTop: 9,
   borderRadius: 14,
-  border: "1px solid rgba(142,231,255,.12)",
-  background: "rgba(77,185,224,.035)",
+  border: "1px solid rgba(255,99,194,.13)",
+  background: "linear-gradient(135deg, rgba(255,63,180,.035), rgba(130,93,255,.035))",
   padding: 10,
 } as const;
 
@@ -300,9 +300,9 @@ const button = {
   minHeight: 32,
   borderRadius: 999,
   padding: "0 10px",
-  border: "1px solid rgba(142,231,255,.16)",
-  background: "rgba(77,185,224,.09)",
-  color: "#fff",
+  border: "1px solid rgba(255,99,194,.22)",
+  background: "#ff3fb4",
+  color: "#151019",
   fontSize: 8,
   fontWeight: 900,
   letterSpacing: ".08em",

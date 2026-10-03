@@ -53,9 +53,23 @@ export default function CreatorStudioPage() {
       <div className={styles.scrim} />
 
       <div className={styles.wrap}>
+        <div className={styles.brandBar}>
+          <a href="/" className={styles.wordmarkLink} aria-label="LockScreened home">
+            <img
+              src="/lockscreened-wordmark-1.png"
+              alt="LockScreened"
+              className={styles.wordmark}
+            />
+          </a>
+          <div className={styles.brandMeta}>
+            <span>CREATOR STUDIO</span>
+            <strong>FOUNDER PORTAL</strong>
+          </div>
+        </div>
+
         <header className={styles.hero}>
           <div>
-            <p className={styles.kicker}>LOCKSCREENED CREATOR PORTAL · ALPHA</p>
+            <p className={styles.kicker}>LOCKSCREENED CREATOR STUDIO · ALPHA</p>
             <h1 className={styles.title}>
               Studio
               <span>BUILD THE LOCKER, NOT THE CODE</span>
@@ -202,8 +216,8 @@ export default function CreatorStudioPage() {
         </div>
 
         <p className={styles.note}>
-          ALPHA SAFETY MODE · TRAIT AND BACKGROUND TESTING HAPPENS IN YOUR
-          BROWSER · NOTHING ON THIS PAGE UPLOADS OR PUBLISHES ART YET
+          LOCKSCREENED CREATOR STUDIO · PRIVATE SOURCE ART STAYS PROTECTED ·
+          PUBLISHING REQUIRES VERIFIED COLLECTION AUTHORITY
         </p>
       </div>
     </main>
