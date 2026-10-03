@@ -3,6 +3,22 @@
 :root {
   --page-bg: #111827; /* dark navy */
   --page-bg-image: url("/bg-retrograve.png"); /* default */
+
+  /* LockScreened Creator Studio brand tokens.
+     Namespaced so legacy flagship experiences remain untouched. */
+  --ls-bg: #07060d;
+  --ls-panel: rgba(10, 8, 20, .72);
+  --ls-panel-soft: rgba(255, 255, 255, .025);
+  --ls-border: rgba(255, 255, 255, .10);
+  --ls-text: #ffffff;
+  --ls-text-muted: rgba(255, 255, 255, .58);
+  --ls-pink: #ff3fb4;
+  --ls-pink-soft: #ff8dce;
+  --ls-purple: #8f6bff;
+  --ls-success: #a9ffd2;
+  --ls-warning: #ffd99d;
+  --ls-background-image: url("/lockscreened-main-bg-2.png");
+  --ls-glass-shadow: 0 24px 70px rgba(0,0,0,.30);
 }
 
 *,
