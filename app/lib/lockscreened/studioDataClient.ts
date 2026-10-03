@@ -333,7 +333,7 @@ export async function getStudioCollection(
   session: LockScreenedSession,
   collectionId: string
 ) {
-  const [collections, claims, layers, backgrounds, mintOverrides, publishedMintOverrides, validationRuns] = await Promise.all([
+  const [collections, claims, layers, backgrounds, mintOverrides, publishedMintOverrides, validationRuns, auditEvents] = await Promise.all([
     request<any[]>(
       session,
       "collections?id=eq." +
@@ -375,6 +375,12 @@ export async function getStudioCollection(
       "collection_validation_runs?collection_id=eq." +
         encodeURIComponent(collectionId) +
         "&select=id,status,sampled_nfts,matched_traits,missing_traits,unmapped_metadata,report,checked_at&order=checked_at.desc&limit=1"
+    ),
+    request<any[]>(
+      session,
+      "studio_audit_events?collection_id=eq." +
+        encodeURIComponent(collectionId) +
+        "&select=id,event_type,details,created_at&order=created_at.desc&limit=30"
     ),
   ]);
 
@@ -448,6 +454,7 @@ export async function getStudioCollection(
     mintOverrides: mintOverrides || [],
     publishedMintOverrides: publishedMintOverrides || [],
     validationRun: validationRuns?.[0] || null,
+    auditEvents: auditEvents || [],
   };
 }
 

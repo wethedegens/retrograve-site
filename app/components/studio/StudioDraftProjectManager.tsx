@@ -22,6 +22,7 @@ import StudioMintOverrides from "./StudioMintOverrides";
 import StudioLaunchReadiness from "./StudioLaunchReadiness";
 import StudioRenderProfileEditor from "./StudioRenderProfileEditor";
 import StudioPublicLinkControls from "./StudioPublicLinkControls";
+import StudioActivityLog from "./StudioActivityLog";
 
 export default function StudioDraftProjectManager({
   collectionId,
@@ -449,6 +450,8 @@ export default function StudioDraftProjectManager({
         slug={collection.public_slug || collection.slug}
         published={collection.publish_status === "published"}
       />
+
+      <StudioActivityLog events={data.auditEvents || []} />
 
       <StudioLaunchReadiness data={data} />
 
