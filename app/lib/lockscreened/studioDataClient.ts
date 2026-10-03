@@ -405,6 +405,31 @@ export async function getStudioCollection(
     );
   }
 
+  const packageIds = (backgrounds || []).map((item: any) => item.id).filter(Boolean);
+  let backgroundSourceAssets: any[] = [];
+  let publishedBackgroundAssets: any[] = [];
+
+  if (packageIds.length) {
+    const encodedPackageIds = packageIds
+      .map((id: string) => '"' + String(id).replace(/"/g, "") + '"')
+      .join(",");
+
+    [backgroundSourceAssets, publishedBackgroundAssets] = await Promise.all([
+      request<any[]>(
+        session,
+        "background_source_assets?package_id=in.(" +
+          encodeURIComponent(encodedPackageIds) +
+          ")&select=id,package_id,device,storage_bucket,storage_path,bytes,mime_type"
+      ),
+      request<any[]>(
+        session,
+        "background_assets?package_id=in.(" +
+          encodeURIComponent(encodedPackageIds) +
+          ")&select=id,package_id,device,storage_bucket,storage_path,bytes,mime_type"
+      ),
+    ]);
+  }
+
   return {
     collection,
     claim: claims?.[0] || null,
@@ -412,6 +437,8 @@ export async function getStudioCollection(
     traitAssets: traitAssets || [],
     publishedTraitAssets: publishedTraitAssets || [],
     backgrounds: backgrounds || [],
+    backgroundSourceAssets: backgroundSourceAssets || [],
+    publishedBackgroundAssets: publishedBackgroundAssets || [],
     mintOverrides: mintOverrides || [],
     publishedMintOverrides: publishedMintOverrides || [],
   };

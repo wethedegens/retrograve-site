@@ -15,6 +15,7 @@ import StudioTraitValidation from "./StudioTraitValidation";
 import StudioPublicProfileEditor from "./StudioPublicProfileEditor";
 import StudioLayerOrderEditor from "./StudioLayerOrderEditor";
 import StudioMintOverrides from "./StudioMintOverrides";
+import StudioLaunchReadiness from "./StudioLaunchReadiness";
 
 export default function StudioDraftProjectManager({
   collectionId,
@@ -280,6 +281,8 @@ export default function StudioDraftProjectManager({
 
         {message ? <div style={notice}>{message}</div> : null}
       </section>
+
+      <StudioLaunchReadiness data={data} />
 
       <StudioPublicProfileEditor
         session={session}
