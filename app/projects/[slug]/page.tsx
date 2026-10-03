@@ -12,6 +12,7 @@ export default async function PublishedStudioProjectPage({
   const project = await getPublishedStudioProjectBySlug(params.slug);
   if (!project) notFound();
 
+  const profile = project.public_profile || {};
   const phoneBackgrounds = project.backgrounds
     .map((item: any) => item.deviceAssets?.phone)
     .filter(Boolean);
@@ -49,20 +50,84 @@ export default async function PublishedStudioProjectPage({
             {project.name}
           </h1>
 
+          {profile.tagline ? (
+            <div
+              style={{
+                marginTop: 10,
+                color: "#d9ceff",
+                fontSize: 14,
+                fontWeight: 800,
+              }}
+            >
+              {profile.tagline}
+            </div>
+          ) : null}
+
           <p style={copy}>
-            Phone-native collectible wallpapers powered by LockScreened Creator
-            Studio. Connect your wallet, choose an NFT you own, and build a
-            device-ready lockscreen.
+            {profile.description ||
+              "Phone-native collectible wallpapers powered by LockScreened Creator Studio. Connect your wallet, choose an NFT you own, and build a device-ready lockscreen."}
           </p>
 
           <div style={{ marginTop: 18, display: "flex", gap: 9, flexWrap: "wrap" }}>
             <a href={"/projects/" + project.slug + "/collection"} style={primary}>
               VIEW MY COLLECTION
             </a>
+            {profile.marketplace ? (
+              <a
+                href={profile.marketplace}
+                target="_blank"
+                rel="noreferrer"
+                style={secondary}
+              >
+                COLLECT
+              </a>
+            ) : null}
             <a href="/studio" style={secondary}>
               CREATOR STUDIO
             </a>
           </div>
+
+          {profile.website || profile.discord || profile.x ? (
+            <div
+              style={{
+                marginTop: 14,
+                display: "flex",
+                gap: 10,
+                flexWrap: "wrap",
+              }}
+            >
+              {profile.website ? (
+                <a
+                  href={profile.website}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={textLink}
+                >
+                  WEBSITE
+                </a>
+              ) : null}
+              {profile.discord ? (
+                <a
+                  href={profile.discord}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={textLink}
+                >
+                  DISCORD
+                </a>
+              ) : null}
+              {profile.x ? (
+                <a
+                  href={profile.x}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={textLink}
+                >
+                  FOLLOW ON X
+                </a>
+              ) : null}
+            </div>
+          ) : null}
 
           <div style={stats}>
             <Stat label="RENDER MODE" value={String(project.render_mode).replace(/_/g, " ")} />
@@ -206,4 +271,14 @@ const stats = {
   gridTemplateColumns: "repeat(auto-fit,minmax(120px,1fr))",
   gap: 8,
   maxWidth: 520,
+} as const;
+
+
+const textLink = {
+  color: "#d5c7ff",
+  textDecoration: "none",
+  fontSize: 9,
+  fontWeight: 900,
+  letterSpacing: ".08em",
+  borderBottom: "1px solid rgba(213,199,255,.22)",
 } as const;
