@@ -569,6 +569,7 @@ export async function saveTraitLayerConfiguration(args: {
     is_background: boolean;
   }>;
   omitOriginalBackgroundWhenCustom: boolean;
+  currentRenderProfile?: any;
 }) {
   for (const layer of args.layers) {
     await request<void>(
@@ -595,6 +596,7 @@ export async function saveTraitLayerConfiguration(args: {
       body: JSON.stringify({
         render_mode: "layered_traits",
         render_profile: {
+          ...(args.currentRenderProfile || {}),
           engine: "universal_trait_engine",
           backgroundHandling: args.omitOriginalBackgroundWhenCustom
             ? "omit_original_when_custom"
@@ -662,4 +664,35 @@ export async function assertCollectionStorageBudget(args: {
   }
 
   return { currentBytes, projectedBytes, hardLimit };
+}
+
+export async function updateCollectionRenderPlacement(args: {
+  session: LockScreenedSession;
+  collectionId: string;
+  currentRenderProfile?: any;
+  devicePlacement: {
+    phone: { scale: number; x: "left" | "center" | "right"; y: "top" | "center" | "bottom" };
+    ipad: { scale: number; x: "left" | "center" | "right"; y: "top" | "center" | "bottom" };
+    desktop: { scale: number; x: "left" | "center" | "right"; y: "top" | "center" | "bottom" };
+  };
+}) {
+  await request<void>(
+    args.session,
+    "collections?id=eq." + encodeURIComponent(args.collectionId),
+    {
+      method: "PATCH",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({
+        render_profile: {
+          ...(args.currentRenderProfile || {}),
+          engine: "universal_trait_engine",
+          devicePlacement: args.devicePlacement,
+        },
+      }),
+    }
+  );
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
+  }
 }

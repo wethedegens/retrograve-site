@@ -79,6 +79,7 @@ export default function StudioLayerOrderEditor({
         collectionId,
         layers: items,
         omitOriginalBackgroundWhenCustom,
+        currentRenderProfile: renderProfile,
       });
       setMessage("Layer order and background behavior saved.");
     } catch (error) {

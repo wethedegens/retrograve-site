@@ -16,6 +16,7 @@ import StudioPublicProfileEditor from "./StudioPublicProfileEditor";
 import StudioLayerOrderEditor from "./StudioLayerOrderEditor";
 import StudioMintOverrides from "./StudioMintOverrides";
 import StudioLaunchReadiness from "./StudioLaunchReadiness";
+import StudioRenderProfileEditor from "./StudioRenderProfileEditor";
 
 export default function StudioDraftProjectManager({
   collectionId,
@@ -295,6 +296,12 @@ export default function StudioDraftProjectManager({
         session={session}
         collectionId={collectionId}
         layers={layers}
+        renderProfile={collection.render_profile}
+      />
+
+      <StudioRenderProfileEditor
+        session={session}
+        collectionId={collectionId}
         renderProfile={collection.render_profile}
       />
 

@@ -144,11 +144,23 @@ const PublishedUniversalComposer = forwardRef<
     if (!images.length) return;
 
     const base = images[0];
-    const scale = Math.min(width / base.width, height / base.height);
+    const placement = renderProfile?.devicePlacement?.[device] || {};
+    const profileScale = Math.min(
+      1.8,
+      Math.max(0.4, Number(placement.scale || 1))
+    );
+    const scale =
+      Math.min(width / base.width, height / base.height) * profileScale;
     const drawW = base.width * scale;
     const drawH = base.height * scale;
-    const dx = (width - drawW) / 2;
-    const dy = height - drawH;
+
+    const x = placement.x || "center";
+    const y = placement.y || "bottom";
+
+    const dx =
+      x === "left" ? 0 : x === "right" ? width - drawW : (width - drawW) / 2;
+    const dy =
+      y === "top" ? 0 : y === "center" ? (height - drawH) / 2 : height - drawH;
 
     for (const image of images) {
       ctx.drawImage(image, dx, dy, drawW, drawH);
