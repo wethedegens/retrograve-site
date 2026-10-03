@@ -89,6 +89,61 @@ export default function StudioCollectionClaim() {
     }
   }
 
+  async function finalizeClaim() {
+    const claimId = saved?.claim?.id;
+    if (!claimId) return;
+
+    setBusy(true);
+    setMessage("");
+
+    try {
+      const current = await getFreshSession();
+      if (!current) throw new Error("Your Studio session expired.");
+
+      const response = await fetch("/api/studio/claim-finalize", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          Authorization: "Bearer " + current.access_token,
+        },
+        body: JSON.stringify({ claimId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (data?.authorityConfirmed && data?.needsServerSecret) {
+          setMessage(
+            "Authority is confirmed. Secure database finalization is waiting for the server-only Supabase secret."
+          );
+          return;
+        }
+
+        throw new Error(data?.error || "Final verification failed.");
+      }
+
+      setSaved((current: any) => ({
+        ...current,
+        claim: {
+          ...current.claim,
+          ...(data.claim || {}),
+          status: "verified",
+        },
+      }));
+
+      window.dispatchEvent(
+        new CustomEvent("lockscreened-studio-data-changed")
+      );
+      setMessage("Collection claim verified and unlocked for publishing.");
+    } catch (error) {
+      setMessage(
+        error instanceof Error ? error.message : "Final verification failed."
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function saveClaim() {
     if (!inspection?.allowed) return;
 
@@ -249,8 +304,20 @@ export default function StudioCollectionClaim() {
       {saved ? (
         <div style={{ ...noticeStyle, color: "#a9ffd2" }}>
           Draft project created in {saved.studio.name}. Database claim status:
-          {" "}{saved.claim.status}. Publishing remains locked until secure
-          final verification is completed.
+          {" "}{saved.claim.status}.
+          {saved.claim.status !== "verified" ? (
+            <div style={{ marginTop: 8 }}>
+              <button
+                onClick={finalizeClaim}
+                disabled={busy}
+                style={buttonStyle}
+              >
+                {busy ? "VERIFYING…" : "FINALIZE VERIFIED CLAIM"}
+              </button>
+            </div>
+          ) : (
+            <span> Publishing permission is now unlocked by RLS.</span>
+          )}
         </div>
       ) : null}
     </section>
