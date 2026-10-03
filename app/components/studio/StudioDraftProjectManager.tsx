@@ -279,6 +279,7 @@ export default function StudioDraftProjectManager({
           </button>
           <a href="/studio#trait-import" style={button}>EDIT TRAITS</a>
           <a href="/studio#background-builder" style={button}>ADD BACKGROUND</a>
+          <a href={"/studio/preview/" + collectionId} style={button}>PREVIEW PUBLIC EXPERIENCE</a>
         </div>
 
         {message ? <div style={notice}>{message}</div> : null}
