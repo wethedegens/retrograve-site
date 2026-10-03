@@ -31,6 +31,7 @@ export default function PublishedStudioLocker({
     backgrounds: Background[];
     layers: any[];
     publishedTraitAssets: any[];
+    publishedMintOverrides: any[];
   };
 }) {
   const search = useSearchParams();
@@ -42,6 +43,14 @@ export default function PublishedStudioLocker({
   const [attributes, setAttributes] = useState<any[]>([]);
   const [loading, setLoading] = useState(Boolean(mint));
   const [message, setMessage] = useState("");
+
+  const publishedMintOverride = useMemo(
+    () =>
+      (project.publishedMintOverrides || []).find(
+        (item: any) => String(item.asset_id || "") === mint
+      ) || null,
+    [project.publishedMintOverrides, mint]
+  );
 
   const firstBackground = useMemo<BgChoice>(() => {
     const item = project.backgrounds.find(
@@ -226,7 +235,18 @@ export default function PublishedStudioLocker({
               gap: 9,
             }}
           >
-            {project.render_mode === "layered_traits" &&
+            {publishedMintOverride?.url ? (
+              <Composer
+                ref={composerRef}
+                nft={{
+                  id: mint,
+                  name: nft?.name || project.name,
+                  image: publishedMintOverride.url,
+                }}
+                bg={background}
+                project={"studio:" + project.slug}
+              />
+            ) : project.render_mode === "layered_traits" &&
             project.publishedTraitAssets.length ? (
               <PublishedUniversalComposer
                 ref={composerRef}
@@ -255,10 +275,12 @@ export default function PublishedStudioLocker({
                 lineHeight: 1.5,
               }}
             >
-              {project.render_mode === "layered_traits" &&
-              project.publishedTraitAssets.length
-                ? "Universal trait reconstruction is active from published render derivatives. Private founder source files remain inaccessible."
-                : "This project is using the NFT's minted composite artwork with published device backgrounds."}
+              {publishedMintOverride?.url
+                ? "A mint-specific published override is active for this NFT."
+                : project.render_mode === "layered_traits" &&
+                  project.publishedTraitAssets.length
+                  ? "Universal trait reconstruction is active from published render derivatives. Private founder source files remain inaccessible."
+                  : "This project is using the NFT's minted composite artwork with published device backgrounds."}
             </div>
           </div>
         </div>

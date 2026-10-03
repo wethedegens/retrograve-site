@@ -121,10 +121,22 @@ export async function getPublishedStudioProjectBySlug(slug: string) {
     url: publicAssetUrl(asset.storage_bucket, asset.storage_path),
   }));
 
+  const publishedMintOverrides = await publicRequest<any[]>(
+    "published_mint_overrides?collection_id=eq." +
+      encodeURIComponent(collection.id) +
+      "&select=id,collection_id,asset_id,storage_bucket,storage_path,bytes,mime_type"
+  );
+
+  const publicMintOverrides = (publishedMintOverrides || []).map((asset) => ({
+    ...asset,
+    url: publicAssetUrl(asset.storage_bucket, asset.storage_path),
+  }));
+
   return {
     ...collection,
     backgrounds,
     layers,
     publishedTraitAssets: publicTraitAssets,
+    publishedMintOverrides: publicMintOverrides,
   };
 }

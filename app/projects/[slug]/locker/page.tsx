@@ -39,6 +39,7 @@ export default async function PublishedStudioLockerPage({
           backgrounds: project.backgrounds,
           layers: project.layers || [],
           publishedTraitAssets: project.publishedTraitAssets || [],
+          publishedMintOverrides: project.publishedMintOverrides || [],
         }}
       />
     </Suspense>
