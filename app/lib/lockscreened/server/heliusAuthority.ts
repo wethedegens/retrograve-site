@@ -112,22 +112,37 @@ export function walletHasAuthorityEvidence(
   snapshot: CollectionAuthoritySnapshot
 ) {
   const wallet = String(walletAddress || "").trim();
-  if (!wallet) return { allowed: false, evidence: [] as string[] };
+
+  if (!wallet) {
+    return {
+      allowed: false,
+      manualReviewEligible: false,
+      evidence: [] as string[],
+    };
+  }
 
   const evidence: string[] = [];
+  const hasCollectionAuthority = snapshot.authorities.some(
+    (authority) => authority.address === wallet
+  );
+  const hasVerifiedCreator = snapshot.verifiedCreators.some(
+    (creator) => creator.address === wallet
+  );
 
-  if (snapshot.authorities.some((authority) => authority.address === wallet)) {
+  if (hasCollectionAuthority) {
     evidence.push("collection_authority");
   }
 
-  if (
-    snapshot.verifiedCreators.some((creator) => creator.address === wallet)
-  ) {
+  if (hasVerifiedCreator) {
     evidence.push("verified_creator");
   }
 
   return {
-    allowed: evidence.length > 0,
+    // Automatic founder control requires current authority. A verified creator
+    // is meaningful supporting evidence, but is deliberately not enough by
+    // itself to unlock official publishing.
+    allowed: hasCollectionAuthority,
+    manualReviewEligible: !hasCollectionAuthority && hasVerifiedCreator,
     evidence,
   };
 }

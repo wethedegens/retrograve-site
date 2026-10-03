@@ -11,6 +11,7 @@ import { createPendingCollectionClaim } from "../../lib/lockscreened/studioDataC
 
 type Inspection = {
   allowed: boolean;
+  manualReviewEligible?: boolean;
   walletAddress: string;
   evidence: string[];
   collection: {
@@ -79,8 +80,10 @@ export default function StudioCollectionClaim() {
       setInspection(data);
       setMessage(
         data.allowed
-          ? "Authority evidence found for this authenticated wallet."
-          : "The authenticated wallet was not found as a current authority or verified creator."
+          ? "Current collection authority found for this authenticated wallet."
+          : data.manualReviewEligible
+            ? "Verified-creator evidence found. This wallet can submit a claim for manual review, but cannot unlock publishing automatically."
+            : "The authenticated wallet was not found as the current collection authority."
       );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Inspection failed.");
@@ -112,6 +115,13 @@ export default function StudioCollectionClaim() {
       const data = await response.json();
 
       if (!response.ok) {
+        if (data?.manualReviewRequired) {
+          setMessage(
+            "This claim is safely staying PENDING. Verified-creator evidence was found, but LockScreened requires manual review because the wallet is not the current collection authority."
+          );
+          return;
+        }
+
         if (data?.authorityConfirmed && data?.needsServerSecret) {
           setMessage(
             "Authority is confirmed. Secure database finalization is waiting for the server-only Supabase secret."
@@ -145,7 +155,7 @@ export default function StudioCollectionClaim() {
   }
 
   async function saveClaim() {
-    if (!inspection?.allowed) return;
+    if (!inspection?.allowed && !inspection?.manualReviewEligible) return;
 
     setBusy(true);
     setMessage("");
@@ -259,10 +269,14 @@ export default function StudioCollectionClaim() {
             borderRadius: 16,
             border: inspection.allowed
               ? "1px solid rgba(88,224,148,.2)"
-              : "1px solid rgba(255,151,110,.2)",
+              : inspection.manualReviewEligible
+                ? "1px solid rgba(255,210,138,.18)"
+                : "1px solid rgba(255,151,110,.2)",
             background: inspection.allowed
               ? "rgba(88,224,148,.06)"
-              : "rgba(255,151,110,.06)",
+              : inspection.manualReviewEligible
+                ? "rgba(255,210,138,.05)"
+                : "rgba(255,151,110,.06)",
             padding: 13,
             display: "grid",
             gap: 7,
@@ -275,7 +289,11 @@ export default function StudioCollectionClaim() {
             Authenticated wallet: {short(inspection.walletAddress)}
           </span>
           <span style={rowText}>
-            Result: {inspection.allowed ? "AUTHORITY FOUND" : "NO AUTHORITY FOUND"}
+            Result: {inspection.allowed
+              ? "CURRENT AUTHORITY · AUTO PATH"
+              : inspection.manualReviewEligible
+                ? "VERIFIED CREATOR · MANUAL REVIEW REQUIRED"
+                : "NO CLAIM AUTHORITY FOUND"}
           </span>
           <span style={rowText}>
             Evidence: {inspection.evidence.length
@@ -287,13 +305,17 @@ export default function StudioCollectionClaim() {
             verified creators: {inspection.collection.verifiedCreators.length}
           </span>
 
-          {inspection.allowed ? (
+          {inspection.allowed || inspection.manualReviewEligible ? (
             <button
               onClick={saveClaim}
               disabled={busy || Boolean(saved)}
               style={{ ...buttonStyle, justifySelf: "start", marginTop: 3 }}
             >
-              {saved ? "CLAIM DRAFT SAVED" : "START CLAIM"}
+              {saved
+                ? "CLAIM DRAFT SAVED"
+                : inspection.allowed
+                  ? "START VERIFIED CLAIM"
+                  : "SUBMIT MANUAL-REVIEW CLAIM"}
             </button>
           ) : null}
         </div>

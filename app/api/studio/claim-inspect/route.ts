@@ -115,6 +115,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       ok: true,
       allowed: authority.allowed,
+      manualReviewEligible: authority.manualReviewEligible,
       walletAddress,
       evidence: authority.evidence,
       collection: {

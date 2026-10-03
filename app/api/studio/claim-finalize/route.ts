@@ -137,10 +137,23 @@ export async function POST(request: Request) {
     );
 
     if (!authority.allowed) {
+      if (authority.manualReviewEligible) {
+        return NextResponse.json(
+          {
+            error:
+              "Verified-creator evidence was found, but current collection authority is required for automatic founder verification. This claim must remain pending for manual review.",
+            authorityConfirmed: false,
+            manualReviewRequired: true,
+            evidence: authority.evidence,
+          },
+          { status: 403 }
+        );
+      }
+
       return NextResponse.json(
         {
           error:
-            "This wallet no longer has collection authority or verified-creator evidence.",
+            "This wallet does not have current collection authority.",
           authorityConfirmed: false,
         },
         { status: 403 }
