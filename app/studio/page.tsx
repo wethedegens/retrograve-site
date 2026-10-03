@@ -3,6 +3,8 @@ import StudioTraitImporter from "../components/studio/StudioTraitImporter";
 import StudioBackgroundBuilder from "../components/studio/StudioBackgroundBuilder";
 import StudioCostGuardrails from "../components/studio/StudioCostGuardrails";
 import StudioBackendStatus from "../components/studio/StudioBackendStatus";
+import StudioWalletAuth from "../components/studio/StudioWalletAuth";
+import StudioCollectionClaim from "../components/studio/StudioCollectionClaim";
 import { FLAGSHIP_PROJECTS } from "../lib/lockscreened/flagshipProjects";
 import styles from "./studio.module.css";
 
@@ -67,6 +69,7 @@ export default function CreatorStudioPage() {
         </header>
 
         <StudioBackendStatus />
+        <StudioWalletAuth />
 
         <section className={styles.quickGrid}>
           <div className={styles.quickCard}>
@@ -149,6 +152,8 @@ export default function CreatorStudioPage() {
             ))}
           </div>
         </section>
+
+        <StudioCollectionClaim />
 
         <section className={styles.claim} id="claim">
           <div className={styles.claimGrid}>
