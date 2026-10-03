@@ -1,4 +1,6 @@
 // app/lib/lockscreened/server/heliusCollectionSample.ts
+import { withHeliusCache } from "./heliusCache";
+
 export type CollectionSampleAsset = {
   id: string;
   name: string;
@@ -24,47 +26,57 @@ export async function getCollectionValidationSample(
 
   const safeLimit = Math.max(1, Math.min(20, Math.floor(limit || 12)));
 
-  const response = await fetch(heliusRpcUrl(), {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    cache: "no-store",
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: "lockscreened-validation-sample",
-      method: "getAssetsByGroup",
-      params: {
-        groupKey: "collection",
-        groupValue: address,
-        page: 1,
-        limit: safeLimit,
-      },
-    }),
-  });
+  return withHeliusCache(
+    "sample:" + address + ":" + safeLimit,
+    5 * 60_000,
+    async () => {
+      const response = await fetch(heliusRpcUrl(), {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        cache: "no-store",
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "lockscreened-validation-sample",
+          method: "getAssetsByGroup",
+          params: {
+            groupKey: "collection",
+            groupValue: address,
+            page: 1,
+            limit: safeLimit,
+          },
+        }),
+      });
 
-  if (!response.ok) {
-    throw new Error(`Helius collection sample failed (${response.status}).`);
-  }
+      if (!response.ok) {
+        throw new Error(
+          "Helius collection sample failed (" + response.status + ")."
+        );
+      }
 
-  const payload = await response.json();
-  if (payload?.error) {
-    throw new Error(
-      payload.error?.message || "Helius could not load collection assets."
-    );
-  }
+      const payload = await response.json();
+      if (payload?.error) {
+        throw new Error(
+          payload.error?.message || "Helius could not load collection assets."
+        );
+      }
 
-  const items = Array.isArray(payload?.result?.items)
-    ? payload.result.items
-    : [];
+      const items = Array.isArray(payload?.result?.items)
+        ? payload.result.items
+        : [];
 
-  return items.map((asset: any) => ({
-    id: String(asset?.id || ""),
-    name: String(asset?.content?.metadata?.name || asset?.id || "NFT"),
-    image:
-      asset?.content?.links?.image ||
-      asset?.content?.files?.[0]?.uri ||
-      undefined,
-    attributes: Array.isArray(asset?.content?.metadata?.attributes)
-      ? asset.content.metadata.attributes
-      : [],
-  }));
+      return items.map((asset: any) => ({
+        id: String(asset?.id || ""),
+        name: String(
+          asset?.content?.metadata?.name || asset?.id || "NFT"
+        ),
+        image:
+          asset?.content?.links?.image ||
+          asset?.content?.files?.[0]?.uri ||
+          undefined,
+        attributes: Array.isArray(asset?.content?.metadata?.attributes)
+          ? asset.content.metadata.attributes
+          : [],
+      }));
+    }
+  );
 }
