@@ -429,11 +429,13 @@ export default function StudioDraftProjectManager({
             <button
               style={button}
               onClick={publishRenderAssets}
-              disabled={busy || !verified || !traitAssets?.length}
+              disabled={busy || !verified || !traitAssets?.length || !validationPassed}
             >
-              {publishedTraitAssets?.length
-                ? "REFRESH PUBLIC RENDER ASSETS"
-                : "PUBLISH RENDER ASSETS"}
+              {!validationPassed
+                ? "VALIDATE BEFORE PUBLISHING RENDERS"
+                : publishedTraitAssets?.length
+                  ? "REFRESH PUBLIC RENDER ASSETS"
+                  : "PUBLISH RENDER ASSETS"}
             </button>
           ) : null}
 
