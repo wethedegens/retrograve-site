@@ -63,7 +63,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Collection ID is required." }, { status: 400 });
     }
 
-    const [collections, claims, layers] = await Promise.all([
+    const [collections, claims, layers, validationRuns] = await Promise.all([
       restAsUser<any[]>(
         accessToken,
         "collections?id=eq." +
@@ -83,6 +83,12 @@ export async function POST(request: Request) {
         "trait_layers?collection_id=eq." +
           encodeURIComponent(collectionId) +
           "&select=id,trait_type,display_name,layer_order,is_background&order=layer_order.asc"
+      ),
+      restAsUser<any[]>(
+        accessToken,
+        "collection_validation_runs?collection_id=eq." +
+          encodeURIComponent(collectionId) +
+          "&select=id,status,checked_at&order=checked_at.desc&limit=1"
       ),
     ]);
 
@@ -117,6 +123,13 @@ export async function POST(request: Request) {
     if (collection.render_mode !== "layered_traits") {
       return NextResponse.json(
         { error: "This project is not configured for layered trait rendering." },
+        { status: 400 }
+      );
+    }
+
+    if (validationRuns?.[0]?.status !== "passed") {
+      return NextResponse.json(
+        { error: "Run and pass reconstruction validation before publishing render assets." },
         { status: 400 }
       );
     }
