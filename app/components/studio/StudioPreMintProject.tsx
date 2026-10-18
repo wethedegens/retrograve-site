@@ -105,7 +105,7 @@ export default function StudioPreMintProject() {
         <div style={success}>
           {message}
           {createdId ? (
-            <a href={"/studio/project/" + createdId} style={link}>
+            <a href={"/studio/manage/" + createdId} style={link}>
               OPEN PROJECT →
             </a>
           ) : null}

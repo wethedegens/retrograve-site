@@ -108,8 +108,8 @@ export default function StudioMyProjects() {
             fontSize: 10,
           }}
         >
-          No founder projects yet. Verify a collection below to create your first
-          Supabase-backed LockScreened project.
+          No founder projects yet. Start a private pre-mint project or verify an
+          existing collection to create your first LockScreened project.
         </p>
       ) : (
         <div style={{ marginTop: 12, display: "grid", gap: 14 }}>
@@ -208,7 +208,9 @@ function ProjectGroup({
                     : "#ffd99d",
               }}
             >
-              CLAIM {(row.claim_status || "NONE").toUpperCase()}
+              {row.source_type === "demo" && row.source_config?.preMint
+                ? "PRE-MINT · PRIVATE"
+                : "CLAIM " + (row.claim_status || "NONE").toUpperCase()}
             </span>
             <span
               style={{
