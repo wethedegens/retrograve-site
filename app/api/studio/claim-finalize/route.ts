@@ -130,7 +130,9 @@ export async function POST(request: Request) {
 
     // Re-check Helius at finalization time. We do not trust the earlier browser
     // inspection result or any client-supplied authority evidence.
-    const snapshot = await inspectCollectionAuthority(collectionAddress);
+    const snapshot = await inspectCollectionAuthority(collectionAddress, {
+      fresh: true,
+    });
     const authority = walletHasAuthorityEvidence(
       authenticatedWallet,
       snapshot

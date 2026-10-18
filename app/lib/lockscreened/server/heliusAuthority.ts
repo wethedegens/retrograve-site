@@ -33,43 +33,36 @@ function heliusRpcUrl() {
   return `https://mainnet.helius-rpc.com/?api-key=${encodeURIComponent(key)}`;
 }
 
-export async function inspectCollectionAuthority(
-  collectionAssetId: string
+async function fetchCollectionAuthoritySnapshot(
+  id: string
 ): Promise<CollectionAuthoritySnapshot> {
-  const id = String(collectionAssetId || "").trim();
-  if (!id) throw new Error("Collection asset ID is required.");
+  const response = await fetch(heliusRpcUrl(), {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    cache: "no-store",
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: "lockscreened-collection-authority",
+      method: "getAsset",
+      params: { id },
+    }),
+  });
 
-  return withHeliusCache(
-    "authority:" + id,
-    60_000,
-    async () => {
-      const response = await fetch(heliusRpcUrl(), {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        cache: "no-store",
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: "lockscreened-collection-authority",
-          method: "getAsset",
-          params: { id },
-        }),
-      });
+  if (!response.ok) {
+    throw new Error("Helius authority lookup failed (" + response.status + ").");
+  }
 
-      if (!response.ok) {
-        throw new Error("Helius authority lookup failed (" + response.status + ").");
-      }
+  const payload = await response.json();
+  if (payload?.error) {
+    throw new Error(
+      payload.error?.message || "Helius could not inspect this collection."
+    );
+  }
 
-      const payload = await response.json();
-      if (payload?.error) {
-        throw new Error(
-          payload.error?.message || "Helius could not inspect this collection."
-        );
-      }
-
-      const asset = payload?.result;
-      if (!asset?.id) {
-        throw new Error("No collection asset was returned by Helius.");
-      }
+  const asset = payload?.result;
+  if (!asset?.id) {
+    throw new Error("No collection asset was returned by Helius.");
+  }
 
   const authorities: HeliusAuthority[] = Array.isArray(asset.authorities)
     ? asset.authorities
@@ -93,17 +86,33 @@ export async function inspectCollectionAuthority(
         }))
     : [];
 
-      return {
-        assetId: String(asset.id),
-        name: String(asset?.content?.metadata?.name || "Collection"),
-        authorities,
-        verifiedCreators: allCreators.filter((creator) => creator.verified),
-        allCreators,
-        grouping: Array.isArray(asset.grouping) ? asset.grouping : [],
-        mutable:
-          typeof asset.mutable === "boolean" ? Boolean(asset.mutable) : undefined,
-      };
-    }
+  return {
+    assetId: String(asset.id),
+    name: String(asset?.content?.metadata?.name || "Collection"),
+    authorities,
+    verifiedCreators: allCreators.filter((creator) => creator.verified),
+    allCreators,
+    grouping: Array.isArray(asset.grouping) ? asset.grouping : [],
+    mutable:
+      typeof asset.mutable === "boolean" ? Boolean(asset.mutable) : undefined,
+  };
+}
+
+export async function inspectCollectionAuthority(
+  collectionAssetId: string,
+  options?: { fresh?: boolean }
+): Promise<CollectionAuthoritySnapshot> {
+  const id = String(collectionAssetId || "").trim();
+  if (!id) throw new Error("Collection asset ID is required.");
+
+  if (options?.fresh) {
+    return fetchCollectionAuthoritySnapshot(id);
+  }
+
+  return withHeliusCache(
+    "authority:" + id,
+    60_000,
+    async () => fetchCollectionAuthoritySnapshot(id)
   );
 }
 
