@@ -742,47 +742,30 @@ export async function updateStudioPublicProfile(args: {
     x?: string;
   };
 }) {
-  const safeUrl = (value?: string) => {
-    const raw = String(value || "").trim();
-    if (!raw) return "";
-    try {
-      const url = new URL(raw);
-      return url.protocol === "https:" || url.protocol === "http:" ? url.toString() : "";
-    } catch {
-      return "";
-    }
-  };
-
-  const publicSlug = String(args.publicSlug || "")
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9-]+/g, "-")
-    .replace(/-{2,}/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 64);
-
-  const profile = {
-    tagline: String(args.profile.tagline || "").trim().slice(0, 160),
-    description: String(args.profile.description || "").trim().slice(0, 1200),
-    website: safeUrl(args.profile.website),
-    marketplace: safeUrl(args.profile.marketplace),
-    discord: safeUrl(args.profile.discord),
-    x: safeUrl(args.profile.x),
-  };
-
-  await request<void>(args.session, "collections?id=eq." + encodeURIComponent(args.collectionId), {
-    method: "PATCH",
-    headers: { Prefer: "return=minimal" },
+  const response = await fetch("/api/studio/update-public-profile", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      Authorization: "Bearer " + args.session.access_token,
+    },
     body: JSON.stringify({
-      name: String(args.name || "").trim().slice(0, 120),
-      public_slug: publicSlug || null,
-      public_profile: profile,
+      collectionId: args.collectionId,
+      name: args.name,
+      publicSlug: args.publicSlug,
+      profile: args.profile,
     }),
   });
+
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result?.error || "Could not save public profile.");
+  }
 
   if (typeof window !== "undefined") {
     window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
   }
+
+  return result;
 }
 
 
