@@ -2,7 +2,6 @@
 import StudioTraitImporter from "../components/studio/StudioTraitImporter";
 import StudioBackgroundBuilder from "../components/studio/StudioBackgroundBuilder";
 import StudioCostGuardrails from "../components/studio/StudioCostGuardrails";
-import StudioBackendStatus from "../components/studio/StudioBackendStatus";
 import StudioWalletAuth from "../components/studio/StudioWalletAuth";
 import StudioCollectionClaim from "../components/studio/StudioCollectionClaim";
 import StudioMyProjects from "../components/studio/StudioMyProjects";
@@ -85,7 +84,6 @@ export default function CreatorStudioPage() {
           <div className={styles.heroBadge}>FOUNDATION ONLINE</div>
         </header>
 
-        <StudioBackendStatus />
         <StudioWalletAuth />
         <StudioPreMintProject />
         <StudioFlagshipProtection />
