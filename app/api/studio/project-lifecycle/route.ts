@@ -1,5 +1,6 @@
 // app/api/studio/project-lifecycle/route.ts
 import { NextResponse } from "next/server";
+import { requireCurrentCollectionAuthority } from "../../../lib/lockscreened/server/currentAuthority";
 import {
   consumeStudioActionRateLimit,
   getAuthenticatedUser,
@@ -48,7 +49,7 @@ export async function POST(request: Request) {
     const collections = await restAsUser<any[]>(
       accessToken,
       "collections?id=eq." + encodeURIComponent(collectionId) +
-        "&select=id,publish_status,flagship,legacy_assets_locked&limit=1"
+        "&select=id,publish_status,flagship,legacy_assets_locked,source_type,source_config&limit=1"
     );
     const collection = collections?.[0];
     if (!collection) return NextResponse.json({ error: "Project not found." }, { status: 404 });
@@ -66,6 +67,21 @@ export async function POST(request: Request) {
         { status: 409 }
       );
     }
+
+    const collectionAddress = String(
+      collection?.source_config?.collectionIds?.[0] || ""
+    ).trim();
+    if (collection.source_type !== "solana_collection" || !collectionAddress) {
+      return NextResponse.json(
+        { error: "This project does not have a valid Solana collection identity." },
+        { status: 400 }
+      );
+    }
+
+    await requireCurrentCollectionAuthority({
+      user,
+      collectionAddress,
+    });
 
     await restAsUser<void>(
       accessToken,
