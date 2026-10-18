@@ -50,6 +50,8 @@ const BACKGROUND_LAYER_NAMES = new Set([
   "backdrops",
   "environment",
   "environments",
+  "wallpaper",
+  "wallpapers",
 ]);
 
 function cleanPath(path: string) {

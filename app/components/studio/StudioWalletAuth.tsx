@@ -88,6 +88,7 @@ export default function StudioWalletAuth() {
 
   return (
     <section
+      id="founder-auth"
       style={{
         marginBottom: 24,
         borderRadius: 20,

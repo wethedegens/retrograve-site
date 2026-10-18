@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useWallet } from "@solana/wallet-adapter-react";
 import {
   analyzeTraitFolder,
   type TraitImportAnalysis,
@@ -42,6 +43,7 @@ function fileListToTraitFiles(files: FileList): UploadedTraitFile[] {
 }
 
 export default function StudioTraitImporter() {
+  const wallet = useWallet();
   const [analysis, setAnalysis] = useState<TraitImportAnalysis | null>(null);
   const [folderName, setFolderName] = useState("");
   const [guardrail, setGuardrail] = useState<UploadGuardrailResult | null>(null);
@@ -349,11 +351,15 @@ export default function StudioTraitImporter() {
       {guardrail ? (
         <div className={guardrail.ok ? "budgetOk" : "budgetBad"}>
           <strong>
-            {guardrail.ok ? "✓ Upload budget check passed" : "Upload blocked"}
+            {guardrail.ok
+              ? analysis && totals.traits > 0
+                ? `✓ Folder recognized · ${totals.traits} supported trait${totals.traits === 1 ? "" : "s"} found`
+                : "Folder selected · checking supported artwork"
+              : "Upload blocked"}
           </strong>
           <span>
-            {formatBytes(guardrail.totalBytes)} source folder · cost guardrails
-            checked before any future upload
+            {formatBytes(guardrail.totalBytes)} source folder · size and file
+            safety checks completed locally
           </span>
           {guardrail.errors.map((message) => (
             <span key={message}>• {message}</span>
@@ -478,8 +484,15 @@ export default function StudioTraitImporter() {
             ) : (
               <span className="persistHint">
                 {session
-                  ? "Create a collection claim draft above first."
-                  : "Sign in to Studio first to persist this map."}
+                  ? "Create and verify a collection claim above before saving this trait map."
+                  : wallet.connected
+                    ? "Wallet connected. One more step: sign in to Creator Studio above with the safe off-chain signature."
+                    : "Connect your wallet, then sign in to Creator Studio before saving this trait map."}
+                {!session ? (
+                  <a className="authJump" href="#founder-auth">
+                    GO TO STUDIO SIGN-IN ↑
+                  </a>
+                ) : null}
               </span>
             )}
 
@@ -750,6 +763,14 @@ export default function StudioTraitImporter() {
         }
         .persistHint,.persistMessage {
           display:block;
+        }
+        .authJump {
+          display:inline-block;
+          margin-left:8px;
+          color:#ff9bd8;
+          font-weight:900;
+          letter-spacing:.08em;
+          text-decoration:none;
         }
         .persistMessage {
           color:#a8ffd2 !important;
