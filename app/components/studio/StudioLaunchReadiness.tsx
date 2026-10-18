@@ -46,7 +46,18 @@ export default function StudioLaunchReadiness({ data }: { data: any }) {
       ok: !layered || Boolean(collection.render_profile?.layerOrderConfirmedAt),
     },
     { label: "Private trait library uploaded", ok: !layered || traitAssets.length > 0 },
-    { label: "Server reconstruction validation passed", ok: !layered || validationRun?.status === "passed" },
+    {
+      label: "Server reconstruction validation passed for current layer order",
+      ok:
+        !layered ||
+        (validationRun?.status === "passed" &&
+          Number.isFinite(
+            Date.parse(String(collection.render_profile?.layerOrderConfirmedAt || ""))
+          ) &&
+          Number.isFinite(Date.parse(String(validationRun?.checked_at || ""))) &&
+          Date.parse(String(validationRun?.checked_at || "")) >=
+            Date.parse(String(collection.render_profile?.layerOrderConfirmedAt || ""))),
+    },
     { label: "Public render derivatives published", ok: !layered || publicTraits.length > 0 },
     { label: "Private source storage under hard cap", ok: privateBytes <= hardTarget },
   ];
