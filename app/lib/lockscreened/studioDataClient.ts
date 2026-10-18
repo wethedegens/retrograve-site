@@ -237,6 +237,7 @@ export async function saveTraitLayerMap(args: {
 
 export async function upsertTraitAssetMetadata(args: {
   session: LockScreenedSession;
+  collectionId: string;
   rows: Array<{
     layer_id: string;
     trait_value: string;
