@@ -4,7 +4,7 @@
 import type { BgChoice } from "../Composer";
 
 export type StudioBgChoice =
-  | BgChoice
+  | Extract<BgChoice, { kind: "color" }>
   | {
       kind: "image";
       image: string;
