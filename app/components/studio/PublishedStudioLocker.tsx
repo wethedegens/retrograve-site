@@ -11,7 +11,7 @@ import Composer, {
 import ExportButtons from "../ExportButtons";
 import ShareActions from "../ShareActions";
 import ClientOnly from "../ClientOnly";
-import PublishedBackgroundPicker from "./PublishedBackgroundPicker";
+import PublishedBackgroundPicker, { type StudioBgChoice } from "./PublishedBackgroundPicker";
 import PublishedUniversalComposer from "./PublishedUniversalComposer";
 import PublishedFinishedArtworkComposer from "./PublishedFinishedArtworkComposer";
 
@@ -53,7 +53,7 @@ export default function PublishedStudioLocker({
     [project.publishedMintOverrides, mint]
   );
 
-  const firstBackground = useMemo<BgChoice>(() => {
+  const firstBackground = useMemo<StudioBgChoice>(() => {
     const item = project.backgrounds.find(
       (background) => background.deviceAssets?.phone
     );
@@ -72,7 +72,7 @@ export default function PublishedStudioLocker({
     };
   }, [project.backgrounds]);
 
-  const [background, setBackground] = useState<BgChoice>(firstBackground);
+  const [background, setBackground] = useState<StudioBgChoice>(firstBackground);
 
   useEffect(() => {
     setBackground(firstBackground);
@@ -222,14 +222,14 @@ export default function PublishedStudioLocker({
                   name: nft?.name || project.name,
                   image: publishedMintOverride.url,
                 }}
-                bg={background}
+                bg={background as BgChoice}
                 project={"studio:" + project.slug}
               />
             ) : project.render_mode === "flat_background_extend" ? (
               <PublishedFinishedArtworkComposer
                 ref={composerRef}
                 nft={nft}
-                bg={background}
+                bg={background as BgChoice}
                 hasOfficialBackground={project.backgrounds.length > 0}
                 renderProfile={project.render_profile}
               />
@@ -240,7 +240,7 @@ export default function PublishedStudioLocker({
                 attributes={attributes}
                 layers={project.layers}
                 assets={project.publishedTraitAssets}
-                bg={background}
+                bg={background as BgChoice}
                 nftName={nft?.name || project.name}
                 renderProfile={project.render_profile}
               />
@@ -248,7 +248,7 @@ export default function PublishedStudioLocker({
               <Composer
                 ref={composerRef}
                 nft={nft}
-                bg={background}
+                bg={background as BgChoice}
                 project={"studio:" + project.slug}
               />
             )}
