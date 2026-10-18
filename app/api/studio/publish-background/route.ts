@@ -104,7 +104,7 @@ export async function POST(request: Request) {
         accessToken,
         "collections?id=eq." +
           encodeURIComponent(packageRow.collection_id) +
-          "&select=id,slug,name,publish_status,source_type,source_config&limit=1"
+          "&select=id,studio_id,slug,name,publish_status,source_type,source_config&limit=1"
       ),
       restAsUser<any[]>(
         accessToken,
@@ -180,11 +180,22 @@ export async function POST(request: Request) {
       );
     }
 
+    const expectedSourcePrefix =
+      String(collection.studio_id || "").toLowerCase() +
+      "/collections/" +
+      String(collection.id || "").toLowerCase() +
+      "/backgrounds/" +
+      String(packageId || "").toLowerCase() +
+      "/";
+
     const publishedAssets: any[] = [];
 
     for (const source of sourceAssets) {
       if (source.storage_bucket !== STORAGE_BUCKETS.creatorSourcePrivate) {
         throw new Error("Unexpected private source bucket.");
+      }
+      if (!String(source.storage_path || "").toLowerCase().startsWith(expectedSourcePrefix)) {
+        throw new Error("Background source path does not belong to this collection.");
       }
 
       const fileName = `${source.device}.${extension(source.storage_path)}`;
