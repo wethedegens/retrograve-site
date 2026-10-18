@@ -155,3 +155,47 @@ export function walletHasAuthorityEvidence(
     evidence,
   };
 }
+
+
+export async function assetBelongsToCollection(args: {
+  assetId: string;
+  collectionAddress: string;
+}) {
+  const assetId = String(args.assetId || "").trim();
+  const collectionAddress = String(args.collectionAddress || "").trim();
+
+  if (!assetId || !collectionAddress) return false;
+
+  const response = await fetch(heliusRpcUrl(), {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    cache: "no-store",
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: "lockscreened-asset-membership",
+      method: "getAsset",
+      params: { id: assetId },
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Helius asset membership lookup failed (" + response.status + ").");
+  }
+
+  const payload = await response.json();
+  if (payload?.error) {
+    throw new Error(
+      payload.error?.message || "Helius could not inspect this NFT."
+    );
+  }
+
+  const grouping = Array.isArray(payload?.result?.grouping)
+    ? payload.result.grouping
+    : [];
+
+  return grouping.some(
+    (item: any) =>
+      String(item?.group_key || "").toLowerCase() === "collection" &&
+      String(item?.group_value || "") === collectionAddress
+  );
+}

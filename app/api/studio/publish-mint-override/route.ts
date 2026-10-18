@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { publicPreviewPath, STORAGE_BUCKETS } from "../../../lib/lockscreened/storagePaths";
 import { requireCurrentCollectionAuthority } from "../../../lib/lockscreened/server/currentAuthority";
+import { assetBelongsToCollection } from "../../../lib/lockscreened/server/heliusAuthority";
 import {
   consumeStudioActionRateLimit,
   isTrustedStudioRequestOrigin,
@@ -119,6 +120,21 @@ export async function POST(request: Request) {
       user,
       collectionAddress,
     });
+
+    const belongsToCollection = await assetBelongsToCollection({
+      assetId: override.asset_id,
+      collectionAddress,
+    });
+
+    if (!belongsToCollection) {
+      return NextResponse.json(
+        {
+          error:
+            "This mint does not belong to the verified collection. Mint-specific overrides can only be published for NFTs in this project.",
+        },
+        { status: 400 }
+      );
+    }
 
     if (!hasSupabaseAdminKey()) {
       return NextResponse.json(
