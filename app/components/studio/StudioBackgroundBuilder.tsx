@@ -408,10 +408,10 @@ export default function StudioBackgroundBuilder() {
               letterSpacing: ".22em",
             }}
           >
-            LOCKSCREENED OFFICIAL BACKGROUNDS
+            LOCKSCREENED DEVICE BACKGROUNDS
           </div>
           <h2 style={{ margin: "6px 0", fontSize: 24 }}>
-            Build a background package
+            Add an optional device background
           </h2>
           <p
             style={{
@@ -422,9 +422,10 @@ export default function StudioBackgroundBuilder() {
               lineHeight: 1.55,
             }}
           >
-            Upload one phone-first background and let LockScreened adapt it, or
-            add separate iPad and desktop compositions like our current
-            flagship collections.
+            This is not your NFT's own background trait. This is the optional
+            phone, iPad or desktop scene that sits behind the NFT in the final
+            LockScreened wallpaper. Finished-artwork projects can also use
+            automatic edge-color, gradient or blur extension instead.
           </p>
         </div>
         <div
@@ -523,7 +524,7 @@ export default function StudioBackgroundBuilder() {
       >
         <div style={{ display: "grid", gap: 3 }}>
           <strong style={{ fontSize: 10, color: "#ff9bd8", letterSpacing: ".1em" }}>
-            SAVE PACKAGE DRAFT
+            SAVE DEVICE BACKGROUND DRAFT
           </strong>
           <span style={{ fontSize: 9, color: "rgba(255,255,255,.5)" }}>
             Save the package name/collection relationship in Supabase. Image

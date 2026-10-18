@@ -13,6 +13,7 @@ import ShareActions from "../ShareActions";
 import ClientOnly from "../ClientOnly";
 import PublishedBackgroundPicker from "./PublishedBackgroundPicker";
 import PublishedUniversalComposer from "./PublishedUniversalComposer";
+import PublishedFinishedArtworkComposer from "./PublishedFinishedArtworkComposer";
 
 type Background = {
   id: string;
@@ -224,6 +225,14 @@ export default function PublishedStudioLocker({
                 bg={background}
                 project={"studio:" + project.slug}
               />
+            ) : project.render_mode === "flat_background_extend" ? (
+              <PublishedFinishedArtworkComposer
+                ref={composerRef}
+                nft={nft}
+                bg={background}
+                hasOfficialBackground={project.backgrounds.length > 0}
+                renderProfile={project.render_profile}
+              />
             ) : project.render_mode === "layered_traits" &&
             project.publishedTraitAssets.length ? (
               <PublishedUniversalComposer
@@ -255,10 +264,12 @@ export default function PublishedStudioLocker({
             >
               {publishedMintOverride?.url
                 ? "A mint-specific published override is active for this NFT."
-                : project.render_mode === "layered_traits" &&
-                  project.publishedTraitAssets.length
-                  ? "Universal trait reconstruction is active from published render derivatives. Private founder source files remain inaccessible."
-                  : "This project is using the NFT's minted composite artwork with published device backgrounds."}
+                : project.render_mode === "flat_background_extend"
+                  ? "Finished-artwork mode is active. The minted NFT image stays intact while LockScreened extends it into the selected device layout."
+                  : project.render_mode === "layered_traits" &&
+                    project.publishedTraitAssets.length
+                    ? "Universal trait reconstruction is active from published render derivatives. Private founder source files remain inaccessible."
+                    : "This project is using the NFT's minted composite artwork with published device backgrounds."}
             </div>
           </div>
         </div>
