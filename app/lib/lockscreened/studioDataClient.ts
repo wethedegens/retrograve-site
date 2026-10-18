@@ -782,45 +782,25 @@ export async function saveTraitLayerConfiguration(args: {
   omitOriginalBackgroundWhenCustom: boolean;
   currentRenderProfile?: any;
 }) {
-  for (const layer of args.layers) {
-    await request<void>(
-      args.session,
-      "trait_layers?id=eq." + encodeURIComponent(layer.id),
-      {
-        method: "PATCH",
-        headers: { Prefer: "return=minimal" },
-        body: JSON.stringify({
-          display_name: layer.display_name,
-          layer_order: layer.layer_order,
-          is_background: layer.is_background,
-        }),
-      }
-    );
-  }
-
-  await request<void>(
-    args.session,
-    "collections?id=eq." + encodeURIComponent(args.collectionId),
-    {
-      method: "PATCH",
-      headers: { Prefer: "return=minimal" },
-      body: JSON.stringify({
-        render_mode: "layered_traits",
-        render_profile: {
-          ...(args.currentRenderProfile || {}),
-          engine: "universal_trait_engine",
-          backgroundHandling: args.omitOriginalBackgroundWhenCustom
-            ? "omit_original_when_custom"
-            : "keep_original_background",
-          layerOrderConfirmedAt: new Date().toISOString(),
-        },
-      }),
-    }
-  );
-
+  const response = await fetch("/api/studio/update-render-config", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      Authorization: "Bearer " + args.session.access_token,
+    },
+    body: JSON.stringify({
+      collectionId: args.collectionId,
+      action: "layer_config",
+      layers: args.layers,
+      omitOriginalBackgroundWhenCustom: args.omitOriginalBackgroundWhenCustom,
+    }),
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result?.error || "Render configuration change was blocked.");
   if (typeof window !== "undefined") {
     window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
   }
+  return result;
 }
 
 export async function upsertMintOverrideMetadata(args: {
@@ -889,30 +869,24 @@ export async function updateFinishedArtworkProfile(args: {
     verticalAlign: "top" | "center" | "bottom";
   };
 }) {
-  await request<void>(
-    args.session,
-    "collections?id=eq." + encodeURIComponent(args.collectionId),
-    {
-      method: "PATCH",
-      headers: { Prefer: "return=minimal" },
-      body: JSON.stringify({
-        render_mode: "flat_background_extend",
-        render_profile: {
-          ...(args.currentRenderProfile || {}),
-          engine: "finished_artwork_engine",
-          backgroundHandling: "preserve_finished_artwork",
-          finishedArtwork: {
-            ...args.finishedArtwork,
-            configuredAt: new Date().toISOString(),
-          },
-        },
-      }),
-    }
-  );
-
+  const response = await fetch("/api/studio/update-render-config", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      Authorization: "Bearer " + args.session.access_token,
+    },
+    body: JSON.stringify({
+      collectionId: args.collectionId,
+      action: "finished_artwork",
+      finishedArtwork: args.finishedArtwork,
+    }),
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result?.error || "Render configuration change was blocked.");
   if (typeof window !== "undefined") {
     window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
   }
+  return result;
 }
 
 export async function updateCollectionRenderPlacement(args: {
@@ -925,29 +899,25 @@ export async function updateCollectionRenderPlacement(args: {
     desktop: { scale: number; x: "left" | "center" | "right"; y: "top" | "center" | "bottom" };
   };
 }) {
-  await request<void>(
-    args.session,
-    "collections?id=eq." + encodeURIComponent(args.collectionId),
-    {
-      method: "PATCH",
-      headers: { Prefer: "return=minimal" },
-      body: JSON.stringify({
-        render_profile: {
-          ...(args.currentRenderProfile || {}),
-          engine:
-            args.currentRenderProfile?.engine ||
-            "universal_trait_engine",
-          devicePlacement: args.devicePlacement,
-        },
-      }),
-    }
-  );
-
+  const response = await fetch("/api/studio/update-render-config", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      Authorization: "Bearer " + args.session.access_token,
+    },
+    body: JSON.stringify({
+      collectionId: args.collectionId,
+      action: "device_placement",
+      devicePlacement: args.devicePlacement,
+    }),
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result?.error || "Render configuration change was blocked.");
   if (typeof window !== "undefined") {
     window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
   }
+  return result;
 }
-
 
 async function changeStudioCollectionLifecycle(args: {
   session: LockScreenedSession;
