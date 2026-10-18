@@ -10,7 +10,8 @@ import {
 
 export const dynamic = "force-dynamic";
 
-async function loadCollection(accessToken: string, userId: string, collectionId: string) {
+async function loadCollection(accessToken: string, user: any, collectionId: string) {
+  const userId = String(user?.id || "");
   const rows = await restAsUser<any[]>(
     accessToken,
     "collections?id=eq." + encodeURIComponent(collectionId) +
@@ -30,7 +31,7 @@ async function loadCollection(accessToken: string, userId: string, collectionId:
     if (collection.source_type !== "solana_collection" || !collectionAddress) {
       throw new Error("This project does not have a valid Solana collection identity.");
     }
-    await requireCurrentCollectionAuthority({ user: { id: userId }, collectionAddress });
+    await requireCurrentCollectionAuthority({ user, collectionAddress });
   }
   return collection;
 }
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
     const allowed = await consumeStudioActionRateLimit(accessToken, "update_render_config");
     if (!allowed) return NextResponse.json({ error: "Too many configuration changes. Wait a few minutes and try again." }, { status: 429 });
 
-    const collection = await loadCollection(accessToken, user.id, collectionId);
+    const collection = await loadCollection(accessToken, user, collectionId);
     const current = collection.render_profile || {};
 
     if (action === "layer_config") {
