@@ -295,6 +295,7 @@ export default function StudioBackgroundBuilder() {
         try {
           await upsertBackgroundSourceAssetMetadata({
             session,
+            collectionId: selectedCollectionId,
             rows: [
               {
                 package_id: packageRow.id,
