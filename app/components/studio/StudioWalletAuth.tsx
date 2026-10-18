@@ -159,78 +159,19 @@ export default function StudioWalletAuth() {
 
       <div
         style={{
-          borderRadius: 14,
-          padding: 12,
+          borderRadius: 12,
+          padding: 11,
           border: "1px solid rgba(169,255,210,.14)",
-          background:
-            "linear-gradient(135deg,rgba(63,255,167,.035),rgba(255,63,180,.025))",
-          display: "grid",
-          gap: 8,
+          background: "rgba(63,255,167,.035)",
+          color: "rgba(255,255,255,.64)",
+          fontSize: 9,
+          lineHeight: 1.5,
         }}
       >
-        <div
-          style={{
-            color: "#a9ffd2",
-            fontSize: 8,
-            fontWeight: 900,
-            letterSpacing: ".13em",
-          }}
-        >
-          LOCKSCREENED FOUNDER SAFETY PROMISE
-        </div>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit,minmax(210px,1fr))",
-            gap: 6,
-          }}
-        >
-          {[
-            "OFF-CHAIN MESSAGE SIGNATURE ONLY",
-            "NO SOL OR NFT TRANSACTION",
-            "NO TOKEN / NFT APPROVAL",
-            "NEVER ENTER A SEED PHRASE OR PRIVATE KEY",
-            "CLAIMING DOES NOT CHANGE YOUR COLLECTION ON-CHAIN",
-            "VERIFY YOU ARE ON THE OFFICIAL LOCKSCREENED DOMAIN",
-          ].map((item) => (
-            <div
-              key={item}
-              style={{
-                borderRadius: 10,
-                padding: "7px 8px",
-                border: "1px solid rgba(255,255,255,.06)",
-                background: "rgba(255,255,255,.02)",
-                color: "rgba(255,255,255,.66)",
-                fontSize: 8,
-                lineHeight: 1.35,
-              }}
-            >
-              <span
-                style={{
-                  marginRight: 5,
-                  color: "#a9ffd2",
-                  fontWeight: 900,
-                }}
-              >
-                ✓
-              </span>
-              {item}
-            </div>
-          ))}
-        </div>
-
-        <div
-          style={{
-            color: "rgba(255,255,255,.42)",
-            fontSize: 8,
-            lineHeight: 1.45,
-          }}
-        >
-          If a wallet window ever asks for a transaction, token approval, NFT
-          transfer, seed phrase, or private key while signing into Creator
-          Studio, cancel it. That is not the LockScreened founder sign-in flow.
-        </div>
+        <strong style={{ color: "#a9ffd2" }}>Safe sign-in:</strong>{" "}
+        LockScreened only asks you to sign an off-chain message to verify your
+        wallet. We will never ask for SOL, an NFT transfer, token approval, seed
+        phrase, or private key.
       </div>
 
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
