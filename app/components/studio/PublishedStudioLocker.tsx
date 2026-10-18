@@ -222,14 +222,14 @@ export default function PublishedStudioLocker({
                   name: nft?.name || project.name,
                   image: publishedMintOverride.url,
                 }}
-                bg={background as BgChoice}
+                bg={background}
                 project={"studio:" + project.slug}
               />
             ) : project.render_mode === "flat_background_extend" ? (
               <PublishedFinishedArtworkComposer
                 ref={composerRef}
                 nft={nft}
-                bg={background as BgChoice}
+                bg={background}
                 hasOfficialBackground={project.backgrounds.length > 0}
                 renderProfile={project.render_profile}
               />
@@ -240,7 +240,7 @@ export default function PublishedStudioLocker({
                 attributes={attributes}
                 layers={project.layers}
                 assets={project.publishedTraitAssets}
-                bg={background as BgChoice}
+                bg={background}
                 nftName={nft?.name || project.name}
                 renderProfile={project.render_profile}
               />
@@ -248,7 +248,7 @@ export default function PublishedStudioLocker({
               <Composer
                 ref={composerRef}
                 nft={nft}
-                bg={background as BgChoice}
+                bg={background}
                 project={"studio:" + project.slug}
               />
             )}
