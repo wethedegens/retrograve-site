@@ -444,21 +444,15 @@ export async function upsertTraitAssetMetadata(args: {
     mime_type?: string | null;
   }>;
 }) {
-  if (!args.rows.length) return [];
-
-  return await request<any[]>(
-    args.session,
-    "trait_assets?on_conflict=layer_id,trait_value&select=id,layer_id,trait_value,storage_bucket,storage_path,bytes,mime_type",
-    {
-      method: "POST",
-      headers: {
-        Prefer: "resolution=merge-duplicates,return=representation",
-      },
-      body: JSON.stringify(args.rows),
-    }
-  );
+  const response = await fetch("/api/studio/private-asset-metadata", {
+    method: "POST",
+    headers: { "content-type": "application/json", Authorization: "Bearer " + args.session.access_token },
+    body: JSON.stringify({ kind: "trait", collectionId: args.collectionId, rows: args.rows }),
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result?.error || "Private asset metadata was blocked.");
+  return result.rows || [];
 }
-
 
 export async function saveBackgroundPackageDraft(args: {
   session: LockScreenedSession;
@@ -687,21 +681,15 @@ export async function upsertBackgroundSourceAssetMetadata(args: {
     mime_type?: string | null;
   }>;
 }) {
-  if (!args.rows.length) return [];
-
-  return await request<any[]>(
-    args.session,
-    "background_source_assets?on_conflict=package_id,device&select=id,package_id,device,storage_bucket,storage_path,bytes,mime_type",
-    {
-      method: "POST",
-      headers: {
-        Prefer: "resolution=merge-duplicates,return=representation",
-      },
-      body: JSON.stringify(args.rows),
-    }
-  );
+  const response = await fetch("/api/studio/private-asset-metadata", {
+    method: "POST",
+    headers: { "content-type": "application/json", Authorization: "Bearer " + args.session.access_token },
+    body: JSON.stringify({ kind: "background", collectionId: args.collectionId, rows: args.rows }),
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result?.error || "Private asset metadata was blocked.");
+  return result.rows || [];
 }
-
 
 export async function updateStudioPublicProfile(args: {
   session: LockScreenedSession;
@@ -787,26 +775,14 @@ export async function upsertMintOverrideMetadata(args: {
   bytes: number;
   notes?: string;
 }) {
-  return await request<any[]>(
-    args.session,
-    "mint_overrides?on_conflict=collection_id,asset_id&select=id,collection_id,asset_id,storage_bucket,storage_path,bytes,notes,created_at",
-    {
-      method: "POST",
-      headers: {
-        Prefer: "resolution=merge-duplicates,return=representation",
-      },
-      body: JSON.stringify([
-        {
-          collection_id: args.collectionId,
-          asset_id: String(args.assetId || "").trim(),
-          storage_bucket: args.storageBucket,
-          storage_path: args.storagePath,
-          bytes: args.bytes,
-          notes: String(args.notes || "").trim().slice(0, 500),
-        },
-      ]),
-    }
-  );
+  const response = await fetch("/api/studio/private-asset-metadata", {
+    method: "POST",
+    headers: { "content-type": "application/json", Authorization: "Bearer " + args.session.access_token },
+    body: JSON.stringify({ kind: "mint_override", collectionId: args.collectionId, assetId: args.assetId, storageBucket: args.storageBucket, storagePath: args.storagePath, bytes: args.bytes, notes: args.notes }),
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result?.error || "Private asset metadata was blocked.");
+  return result.rows || [];
 }
 
 export async function assertCollectionStorageBudget(args: {
