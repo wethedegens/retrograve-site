@@ -24,6 +24,7 @@ import StudioRenderProfileEditor from "./StudioRenderProfileEditor";
 import StudioPublicLinkControls from "./StudioPublicLinkControls";
 import StudioActivityLog from "./StudioActivityLog";
 import StudioFounderJourney from "./StudioFounderJourney";
+import StudioFinishedArtworkDesigner from "./StudioFinishedArtworkDesigner";
 
 export default function StudioDraftProjectManager({
   collectionId,
@@ -308,6 +309,13 @@ export default function StudioDraftProjectManager({
   } = data;
   const verified = claim?.status === "verified";
   const layered = collection.render_mode === "layered_traits";
+  const finishedArtwork =
+    collection.render_mode === "flat_background_extend" ||
+    collection.source_config?.artworkMode === "finished_artwork";
+  const preMint =
+    collection.source_type === "demo" &&
+    collection.source_config?.preMint === true &&
+    !collection.source_config?.collectionIds?.length;
   const profile = collection.public_profile || {};
   const hasProjectIdentity = Boolean(
     String(profile.description || profile.tagline || "").trim()
@@ -368,15 +376,29 @@ export default function StudioDraftProjectManager({
 
         <div style={stats}>
           <Stat label="PROJECT" value={collection.publish_status.toUpperCase()} />
-          <Stat label="TRAIT LAYERS" value={String(layers.length)} />
           <Stat
-            label="PUBLIC RENDER ASSETS"
-            value={String(publishedTraitAssets?.length || 0)}
+            label="ARTWORK MODE"
+            value={finishedArtwork ? "FINISHED IMAGE" : "LAYERED TRAITS"}
           />
+          {layered ? (
+            <Stat label="TRAIT LAYERS" value={String(layers.length)} />
+          ) : null}
+          {layered ? (
+            <Stat
+              label="PUBLIC RENDER ASSETS"
+              value={String(publishedTraitAssets?.length || 0)}
+            />
+          ) : null}
           <Stat label="BACKGROUND DRAFTS" value={String(backgrounds.length)} />
           <Stat
             label="PUBLISH GATE"
-            value={verified ? "UNLOCKED" : "LOCKED"}
+            value={
+              verified
+                ? "UNLOCKED"
+                : preMint
+                  ? "WAITING FOR MINT"
+                  : "LOCKED"
+            }
           />
         </div>
 
@@ -439,7 +461,9 @@ export default function StudioDraftProjectManager({
               </button>
             </>
           ) : null}
-          <a href="/studio#trait-import" style={button}>EDIT TRAITS</a>
+          {layered ? (
+            <a href="/studio#trait-import" style={button}>EDIT TRAITS</a>
+          ) : null}
           <a href="/studio#background-builder" style={button}>ADD BACKGROUND</a>
           <a href={"/studio/preview/" + collectionId} style={button}>PREVIEW PUBLIC EXPERIENCE</a>
         </div>
@@ -448,6 +472,14 @@ export default function StudioDraftProjectManager({
       </section>
 
       <StudioFounderJourney data={data} collectionId={collectionId} />
+
+      {finishedArtwork ? (
+        <StudioFinishedArtworkDesigner
+          session={session}
+          collectionId={collectionId}
+          renderProfile={collection.render_profile}
+        />
+      ) : null}
 
       <StudioPublicLinkControls
         slug={collection.public_slug || collection.slug}
@@ -468,14 +500,16 @@ export default function StudioDraftProjectManager({
       />
       </div>
 
-      <div id="layer-order">
-      <StudioLayerOrderEditor
-        session={session}
-        collectionId={collectionId}
-        layers={layers}
-        renderProfile={collection.render_profile}
-      />
-      </div>
+      {layered ? (
+        <div id="layer-order">
+          <StudioLayerOrderEditor
+            session={session}
+            collectionId={collectionId}
+            layers={layers}
+            renderProfile={collection.render_profile}
+          />
+        </div>
+      ) : null}
 
       <StudioRenderProfileEditor
         session={session}
@@ -483,6 +517,7 @@ export default function StudioDraftProjectManager({
         renderProfile={collection.render_profile}
       />
 
+      {layered ? (
       <section style={panel}>
         <div style={eyebrow}>TRAIT ENGINE</div>
         <h2 style={heading}>Saved layer map</h2>
@@ -506,7 +541,9 @@ export default function StudioDraftProjectManager({
           </div>
         )}
       </section>
+      ) : null}
 
+      {layered ? (
       <div id="validation">
       <StudioTraitValidation
         session={session}
@@ -517,6 +554,7 @@ export default function StudioDraftProjectManager({
         validationRun={data.validationRun}
       />
       </div>
+      ) : null}
 
       <StudioMintOverrides
         session={session}

@@ -22,66 +22,131 @@ export default function StudioFounderJourney({
   const profile = collection.public_profile || {};
   const publicBgs = data.publishedBackgroundAssets || [];
 
-  const steps: Step[] = [
-    {
-      number: 1,
-      title: "Verify your collection",
-      detail:
-        "Confirm that the connected wallet currently controls this collection.",
-      done: data.claim?.status === "verified",
-      href: "/studio#claim",
-      action: "VERIFY COLLECTION",
-    },
-    {
-      number: 2,
-      title: "Upload original trait artwork",
-      detail:
-        "Choose the same source-art folders used to build the collection. Files stay private.",
-      done: Boolean(data.traitAssets?.length),
-      href: "/studio#trait-import",
-      action: "UPLOAD TRAITS",
-    },
-    {
-      number: 3,
-      title: "Confirm the layer order",
-      detail:
-        "Make sure LockScreened rebuilds the NFT in the same order as the original art.",
-      done:
-        layered &&
-        Boolean(collection.render_profile?.layerOrderConfirmedAt),
-      href: "#layer-order",
-      action: "REVIEW LAYERS",
-    },
-    {
-      number: 4,
-      title: "Validate real NFTs",
-      detail:
-        "LockScreened compares the saved trait library against real minted NFTs before launch.",
-      done: layered && data.validationRun?.status === "passed",
-      href: "#validation",
-      action: "RUN VALIDATION",
-    },
-    {
-      number: 5,
-      title: "Add an official phone background",
-      detail:
-        "A phone background is required. iPad and desktop versions are optional.",
-      done: publicBgs.some((item: any) => item.device === "phone"),
-      href: "/studio#background-builder",
-      action: "ADD BACKGROUND",
-    },
-    {
-      number: 6,
-      title: "Finish your public project details",
-      detail:
-        "Add the name, short description, links and public Locker URL collectors will see.",
-      done: Boolean(
-        String(profile.tagline || profile.description || "").trim()
-      ),
-      href: "#project-details",
-      action: "ADD PROJECT DETAILS",
-    },
-  ];
+  const preMint =
+    collection.source_type === "demo" &&
+    collection.source_config?.preMint === true &&
+    !collection.source_config?.collectionIds?.length;
+  const finishedArtwork =
+    collection.render_mode === "flat_background_extend" ||
+    collection.source_config?.artworkMode === "finished_artwork";
+  const privatePhoneBg = (data.backgroundSourceAssets || []).some(
+    (item: any) => item.device === "phone"
+  );
+
+  let steps: Step[];
+
+  if (finishedArtwork) {
+    steps = [
+      {
+        number: 1,
+        title: "Private project created",
+        detail: "Your pre-mint project is private and safe to configure.",
+        done: true,
+        href: "#",
+        action: "READY",
+      },
+      {
+        number: 2,
+        title: "Design the finished-artwork treatment",
+        detail:
+          "Try one representative NFT locally and choose how the extra phone space should extend around it.",
+        done: Boolean(collection.render_profile?.finishedArtwork?.configuredAt),
+        href: "#finished-artwork",
+        action: "DESIGN ARTWORK",
+      },
+      {
+        number: 3,
+        title: "Add an official background if you want one",
+        detail:
+          "Optional during pre-mint setup. A custom phone background can override the automatic extension treatment.",
+        done: privatePhoneBg || Boolean(publicBgs.length),
+        href: "/studio#background-builder",
+        action: "ADD BACKGROUND",
+      },
+      {
+        number: 4,
+        title: preMint ? "After mint: attach and verify the collection" : "Verify your collection",
+        detail: preMint
+          ? "Nothing is wrong here — this waits until the real collection exists on-chain."
+          : "Confirm that the connected wallet currently controls this collection.",
+        done: data.claim?.status === "verified",
+        href: "/studio#claim-live",
+        action: preMint ? "WAITING FOR MINT" : "VERIFY COLLECTION",
+      },
+      {
+        number: 5,
+        title: "Finish your public project details",
+        detail:
+          "Add the name, short description, links and public Locker URL collectors will see.",
+        done: Boolean(String(profile.tagline || profile.description || "").trim()),
+        href: "#project-details",
+        action: "ADD PROJECT DETAILS",
+      },
+    ];
+  } else {
+    steps = [
+      {
+        number: 1,
+        title: preMint ? "Private project created" : "Verify your collection",
+        detail: preMint
+          ? "Your pre-mint project is private. You can build now and verify after mint."
+          : "Confirm that the connected wallet currently controls this collection.",
+        done: preMint || data.claim?.status === "verified",
+        href: preMint ? "#" : "/studio#claim-live",
+        action: preMint ? "READY" : "VERIFY COLLECTION",
+      },
+      {
+        number: 2,
+        title: "Upload original trait artwork",
+        detail:
+          "Choose the same source-art folders used to build the collection. Files stay private.",
+        done: Boolean(data.traitAssets?.length),
+        href: "/studio#trait-import",
+        action: "UPLOAD TRAITS",
+      },
+      {
+        number: 3,
+        title: "Confirm the layer order",
+        detail:
+          "Make sure LockScreened rebuilds the NFT in the same order as the original art.",
+        done:
+          layered &&
+          Boolean(collection.render_profile?.layerOrderConfirmedAt),
+        href: "#layer-order",
+        action: "REVIEW LAYERS",
+      },
+      {
+        number: 4,
+        title: "Add a phone background",
+        detail:
+          "A private phone background can be prepared before mint. iPad and desktop versions are optional.",
+        done: privatePhoneBg || publicBgs.some((item: any) => item.device === "phone"),
+        href: "/studio#background-builder",
+        action: "ADD BACKGROUND",
+      },
+      {
+        number: 5,
+        title: preMint ? "After mint: attach and verify the collection" : "Validate real NFTs",
+        detail: preMint
+          ? "This intentionally waits until the real collection exists. Your private setup can continue now."
+          : "LockScreened compares the saved trait library against real minted NFTs before launch.",
+        done: preMint
+          ? false
+          : layered && data.validationRun?.status === "passed",
+        href: preMint ? "/studio#claim-live" : "#validation",
+        action: preMint ? "WAITING FOR MINT" : "RUN VALIDATION",
+      },
+      {
+        number: 6,
+        title: "Finish your public project details",
+        detail:
+          "Add the name, short description, links and public Locker URL collectors will see.",
+        done: Boolean(String(profile.tagline || profile.description || "").trim()),
+        href: "#project-details",
+        action: "ADD PROJECT DETAILS",
+      },
+    ];
+  }
 
   const next = steps.find((step) => !step.done);
   const complete = steps.filter((step) => step.done).length;

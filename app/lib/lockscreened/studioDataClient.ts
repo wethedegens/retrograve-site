@@ -777,6 +777,43 @@ export async function assertCollectionStorageBudget(args: {
   return { currentBytes, projectedBytes, hardLimit };
 }
 
+export async function updateFinishedArtworkProfile(args: {
+  session: LockScreenedSession;
+  collectionId: string;
+  currentRenderProfile?: any;
+  finishedArtwork: {
+    extensionStyle: "edge_color" | "gradient" | "blur";
+    sampledColor: string;
+    artworkScale: number;
+    verticalAlign: "top" | "center" | "bottom";
+  };
+}) {
+  await request<void>(
+    args.session,
+    "collections?id=eq." + encodeURIComponent(args.collectionId),
+    {
+      method: "PATCH",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({
+        render_mode: "flat_background_extend",
+        render_profile: {
+          ...(args.currentRenderProfile || {}),
+          engine: "finished_artwork_engine",
+          backgroundHandling: "preserve_finished_artwork",
+          finishedArtwork: {
+            ...args.finishedArtwork,
+            configuredAt: new Date().toISOString(),
+          },
+        },
+      }),
+    }
+  );
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
+  }
+}
+
 export async function updateCollectionRenderPlacement(args: {
   session: LockScreenedSession;
   collectionId: string;
