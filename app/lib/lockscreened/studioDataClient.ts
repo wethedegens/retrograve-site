@@ -966,23 +966,40 @@ export async function updateCollectionRenderPlacement(args: {
 }
 
 
-export async function unpublishStudioCollection(args: {
+async function changeStudioCollectionLifecycle(args: {
   session: LockScreenedSession;
   collectionId: string;
+  action: "unpublish" | "archive" | "restore";
 }) {
-  await request<void>(
-    args.session,
-    "collections?id=eq." + encodeURIComponent(args.collectionId),
-    {
-      method: "PATCH",
-      headers: { Prefer: "return=minimal" },
-      body: JSON.stringify({ publish_status: "draft" }),
-    }
-  );
+  const response = await fetch("/api/studio/project-lifecycle", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      Authorization: "Bearer " + args.session.access_token,
+    },
+    body: JSON.stringify({
+      collectionId: args.collectionId,
+      action: args.action,
+    }),
+  });
+
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result?.error || "Project status change was blocked.");
+  }
 
   if (typeof window !== "undefined") {
     window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
   }
+
+  return result;
+}
+
+export async function unpublishStudioCollection(args: {
+  session: LockScreenedSession;
+  collectionId: string;
+}) {
+  return changeStudioCollectionLifecycle({ ...args, action: "unpublish" });
 }
 
 export async function unpublishBackgroundPackage(args: {
@@ -1004,41 +1021,17 @@ export async function unpublishBackgroundPackage(args: {
   }
 }
 
-
 export async function archiveStudioCollection(args: {
   session: LockScreenedSession;
   collectionId: string;
 }) {
-  await request<void>(
-    args.session,
-    "collections?id=eq." + encodeURIComponent(args.collectionId),
-    {
-      method: "PATCH",
-      headers: { Prefer: "return=minimal" },
-      body: JSON.stringify({ publish_status: "archived" }),
-    }
-  );
-
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
-  }
+  return changeStudioCollectionLifecycle({ ...args, action: "archive" });
 }
 
 export async function restoreStudioCollection(args: {
   session: LockScreenedSession;
   collectionId: string;
 }) {
-  await request<void>(
-    args.session,
-    "collections?id=eq." + encodeURIComponent(args.collectionId),
-    {
-      method: "PATCH",
-      headers: { Prefer: "return=minimal" },
-      body: JSON.stringify({ publish_status: "draft" }),
-    }
-  );
-
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
-  }
+  return changeStudioCollectionLifecycle({ ...args, action: "restore" });
 }
+
