@@ -30,7 +30,10 @@ export default function StudioLaunchReadiness({ data }: { data: any }) {
     { label: "Collection authority verified", ok: claim?.status === "verified" },
     { label: "Project identity added", ok: Boolean(String(profile.description || profile.tagline || "").trim()) },
     { label: "At least one published phone background", ok: hasPhoneBackground },
-    { label: "Trait layer order confirmed", ok: !layered || layers.length > 0 },
+    {
+      label: "Trait layer order confirmed",
+      ok: !layered || Boolean(collection.render_profile?.layerOrderConfirmedAt),
+    },
     { label: "Private trait library uploaded", ok: !layered || traitAssets.length > 0 },
     { label: "Server reconstruction validation passed", ok: !layered || validationRun?.status === "passed" },
     { label: "Public render derivatives published", ok: !layered || publicTraits.length > 0 },

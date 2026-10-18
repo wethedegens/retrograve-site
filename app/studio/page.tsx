@@ -117,7 +117,7 @@ export default function CreatorStudioPage() {
             + CLAIM / ADD COLLECTION
           </a>
           <a className={styles.secondary} href="#trait-import">
-            TEST A TRAIT FOLDER
+            UPLOAD ORIGINAL TRAITS
           </a>
         </div>
 
@@ -172,40 +172,6 @@ export default function CreatorStudioPage() {
         </section>
 
         <StudioCollectionClaim />
-
-        <section className={styles.claim} id="claim">
-          <div className={styles.claimGrid}>
-            <div>
-              <p className={styles.kicker}>COLLECTION AUTHORITY</p>
-              <h2>Claim an existing collection</h2>
-              <p>
-                Studio sign-in already proves control of the connected wallet.
-                LockScreened then checks that authenticated wallet against
-                collection authority data. Owning one NFT will never be enough
-                to claim somebody else&apos;s project.
-              </p>
-            </div>
-
-            <div className={styles.claimSteps}>
-              <div>
-                <b>01</b>
-                <span>Enter collection address / project source</span>
-              </div>
-              <div>
-                <b>02</b>
-                <span>Read creator and authority evidence</span>
-              </div>
-              <div>
-                <b>03</b>
-                <span>Connect the authority wallet</span>
-              </div>
-              <div>
-                <b>04</b>
-                <span>Confirm authority and create a protected draft</span>
-              </div>
-            </div>
-          </div>
-        </section>
 
         <div className={styles.importer} id="trait-import">
           <StudioTraitImporter />

@@ -186,7 +186,7 @@ export default function StudioCollectionClaim() {
 
   return (
     <section
-      id="claim-live"
+      id="claim"
       style={{
         marginTop: 28,
         borderRadius: 24,

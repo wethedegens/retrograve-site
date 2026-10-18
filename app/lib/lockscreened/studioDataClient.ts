@@ -640,6 +640,7 @@ export async function saveTraitLayerConfiguration(args: {
           backgroundHandling: args.omitOriginalBackgroundWhenCustom
             ? "omit_original_when_custom"
             : "keep_original_background",
+          layerOrderConfirmedAt: new Date().toISOString(),
         },
       }),
     }

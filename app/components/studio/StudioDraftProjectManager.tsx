@@ -23,6 +23,7 @@ import StudioLaunchReadiness from "./StudioLaunchReadiness";
 import StudioRenderProfileEditor from "./StudioRenderProfileEditor";
 import StudioPublicLinkControls from "./StudioPublicLinkControls";
 import StudioActivityLog from "./StudioActivityLog";
+import StudioFounderJourney from "./StudioFounderJourney";
 
 export default function StudioDraftProjectManager({
   collectionId,
@@ -446,6 +447,8 @@ export default function StudioDraftProjectManager({
         {message ? <div style={notice}>{message}</div> : null}
       </section>
 
+      <StudioFounderJourney data={data} collectionId={collectionId} />
+
       <StudioPublicLinkControls
         slug={collection.public_slug || collection.slug}
         published={collection.publish_status === "published"}
@@ -455,6 +458,7 @@ export default function StudioDraftProjectManager({
 
       <StudioLaunchReadiness data={data} />
 
+      <div id="project-details">
       <StudioPublicProfileEditor
         session={session}
         collectionId={collectionId}
@@ -462,13 +466,16 @@ export default function StudioDraftProjectManager({
         profile={collection.public_profile}
         publicSlug={collection.public_slug}
       />
+      </div>
 
+      <div id="layer-order">
       <StudioLayerOrderEditor
         session={session}
         collectionId={collectionId}
         layers={layers}
         renderProfile={collection.render_profile}
       />
+      </div>
 
       <StudioRenderProfileEditor
         session={session}
@@ -500,6 +507,7 @@ export default function StudioDraftProjectManager({
         )}
       </section>
 
+      <div id="validation">
       <StudioTraitValidation
         session={session}
         collectionId={collectionId}
@@ -508,6 +516,7 @@ export default function StudioDraftProjectManager({
         traitAssets={traitAssets || []}
         validationRun={data.validationRun}
       />
+      </div>
 
       <StudioMintOverrides
         session={session}
@@ -518,7 +527,7 @@ export default function StudioDraftProjectManager({
         onChanged={load}
       />
 
-      <section style={panel}>
+      <section style={panel} id="backgrounds">
         <div style={eyebrow}>OFFICIAL BACKGROUNDS</div>
         <h2 style={heading}>Background package drafts</h2>
 
