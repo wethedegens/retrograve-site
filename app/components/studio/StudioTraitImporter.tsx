@@ -233,6 +233,7 @@ export default function StudioTraitImporter() {
         try {
           await upsertTraitAssetMetadata({
             session,
+            collectionId: selectedCollectionId,
             rows: [
               {
                 layer_id: layerId,
