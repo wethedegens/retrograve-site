@@ -48,12 +48,33 @@ export function formatBytes(bytes: number) {
   return `${(bytes / MB).toFixed(1)} MB`;
 }
 
+const SAFE_IMAGE_TYPES = new Set(["image/png", "image/webp", "image/jpeg"]);
+const SAFE_TRAIT_EXTENSIONS = new Set(["png", "webp"]);
+const SAFE_BACKGROUND_EXTENSIONS = new Set(["png", "webp", "jpg", "jpeg"]);
+
+function extensionOf(name: string) {
+  const clean = String(name || "").split(/[\\/]/).pop() || "";
+  const dot = clean.lastIndexOf(".");
+  return dot >= 0 ? clean.slice(dot + 1).toLowerCase() : "";
+}
+
 export function validateTraitImportFiles(
-  files: Array<{ name: string; size?: number }>
+  files: Array<{ name: string; size?: number; type?: string }>
 ): UploadGuardrailResult {
   const errors: string[] = [];
   const warnings: string[] = [];
   const totalBytes = files.reduce((sum, file) => sum + (file.size || 0), 0);
+
+  const unsupported = files.filter((file) => {
+    const ext = extensionOf(file.name);
+    const mime = String(file.type || "").toLowerCase();
+    return !SAFE_TRAIT_EXTENSIONS.has(ext) || (mime && !SAFE_IMAGE_TYPES.has(mime));
+  });
+  if (unsupported.length) {
+    errors.push(
+      `${unsupported.length} file${unsupported.length === 1 ? "" : "s"} are not supported trait images. Only PNG and WebP source files are accepted.`
+    );
+  }
 
   if (files.length > COST_GUARDRAILS.traitImport.maxFiles) {
     errors.push(
@@ -88,13 +109,19 @@ export function validateTraitImportFiles(
 }
 
 export function validateBackgroundFile(
-  file: { name: string; size?: number } | null | undefined
+  file: { name: string; size?: number; type?: string } | null | undefined
 ): UploadGuardrailResult {
   const errors: string[] = [];
   const warnings: string[] = [];
   const totalBytes = file?.size || 0;
 
   if (!file) return { ok: true, errors, warnings, totalBytes: 0 };
+
+  const ext = extensionOf(file.name);
+  const mime = String(file.type || "").toLowerCase();
+  if (!SAFE_BACKGROUND_EXTENSIONS.has(ext) || (mime && !SAFE_IMAGE_TYPES.has(mime))) {
+    errors.push(`${file.name} is not a supported image. Use PNG, WebP, or JPEG.`);
+  }
 
   if (totalBytes > COST_GUARDRAILS.background.maxFileBytes) {
     errors.push(
@@ -110,11 +137,12 @@ export function validateBackgroundFile(
 }
 
 export function validateBackgroundPackage(
-  files: Array<{ name: string; size?: number } | null | undefined>
+  files: Array<{ name: string; size?: number; type?: string } | null | undefined>
 ): UploadGuardrailResult {
   const present = files.filter(Boolean) as Array<{
     name: string;
     size?: number;
+    type?: string;
   }>;
 
   const errors: string[] = [];
