@@ -527,8 +527,8 @@ export default function StudioBackgroundBuilder() {
             SAVE DEVICE BACKGROUND DRAFT
           </strong>
           <span style={{ fontSize: 9, color: "rgba(255,255,255,.5)" }}>
-            Save the package name/collection relationship in Supabase. Image
-            files stay local until private storage is enabled.
+            Save the package name/collection relationship first. Your image files
+            stay on this device until you explicitly choose UPLOAD PRIVATE SOURCES below.
           </span>
         </div>
 
