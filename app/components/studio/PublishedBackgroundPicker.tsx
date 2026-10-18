@@ -3,6 +3,17 @@
 
 import type { BgChoice } from "../Composer";
 
+export type StudioBgChoice =
+  | BgChoice
+  | {
+      kind: "image";
+      image: string;
+      value?: string;
+      file?: File | null;
+      deviceAssets?: Record<string, string | undefined>;
+      backgroundId?: string;
+    };
+
 type Background = {
   id: string;
   name: string;
@@ -15,8 +26,8 @@ export default function PublishedBackgroundPicker({
   onChange,
 }: {
   backgrounds: Background[];
-  value: BgChoice;
-  onChange: (value: BgChoice) => void;
+  value: StudioBgChoice;
+  onChange: (value: StudioBgChoice) => void;
 }) {
   const activeId =
     value.kind === "image" ? (value as any).backgroundId : undefined;
