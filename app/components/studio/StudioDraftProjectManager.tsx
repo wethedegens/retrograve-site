@@ -328,10 +328,17 @@ export default function StudioDraftProjectManager({
   const validationPassed =
     !layered || data.validationRun?.status === "passed";
 
+  const finishedArtworkConfigured = Boolean(
+    collection.render_profile?.finishedArtwork?.configuredAt
+  );
+  const hasLaunchBackdrop =
+    hasPublishedPhoneBackground ||
+    (finishedArtwork && finishedArtworkConfigured);
+
   const launchReady =
     verified &&
     hasProjectIdentity &&
-    hasPublishedPhoneBackground &&
+    hasLaunchBackdrop &&
     hasPublishedRenderAssets &&
     validationPassed;
 

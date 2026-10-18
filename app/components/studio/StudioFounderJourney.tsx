@@ -56,31 +56,22 @@ export default function StudioFounderJourney({
       },
       {
         number: 3,
-        title: "Add an official background if you want one",
+        title: "Finish your project details",
         detail:
-          "Optional during pre-mint setup. A custom phone background can override the automatic extension treatment.",
-        done: privatePhoneBg || Boolean(publicBgs.length),
-        href: "/studio#background-builder",
-        action: "ADD BACKGROUND",
+          "Add the name, short description, links and public Locker URL collectors will eventually see.",
+        done: Boolean(String(profile.tagline || profile.description || "").trim()),
+        href: "#project-details",
+        action: "ADD PROJECT DETAILS",
       },
       {
         number: 4,
         title: preMint ? "After mint: attach and verify the collection" : "Verify your collection",
         detail: preMint
-          ? "Nothing is wrong here — this waits until the real collection exists on-chain."
+          ? "Your private setup is ready. This step intentionally waits until the real collection exists on-chain."
           : "Confirm that the connected wallet currently controls this collection.",
         done: data.claim?.status === "verified",
         href: "/studio#claim-live",
         action: preMint ? "WAITING FOR MINT" : "VERIFY COLLECTION",
-      },
-      {
-        number: 5,
-        title: "Finish your public project details",
-        detail:
-          "Add the name, short description, links and public Locker URL collectors will see.",
-        done: Boolean(String(profile.tagline || profile.description || "").trim()),
-        href: "#project-details",
-        action: "ADD PROJECT DETAILS",
       },
     ];
   } else {
@@ -126,24 +117,24 @@ export default function StudioFounderJourney({
       },
       {
         number: 5,
+        title: "Finish your project details",
+        detail:
+          "Add the name, short description, links and public Locker URL collectors will eventually see.",
+        done: Boolean(String(profile.tagline || profile.description || "").trim()),
+        href: "#project-details",
+        action: "ADD PROJECT DETAILS",
+      },
+      {
+        number: 6,
         title: preMint ? "After mint: attach and verify the collection" : "Validate real NFTs",
         detail: preMint
-          ? "This intentionally waits until the real collection exists. Your private setup can continue now."
+          ? "Your private build can stop here until mint. After mint, attach the real collection and verify authority."
           : "LockScreened compares the saved trait library against real minted NFTs before launch.",
         done: preMint
           ? false
           : layered && data.validationRun?.status === "passed",
         href: preMint ? "/studio#claim-live" : "#validation",
         action: preMint ? "WAITING FOR MINT" : "RUN VALIDATION",
-      },
-      {
-        number: 6,
-        title: "Finish your public project details",
-        detail:
-          "Add the name, short description, links and public Locker URL collectors will see.",
-        done: Boolean(String(profile.tagline || profile.description || "").trim()),
-        href: "#project-details",
-        action: "ADD PROJECT DETAILS",
       },
     ];
   }

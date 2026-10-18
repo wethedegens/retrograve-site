@@ -63,7 +63,7 @@ export async function POST(request: Request) {
         accessToken,
         "collections?id=eq." +
           encodeURIComponent(collectionId) +
-          "&select=id,source_type,source_config,render_mode,public_profile,publish_status&limit=1"
+          "&select=id,source_type,source_config,render_mode,render_profile,public_profile,publish_status&limit=1"
       ),
       restAsUser<any[]>(
         accessToken,
@@ -123,9 +123,18 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!phoneBackgrounds?.length) {
+    const finishedArtworkConfigured =
+      collection.render_mode === "flat_background_extend" &&
+      Boolean(collection?.render_profile?.finishedArtwork?.configuredAt);
+
+    if (!phoneBackgrounds?.length && !finishedArtworkConfigured) {
       return NextResponse.json(
-        { error: "Publish at least one phone background before launching." },
+        {
+          error:
+            collection.render_mode === "flat_background_extend"
+              ? "Save a finished-artwork extension treatment or publish a phone background before launching."
+              : "Publish at least one phone background before launching.",
+        },
         { status: 400 }
       );
     }

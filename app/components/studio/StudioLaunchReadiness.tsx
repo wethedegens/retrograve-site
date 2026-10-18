@@ -24,12 +24,23 @@ export default function StudioLaunchReadiness({ data }: { data: any }) {
   const hardTarget = 150 * 1024 * 1024;
   const profile = collection.public_profile || {};
   const layered = collection.render_mode === "layered_traits";
+  const finishedArtwork = collection.render_mode === "flat_background_extend";
   const hasPhoneBackground = publicBgs.some((item: any) => item.device === "phone");
+  const finishedArtworkConfigured = Boolean(
+    collection.render_profile?.finishedArtwork?.configuredAt
+  );
+  const hasLaunchBackdrop =
+    hasPhoneBackground || (finishedArtwork && finishedArtworkConfigured);
 
   const checks = [
     { label: "Collection authority verified", ok: claim?.status === "verified" },
     { label: "Project identity added", ok: Boolean(String(profile.description || profile.tagline || "").trim()) },
-    { label: "At least one published phone background", ok: hasPhoneBackground },
+    {
+      label: finishedArtwork
+        ? "Finished-artwork treatment or phone background ready"
+        : "At least one published phone background",
+      ok: hasLaunchBackdrop,
+    },
     {
       label: "Trait layer order confirmed",
       ok: !layered || Boolean(collection.render_profile?.layerOrderConfirmedAt),
