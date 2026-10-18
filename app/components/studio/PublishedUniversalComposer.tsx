@@ -9,7 +9,6 @@ import {
   useRef,
 } from "react";
 import type {
-  BgChoice,
   ComposerHandle,
   ExportImageOptions,
   MetaAttribute,
@@ -57,7 +56,7 @@ async function drawBackground(
   ctx: CanvasRenderingContext2D,
   width: number,
   height: number,
-  bg: BgChoice,
+  bg: StudioBgChoice,
   device: "phone" | "ipad" | "desktop"
 ) {
   if (bg.kind === "color") {
