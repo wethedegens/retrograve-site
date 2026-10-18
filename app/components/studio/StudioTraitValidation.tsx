@@ -1,7 +1,7 @@
 // app/components/studio/StudioTraitValidation.tsx
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { LockScreenedSession } from "../../lib/lockscreened/web3AuthClient";
 import { matchMetadataToTraitAssets } from "../../lib/lockscreened/traitMapping";
 import StudioReconstructionPreview from "./StudioReconstructionPreview";
@@ -30,16 +30,23 @@ export default function StudioTraitValidation({
     validationRun?.status || ""
   );
 
+  // Validation can be invalidated server-side when trait inputs change.
+  // Keep the badge aligned with refreshed persisted state instead of retaining
+  // an earlier PASS result in local component state.
+  useEffect(() => {
+    setServerStatus(validationRun?.status || "");
+  }, [validationRun?.id, validationRun?.status, validationRun?.checked_at]);
+
   const importedLayers = useMemo(
     () =>
       layers.map((layer: any) => ({
-        name: layer.display_name || layer.trait_type,
+        name: layer.trait_type,
         suggestedOrder: Number(layer.layer_order || 0),
         likelyBackground: Boolean(layer.is_background),
         assets: traitAssets
           .filter((asset: any) => asset.layer_id === layer.id)
           .map((asset: any) => ({
-            layerName: layer.display_name || layer.trait_type,
+            layerName: layer.trait_type,
             traitValue: asset.trait_value,
             relativePath: asset.storage_path,
           })),
