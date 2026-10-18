@@ -14,6 +14,7 @@ import type {
   ExportImageOptions,
   SimpleNft,
 } from "../Composer";
+import type { StudioBgChoice } from "./PublishedBackgroundPicker";
 
 function isIpfs(value?: string | null) {
   return Boolean(value && String(value).startsWith("ipfs://"));
@@ -109,7 +110,7 @@ const PublishedFinishedArtworkComposer = forwardRef<
   ComposerHandle,
   {
     nft: SimpleNft | null;
-    bg: BgChoice;
+    bg: StudioBgChoice;
     hasOfficialBackground: boolean;
     renderProfile?: any;
   }
