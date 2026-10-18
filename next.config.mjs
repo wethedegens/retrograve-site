@@ -39,10 +39,9 @@ const nextConfig = {
     ];
 
     return [
-      {
-        source: "/:path*",
-        headers: securityHeaders,
-      },
+      // Keep the existing flagship/public routes HTTP-identical to production.
+      // Creator Studio gets the hardened headers without imposing new framing,
+      // permissions, or referrer behavior on the mature legacy site.
       {
         source: "/studio/:path*",
         headers: privateStudioHeaders,
@@ -50,6 +49,14 @@ const nextConfig = {
       {
         source: "/api/studio/:path*",
         headers: privateStudioHeaders,
+      },
+      {
+        source: "/projects/:path*",
+        headers: securityHeaders,
+      },
+      {
+        source: "/api/public/:path*",
+        headers: securityHeaders,
       },
     ];
   },
