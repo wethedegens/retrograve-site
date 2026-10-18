@@ -68,7 +68,7 @@ export async function POST(request: Request) {
         accessToken,
         "collections?id=eq." +
           encodeURIComponent(collectionId) +
-          "&select=id,slug,name,render_mode,source_type,source_config&limit=1"
+          "&select=id,slug,name,render_mode,render_profile,source_type,source_config&limit=1"
       ),
       restAsUser<any[]>(
         accessToken,
@@ -127,9 +127,24 @@ export async function POST(request: Request) {
       );
     }
 
-    if (validationRuns?.[0]?.status !== "passed") {
+    const layerOrderConfirmedAt = Date.parse(
+      String(collection.render_profile?.layerOrderConfirmedAt || "")
+    );
+    const validationCheckedAt = Date.parse(
+      String(validationRuns?.[0]?.checked_at || "")
+    );
+    const validationIsCurrent =
+      validationRuns?.[0]?.status === "passed" &&
+      Number.isFinite(layerOrderConfirmedAt) &&
+      Number.isFinite(validationCheckedAt) &&
+      validationCheckedAt >= layerOrderConfirmedAt;
+
+    if (!validationIsCurrent) {
       return NextResponse.json(
-        { error: "Run and pass reconstruction validation before publishing render assets." },
+        {
+          error:
+            "Run and pass reconstruction validation after confirming the current trait layer order.",
+        },
         { status: 400 }
       );
     }
