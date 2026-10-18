@@ -335,12 +335,16 @@ export default function StudioDraftProjectManager({
     hasPublishedPhoneBackground ||
     (finishedArtwork && finishedArtworkConfigured);
 
+  const layerOrderConfirmed =
+    !layered || Boolean(collection.render_profile?.layerOrderConfirmedAt);
+
   const launchReady =
     verified &&
     hasProjectIdentity &&
     hasLaunchBackdrop &&
     hasPublishedRenderAssets &&
-    validationPassed;
+    validationPassed &&
+    layerOrderConfirmed;
 
   return (
     <div style={{ display: "grid", gap: 13 }}>
