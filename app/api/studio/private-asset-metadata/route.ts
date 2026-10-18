@@ -1,6 +1,6 @@
 // app/api/studio/private-asset-metadata/route.ts
 import { NextResponse } from "next/server";
-import { requireCurrentCollectionAuthority } from "../../../lib/lockscreened/server/currentAuthority";
+import { requireCurrentCollectionAuthority, studioSecurityErrorStatus } from "../../../lib/lockscreened/server/currentAuthority";
 import {
   consumeStudioActionRateLimit,
   getAuthenticatedUser,
@@ -108,6 +108,6 @@ export async function POST(request: Request) {
     });
     return NextResponse.json({ ok: true, rows: saved || [] });
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Private asset metadata was blocked." }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Private asset metadata was blocked." }, { status: studioSecurityErrorStatus(error) });
   }
 }
