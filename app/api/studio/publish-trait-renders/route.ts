@@ -1,6 +1,7 @@
 // app/api/studio/publish-trait-renders/route.ts
 import { NextResponse } from "next/server";
 import { publicPreviewPath, STORAGE_BUCKETS } from "../../../lib/lockscreened/storagePaths";
+import { requireCurrentCollectionAuthority } from "../../../lib/lockscreened/server/currentAuthority";
 import {
   consumeStudioActionRateLimit,
   isTrustedStudioRequestOrigin,
@@ -67,7 +68,7 @@ export async function POST(request: Request) {
         accessToken,
         "collections?id=eq." +
           encodeURIComponent(collectionId) +
-          "&select=id,slug,name,render_mode&limit=1"
+          "&select=id,slug,name,render_mode,source_type,source_config&limit=1"
       ),
       restAsUser<any[]>(
         accessToken,
@@ -96,6 +97,22 @@ export async function POST(request: Request) {
         { status: 403 }
       );
     }
+
+    const collectionAddress = String(
+      collection?.source_config?.collectionIds?.[0] || ""
+    ).trim();
+
+    if (collection.source_type !== "solana_collection" || !collectionAddress) {
+      return NextResponse.json(
+        { error: "This project does not have a valid Solana collection identity." },
+        { status: 400 }
+      );
+    }
+
+    await requireCurrentCollectionAuthority({
+      user,
+      collectionAddress,
+    });
 
     if (collection.render_mode !== "layered_traits") {
       return NextResponse.json(

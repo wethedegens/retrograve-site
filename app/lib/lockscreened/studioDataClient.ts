@@ -467,19 +467,29 @@ export async function publishStudioCollection(args: {
   session: LockScreenedSession;
   collectionId: string;
 }) {
-  await request<void>(
-    args.session,
-    "collections?id=eq." + encodeURIComponent(args.collectionId),
-    {
-      method: "PATCH",
-      headers: { Prefer: "return=minimal" },
-      body: JSON.stringify({ publish_status: "published" }),
-    }
-  );
+  const response = await fetch("/api/studio/publish-project", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      Authorization: "Bearer " + args.session.access_token,
+    },
+    body: JSON.stringify({ collectionId: args.collectionId }),
+  });
+
+  const result = await response.json();
+  if (!response.ok) {
+    const error = new Error(result?.error || "Project publishing was blocked.") as Error & {
+      needsServerSecret?: boolean;
+    };
+    error.needsServerSecret = Boolean(result?.needsServerSecret);
+    throw error;
+  }
 
   if (typeof window !== "undefined") {
     window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
   }
+
+  return result;
 }
 
 export async function publishBackgroundPackage(args: {

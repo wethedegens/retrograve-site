@@ -1,6 +1,7 @@
 // app/api/studio/publish-background/route.ts
 import { NextResponse } from "next/server";
 import { publicPreviewPath, STORAGE_BUCKETS } from "../../../lib/lockscreened/storagePaths";
+import { requireCurrentCollectionAuthority } from "../../../lib/lockscreened/server/currentAuthority";
 import {
   consumeStudioActionRateLimit,
   isTrustedStudioRequestOrigin,
@@ -103,7 +104,7 @@ export async function POST(request: Request) {
         accessToken,
         "collections?id=eq." +
           encodeURIComponent(packageRow.collection_id) +
-          "&select=id,slug,name,publish_status&limit=1"
+          "&select=id,slug,name,publish_status,source_type,source_config&limit=1"
       ),
       restAsUser<any[]>(
         accessToken,
@@ -137,6 +138,22 @@ export async function POST(request: Request) {
         { status: 403 }
       );
     }
+
+    const collectionAddress = String(
+      collection?.source_config?.collectionIds?.[0] || ""
+    ).trim();
+
+    if (collection.source_type !== "solana_collection" || !collectionAddress) {
+      return NextResponse.json(
+        { error: "This project does not have a valid Solana collection identity." },
+        { status: 400 }
+      );
+    }
+
+    await requireCurrentCollectionAuthority({
+      user,
+      collectionAddress,
+    });
 
     if (!sourceAssets?.length) {
       return NextResponse.json(
@@ -224,10 +241,9 @@ export async function POST(request: Request) {
       });
     }
 
-    // Use the founder's own JWT for the final state change. The RLS publish
-    // gate independently confirms a verified claim and a published phone asset.
-    await restAsUser<void>(
-      accessToken,
+    // Publishing is a privileged transition. The browser cannot perform it
+    // directly; current collection authority was re-checked above.
+    await restAsAdmin<void>(
       "background_packages?id=eq." + encodeURIComponent(packageId),
       {
         method: "PATCH",
