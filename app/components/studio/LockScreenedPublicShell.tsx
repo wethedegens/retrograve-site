@@ -1,3 +1,5 @@
+"use client";
+
 // app/components/studio/LockScreenedPublicShell.tsx
 import type { ReactNode } from "react";
 
