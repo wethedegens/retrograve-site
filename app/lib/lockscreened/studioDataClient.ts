@@ -4,6 +4,26 @@
 import { getPublicSupabaseConfig } from "./backendConfig";
 import type { LockScreenedSession } from "./web3AuthClient";
 
+export type StudioCollectionRow = {
+  id: string;
+  studio_id: string;
+  slug: string;
+  name: string;
+  source_type: string;
+  source_config: any;
+  render_mode: string;
+  render_profile: any;
+  publish_status: string;
+  created_at: string;
+};
+
+type StudioClaimRow = {
+  id: string;
+  collection_id: string;
+  status: string;
+  wallet_address: string;
+};
+
 function cfg() {
   const value = getPublicSupabaseConfig();
   if (!value) throw new Error("LockScreened Supabase is not configured.");
