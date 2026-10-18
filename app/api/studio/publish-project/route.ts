@@ -140,6 +140,13 @@ export async function POST(request: Request) {
     }
 
     if (collection.render_mode === "layered_traits") {
+      if (!collection.render_profile?.layerOrderConfirmedAt) {
+        return NextResponse.json(
+          { error: "Confirm the trait layer order before publishing." },
+          { status: 400 }
+        );
+      }
+
       if (validationRuns?.[0]?.status !== "passed") {
         return NextResponse.json(
           { error: "Run and pass reconstruction validation before publishing." },
