@@ -8,8 +8,6 @@ import {
   type LockScreenedSession,
 } from "../../lib/lockscreened/web3AuthClient";
 import {
-  attachPreMintCollectionClaim,
-  createPendingCollectionClaim,
   listMyStudioCollections,
   type StudioCollectionRow,
 } from "../../lib/lockscreened/studioDataClient";
@@ -139,19 +137,22 @@ export default function StudioCollectionClaim() {
       const current = await getFreshSession();
       if (!current) throw new Error("Your Studio session expired.");
 
-      const result = attachToProjectId
-        ? await attachPreMintCollectionClaim({
-            session: current,
-            collectionId: attachToProjectId,
-            collectionAddress: inspection.collection.assetId,
-            walletAddress: inspection.walletAddress,
-          })
-        : await createPendingCollectionClaim({
-            session: current,
-            collectionAddress: inspection.collection.assetId,
-            collectionName: inspection.collection.name,
-            walletAddress: inspection.walletAddress,
-          });
+      const prepareResponse = await fetch("/api/studio/claim-prepare", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          Authorization: "Bearer " + current.access_token,
+        },
+        body: JSON.stringify({
+          collectionId: attachToProjectId || undefined,
+          collectionAddress: inspection.collection.assetId,
+          collectionName: inspection.collection.name,
+        }),
+      });
+      const result = await prepareResponse.json();
+      if (!prepareResponse.ok) {
+        throw new Error(result?.error || "Could not prepare this collection claim.");
+      }
 
       setSaved(result);
 
