@@ -14,6 +14,7 @@ import type {
   ExportImageOptions,
   MetaAttribute,
 } from "../Composer";
+import type { StudioBgChoice } from "./PublishedBackgroundPicker";
 
 type Layer = {
   id: string;
@@ -87,7 +88,7 @@ const PublishedUniversalComposer = forwardRef<
     attributes: MetaAttribute[];
     layers: Layer[];
     assets: PublishedTraitAsset[];
-    bg: BgChoice;
+    bg: StudioBgChoice;
     nftName?: string;
     renderProfile?: any;
   }
