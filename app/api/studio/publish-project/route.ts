@@ -147,9 +147,24 @@ export async function POST(request: Request) {
         );
       }
 
-      if (validationRuns?.[0]?.status !== "passed") {
+      const layerOrderConfirmedAt = Date.parse(
+        String(collection.render_profile?.layerOrderConfirmedAt || "")
+      );
+      const validationCheckedAt = Date.parse(
+        String(validationRuns?.[0]?.checked_at || "")
+      );
+      const validationIsCurrent =
+        validationRuns?.[0]?.status === "passed" &&
+        Number.isFinite(layerOrderConfirmedAt) &&
+        Number.isFinite(validationCheckedAt) &&
+        validationCheckedAt >= layerOrderConfirmedAt;
+
+      if (!validationIsCurrent) {
         return NextResponse.json(
-          { error: "Run and pass reconstruction validation before publishing." },
+          {
+            error:
+              "Run and pass reconstruction validation after confirming the current trait layer order.",
+          },
           { status: 400 }
         );
       }
