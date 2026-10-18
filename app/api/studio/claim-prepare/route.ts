@@ -61,6 +61,24 @@ export async function POST(request: Request) {
     const studio = studios?.[0];
     if (!studio) return NextResponse.json({ error: "Create your Studio first." }, { status: 400 });
 
+    // A collection address can belong to only one founder project. Do not
+    // allow a second Studio to create a lookalike LockScreened identity.
+    const existingAddressRows = await restAsUser<any[]>(
+      accessToken,
+      "collections?source_type=eq.solana_collection&source_config->collectionIds=cs." +
+        encodeURIComponent(JSON.stringify([collectionAddress])) +
+        "&select=id,studio_id,created_by&limit=2"
+    );
+    const foreignExisting = (existingAddressRows || []).find(
+      (item: any) => item.created_by !== user.id && item.id !== collectionId
+    );
+    if (foreignExisting) {
+      return NextResponse.json(
+        { error: "This collection is already registered to another LockScreened Studio. Support review is required." },
+        { status: 409 }
+      );
+    }
+
     let collection: any;
     if (collectionId) {
       const rows = await restAsUser<any[]>(
