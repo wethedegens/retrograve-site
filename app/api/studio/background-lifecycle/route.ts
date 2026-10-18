@@ -1,6 +1,6 @@
 // app/api/studio/background-lifecycle/route.ts
 import { NextResponse } from "next/server";
-import { requireCurrentCollectionAuthority } from "../../../lib/lockscreened/server/currentAuthority";
+import { requireCurrentCollectionAuthority, studioSecurityErrorStatus } from "../../../lib/lockscreened/server/currentAuthority";
 import {
   consumeStudioActionRateLimit,
   getAuthenticatedUser,
@@ -88,7 +88,7 @@ export async function POST(request: Request) {
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Could not change background status." },
-      { status: 500 }
+      { status: studioSecurityErrorStatus(error) }
     );
   }
 }
