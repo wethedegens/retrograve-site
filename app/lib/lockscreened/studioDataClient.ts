@@ -407,55 +407,30 @@ export async function saveTraitLayerMap(args: {
     likelyBackground: boolean;
   }>;
 }) {
-  const rows = args.layers.map((layer) => ({
-    collection_id: args.collectionId,
-    trait_type: layer.name,
-    display_name: layer.name,
-    layer_order: layer.suggestedOrder,
-    is_background: layer.likelyBackground,
-  }));
+  if (!args.layers.length) throw new Error("No trait layers were detected.");
 
-  if (!rows.length) throw new Error("No trait layers were detected.");
+  const response = await fetch("/api/studio/trait-layer-map", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      Authorization: "Bearer " + args.session.access_token,
+    },
+    body: JSON.stringify({
+      collectionId: args.collectionId,
+      layers: args.layers,
+    }),
+  });
 
-  const savedLayers = await request<any[]>(
-    args.session,
-    "trait_layers?on_conflict=collection_id,trait_type&select=id,trait_type,display_name,layer_order,is_background",
-    {
-      method: "POST",
-      headers: {
-        Prefer: "resolution=merge-duplicates,return=representation",
-      },
-      body: JSON.stringify(rows),
-    }
-  );
-
-  await request<void>(
-    args.session,
-    "collections?id=eq." + encodeURIComponent(args.collectionId),
-    {
-      method: "PATCH",
-      headers: { Prefer: "return=minimal" },
-      body: JSON.stringify({
-        render_mode: "layered_traits",
-        render_profile: {
-          ...(args.currentRenderProfile || {}),
-          engine: "universal_trait_engine",
-          backgroundHandling:
-            args.currentRenderProfile?.backgroundHandling ||
-            "creator_designated",
-          // A newly saved layer map may change ordering or background meaning.
-          // Require the founder to explicitly review/confirm it again.
-          layerOrderConfirmedAt: null,
-        },
-      }),
-    }
-  );
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result?.error || "Trait layer map change was blocked.");
+  }
 
   if (typeof window !== "undefined") {
     window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
   }
 
-  return savedLayers || [];
+  return result.layers || [];
 }
 
 export async function upsertTraitAssetMetadata(args: {
