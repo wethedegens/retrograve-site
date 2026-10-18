@@ -438,6 +438,7 @@ export async function publishStudioCollection(args: {
 
 export async function upsertBackgroundSourceAssetMetadata(args: {
   session: LockScreenedSession;
+  collectionId: string;
   rows: Array<{
     package_id: string;
     device: "phone" | "ipad" | "desktop" | "thumb";
