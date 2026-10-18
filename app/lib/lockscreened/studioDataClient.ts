@@ -833,7 +833,9 @@ export async function updateCollectionRenderPlacement(args: {
       body: JSON.stringify({
         render_profile: {
           ...(args.currentRenderProfile || {}),
-          engine: "universal_trait_engine",
+          engine:
+            args.currentRenderProfile?.engine ||
+            "universal_trait_engine",
           devicePlacement: args.devicePlacement,
         },
       }),

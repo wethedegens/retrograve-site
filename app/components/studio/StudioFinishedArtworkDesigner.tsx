@@ -230,7 +230,7 @@ export default function StudioFinishedArtworkDesigner({
         holder&apos;s actual NFT image from collection metadata.
       </p>
 
-      <div style={layout}>
+      <div className="finished-layout" style={layout}>
         <div style={{ display: "grid", gap: 9, alignContent: "start" }}>
           <label style={drop}>
             <input
@@ -334,6 +334,14 @@ export default function StudioFinishedArtworkDesigner({
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @media (max-width: 760px) {
+          .finished-layout {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }

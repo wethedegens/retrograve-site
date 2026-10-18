@@ -75,7 +75,7 @@ export default function StudioRenderProfileEditor({
       <div style={eyebrow}>LOCKSCREENED DEVICE RENDER PROFILE</div>
       <h2 style={heading}>Art placement by device</h2>
       <p style={copy}>
-        Tune the universal renderer without writing project-specific code. These settings apply only to Creator Studio projects.
+        Fine-tune how the NFT artwork sits on phone, iPad and desktop. These settings apply only to this Creator Studio project.
       </p>
 
       <div className="device-grid" style={grid}>
