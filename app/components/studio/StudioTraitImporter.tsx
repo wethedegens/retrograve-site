@@ -168,10 +168,6 @@ export default function StudioTraitImporter() {
         incomingBytes,
       });
 
-      const selectedCollection = collections.find(
-        (project: any) => project.id === selectedCollectionId
-      );
-
       const savedLayers = await saveTraitLayerMap({
         session,
         collectionId: selectedCollectionId,
