@@ -91,6 +91,7 @@ export async function ensurePersonalStudio(session: LockScreenedSession) {
 export async function createPreMintProject(args: {
   session: LockScreenedSession;
   name: string;
+  artworkMode: "layered_traits" | "finished_artwork";
 }) {
   const userId = String(args.session.user?.id || "");
   if (!userId) throw new Error("Supabase user ID is missing.");
@@ -100,6 +101,7 @@ export async function createPreMintProject(args: {
 
   const studio = await ensurePersonalStudio(args.session);
   const slug = preMintSlug(userId);
+  const layered = args.artworkMode === "layered_traits";
 
   const created = await request<any[]>(
     args.session,
@@ -116,12 +118,19 @@ export async function createPreMintProject(args: {
           preMint: true,
           collectionIds: [],
           createdBeforeMint: true,
+          artworkMode: args.artworkMode,
         },
-        render_mode: "layered_traits",
-        render_profile: {
-          engine: "universal_trait_engine",
-          backgroundHandling: "creator_designated",
-        },
+        render_mode: layered ? "layered_traits" : "flat_background_extend",
+        render_profile: layered
+          ? {
+              engine: "universal_trait_engine",
+              backgroundHandling: "creator_designated",
+            }
+          : {
+              engine: "finished_artwork_engine",
+              backgroundHandling: "preserve_finished_artwork",
+              placement: "bottom_center",
+            },
         flagship: false,
         legacy_assets_locked: false,
         publish_status: "draft",

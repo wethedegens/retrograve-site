@@ -75,9 +75,14 @@ export default function StudioTraitImporter() {
       try {
         const rows = await listMyStudioCollections(next);
         if (!active) return;
-        setCollections(rows);
-        if (!selectedCollectionId && rows[0]?.id) {
-          setSelectedCollectionId(rows[0].id);
+        const layeredRows = rows.filter(
+          (row: any) =>
+            row.render_mode === "layered_traits" ||
+            row.source_config?.artworkMode === "layered_traits"
+        );
+        setCollections(layeredRows);
+        if (!selectedCollectionId && layeredRows[0]?.id) {
+          setSelectedCollectionId(layeredRows[0].id);
         }
       } catch {
         if (active) setCollections([]);
@@ -493,7 +498,7 @@ export default function StudioTraitImporter() {
             ) : (
               <span className="persistHint">
                 {session
-                  ? "Create a pre-mint project or verify an existing collection above before saving this trait map."
+                  ? "Create a Layered Traits project above before saving this trait map. Finished-artwork projects do not need trait folders."
                   : wallet.connected
                     ? "Wallet connected. One more step: sign in to Creator Studio above with the safe off-chain signature."
                     : "Connect your wallet, then sign in to Creator Studio before saving this trait map."}
