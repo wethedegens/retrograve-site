@@ -13,20 +13,7 @@ import { getBackgroundImagePath, type DeviceVariant } from "../backgroundsConfig
 
 export type BgChoice =
   | { kind: "color"; value: string }
-  | {
-      kind: "image";
-      image: string;
-      value?: string;
-      file?: File | null;
-      /**
-       * Optional art-directed variants for the same background.
-       * Existing projects can keep using `image` exactly as before; Creator
-       * Studio and curated flagship packages can additionally provide
-       * device-specific assets without changing the picker UI.
-       */
-      deviceAssets?: Partial<Record<DeviceVariant, string>>;
-      backgroundId?: string;
-    }
+  | { kind: "image"; image: string; value?: string; file?: File | null }
   | { kind: "preset"; id: string };
 
 export type MetaAttribute = {
@@ -311,11 +298,7 @@ const Composer = forwardRef<
       ctx.fillRect(0, 0, size.w, size.h);
     } else if (activeBg.kind === "image") {
       const anyBg = activeBg as any;
-      // Preserve the existing phone-image behavior by default. If a curated
-      // background package provides a device-specific asset, use it for that
-      // export instead of stretching the phone composition.
-      const src: string | undefined =
-        anyBg.deviceAssets?.[device] || anyBg.image || anyBg.value;
+      const src: string | undefined = anyBg.image || anyBg.value;
 
       setLoadingImg(true);
       try {
