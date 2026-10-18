@@ -41,6 +41,32 @@ export async function uploadStorageFile(args: {
 }) {
   const { url, publishableKey } = config();
 
+  const allowedBuckets = new Set(["creator-source-private"]);
+  if (!allowedBuckets.has(String(args.bucket || ""))) {
+    throw new Error("Browser uploads are restricted to the private creator source bucket.");
+  }
+
+  const normalizedPath = String(args.path || "").replace(/\\/g, "/");
+  if (
+    !normalizedPath ||
+    normalizedPath.startsWith("/") ||
+    normalizedPath.includes("../") ||
+    normalizedPath.includes("/..") ||
+    normalizedPath.split("/").some((segment) => !segment || segment === "." || segment === "..")
+  ) {
+    throw new Error("Unsafe storage path was blocked.");
+  }
+
+  const safeTypes = new Set(["image/png", "image/webp", "image/jpeg"]);
+  if (!safeTypes.has(String(args.file.type || "").toLowerCase())) {
+    throw new Error("Only PNG, WebP, and JPEG image uploads are accepted.");
+  }
+
+  const maxBrowserUploadBytes = 8 * 1024 * 1024;
+  if (!Number.isFinite(args.file.size) || args.file.size <= 0 || args.file.size > maxBrowserUploadBytes) {
+    throw new Error("This image is empty or exceeds the 8 MB browser upload limit.");
+  }
+
   const response = await fetch(
     `${url}/storage/v1/object/${encodeURIComponent(args.bucket)}/${encodedPath(args.path)}`,
     {
