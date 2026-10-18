@@ -191,8 +191,8 @@ export default function StudioTraitImporter() {
         })),
       });
 
-      const layerIdByName = new Map(
-        savedLayers.map((layer: any) => [
+      const layerIdByName = new Map<string, string>(
+        savedLayers.map((layer: any): [string, string] => [
           String(layer.trait_type).trim().toLowerCase(),
           String(layer.id),
         ])
