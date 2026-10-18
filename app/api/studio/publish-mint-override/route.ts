@@ -81,7 +81,7 @@ export async function POST(request: Request) {
         accessToken,
         "collections?id=eq." +
           encodeURIComponent(override.collection_id) +
-          "&select=id,slug,name,source_type,source_config&limit=1"
+          "&select=id,studio_id,slug,name,source_type,source_config&limit=1"
       ),
       restAsUser<any[]>(
         accessToken,
@@ -148,6 +148,17 @@ export async function POST(request: Request) {
 
     if (override.storage_bucket !== STORAGE_BUCKETS.creatorSourcePrivate) {
       throw new Error("Unexpected mint override source bucket.");
+    }
+
+    const expectedSourcePrefix =
+      String(collection.studio_id || "").toLowerCase() +
+      "/collections/" +
+      String(collection.id || "").toLowerCase() +
+      "/mint-overrides/" +
+      String(override.asset_id || "").toLowerCase() +
+      "/";
+    if (!String(override.storage_path || "").toLowerCase().startsWith(expectedSourcePrefix)) {
+      throw new Error("Mint override source path does not belong to this collection.");
     }
 
     const destinationPath = publicPreviewPath({
