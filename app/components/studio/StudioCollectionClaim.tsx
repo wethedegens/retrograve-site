@@ -92,67 +92,6 @@ export default function StudioCollectionClaim() {
     }
   }
 
-  async function finalizeClaim() {
-    const claimId = saved?.claim?.id;
-    if (!claimId) return;
-
-    setBusy(true);
-    setMessage("");
-
-    try {
-      const current = await getFreshSession();
-      if (!current) throw new Error("Your Studio session expired.");
-
-      const response = await fetch("/api/studio/claim-finalize", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          Authorization: "Bearer " + current.access_token,
-        },
-        body: JSON.stringify({ claimId }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (data?.manualReviewRequired) {
-          setMessage(
-            "This claim is safely staying PENDING. Verified-creator evidence was found, but LockScreened requires manual review because the wallet is not the current collection authority."
-          );
-          return;
-        }
-
-        if (data?.authorityConfirmed && data?.needsServerSecret) {
-          setMessage(
-            "Authority is confirmed. Secure database finalization is waiting for the server-only Supabase secret."
-          );
-          return;
-        }
-
-        throw new Error(data?.error || "Final verification failed.");
-      }
-
-      setSaved((current: any) => ({
-        ...current,
-        claim: {
-          ...current.claim,
-          ...(data.claim || {}),
-          status: "verified",
-        },
-      }));
-
-      window.dispatchEvent(
-        new CustomEvent("lockscreened-studio-data-changed")
-      );
-      setMessage("Collection claim verified and unlocked for publishing.");
-    } catch (error) {
-      setMessage(
-        error instanceof Error ? error.message : "Final verification failed."
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
 
   async function saveClaim() {
     if (!inspection?.allowed && !inspection?.manualReviewEligible) return;
@@ -172,13 +111,61 @@ export default function StudioCollectionClaim() {
       });
 
       setSaved(result);
-      setMessage(
-        result.created
-          ? "Draft collection and claim request saved."
-          : "Your existing claim request was found."
+
+      if (inspection.manualReviewEligible && !inspection.allowed) {
+        setMessage(
+          "Claim submitted for manual review. Nothing is unlocked until LockScreened confirms authority."
+        );
+        return;
+      }
+
+      const response = await fetch("/api/studio/claim-finalize", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          Authorization: "Bearer " + current.access_token,
+        },
+        body: JSON.stringify({ claimId: result.claim.id }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (data?.authorityConfirmed && data?.needsServerSecret) {
+          setMessage(
+            "Authority confirmed. Secure project activation is waiting for the server-only LockScreened credential."
+          );
+          return;
+        }
+
+        if (data?.manualReviewRequired) {
+          setMessage(
+            "This claim is safely staying pending for manual review."
+          );
+          return;
+        }
+
+        throw new Error(data?.error || "Could not verify this collection.");
+      }
+
+      const verifiedResult = {
+        ...result,
+        claim: {
+          ...result.claim,
+          ...(data.claim || {}),
+          status: "verified",
+        },
+      };
+
+      setSaved(verifiedResult);
+      window.dispatchEvent(
+        new CustomEvent("lockscreened-studio-data-changed")
       );
+      setMessage("Collection verified. Your LockScreened project is ready to set up.");
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Could not save claim.");
+      setMessage(
+        error instanceof Error ? error.message : "Could not create this project."
+      );
     } finally {
       setBusy(false);
     }
@@ -311,11 +298,13 @@ export default function StudioCollectionClaim() {
               disabled={busy || Boolean(saved)}
               style={{ ...buttonStyle, justifySelf: "start", marginTop: 3 }}
             >
-              {saved
-                ? "CLAIM DRAFT SAVED"
-                : inspection.allowed
-                  ? "START VERIFIED CLAIM"
-                  : "SUBMIT MANUAL-REVIEW CLAIM"}
+              {busy
+                ? "CREATING…"
+                : saved
+                  ? "PROJECT CREATED"
+                  : inspection.allowed
+                    ? "CREATE LOCKSCREENED PROJECT"
+                    : "SUBMIT FOR MANUAL REVIEW"}
             </button>
           ) : null}
         </div>
@@ -325,21 +314,26 @@ export default function StudioCollectionClaim() {
 
       {saved ? (
         <div style={{ ...noticeStyle, color: "#a9ffd2" }}>
-          Draft project created in {saved.studio.name}. Database claim status:
-          {" "}{saved.claim.status}.
-          {saved.claim.status !== "verified" ? (
-            <div style={{ marginTop: 8 }}>
-              <button
-                onClick={finalizeClaim}
-                disabled={busy}
-                style={buttonStyle}
+          <strong style={{ display: "block", marginBottom: 4 }}>
+            {saved.claim.status === "verified"
+              ? "Collection verified"
+              : "Claim saved"}
+          </strong>
+          <span>
+            {saved.claim.status === "verified"
+              ? "Your project is protected and ready for setup."
+              : "This project will remain locked until authority review is complete."}
+          </span>
+          {saved.claim.status === "verified" ? (
+            <div style={{ marginTop: 9 }}>
+              <a
+                href={"/studio/manage/" + saved.collection.id}
+                style={{ ...buttonStyle, display: "inline-flex", alignItems: "center", textDecoration: "none" }}
               >
-                {busy ? "VERIFYING…" : "FINALIZE VERIFIED CLAIM"}
-              </button>
+                OPEN PROJECT →
+              </a>
             </div>
-          ) : (
-            <span> Publishing permission is now unlocked by RLS.</span>
-          )}
+          ) : null}
         </div>
       ) : null}
     </section>

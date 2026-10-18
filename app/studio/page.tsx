@@ -121,6 +121,8 @@ export default function CreatorStudioPage() {
           </a>
         </div>
 
+        <StudioCollectionClaim />
+
         <StudioCostGuardrails />
 
         <section className={styles.section}>
@@ -170,8 +172,6 @@ export default function CreatorStudioPage() {
             ))}
           </div>
         </section>
-
-        <StudioCollectionClaim />
 
         <div className={styles.importer} id="trait-import">
           <StudioTraitImporter />
