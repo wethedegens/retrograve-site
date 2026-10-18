@@ -325,8 +325,18 @@ export default function StudioDraftProjectManager({
   );
   const hasPublishedRenderAssets =
     !layered || Boolean(publishedTraitAssets?.length);
+  const layerOrderConfirmedAt = Date.parse(
+    String(collection.render_profile?.layerOrderConfirmedAt || "")
+  );
+  const validationCheckedAt = Date.parse(
+    String(data.validationRun?.checked_at || "")
+  );
   const validationPassed =
-    !layered || data.validationRun?.status === "passed";
+    !layered ||
+    (data.validationRun?.status === "passed" &&
+      Number.isFinite(layerOrderConfirmedAt) &&
+      Number.isFinite(validationCheckedAt) &&
+      validationCheckedAt >= layerOrderConfirmedAt);
 
   const finishedArtworkConfigured = Boolean(
     collection.render_profile?.finishedArtwork?.configuredAt
