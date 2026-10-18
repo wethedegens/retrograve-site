@@ -443,6 +443,9 @@ export async function saveTraitLayerMap(args: {
           backgroundHandling:
             args.currentRenderProfile?.backgroundHandling ||
             "creator_designated",
+          // A newly saved layer map may change ordering or background meaning.
+          // Require the founder to explicitly review/confirm it again.
+          layerOrderConfirmedAt: null,
         },
       }),
     }
