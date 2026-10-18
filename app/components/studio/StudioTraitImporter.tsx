@@ -338,8 +338,8 @@ export default function StudioTraitImporter() {
           <h2>Import a collection trait folder</h2>
           <p>
             Choose the same layered art folder used to generate the collection.
-            LockScreened analyzes it locally first — nothing is uploaded or
-            published from this screen.
+            LockScreened analyzes it locally first. Nothing leaves this device unless
+            you explicitly choose UPLOAD PRIVATE SOURCES, and private source art is never published from this screen.
           </p>
         </div>
         <div className="status">LOCAL ANALYSIS</div>
@@ -445,8 +445,8 @@ export default function StudioTraitImporter() {
             <div>
               <strong>SAVE THIS LAYER MAP</strong>
               <span>
-                Store layer names/order/background designation in Supabase
-                without uploading the source PNGs yet.
+                Store layer names/order/background designation in Supabase only.
+                Source artwork stays on this device until you explicitly upload it privately.
               </span>
             </div>
 
