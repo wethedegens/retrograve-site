@@ -62,7 +62,7 @@ export async function POST(request: Request) {
     if (kind === "trait") {
       const rows = Array.isArray(body?.rows) ? body.rows.slice(0, 100) : [];
       if (!rows.length) return NextResponse.json({ error: "Trait asset metadata is required." }, { status: 400 });
-      const layerIds = [...new Set(rows.map((r: any) => String(r?.layer_id || "").trim()).filter(Boolean))];
+      const layerIds: string[] = [...new Set<string>(rows.map((r: any) => String(r?.layer_id || "").trim()).filter((id: string) => Boolean(id)))];
       const layers = await restAsUser<any[]>(
         token,
         "trait_layers?collection_id=eq." + encodeURIComponent(collectionId) +
