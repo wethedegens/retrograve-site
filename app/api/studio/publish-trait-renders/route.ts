@@ -68,7 +68,7 @@ export async function POST(request: Request) {
         accessToken,
         "collections?id=eq." +
           encodeURIComponent(collectionId) +
-          "&select=id,slug,name,render_mode,render_profile,source_type,source_config&limit=1"
+          "&select=id,studio_id,slug,name,render_mode,render_profile,source_type,source_config&limit=1"
       ),
       restAsUser<any[]>(
         accessToken,
@@ -185,11 +185,20 @@ export async function POST(request: Request) {
       );
     }
 
+    const expectedSourcePrefix =
+      String(collection.studio_id || "").toLowerCase() +
+      "/collections/" +
+      String(collection.id || "").toLowerCase() +
+      "/traits/";
+
     const published: any[] = [];
 
     for (const source of sourceAssets) {
       if (source.storage_bucket !== STORAGE_BUCKETS.creatorSourcePrivate) {
         throw new Error("Unexpected source bucket.");
+      }
+      if (!String(source.storage_path || "").toLowerCase().startsWith(expectedSourcePrefix)) {
+        throw new Error("Trait source path does not belong to this collection.");
       }
 
       const destinationPath = publicPreviewPath({
