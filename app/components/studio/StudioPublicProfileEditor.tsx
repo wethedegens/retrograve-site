@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import type { LockScreenedSession } from "../../lib/lockscreened/web3AuthClient";
 import { updateStudioPublicProfile } from "../../lib/lockscreened/studioDataClient";
 
@@ -146,7 +147,7 @@ export default function StudioPublicProfileEditor({
   );
 }
 
-function Field({ label, children, wide = false }: { label: string; children: React.ReactNode; wide?: boolean }) {
+function Field({ label, children, wide = false }: { label: string; children: ReactNode; wide?: boolean }) {
   return (
     <label style={{ display: "grid", gap: 5, gridColumn: wide ? "1 / -1" : undefined }}>
       <span style={{ fontSize: 8, fontWeight: 900, letterSpacing: ".1em", color: "rgba(255,255,255,.42)" }}>{label}</span>

@@ -47,7 +47,7 @@ export default function StudioFounderJourney({
       detail:
         "Make sure LockScreened rebuilds the NFT in the same order as the original art.",
       done:
-        !layered ||
+        layered &&
         Boolean(collection.render_profile?.layerOrderConfirmedAt),
       href: "#layer-order",
       action: "REVIEW LAYERS",
@@ -57,7 +57,7 @@ export default function StudioFounderJourney({
       title: "Validate real NFTs",
       detail:
         "LockScreened compares the saved trait library against real minted NFTs before launch.",
-      done: !layered || data.validationRun?.status === "passed",
+      done: layered && data.validationRun?.status === "passed",
       href: "#validation",
       action: "RUN VALIDATION",
     },
