@@ -131,9 +131,14 @@ export default function StudioTraitImporter() {
       return;
     }
 
-    if (selectedCollection.claim_status !== "verified") {
+    const privatePreMint =
+      selectedCollection.source_type === "demo" &&
+      selectedCollection.source_config?.preMint === true &&
+      selectedCollection.publish_status === "draft";
+
+    if (selectedCollection.claim_status !== "verified" && !privatePreMint) {
       setSaveMessage(
-        "Source uploads stay locked until this collection claim is verified."
+        "Private source uploads require either a verified collection or your own pre-mint draft."
       );
       return;
     }
@@ -466,14 +471,18 @@ export default function StudioTraitImporter() {
                     uploading ||
                     saving ||
                     !selectedCollectionId ||
-                    !(collections.find(
-                      (collection: any) =>
-                        collection.id === selectedCollectionId
-                    ) as any)?.claim_status ||
-                    (collections.find(
-                      (collection: any) =>
-                        collection.id === selectedCollectionId
-                    ) as any)?.claim_status !== "verified"
+                    !(() => {
+                      const selected = collections.find(
+                        (collection: any) =>
+                          collection.id === selectedCollectionId
+                      ) as any;
+                      return (
+                        selected?.claim_status === "verified" ||
+                        (selected?.source_type === "demo" &&
+                          selected?.source_config?.preMint === true &&
+                          selected?.publish_status === "draft")
+                      );
+                    })()
                   }
                 >
                   {uploading
@@ -484,7 +493,7 @@ export default function StudioTraitImporter() {
             ) : (
               <span className="persistHint">
                 {session
-                  ? "Create and verify a collection claim above before saving this trait map."
+                  ? "Create a pre-mint project or verify an existing collection above before saving this trait map."
                   : wallet.connected
                     ? "Wallet connected. One more step: sign in to Creator Studio above with the safe off-chain signature."
                     : "Connect your wallet, then sign in to Creator Studio before saving this trait map."}

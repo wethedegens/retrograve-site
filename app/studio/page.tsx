@@ -6,6 +6,7 @@ import StudioBackendStatus from "../components/studio/StudioBackendStatus";
 import StudioWalletAuth from "../components/studio/StudioWalletAuth";
 import StudioCollectionClaim from "../components/studio/StudioCollectionClaim";
 import StudioMyProjects from "../components/studio/StudioMyProjects";
+import StudioPreMintProject from "../components/studio/StudioPreMintProject";
 import StudioFlagshipProtection from "../components/studio/StudioFlagshipProtection";
 import { FLAGSHIP_PROJECTS } from "../lib/lockscreened/flagshipProjects";
 import styles from "./studio.module.css";
@@ -86,6 +87,7 @@ export default function CreatorStudioPage() {
 
         <StudioBackendStatus />
         <StudioWalletAuth />
+        <StudioPreMintProject />
         <StudioFlagshipProtection />
         <StudioMyProjects />
 
@@ -113,8 +115,11 @@ export default function CreatorStudioPage() {
         </section>
 
         <div className={styles.actionRow}>
-          <a className={styles.primary} href="#claim">
-            + CLAIM / ADD COLLECTION
+          <a className={styles.primary} href="#premint">
+            + START PRE-MINT PROJECT
+          </a>
+          <a className={styles.secondary} href="#claim-live">
+            CLAIM EXISTING COLLECTION
           </a>
           <a className={styles.secondary} href="#trait-import">
             UPLOAD ORIGINAL TRAITS

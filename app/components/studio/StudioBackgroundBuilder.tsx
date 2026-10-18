@@ -231,9 +231,14 @@ export default function StudioBackgroundBuilder() {
       return;
     }
 
-    if (selectedCollection.claim_status !== "verified") {
+    const privatePreMint =
+      selectedCollection.source_type === "demo" &&
+      selectedCollection.source_config?.preMint === true &&
+      selectedCollection.publish_status === "draft";
+
+    if (selectedCollection.claim_status !== "verified" && !privatePreMint) {
       setDraftMessage(
-        "Background source uploads stay locked until this collection claim is verified."
+        "Private background uploads require either a verified collection or your own pre-mint draft."
       );
       return;
     }
@@ -583,10 +588,18 @@ export default function StudioBackgroundBuilder() {
                 !phone ||
                 !packageBudget.ok ||
                 !selectedCollectionId ||
-                (collections.find(
-                  (collection: any) =>
-                    collection.id === selectedCollectionId
-                ) as any)?.claim_status !== "verified"
+                !(() => {
+                  const selected = collections.find(
+                    (collection: any) =>
+                      collection.id === selectedCollectionId
+                  ) as any;
+                  return (
+                    selected?.claim_status === "verified" ||
+                    (selected?.source_type === "demo" &&
+                      selected?.source_config?.preMint === true &&
+                      selected?.publish_status === "draft")
+                  );
+                })()
               }
               style={{
                 borderRadius: 999,
@@ -635,7 +648,7 @@ export default function StudioBackgroundBuilder() {
           </strong>
           <span style={{ fontSize: 10, color: "rgba(255,255,255,.5)" }}>
             {phone
-              ? `Local package: ${formatBytes(packageBudget.totalBytes)}. Storage and publishing stay disabled until the collection is verified.`
+              ? `Local package: ${formatBytes(packageBudget.totalBytes)}. Private storage is allowed for pre-mint drafts; public publishing stays locked until collection authority is verified.`
               : "Choose a phone image to create the package."}
           </span>
         </div>

@@ -47,6 +47,15 @@ function collectionSlug(collectionAddress: string) {
   return "sol-" + collectionAddress.toLowerCase();
 }
 
+function preMintSlug(userId: string) {
+  return (
+    "premint-" +
+    userId.replace(/-/g, "").slice(0, 10).toLowerCase() +
+    "-" +
+    Date.now().toString(36)
+  );
+}
+
 export async function ensurePersonalStudio(session: LockScreenedSession) {
   const userId = String(session.user?.id || "");
   if (!userId) throw new Error("Supabase user ID is missing.");
@@ -76,6 +85,58 @@ export async function ensurePersonalStudio(session: LockScreenedSession) {
 
   if (!created?.[0]) throw new Error("Could not create your Studio.");
   return created[0];
+}
+
+
+export async function createPreMintProject(args: {
+  session: LockScreenedSession;
+  name: string;
+}) {
+  const userId = String(args.session.user?.id || "");
+  if (!userId) throw new Error("Supabase user ID is missing.");
+
+  const name = String(args.name || "").trim().slice(0, 120);
+  if (!name) throw new Error("Project name is required.");
+
+  const studio = await ensurePersonalStudio(args.session);
+  const slug = preMintSlug(userId);
+
+  const created = await request<any[]>(
+    args.session,
+    "collections?select=id,studio_id,slug,name,source_type,source_config,render_mode,render_profile,publish_status,created_at",
+    {
+      method: "POST",
+      headers: { Prefer: "return=representation" },
+      body: JSON.stringify({
+        studio_id: studio.id,
+        slug,
+        name,
+        source_type: "demo",
+        source_config: {
+          preMint: true,
+          collectionIds: [],
+          createdBeforeMint: true,
+        },
+        render_mode: "layered_traits",
+        render_profile: {
+          engine: "universal_trait_engine",
+          backgroundHandling: "creator_designated",
+        },
+        flagship: false,
+        legacy_assets_locked: false,
+        publish_status: "draft",
+        created_by: userId,
+      }),
+    }
+  );
+
+  if (!created?.[0]) throw new Error("Could not create pre-mint project.");
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
+  }
+
+  return { studio, collection: created[0] };
 }
 
 export async function createPendingCollectionClaim(args: {
@@ -167,6 +228,7 @@ export type StudioCollectionRow = {
   slug: string;
   name: string;
   source_type: string;
+  source_config?: any;
   render_mode: string;
   render_profile?: any;
   publish_status: "draft" | "published" | "archived";
@@ -191,7 +253,7 @@ export async function listMyStudioCollections(
       session,
       "collections?created_by=eq." +
         encodeURIComponent(userId) +
-        "&select=id,studio_id,slug,name,source_type,render_mode,render_profile,publish_status,created_at&order=created_at.desc"
+        "&select=id,studio_id,slug,name,source_type,source_config,render_mode,render_profile,publish_status,created_at&order=created_at.desc"
     ),
     request<StudioClaimRow[]>(
       session,
