@@ -3,7 +3,6 @@
 
 import type { ChangeEvent } from "react";
 import type { BgChoice } from "./Composer";
-import { getLegacyBackgroundDeviceAssets } from "../lib/lockscreened/legacyBackgroundVariants";
 
 type Props = {
   value: BgChoice;
@@ -282,8 +281,6 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
       kind: "image",
       image: src,
       file: file as any,
-      deviceAssets: getLegacyBackgroundDeviceAssets(key, src),
-      backgroundId: `${key}:${index + 1}`,
     } as any as BgChoice);
   };
 
@@ -303,8 +300,6 @@ export default function BackgroundPicker({ value, onChange, project }: Props) {
       kind: "image",
       image: phoneSrc,
       file: file as any,
-      deviceAssets: getLegacyBackgroundDeviceAssets("magapixel", phoneSrc),
-      backgroundId: `magapixel:${slug}`,
     } as any as BgChoice);
   };
 
