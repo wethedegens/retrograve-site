@@ -7,7 +7,12 @@ import {
   readStoredSession,
   type LockScreenedSession,
 } from "../../lib/lockscreened/web3AuthClient";
-import { createPendingCollectionClaim } from "../../lib/lockscreened/studioDataClient";
+import {
+  attachPreMintCollectionClaim,
+  createPendingCollectionClaim,
+  listMyStudioCollections,
+  type StudioCollectionRow,
+} from "../../lib/lockscreened/studioDataClient";
 
 type Inspection = {
   allowed: boolean;
@@ -34,6 +39,8 @@ export default function StudioCollectionClaim() {
   const [collectionAddress, setCollectionAddress] = useState("");
   const [inspection, setInspection] = useState<Inspection | null>(null);
   const [saved, setSaved] = useState<any>(null);
+  const [preMintProjects, setPreMintProjects] = useState<StudioCollectionRow[]>([]);
+  const [attachToProjectId, setAttachToProjectId] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -42,7 +49,36 @@ export default function StudioCollectionClaim() {
 
     async function sync() {
       const current = await getFreshSession();
-      if (active) setSession(current || readStoredSession());
+      const next = current || readStoredSession();
+      if (!active) return;
+
+      setSession(next);
+
+      if (!next) {
+        setPreMintProjects([]);
+        setAttachToProjectId("");
+        return;
+      }
+
+      try {
+        const rows = await listMyStudioCollections(next);
+        if (!active) return;
+
+        const preMint = rows.filter(
+          (row: any) =>
+            row.source_type === "demo" &&
+            row.source_config?.preMint === true &&
+            row.publish_status === "draft"
+        );
+
+        setPreMintProjects(preMint);
+
+        if (!attachToProjectId && preMint[0]?.id) {
+          setAttachToProjectId(preMint[0].id);
+        }
+      } catch {
+        if (active) setPreMintProjects([]);
+      }
     }
 
     sync();
@@ -103,12 +139,19 @@ export default function StudioCollectionClaim() {
       const current = await getFreshSession();
       if (!current) throw new Error("Your Studio session expired.");
 
-      const result = await createPendingCollectionClaim({
-        session: current,
-        collectionAddress: inspection.collection.assetId,
-        collectionName: inspection.collection.name,
-        walletAddress: inspection.walletAddress,
-      });
+      const result = attachToProjectId
+        ? await attachPreMintCollectionClaim({
+            session: current,
+            collectionId: attachToProjectId,
+            collectionAddress: inspection.collection.assetId,
+            walletAddress: inspection.walletAddress,
+          })
+        : await createPendingCollectionClaim({
+            session: current,
+            collectionAddress: inspection.collection.assetId,
+            collectionName: inspection.collection.name,
+            walletAddress: inspection.walletAddress,
+          });
 
       setSaved(result);
 
@@ -161,7 +204,11 @@ export default function StudioCollectionClaim() {
       window.dispatchEvent(
         new CustomEvent("lockscreened-studio-data-changed")
       );
-      setMessage("Collection verified. Your LockScreened project is ready to set up.");
+      setMessage(
+        attachToProjectId
+          ? "Collection verified and attached to your existing pre-mint project. All of your private setup work was preserved."
+          : "Collection verified. Your LockScreened project is ready to set up."
+      );
     } catch (error) {
       setMessage(
         error instanceof Error ? error.message : "Could not create this project."
@@ -173,7 +220,7 @@ export default function StudioCollectionClaim() {
 
   return (
     <section
-      id="claim"
+      id="claim-live"
       style={{
         marginTop: 28,
         borderRadius: 24,
@@ -249,6 +296,53 @@ export default function StudioCollectionClaim() {
         </div>
       ) : null}
 
+      {preMintProjects.length ? (
+        <div
+          style={{
+            marginTop: 12,
+            borderRadius: 14,
+            padding: 11,
+            border: "1px solid rgba(255,99,180,.12)",
+            background: "rgba(255,63,180,.035)",
+            display: "grid",
+            gap: 6,
+          }}
+        >
+          <strong
+            style={{
+              color: "#ff9bd8",
+              fontSize: 9,
+              letterSpacing: ".08em",
+            }}
+          >
+            ALREADY BUILT A PRE-MINT PROJECT?
+          </strong>
+          <span style={rowText}>
+            Attach the real collection to your existing private project so your
+            traits, backgrounds and settings carry forward.
+          </span>
+          <select
+            value={attachToProjectId}
+            onChange={(event) => setAttachToProjectId(event.target.value)}
+            style={{
+              minHeight: 38,
+              borderRadius: 10,
+              border: "1px solid rgba(255,255,255,.1)",
+              background: "#11101a",
+              color: "#fff",
+              padding: "0 9px",
+            }}
+          >
+            {preMintProjects.map((project) => (
+              <option key={project.id} value={project.id}>
+                Attach to {project.name} · PRE-MINT PRIVATE
+              </option>
+            ))}
+            <option value="">Create a new LockScreened project instead</option>
+          </select>
+        </div>
+      ) : null}
+
       {inspection ? (
         <div
           style={{
@@ -303,7 +397,9 @@ export default function StudioCollectionClaim() {
                 : saved
                   ? "PROJECT CREATED"
                   : inspection.allowed
-                    ? "CREATE LOCKSCREENED PROJECT"
+                    ? attachToProjectId
+                    ? "ATTACH + VERIFY THIS COLLECTION"
+                    : "CREATE LOCKSCREENED PROJECT"
                     : "SUBMIT FOR MANUAL REVIEW"}
             </button>
           ) : null}

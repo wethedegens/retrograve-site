@@ -148,6 +148,121 @@ export async function createPreMintProject(args: {
   return { studio, collection: created[0] };
 }
 
+export async function attachPreMintCollectionClaim(args: {
+  session: LockScreenedSession;
+  collectionId: string;
+  collectionAddress: string;
+  walletAddress: string;
+}) {
+  const userId = String(args.session.user?.id || "");
+  if (!userId) throw new Error("Supabase user ID is missing.");
+
+  const rows = await request<any[]>(
+    args.session,
+    "collections?id=eq." +
+      encodeURIComponent(args.collectionId) +
+      "&select=id,studio_id,name,source_type,source_config,render_mode,publish_status,created_by&limit=1"
+  );
+
+  const collection = rows?.[0];
+  if (!collection) throw new Error("Pre-mint project was not found.");
+
+  const isPrivatePreMint =
+    collection.created_by === userId &&
+    collection.source_type === "demo" &&
+    collection.source_config?.preMint === true &&
+    collection.publish_status === "draft";
+
+  if (!isPrivatePreMint) {
+    throw new Error(
+      "Only your own private pre-mint draft can be attached to a collection."
+    );
+  }
+
+  await request<void>(
+    args.session,
+    "collections?id=eq." + encodeURIComponent(collection.id),
+    {
+      method: "PATCH",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({
+        source_type: "solana_collection",
+        source_config: {
+          ...(collection.source_config || {}),
+          preMint: false,
+          attachedAfterMint: true,
+          collectionIds: [args.collectionAddress],
+        },
+      }),
+    }
+  );
+
+  const existingClaims = await request<any[]>(
+    args.session,
+    "collection_claims?collection_id=eq." +
+      encodeURIComponent(collection.id) +
+      "&requested_by=eq." +
+      encodeURIComponent(userId) +
+      "&select=id,status,wallet_address&limit=1"
+  );
+
+  if (existingClaims?.[0]) {
+    return {
+      collection: {
+        ...collection,
+        source_type: "solana_collection",
+        source_config: {
+          ...(collection.source_config || {}),
+          preMint: false,
+          attachedAfterMint: true,
+          collectionIds: [args.collectionAddress],
+        },
+      },
+      claim: existingClaims[0],
+      attached: true,
+    };
+  }
+
+  const claims = await request<any[]>(
+    args.session,
+    "collection_claims?select=id,status,wallet_address",
+    {
+      method: "POST",
+      headers: { Prefer: "return=representation" },
+      body: JSON.stringify({
+        collection_id: collection.id,
+        requested_by: userId,
+        wallet_address: args.walletAddress,
+        status: "pending",
+        evidence: [],
+        authority_snapshot: {},
+      }),
+    }
+  );
+
+  if (!claims?.[0]) throw new Error("Could not create claim request.");
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("lockscreened-studio-data-changed"));
+  }
+
+  return {
+    collection: {
+      ...collection,
+      source_type: "solana_collection",
+      source_config: {
+        ...(collection.source_config || {}),
+        preMint: false,
+        attachedAfterMint: true,
+        collectionIds: [args.collectionAddress],
+      },
+    },
+    claim: claims[0],
+    attached: true,
+  };
+}
+
+
 export async function createPendingCollectionClaim(args: {
   session: LockScreenedSession;
   collectionAddress: string;
