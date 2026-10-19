@@ -92,7 +92,7 @@ export default function StudioFounderJourney({
         detail:
           "Choose the same source-art folders used to build the collection. Files stay private.",
         done: Boolean(data.traitAssets?.length),
-        href: "/studio#trait-import",
+        href: "#artwork-upload",
         action: "UPLOAD TRAITS",
       },
       {
@@ -112,7 +112,7 @@ export default function StudioFounderJourney({
         detail:
           "A private phone background can be prepared before mint. iPad and desktop versions are optional.",
         done: privatePhoneBg || publicBgs.some((item: any) => item.device === "phone"),
-        href: "/studio#background-builder",
+        href: "#background-builder",
         action: "ADD BACKGROUND",
       },
       {
