@@ -21,6 +21,24 @@ export function extractSolanaWalletAddress(user: any): string | null {
     if (SOLANA_ADDRESS.test(value)) return value;
   }
 
+  // Supabase GoTrue Web3 currently returns the verified Solana identity in
+  // user_metadata.custom_claims, paired with a web3:solana:<address> subject.
+  // Never trust this shape by itself: require the server-controlled app_metadata
+  // provider plus matching chain, subject and address before accepting it.
+  const provider = String(user?.app_metadata?.provider || "").toLowerCase();
+  const claims = user?.user_metadata?.custom_claims;
+  const claimChain = String(claims?.chain || "").toLowerCase();
+  const claimAddress = String(claims?.address || "").trim();
+  const subject = String(user?.user_metadata?.sub || "").trim();
+  if (
+    provider === "web3" &&
+    claimChain === "solana" &&
+    SOLANA_ADDRESS.test(claimAddress) &&
+    subject === "web3:solana:" + claimAddress
+  ) {
+    return claimAddress;
+  }
+
   const identities = Array.isArray(user?.identities) ? user.identities : [];
 
   for (const identity of identities) {
