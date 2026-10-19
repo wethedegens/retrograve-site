@@ -42,7 +42,7 @@ function fileListToTraitFiles(files: FileList): UploadedTraitFile[] {
   }));
 }
 
-export default function StudioTraitImporter() {
+export default function StudioTraitImporter({ collectionId }: { collectionId?: string } = {}) {
   const wallet = useWallet();
   const [analysis, setAnalysis] = useState<TraitImportAnalysis | null>(null);
   const [folderName, setFolderName] = useState("");
@@ -81,7 +81,9 @@ export default function StudioTraitImporter() {
             row.source_config?.artworkMode === "layered_traits"
         );
         setCollections(layeredRows);
-        if (!selectedCollectionId && layeredRows[0]?.id) {
+        if (collectionId && layeredRows.some((row: any) => row.id === collectionId)) {
+          setSelectedCollectionId(collectionId);
+        } else if (!selectedCollectionId && layeredRows[0]?.id) {
           setSelectedCollectionId(layeredRows[0].id);
         }
       } catch {
@@ -98,7 +100,7 @@ export default function StudioTraitImporter() {
       window.removeEventListener("lockscreened-auth-changed", listener);
       window.removeEventListener("lockscreened-studio-data-changed", listener);
     };
-  }, [selectedCollectionId]);
+  }, [selectedCollectionId, collectionId]);
 
   const totals = useMemo(() => {
     if (!analysis) return { layers: 0, traits: 0 };
