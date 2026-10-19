@@ -124,7 +124,7 @@ export async function signInWithSolana(
     throw new Error("This wallet does not support message signing.");
   }
 
-  const currentUrl = new URL(window.location.origin);
+  const currentUrl = new URL(window.location.href);
   const statement =
     "Sign in to LockScreened Creator Studio. This does not authorize a transaction, transfer, sale, or token approval.";
 
@@ -134,7 +134,7 @@ export async function signInWithSolana(
     "",
     statement,
     "",
-    `URI: ${currentUrl.origin}`,
+    `URI: ${currentUrl.href.endsWith("/") ? currentUrl.href : `${currentUrl.href}/`}`,
     "Version: 1",
     `Nonce: ${Array.from(crypto.getRandomValues(new Uint8Array(12)), (byte) => (byte % 36).toString(36)).join("")}`,
     `Issued At: ${new Date().toISOString()}`,
