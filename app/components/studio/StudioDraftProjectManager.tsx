@@ -25,6 +25,8 @@ import StudioPublicLinkControls from "./StudioPublicLinkControls";
 import StudioActivityLog from "./StudioActivityLog";
 import StudioFounderJourney from "./StudioFounderJourney";
 import StudioFinishedArtworkDesigner from "./StudioFinishedArtworkDesigner";
+import StudioTraitImporter from "./StudioTraitImporter";
+import StudioBackgroundBuilder from "./StudioBackgroundBuilder";
 
 export default function StudioDraftProjectManager({
   collectionId,
@@ -485,9 +487,9 @@ export default function StudioDraftProjectManager({
             </>
           ) : null}
           {layered ? (
-            <a href="/studio#trait-import" style={button}>EDIT TRAITS</a>
+            <a href="#artwork-upload" style={button}>EDIT TRAITS</a>
           ) : null}
-          <a href="/studio#background-builder" style={button}>ADD BACKGROUND</a>
+          <a href="#background-builder" style={button}>ADD BACKGROUND</a>
           <a href={"/studio/preview/" + collectionId} style={button}>PREVIEW PUBLIC EXPERIENCE</a>
         </div>
 
@@ -495,6 +497,10 @@ export default function StudioDraftProjectManager({
       </section>
 
       <StudioFounderJourney data={data} collectionId={collectionId} />
+
+      {layered ? (
+        <div id="artwork-upload"><StudioTraitImporter collectionId={collectionId} /></div>
+      ) : null}
 
       {finishedArtwork ? (
         <StudioFinishedArtworkDesigner
@@ -504,14 +510,20 @@ export default function StudioDraftProjectManager({
         />
       ) : null}
 
+      <div id="background-builder"><StudioBackgroundBuilder collectionId={collectionId} /></div>
+
       <StudioPublicLinkControls
         slug={collection.public_slug || collection.slug}
         published={collection.publish_status === "published"}
       />
 
-      <StudioActivityLog events={data.auditEvents || []} />
-
-      <StudioLaunchReadiness data={data} />
+      <details style={advancedPanel}>
+        <summary style={advancedSummary}>ADVANCED / MAINTENANCE</summary>
+        <div style={advancedBody}>
+          <StudioLaunchReadiness data={data} />
+          <StudioActivityLog events={data.auditEvents || []} />
+        </div>
+      </details>
 
       <div id="project-details">
       <StudioPublicProfileEditor
@@ -534,11 +546,16 @@ export default function StudioDraftProjectManager({
         </div>
       ) : null}
 
-      <StudioRenderProfileEditor
-        session={session}
-        collectionId={collectionId}
-        renderProfile={collection.render_profile}
-      />
+      <details style={advancedPanel}>
+        <summary style={advancedSummary}>ADVANCED ART PLACEMENT</summary>
+        <div style={advancedBody}>
+          <StudioRenderProfileEditor
+            session={session}
+            collectionId={collectionId}
+            renderProfile={collection.render_profile}
+          />
+        </div>
+      </details>
 
       {layered ? (
       <section style={panel}>
@@ -743,6 +760,10 @@ const secondaryDangerButton = {
   background: "rgba(255,184,78,.05)",
   color: "#ffd5a2",
 } as const;
+
+const advancedPanel = { borderRadius: 16, border: "1px solid rgba(255,255,255,.07)", background: "rgba(255,255,255,.015)", padding: 12 } as const;
+const advancedSummary = { cursor: "pointer", color: "rgba(255,255,255,.48)", fontSize: 8, fontWeight: 900, letterSpacing: ".12em" } as const;
+const advancedBody = { marginTop: 12, display: "grid", gap: 12 } as const;
 
 const notice = {
   marginTop: 10,
