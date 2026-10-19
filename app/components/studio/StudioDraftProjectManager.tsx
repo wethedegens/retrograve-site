@@ -397,100 +397,14 @@ export default function StudioDraftProjectManager({
           </div>
         </div>
 
-        <div style={stats}>
-          <Stat label="PROJECT" value={collection.publish_status.toUpperCase()} />
-          <Stat
-            label="ARTWORK MODE"
-            value={finishedArtwork ? "FINISHED IMAGE" : "LAYERED TRAITS"}
-          />
-          {layered ? (
-            <Stat label="TRAIT LAYERS" value={String(layers.length)} />
-          ) : null}
-          {layered ? (
-            <Stat
-              label="PUBLIC RENDER ASSETS"
-              value={String(publishedTraitAssets?.length || 0)}
-            />
-          ) : null}
-          <Stat label="BACKGROUND DRAFTS" value={String(backgrounds.length)} />
-          <Stat
-            label="PUBLISH GATE"
-            value={
-              verified
-                ? "UNLOCKED"
-                : preMint
-                  ? "WAITING FOR MINT"
-                  : "LOCKED"
-            }
-          />
-        </div>
-
         <div style={{ marginTop: 13, display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {collection.publish_status === "archived" ? (
-            <button
-              style={primaryButton}
-              onClick={restoreProject}
-              disabled={busy}
-            >
-              RESTORE PROJECT
-            </button>
-          ) : null}
-
-          {collection.render_mode === "layered_traits" &&
-          collection.publish_status !== "archived" ? (
-            <button
-              style={button}
-              onClick={publishRenderAssets}
-              disabled={busy || !verified || !traitAssets?.length || !validationPassed}
-            >
-              {!validationPassed
-                ? "VALIDATE BEFORE PUBLISHING RENDERS"
-                : publishedTraitAssets?.length
-                  ? "REFRESH PUBLIC RENDER ASSETS"
-                  : "PUBLISH RENDER ASSETS"}
-            </button>
-          ) : null}
-
+          <a href={"/studio/preview/" + collectionId} style={button}>PREVIEW</a>
           {collection.publish_status === "published" ? (
-            <button
-              style={dangerButton}
-              onClick={unpublishProject}
-              disabled={busy}
-            >
-              UNPUBLISH PROJECT
-            </button>
-          ) : collection.publish_status === "draft" ? (
-            <>
-              <button
-                style={primaryButton}
-                onClick={publishProject}
-                disabled={busy || !launchReady}
-                title={
-                  launchReady
-                    ? "Publish this LockScreened project"
-                    : "Complete the Launch Readiness checklist first"
-                }
-              >
-                {launchReady
-                  ? "PUBLISH PROJECT"
-                  : verified
-                    ? "FINISH LAUNCH CHECKLIST"
-                    : "VERIFY CLAIM TO PUBLISH"}
-              </button>
-              <button
-                style={secondaryDangerButton}
-                onClick={archiveProject}
-                disabled={busy}
-              >
-                ARCHIVE DRAFT
-              </button>
-            </>
+            <button style={dangerButton} onClick={unpublishProject} disabled={busy}>UNPUBLISH</button>
           ) : null}
-          {layered ? (
-            <a href="#artwork-upload" style={button}>EDIT TRAITS</a>
+          {collection.publish_status === "draft" && launchReady ? (
+            <button style={primaryButton} onClick={publishProject} disabled={busy}>PUBLISH LOCKER</button>
           ) : null}
-          <a href="#background-builder" style={button}>ADD BACKGROUND</a>
-          <a href={"/studio/preview/" + collectionId} style={button}>PREVIEW PUBLIC EXPERIENCE</a>
         </div>
 
         {message ? <div style={notice}>{message}</div> : null}
@@ -558,6 +472,9 @@ export default function StudioDraftProjectManager({
       </details>
 
       {layered ? (
+      <details style={advancedPanel}>
+        <summary style={advancedSummary}>TRAIT DETAILS / VALIDATION</summary>
+        <div style={advancedBody}>
       <section style={panel}>
         <div style={eyebrow}>TRAIT ENGINE</div>
         <h2 style={heading}>Saved layer map</h2>
@@ -583,19 +500,6 @@ export default function StudioDraftProjectManager({
       </section>
       ) : null}
 
-      {layered ? (
-      <div id="validation">
-      <StudioTraitValidation
-        session={session}
-        collectionId={collectionId}
-        verified={verified}
-        layers={layers}
-        traitAssets={traitAssets || []}
-        validationRun={data.validationRun}
-      />
-      </div>
-      ) : null}
-
       <StudioMintOverrides
         session={session}
         collection={collection}
@@ -604,7 +508,12 @@ export default function StudioDraftProjectManager({
         publishedOverrides={publishedMintOverrides || []}
         onChanged={load}
       />
+        </div>
+      </details>
 
+      <details style={advancedPanel}>
+        <summary style={advancedSummary}>BACKGROUND PUBLISHING / MAINTENANCE</summary>
+        <div style={advancedBody}>
       <section style={panel} id="backgrounds">
         <div style={eyebrow}>OFFICIAL BACKGROUNDS</div>
         <h2 style={heading}>Background package drafts</h2>
@@ -644,6 +553,8 @@ export default function StudioDraftProjectManager({
           </div>
         )}
       </section>
+        </div>
+      </details>
     </div>
   );
 }
