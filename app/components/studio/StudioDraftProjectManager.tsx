@@ -472,42 +472,34 @@ export default function StudioDraftProjectManager({
       </details>
 
       {layered ? (
-      <details style={advancedPanel}>
-        <summary style={advancedSummary}>TRAIT DETAILS / VALIDATION</summary>
-        <div style={advancedBody}>
-      <section style={panel}>
-        <div style={eyebrow}>TRAIT ENGINE</div>
-        <h2 style={heading}>Saved layer map</h2>
-
-        {!layers.length ? (
-          <p style={copy}>No persistent trait layer map yet.</p>
-        ) : (
-          <div style={{ display: "grid", gap: 7 }}>
-            {layers.map((layer: any, index: number) => (
-              <div key={layer.id} style={row}>
-                <span style={indexBox}>{String(index + 1).padStart(2, "0")}</span>
-                <div>
-                  <strong style={{ fontSize: 11 }}>{layer.display_name}</strong>
-                  <div style={{ color: "rgba(255,255,255,.42)", fontSize: 9 }}>
-                    {layer.trait_type}
-                    {layer.is_background ? " · BACKGROUND LAYER" : ""}
-                  </div>
+        <details style={advancedPanel}>
+          <summary style={advancedSummary}>TRAIT DETAILS / VALIDATION</summary>
+          <div style={advancedBody}>
+            <section style={panel}>
+              <div style={eyebrow}>TRAIT ENGINE</div>
+              <h2 style={heading}>Saved layer map</h2>
+              {!layers.length ? <p style={copy}>No persistent trait layer map yet.</p> : (
+                <div style={{ display: "grid", gap: 7 }}>
+                  {layers.map((layer: any, index: number) => (
+                    <div key={layer.id} style={row}>
+                      <span style={indexBox}>{String(index + 1).padStart(2, "0")}</span>
+                      <div><strong style={{ fontSize: 11 }}>{layer.display_name}</strong><div style={{ color: "rgba(255,255,255,.42)", fontSize: 9 }}>{layer.trait_type}{layer.is_background ? " · BACKGROUND LAYER" : ""}</div></div>
+                    </div>
+                  ))}
                 </div>
-              </div>
-            ))}
+              )}
+            </section>
+            <div id="validation">
+              <StudioTraitValidation session={session} collectionId={collectionId} verified={verified} layers={layers} traitAssets={traitAssets || []} validationRun={data.validationRun} />
+            </div>
           </div>
-        )}
-      </section>
+        </details>
       ) : null}
 
-      <StudioMintOverrides
-        session={session}
-        collection={collection}
-        verified={verified}
-        overrides={mintOverrides || []}
-        publishedOverrides={publishedMintOverrides || []}
-        onChanged={load}
-      />
+      <details style={advancedPanel}>
+        <summary style={advancedSummary}>SPECIAL NFT OVERRIDES</summary>
+        <div style={advancedBody}>
+          <StudioMintOverrides session={session} collection={collection} verified={verified} overrides={mintOverrides || []} publishedOverrides={publishedMintOverrides || []} onChanged={load} />
         </div>
       </details>
 
