@@ -140,7 +140,7 @@ function Slot({ title, subtitle, asset, onPick }: SlotProps) {
   );
 }
 
-export default function StudioBackgroundBuilder() {
+export default function StudioBackgroundBuilder({ collectionId }: { collectionId?: string } = {}) {
   const [name, setName] = useState("New Official Background");
   const [phone, setPhone] = useState<LocalAsset | null>(null);
   const [ipad, setIpad] = useState<LocalAsset | null>(null);
@@ -175,7 +175,9 @@ export default function StudioBackgroundBuilder() {
         const rows = await listMyStudioCollections(next);
         if (!active) return;
         setCollections(rows);
-        if (!selectedCollectionId && rows[0]?.id) {
+        if (collectionId && rows.some((row: any) => row.id === collectionId)) {
+          setSelectedCollectionId(collectionId);
+        } else if (!selectedCollectionId && rows[0]?.id) {
           setSelectedCollectionId(rows[0].id);
         }
       } catch {
@@ -192,7 +194,7 @@ export default function StudioBackgroundBuilder() {
       window.removeEventListener("lockscreened-auth-changed", listener);
       window.removeEventListener("lockscreened-studio-data-changed", listener);
     };
-  }, [selectedCollectionId]);
+  }, [selectedCollectionId, collectionId]);
 
   async function saveDraft() {
     if (!session || !selectedCollectionId || !phone || !packageBudget.ok) return;
