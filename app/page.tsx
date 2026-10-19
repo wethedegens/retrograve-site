@@ -130,6 +130,10 @@ export default function HomePage() {
             <a href="#how-it-works" className="ctaGhost">
               LEARN HOW IT WORKS
             </a>
+            <Link href="/studio" className="ctaStudio">
+              CREATOR STUDIO
+              <span>FOR FOUNDERS</span>
+            </Link>
           </div>
         </header>
 
@@ -253,7 +257,8 @@ export default function HomePage() {
         }
 
         .ctaPrimary,
-        .ctaGhost {
+        .ctaGhost,
+        .ctaStudio {
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -278,6 +283,22 @@ export default function HomePage() {
           color: rgba(255, 255, 255, 0.92);
           border: 1px solid rgba(255, 255, 255, 0.22);
           backdrop-filter: blur(6px);
+        }
+
+        .ctaStudio {
+          height: auto;
+          min-height: 34px;
+          gap: 6px;
+          background: rgba(12, 10, 22, 0.62);
+          color: rgba(255, 255, 255, 0.94);
+          border: 1px solid rgba(255, 99, 194, 0.32);
+          backdrop-filter: blur(6px);
+        }
+
+        .ctaStudio span {
+          color: #ff8dce;
+          font-size: 8px;
+          letter-spacing: 0.08em;
         }
 
         .section {
