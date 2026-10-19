@@ -134,8 +134,10 @@ export async function signInWithSolana(
     "",
     statement,
     "",
-    "Version: 1",
     `URI: ${currentUrl.origin}`,
+    "Version: 1",
+    "Chain ID: mainnet",
+    `Nonce: ${Array.from(crypto.getRandomValues(new Uint8Array(12)), (byte) => (byte % 36).toString(36)).join("")}`,
     `Issued At: ${new Date().toISOString()}`,
   ].join("\n");
 
