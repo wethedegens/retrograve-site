@@ -39,6 +39,7 @@ export default function PrivateCollectorLocker({project,pilotProjectId,originalT
   const [overlayId,setOverlayId]=useState(()=>project.overlays?.some(item=>item.id===project.render_profile?.collectorDefaults?.overlayId)?project.render_profile.collectorDefaults.overlayId:"none");
   const [showLogo,setShowLogo]=useState(project.render_profile?.foregroundLogo?.defaultVisible!==false);
   const [preview,setPreview]=useState<CollectorPreview|null>(null);
+  const [savedImage,setSavedImage]=useState<{url:string;file:File}|null>(null);
   const canvas=useRef<HTMLCanvasElement>(null);
   const previewCache=useRef(new Map<string,{preview:CollectorPreview;expires:number}>());
   const [busy,setBusy]=useState(false);const [signing,setSigning]=useState(false);const [exporting,setExporting]=useState(false);const [message,setMessage]=useState("");
@@ -100,12 +101,25 @@ export default function PrivateCollectorLocker({project,pilotProjectId,originalT
       const size=presets[preset];const response=await requestRender(size.width,size.height,controller.signal,false,placement,showLogo);
       if(!response.headers.get("content-type")?.startsWith("image/png"))throw new Error("The server did not return a wallpaper.");
       const blob=await response.blob();
+      const filename=`${project.slug}-${mint.slice(0,8)}-${size.width}x${size.height}.png`;
+      if (/iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) {
+        const url=await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));reader.onerror=()=>reject(new Error("Could not prepare the saved image."));reader.readAsDataURL(blob);});
+        setSavedImage({url,file:new File([blob],filename,{type:"image/png"})});
+        return;
+      }
       const url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download=`${project.slug}-${mint.slice(0,8)}-${size.width}x${size.height}.png`;link.click();window.setTimeout(()=>URL.revokeObjectURL(url),60000);
     }catch(error){setMessage(controller.signal.aborted?"Download timed out. Please try again.":error instanceof Error?error.message:"Download unavailable.");}
     finally{window.clearTimeout(timer);setExporting(false);}
   }
   const update=(change:Partial<Placement>)=>setPlacements(value=>({...value,[device]:{...value[device],...change}}));
   return <section className="private-collector">
+    {savedImage?<div role="dialog" aria-modal="true" aria-label="Save your wallpaper" style={{position:"fixed",inset:0,zIndex:1200,background:"#111",overflowY:"auto",padding:20,display:"flex",flexDirection:"column",alignItems:"center",gap:12}}>
+      <h2>Your wallpaper is ready</h2>
+      <p>Touch and hold the image, then choose Save Image or Add to Photos.</p>
+      {typeof navigator!=="undefined" && navigator.canShare?.({files:[savedImage.file]})?<button type="button" onClick={()=>void navigator.share({files:[savedImage.file]}).catch(error=>{if(error?.name!=="AbortError")setMessage("Touch and hold the image to save it instead.");})}>Share or save image</button>:null}
+      <button type="button" onClick={()=>setSavedImage(null)}>Back to editor</button>
+      <img src={savedImage.url} alt="Your finished wallpaper" style={{maxWidth:"100%",maxHeight:"70dvh",objectFit:"contain"}}/>
+    </div>:null}
     <aside>
       <Link prefetch={false} href={pilotProjectId?`/studio/pilot/${pilotProjectId}`:`/projects/${project.slug}/collection`}>← My {project.name} NFTs</Link>
       <h1>Your wallpaper</h1>
