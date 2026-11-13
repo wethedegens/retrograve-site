@@ -1,6 +1,7 @@
 "use client";
 import {useCallback,useEffect,useRef,useState} from "react";
 import {useWallet} from "@solana/wallet-adapter-react";
+import Link from "next/link";
 import {useSearchParams} from "next/navigation";
 import {getFreshSession,signInWithSolana} from "../../lib/lockscreened/web3AuthClient";
 import {extractSolanaWalletAddress} from "../../lib/lockscreened/authIdentity";
@@ -48,7 +49,7 @@ export default function CollectorPilot({projectId,publicSlug}:{projectId:string;
       <div className="grid">{data.items.map(item=><article key={item.mint}>
         {item.image?<img src={item.image} alt={item.name} referrerPolicy="no-referrer" loading="lazy"/>:<div className="no-image">No thumbnail</div>}
         <h2>{item.name}</h2>
-        {item.available?<a className="choose" href={`${publicSlug?`/projects/${publicSlug}/locker`:`/studio/pilot/${projectId}`}?mint=${encodeURIComponent(item.mint)}&page=${page}`}>Make my wallpaper →</a>:<p>{item.reason}</p>}
+        {item.available?<Link prefetch={false} className="choose" href={`${publicSlug?`/projects/${publicSlug}/locker`:`/studio/pilot/${projectId}`}?mint=${encodeURIComponent(item.mint)}&page=${page}`}>Make my wallpaper →</Link>:<p>{item.reason}</p>}
       </article>)}</div>
       {!data.items.length?<p>No NFTs from this collection were found in the connected wallet.</p>:null}
       <nav aria-label="Owned NFT pages"><button disabled={busy||page===1} onClick={()=>setPage(value=>value-1)}>Previous</button><span>Page {page}</span><button disabled={busy||!data.hasMore} onClick={()=>setPage(value=>value+1)}>Next</button></nav>

@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -106,7 +107,7 @@ export default function PrivateCollectorLocker({project,pilotProjectId,originalT
   const update=(change:Partial<Placement>)=>setPlacements(value=>({...value,[device]:{...value[device],...change}}));
   return <section className="private-collector">
     <aside>
-      <a href={pilotProjectId?`/studio/pilot/${pilotProjectId}`:`/projects/${project.slug}/collection`}>← My {project.name} NFTs</a>
+      <Link prefetch={false} href={pilotProjectId?`/studio/pilot/${pilotProjectId}`:`/projects/${project.slug}/collection`}>← My {project.name} NFTs</Link>
       <h1>Your wallpaper</h1>
       <p className="intro">Choose a background and make it yours.</p>
       {!authorized?<div className="login">
