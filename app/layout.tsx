@@ -1,10 +1,12 @@
 // app/layout.tsx
 import "./globals.css";
+import "./studio/studio-theme.css";
 import type { Metadata } from "next";
 import Providers from "./providers";
 import WalletGate from "./components/WalletGate";
 import RedirectOnConnect from "./components/RedirectOnConnect";
 import TopNavWrapper from "./components/TopNavWrapper";
+import StyledJsxRegistry from "./registry";
 
 export const metadata: Metadata = {
   title: "LockScreened / RetroGrave",
@@ -24,6 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="app-body">
+        <StyledJsxRegistry>
         <Providers>
           {/* ✅ NAV lives OUTSIDE WalletGate so it always renders */}
           <TopNavWrapper />
@@ -33,6 +36,7 @@ export default function RootLayout({
             {children}
           </WalletGate>
         </Providers>
+        </StyledJsxRegistry>
       </body>
     </html>
   );

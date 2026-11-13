@@ -1,0 +1,48 @@
+/* Private Studio chrome. Artwork, canvases and collector backgrounds keep their colors. */
+.ls-admin-theme {
+  isolation: isolate;
+  background: #090909 !important;
+  color: #f2f2f2;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.ls-admin-theme::before,
+.ls-admin-theme::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.ls-admin-theme::before {
+  opacity: .045;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.88' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23fff' filter='url(%23noise)' opacity='.8' d='M0 0h180v180H0z'/%3E%3C/svg%3E");
+}
+.ls-admin-theme::after {
+  background: repeating-linear-gradient(0deg, transparent 0, transparent 3px, rgba(255,255,255,.022) 3px, rgba(255,255,255,.022) 4px);
+}
+.ls-admin-theme .ls-bg,
+.ls-admin-theme .studio-old-backdrop { display: none; }
+.ls-admin-theme .ls-scrim,
+.ls-admin-theme .studio-old-scrim {
+  background: radial-gradient(ellipse at 50% 0, rgba(255,255,255,.035), transparent 65%) !important;
+}
+.ls-admin-theme .ls-brandbar { background: #111 !important; border-radius: 12px !important; box-shadow: none !important; }
+.ls-admin-theme .ls-hero { background: #111 !important; border-radius: 14px !important; box-shadow: none !important; }
+.ls-admin-theme .ls-brandmeta b,
+.ls-admin-theme .ls-eyebrow { color: #ccc !important; }
+.ls-admin-theme .ls-badge { background: #1c1c1c !important; border-color: #444 !important; color: #ddd !important; }
+.ls-admin-theme button { cursor: pointer; transition: background-color .15s ease, border-color .15s ease; }
+.ls-admin-theme button:disabled { opacity: .45; cursor: not-allowed; }
+.ls-admin-theme button:focus-visible,
+.ls-admin-theme a:focus-visible,
+.ls-admin-theme input:focus-visible,
+.ls-admin-theme select:focus-visible { outline: 2px solid #eee; outline-offset: 3px; }
+.ls-admin-theme input[type="range"],
+.ls-admin-theme input[type="checkbox"] { accent-color: #eee; }
+.ls-admin-theme input:not([type="file"]):not([type="color"]):not([type="range"]),
+.ls-admin-theme select,
+.ls-admin-theme textarea { background-color: #151515 !important; border-color: #393939 !important; color: #eee !important; }
+body:has(.ls-admin-theme) header.topnav { background: rgba(10,10,10,.97) !important; border-bottom: 1px solid #292929; }
+body:has(.ls-admin-theme) header.topnav .wallet-adapter-button { background: #e8e8e8 !important; color: #111 !important; border-radius: 8px; }
+body:has(.ls-admin-theme) header.topnav .wallet-adapter-button img { filter: grayscale(1); }
+body:has(.ls-admin-theme) header.topnav .logoImg { filter: grayscale(1) brightness(0) invert(1); }

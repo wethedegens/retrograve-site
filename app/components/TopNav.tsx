@@ -1,9 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { usePathname } from "next/navigation";
 import type { TopNavProject } from "./TopNavWrapper";
+
+// Wallet discovery uses browser extensions and can differ from server HTML.
+const StudioWalletButton = dynamic(
+  () => import("@solana/wallet-adapter-react-ui").then(module => module.WalletMultiButton),
+  { ssr: false, loading: () => <button className="wallet-adapter-button" disabled>Loading wallet…</button> }
+);
 
 type ProjectLinks = {
   homeHref: string;
@@ -18,8 +25,6 @@ type ProjectLinks = {
 const LINKS: Record<TopNavProject, ProjectLinks> = {
   retrograve: {
     homeHref: "/",
-    myHref: "/retrograves-nfts",
-    myLabel: "MY RETROGRAVES",
     collectHref: "https://magiceden.io",
     communityHref: "https://discord.gg/rRG2YDbHYA",
     xHref: "https://x.com/RETROGRAVE_NFT",
@@ -142,7 +147,9 @@ export default function TopNav({ project }: { project: TopNavProject }) {
 
         <div className="right">
           <div className="walletWrap">
-            <WalletMultiButton />
+            {pathname === "/studio" || pathname.startsWith("/studio/")
+              ? <StudioWalletButton />
+              : <WalletMultiButton />}
           </div>
 
           <Link className="logoLink" href="/" aria-label="LockScreened home">

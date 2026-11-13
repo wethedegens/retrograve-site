@@ -1,8 +1,10 @@
 // app/components/FAQ.tsx
 // Fully static/SSR-safe: native <details> for expand/collapse, no client JS required.
 
+import type { ReactElement } from "react";
+
 export default function FAQ() {
-  const faqs: { q: string; a: JSX.Element }[] = [
+  const faqs: { q: string; a: ReactElement }[] = [
     {
       q: "What is RetroGrave Lockscreen Locker?",
       a: (
