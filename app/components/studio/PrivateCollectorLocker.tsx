@@ -115,9 +115,10 @@ export default function PrivateCollectorLocker({project,pilotProjectId,originalT
   return <section className="private-collector">
     {savedImage?<div role="dialog" aria-modal="true" aria-label="Save your wallpaper" style={{position:"fixed",inset:0,zIndex:1200,background:"#111",overflowY:"auto",padding:20,display:"flex",flexDirection:"column",alignItems:"center",gap:12}}>
       <h2>Your wallpaper is ready</h2>
-      <p>Touch and hold the image, then choose Save Image or Add to Photos.</p>
+      
       {typeof navigator!=="undefined" && navigator.canShare?.({files:[savedImage.file]})?<button type="button" onClick={()=>void navigator.share({files:[savedImage.file]}).catch(error=>{if(error?.name!=="AbortError")setMessage("Touch and hold the image to save it instead.");})}>Share or save image</button>:null}
       <button type="button" onClick={()=>setSavedImage(null)}>Back to editor</button>
+      <p style={{margin:"4px 0",fontSize:16,fontWeight:600,textAlign:"center"}}>Touch and hold the image to save it to Photos.</p>
       <img src={savedImage.url} alt="Your finished wallpaper" style={{maxWidth:"100%",maxHeight:"70dvh",objectFit:"contain"}}/>
     </div>:null}
     <aside>
