@@ -352,7 +352,7 @@ export default function StudioDraftProjectManager({
     (item: any) => item.device === "phone"
   );
   const hasPublishedRenderAssets =
-    !layered; // Layered launch stays paused until the private collector pilot is verified.
+    !layered || collection.render_profile?.collectorRenderer === "private_layers_v1"; // The server still enforces exact launch scope, validation and fresh authority.
   const layerOrderConfirmedAt = Date.parse(
     String(collection.render_profile?.layerOrderConfirmedAt || "")
   );
