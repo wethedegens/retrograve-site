@@ -3,118 +3,23 @@
 
 import Link from "next/link";
 import LockscreenedFAQ from "./components/LockscreenedFAQ";
-import CommunityLockerStrip from "./components/CommunityLockerStrip";
-
-type LockerProject = {
-  name: string;
-  status: "live" | "coming";
-  label: string;
-  lockerPath: string;
-  glow: string;
-  preview?: string;
-};
-
-const PROJECTS: LockerProject[] = [
-  {
-    name: "RetroGrave Locker",
-    status: "live",
-    label: "Live",
-    lockerPath: "/retrograve",
-    glow: "retrograve",
-    preview: "/lockscreened-previews/retrograve.png",
-  },
-  {
-    name: "Gainz",
-    status: "live",
-    label: "Live",
-    lockerPath: "/gainz",
-    glow: "gainz",
-    preview: "/lockscreened-previews/gainz.png",
-  },
-  {
-    name: "MidEvils",
-    status: "live",
-    label: "Live",
-    lockerPath: "/midevils",
-    glow: "midevils",
-    preview: "/lockscreened-previews/midevils.png",
-  },
-  {
-    name: "Enchanted Miners",
-    status: "live",
-    label: "Live",
-    lockerPath: "/enchanted-miners",
-    glow: "miners",
-    preview: "/lockscreened-previews/miners.png",
-  },
-
-  // ✅ NEW — Doge Miners (Inscription loader)
-  {
-    name: "Doge Miners",
-    status: "live",
-    label: "Live",
-    lockerPath: "/doge-miners",
-    glow: "dogeminers",
-    preview: "/lockscreened-previews/doge-miners.png",
-  },
-
-  {
-    name: "ZeroMonkeBiz",
-    status: "live",
-    label: "Live",
-    lockerPath: "/zeromonkebiz",
-    glow: "zeromonkebiz",
-    preview: "/lockscreened-previews/zeromonkebiz-1.png",
-  },
-
-  // ✅ SagaMonkes (LIVE)
-  {
-    name: "SagaMonkes",
-    status: "live",
-    label: "Live",
-    lockerPath: "/saga-monkes",
-    glow: "sagamonkes",
-    preview: "/lockscreened-previews/saga-monkes.png",
-  },
-
-  {
-    name: "MAGApixel Locker",
-    status: "live",
-    label: "Live",
-    lockerPath: "/locker/magapixel",
-    glow: "magapixel",
-    preview: "/lockscreened-previews/magapixel.png",
-  },
-  {
-    name: "MEOWGA",
-    status: "live",
-    label: "Live",
-    lockerPath: "/meowga",
-    glow: "meowga",
-    preview: "/lockscreened-previews/meowga.png",
-  },
-];
+import ProjectDirectory from "./components/ProjectDirectory";
+import StudioWordmark from "./components/studio/StudioWordmark";
 
 const BG = "/lockscreened-main-bg-2.png";
 
 export default function HomePage() {
-  const live = PROJECTS.filter((p) => p.status === "live");
-  const coming = PROJECTS.filter((p) => p.status === "coming");
+
 
   return (
-    <main className="home">
+    <main className="home ls-admin-theme">
       <div className="bg" />
       <div className="scrim" />
 
       <section className="wrap">
         <header className="hero">
           <div className="logoRow">
-            <img
-              src="/lockscreened-wordmark-1.png"
-              alt="LockScreened"
-              className="logoImage"
-              draggable={false}
-            />
+            <StudioWordmark />
           </div>
 
           <p className="tagline">
@@ -144,25 +49,10 @@ export default function HomePage() {
             LockScreened. Tap a phone to open that project’s experience.
           </p>
 
-          <div className="cardsRow">
-            {live.slice(0, 5).map((p) => (
-              <ProjectCard key={p.name} p={p} />
-            ))}
-          </div>
-
-          {live.length > 5 && (
-            <div className="cardsRowComing">
-              {live.slice(5).map((p) => (
-                <ProjectCard key={p.name} p={p} />
-              ))}
-              {coming.map((p) => (
-                <ProjectCard key={p.name} p={p} />
-              ))}
-            </div>
-          )}
+          <ProjectDirectory />
         </section>
 
-        <CommunityLockerStrip />
+
 
         <section id="how-it-works" className="faq">
           <LockscreenedFAQ />
@@ -186,7 +76,7 @@ export default function HomePage() {
           position: fixed;
           inset: 0;
           z-index: 0;
-          background-image: url(${BG});
+          background-image: none;
           background-size: cover;
           background-repeat: no-repeat;
 
@@ -273,7 +163,7 @@ export default function HomePage() {
         }
 
         .ctaPrimary {
-          background: #ff3fb4;
+          background: #eee;
           color: #151019;
           box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
         }
@@ -296,7 +186,7 @@ export default function HomePage() {
         }
 
         .ctaStudio span {
-          color: #ff8dce;
+          color: #ddd;
           font-size: 8px;
           letter-spacing: 0.08em;
         }
@@ -365,91 +255,3 @@ export default function HomePage() {
   );
 }
 
-function ProjectCard({ p }: { p: LockerProject }) {
-  const CardInner = (
-    <div className="card">
-      <div className="pill">{p.label.toUpperCase()}</div>
-
-      <div className="phone">
-        {p.preview ? (
-          <img src={p.preview} alt={p.name} className="img" draggable={false} />
-        ) : (
-          <div className="img placeholder" />
-        )}
-      </div>
-
-      <div className="name">{p.name}</div>
-      <div className="sub">{p.status === "live" ? "Live" : "Coming soon"}</div>
-
-      <style jsx>{`
-        .card {
-          width: 170px;
-          border-radius: 20px;
-          background: rgba(10, 8, 20, 0.58);
-          box-shadow: 0 18px 36px rgba(0, 0, 0, 0.22);
-          padding: 10px 10px 12px;
-          position: relative;
-          display: grid;
-          justify-items: center;
-          gap: 8px;
-          user-select: none;
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          backdrop-filter: blur(10px);
-        }
-
-        .pill {
-          position: absolute;
-          top: 10px;
-          left: 10px;
-          font-size: 10px;
-          font-weight: 900;
-          color: rgba(0, 0, 0, 0.88);
-          background: rgba(255, 255, 255, 0.85);
-          padding: 3px 8px;
-          border-radius: 999px;
-          letter-spacing: 0.06em;
-        }
-
-        .phone {
-          width: 100%;
-          aspect-ratio: 9 / 19.5;
-          border-radius: 18px;
-          background: rgba(30, 30, 34, 0.22);
-          display: grid;
-          place-items: center;
-          overflow: hidden;
-          margin-top: 8px;
-        }
-
-        .img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-        }
-
-        .name {
-          font-size: 11px;
-          font-weight: 900;
-          color: rgba(255, 255, 255, 0.92);
-        }
-
-        .sub {
-          font-size: 10px;
-          color: rgba(255, 255, 255, 0.7);
-          margin-top: -6px;
-        }
-      `}</style>
-    </div>
-  );
-
-  if (p.status === "live" && p.lockerPath && p.lockerPath !== "#") {
-    return (
-      <Link href={p.lockerPath} style={{ textDecoration: "none" }}>
-        {CardInner}
-      </Link>
-    );
-  }
-
-  return <div style={{ opacity: 0.9 }}>{CardInner}</div>;
-}

@@ -2,7 +2,7 @@
 
 :root {
   --page-bg: #111827; /* dark navy */
-  --page-bg-image: url("/bg-retrograve.png"); /* default */
+  --page-bg-image: none; /* Each project supplies its own artwork; avoid a wrong-project flash. */
 
   /* LockScreened Creator Studio brand tokens.
      Namespaced so legacy flagship experiences remain untouched. */

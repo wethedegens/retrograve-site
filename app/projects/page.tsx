@@ -1,7 +1,7 @@
 // app/projects/page.tsx
 import { listPublishedStudioProjects } from "../lib/lockscreened/publicStudioData";
 import LockScreenedPublicShell from "../components/studio/LockScreenedPublicShell";
-import CreatorLockerDirectoryClient from "../components/CreatorLockerDirectoryClient";
+import ProjectDirectory from "../components/ProjectDirectory";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +17,7 @@ export default async function CreatorLockerDirectory() {
     >
       <section style={hero}>
         <div style={eyebrow}>LOCKSCREENED CREATOR STUDIO</div>
-        <h1 style={title}>Verified Creator Lockers</h1>
+        <h1 style={title}>Find your project</h1>
         <p style={intro}>
           Explore published LockScreened experiences from collection creators
           whose project authority has been verified before publishing.
@@ -26,13 +26,7 @@ export default async function CreatorLockerDirectory() {
         </p>
       </section>
 
-      {!projects.length ? (
-        <div style={empty}>
-          No Creator Studio lockers have been published yet.
-        </div>
-      ) : (
-        <CreatorLockerDirectoryClient projects={projects} />
-      )}
+      <ProjectDirectory initialProjects={projects}/>
     </LockScreenedPublicShell>
   );
 }
