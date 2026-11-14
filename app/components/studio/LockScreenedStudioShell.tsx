@@ -3,6 +3,7 @@
 // app/components/studio/LockScreenedStudioShell.tsx
 import type { ReactNode } from "react";
 import StudioWordmark from "./StudioWordmark";
+import StudioBackButton from "./StudioBackButton";
 
 export default function LockScreenedStudioShell({
   children,
@@ -34,16 +35,15 @@ export default function LockScreenedStudioShell({
             <StudioWordmark />
           </a>
 
-          <div className="ls-brandmeta">
+          <div className="header-actions"><div className="ls-brandmeta">
             <span>CREATOR STUDIO</span>
             <b>FOUNDER PORTAL</b>
-          </div>
+          </div><StudioBackButton href={backHref} label={backHref==="/"?"LockScreened Home":backLabel}/></div>
         </header>
 
         {(title || subtitle || badge) ? (
           <section className="ls-hero">
             <div>
-              <a href={backHref} className="ls-back">← {backLabel}</a>
               <div className="ls-eyebrow">{eyebrow}</div>
               {title ? <h1>{title}</h1> : null}
               {subtitle ? <p>{subtitle}</p> : null}
@@ -56,6 +56,8 @@ export default function LockScreenedStudioShell({
       </div>
 
       <style jsx>{`
+        .header-actions{display:flex;align-items:center;justify-content:flex-end;gap:18px;flex-wrap:wrap}
+        @media(max-width:700px){.ls-brandbar{flex-wrap:wrap}.header-actions{width:100%;justify-content:space-between}.ls-brandmeta{justify-items:start}}
         .ls-shell {
           position: relative;
           min-height: 100vh;
