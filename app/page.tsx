@@ -35,10 +35,6 @@ export default function HomePage() {
             <a href="#how-it-works" className="ctaGhost">
               LEARN HOW IT WORKS
             </a>
-            <Link href="/studio" className="ctaStudio">
-              CREATOR STUDIO
-              <span>FOR FOUNDERS</span>
-            </Link>
           </div>
         </header>
 

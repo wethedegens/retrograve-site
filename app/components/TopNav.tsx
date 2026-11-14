@@ -143,6 +143,7 @@ export default function TopNav({ project }: { project: TopNavProject }) {
           <a className="navlink" href={cfg.xHref} target="_blank" rel="noreferrer">
             FOLLOW ON X
           </a>
+          <Link className="navlink" href="/studio" title="Creator Studio for founders">CREATOR STUDIO</Link>
         </nav>
 
         <div className="right">

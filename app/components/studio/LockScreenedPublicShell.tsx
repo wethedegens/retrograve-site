@@ -37,7 +37,6 @@ export default function LockScreenedPublicShell({
             <StudioWordmark />
           </Link>
           <div className="header-actions"><div className="project-mark">
-            <span>LOCKSCREENED PROJECT</span>
             <strong>{projectName || "CREATOR LOCKER"}</strong>
           </div><StudioBackButton href={backHref} label={backHref==="/"?"LockScreened Home":backLabel}/></div>
         </header>
