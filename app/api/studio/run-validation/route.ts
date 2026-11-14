@@ -1,3 +1,4 @@
+import { isKnownUnsupportedNft } from "../../../lib/lockscreened/magapixelAvailability";
 // app/api/studio/run-validation/route.ts
 import { NextResponse } from "next/server";
 import { matchMetadataToTraitAssets } from "../../../lib/lockscreened/traitMapping";
@@ -154,7 +155,9 @@ export async function POST(request: Request) {
 
     const sample = await getCollectionValidationSample(collectionAddress, 12);
 
-    const results = sample.map((nft) => {
+    const excluded = sample.filter(nft => isKnownUnsupportedNft(collectionAddress,nft.id));
+    const supported = sample.filter(nft => !isKnownUnsupportedNft(collectionAddress,nft.id));
+    const results = supported.map((nft) => {
       const match = matchMetadataToTraitAssets(
         importedLayers as any,
         nft.attributes || []
@@ -180,12 +183,14 @@ export async function POST(request: Request) {
     );
 
     const passed =
-      sample.length > 0 &&
+      supported.length > 0 &&
       matchedTraits > 0 &&
       missingTraits === 0;
 
     const compactReport = {
       collectionAddress,
+      supportedNfts:supported.length,
+      excludedNfts:excluded.map(nft=>({id:nft.id,name:nft.name})),
       sampledNfts: sample.length,
       matchedTraits,
       missingTraits,
@@ -228,12 +233,14 @@ export async function POST(request: Request) {
       persisted,
       needsServerSecret: !persisted,
       totals: {
+        supportedNfts:supported.length,
         sampledNfts: sample.length,
         matchedTraits,
         missingTraits,
         unmappedMetadata,
       },
-      sample,
+      sample:supported,
+      excluded:excluded.map(nft=>({id:nft.id,name:nft.name})),
     });
   } catch (error) {
     return NextResponse.json(

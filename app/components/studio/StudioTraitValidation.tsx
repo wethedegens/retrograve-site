@@ -23,6 +23,7 @@ export default function StudioTraitValidation({
   traitAssets,
   validationRun,
 }: Props) {
+  const [excluded,setExcluded]=useState<Array<{id:string;name:string}>>([]);
   const [busy, setBusy] = useState(false);
   const [sample, setSample] = useState<any[]>([]);
   const [message, setMessage] = useState("");
@@ -86,7 +87,7 @@ export default function StudioTraitValidation({
   async function runValidation() {
     setBusy(true);
     setMessage("");
-    setSample([]);
+    setSample([]);setExcluded([]);
 
     try {
       const response = await fetch("/api/studio/run-validation", {
@@ -103,7 +104,7 @@ export default function StudioTraitValidation({
         throw new Error(data?.error || "Validation sample failed.");
       }
 
-      setSample(data.sample || []);
+      setSample(data.sample || []);setExcluded(data.excluded||[]);
       setServerStatus(data.status || "");
 
       if (data.needsServerSecret) {
@@ -117,8 +118,8 @@ export default function StudioTraitValidation({
           "Server validation " +
             String(data.status || "").toUpperCase() +
             " across " +
-            String(data.totals?.sampledNfts || 0) +
-            " minted NFTs."
+            String(data.totals?.supportedNfts ?? data.totals?.sampledNfts ?? 0) +
+            " supported NFTs. This checks metadata mappings, not visual accuracy."
         );
         window.dispatchEvent(
           new CustomEvent("lockscreened-studio-data-changed")
@@ -183,6 +184,7 @@ export default function StudioTraitValidation({
 
       {message ? <div style={notice}>{message}</div> : null}
 
+      {excluded.length?<div style={notice}>{excluded.length} sampled NFT(s) remain unavailable for launch: {excluded.map(nft=>nft.name).join(", ")}. These were excluded by the existing reviewed artwork blocklist.</div>:null}
       {results.length ? (
         <>
           <div style={stats}>
