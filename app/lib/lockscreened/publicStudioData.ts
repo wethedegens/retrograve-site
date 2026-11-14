@@ -62,7 +62,7 @@ export async function getPublishedStudioProjectBySlug(slug: string) {
       .join(",");
 
     assets = await publicRequest<any[]>(
-      "background_assets?package_id=in.(" +
+      "background_assets?storage_bucket=eq.published-public&package_id=in.(" +
         encodeURIComponent(inList) +
         ")&select=id,package_id,device,storage_bucket,storage_path,bytes,mime_type"
     );

@@ -1,3 +1,4 @@
+import Link from "next/link";
 // app/projects/[slug]/page.tsx
 import styles from "./welcome.module.css";
 import { notFound } from "next/navigation";
@@ -73,9 +74,9 @@ export default async function PublishedStudioProjectPage({
           </div>
 
           <div style={{ marginTop: 18, display: "flex", gap: 9, flexWrap: "wrap" }}>
-            <a href={"/projects/" + (project.route_slug || project.slug) + "/collection"} style={primary}>
+            <Link prefetch={false} href={"/projects/" + (project.route_slug || project.slug) + "/collection"} style={primary}>
               VIEW MY COLLECTION
-            </a>
+            </Link>
             {profile.marketplace ? (
               <a
                 href={profile.marketplace}
