@@ -1,5 +1,6 @@
 // app/components/studio/StudioDraftProjectManager.tsx
 "use client";
+import FounderStudioFAQ from "./FounderStudioFAQ";
 
 import { useEffect, useState } from "react";
 import {
@@ -635,6 +636,7 @@ function Stat({ label, value }: { label: string; value: string }) {
         {label}
       </span>
       <strong style={{ fontSize: 13 }}>{value}</strong>
+      <FounderStudioFAQ />
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import FounderStudioFAQ from "../components/studio/FounderStudioFAQ";
 // app/studio/page.tsx
 import StudioWalletAuth from "../components/studio/StudioWalletAuth";
 import StudioCollectionClaim from "../components/studio/StudioCollectionClaim";
@@ -39,7 +40,7 @@ export default async function CreatorStudioPage({ searchParams }: { searchParams
               guides you from artwork to a collector-ready phone, tablet and desktop experience.
             </p>
           </div>
-          <div className={styles.heroBadge}>FOUNDER STUDIO</div>
+          <div><div className={styles.heroBadge}>FOUNDER STUDIO</div><a href="#founder-faq" style={{display:"inline-block",marginTop:12,color:"#eee",fontSize:13}}>Founder FAQ</a></div>
         </header>
 
         <section style={journeyPanel}>
@@ -78,6 +79,7 @@ export default async function CreatorStudioPage({ searchParams }: { searchParams
 
         <StudioCollectionClaim initialCollectionAddress={initialCollectionAddress} />
         <StudioPreMintProject />
+        <FounderStudioFAQ />
 
         <p className={styles.note}>
           LOCKSCREENED CREATOR STUDIO · PRIVATE SOURCE ART STAYS PROTECTED · PUBLISHING REQUIRES VERIFIED COLLECTION AUTHORITY

@@ -5,7 +5,8 @@ import ProjectDirectory from "../components/ProjectDirectory";
 
 export const dynamic = "force-dynamic";
 
-export default async function CreatorLockerDirectory() {
+export default async function CreatorLockerDirectory({searchParams}:{searchParams:Promise<{q?:string}>}) {
+  const query=String((await searchParams).q||"").slice(0,160);
   const projects = await listPublishedStudioProjects();
 
   return (
@@ -26,7 +27,7 @@ export default async function CreatorLockerDirectory() {
         </p>
       </section>
 
-      <ProjectDirectory initialProjects={projects}/>
+      <ProjectDirectory key={query} initialProjects={projects} initialQuery={query}/>
     </LockScreenedPublicShell>
   );
 }

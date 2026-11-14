@@ -45,7 +45,7 @@ export default function HomePage() {
             LockScreened. Tap a phone to open that project’s experience.
           </p>
 
-          <ProjectDirectory hideRetrograve />
+          <ProjectDirectory hideRetrograve showSearch={false} />
         </section>
 
 

@@ -1,4 +1,5 @@
 "use client";
+import ProjectSearch from "./ProjectSearch";
 
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -136,14 +137,9 @@ export default function TopNav({ project }: { project: TopNavProject }) {
             COMMUNITY
           </a>
 
-          <a className="navlink" href={cfg.collectHref} target="_blank" rel="noreferrer">
-            COLLECT NOW
-          </a>
 
-          <a className="navlink" href={cfg.xHref} target="_blank" rel="noreferrer">
-            FOLLOW ON X
-          </a>
           <Link className="navlink" href="/studio" title="Creator Studio for founders">CREATOR STUDIO</Link>
+          <ProjectSearch />
         </nav>
 
         <div className="right">
