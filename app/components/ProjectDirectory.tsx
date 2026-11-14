@@ -3,13 +3,13 @@ import {useEffect,useState} from "react";
 import ProjectCard from "./ProjectCard";
 import {LEGACY_PROJECTS,type LockerProject} from "../lib/lockscreened/legacyProjects";
 type PublishedProject={id:string;slug:string;name:string;preview?:string};
-export default function ProjectDirectory({initialProjects}:{initialProjects?:PublishedProject[]}){
+export default function ProjectDirectory({initialProjects,hideRetrograve=false}:{initialProjects?:PublishedProject[];hideRetrograve?:boolean}){
  const [projects,setProjects]=useState<PublishedProject[]>(initialProjects||[]);
  const [query,setQuery]=useState("");
  const [error,setError]=useState(false);
  useEffect(()=>{if(initialProjects)return;const controller=new AbortController();fetch("/api/public/projects",{signal:controller.signal}).then(async r=>{if(!r.ok)throw Error();return r.json();}).then(data=>setProjects(data.projects||[])).catch(()=>{if(!controller.signal.aborted)setError(true);});return()=>controller.abort();},[initialProjects]);
  const added:LockerProject[]=projects.map(p=>({name:p.name,status:"live",label:"Live",lockerPath:"/projects/"+p.slug,glow:"studio",preview:p.preview}));
- const all=[...LEGACY_PROJECTS,...added];
+ const all=[...LEGACY_PROJECTS,...added].filter(p=>!hideRetrograve||p.lockerPath!=="/retrograve");
  const filtered=all.filter(p=>p.name.toLowerCase().includes(query.trim().toLowerCase()));
  return <section aria-label="Project directory">
  <div className="search"><label htmlFor="project-search">Find a project</label><input id="project-search" type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search project names…"/><span role="status">{filtered.length} projects</span></div>
