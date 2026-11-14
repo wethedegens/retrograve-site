@@ -13,7 +13,6 @@ async function publicRequest<T>(path: string): Promise<T> {
   const response = await fetch(url + "/rest/v1/" + path, {
     headers: {
       apikey: publishableKey,
-      Authorization: "Bearer " + publishableKey,
     },
     next: { revalidate: 60 },
   });
@@ -169,7 +168,7 @@ export async function listPublishedStudioProjects() {
       .join(",");
 
     assets = await publicRequest<any[]>(
-      "background_assets?package_id=in.(" +
+      "background_assets?storage_bucket=eq.published-public&package_id=in.(" +
         encodeURIComponent(packageIn) +
         ")&device=eq.phone&select=id,package_id,storage_bucket,storage_path"
     );
