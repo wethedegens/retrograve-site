@@ -46,3 +46,10 @@ body:has(.ls-admin-theme) header.topnav { background: rgba(10,10,10,.97) !import
 body:has(.ls-admin-theme) header.topnav .wallet-adapter-button { background: #e8e8e8 !important; color: #111 !important; border-radius: 8px; }
 body:has(.ls-admin-theme) header.topnav .wallet-adapter-button img { filter: grayscale(1); }
 body:has(.ls-admin-theme) header.topnav .logoImg { filter: grayscale(1) brightness(0) invert(1); }
+
+/* Studio collector chrome uses the same monochrome treatment. */
+.ls-admin-theme :where(a:link,a:visited){color:#e8e8e8;text-decoration:none}
+.ls-admin-theme a:hover{text-decoration:underline;text-underline-offset:3px}
+.ls-admin-theme a:focus-visible{outline:2px solid #fff;outline-offset:4px}
+.ls-admin-theme .public-wordmark:hover,.ls-admin-theme .ls-wordmark:hover{text-decoration:none}
+body:has(.public-shell),body:has(.ls-admin-theme){--page-bg:#090909;--page-bg-image:none;background-image:none}

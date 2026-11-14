@@ -149,7 +149,7 @@ export default async function PublishedStudioProjectPage({
           </div>
         </div>
 
-        <div
+        <div className={styles.phoneFrame}
           style={{
             borderRadius: 30,
             padding: 14,
@@ -159,6 +159,7 @@ export default async function PublishedStudioProjectPage({
           }}
         >
           <div
+            className={styles.phoneScreen}
             style={{
               width: "100%",
               aspectRatio: "9 / 19.5",

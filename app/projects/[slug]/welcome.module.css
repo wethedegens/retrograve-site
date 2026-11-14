@@ -1,2 +1,4 @@
-.welcome { grid-template-columns: minmax(0,1fr) minmax(280px,420px); }
-@media (max-width: 700px) { .welcome { grid-template-columns: minmax(0,1fr); } }
+.welcome{grid-template-columns:minmax(0,1fr) minmax(0,360px)}
+.phoneFrame{justify-self:center;width:min(100%,calc((100dvh - 300px)*.4615 + 28px));min-width:200px}
+.phoneScreen{max-height:calc(100dvh - 328px)}
+@media(max-width:700px){.welcome{grid-template-columns:minmax(0,1fr);gap:24px!important}.phoneFrame{width:min(280px,72vw);min-width:0}.phoneScreen{max-height:none}}
