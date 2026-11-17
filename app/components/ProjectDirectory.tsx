@@ -8,7 +8,7 @@ export default function ProjectDirectory({initialProjects,hideRetrograve=false,s
  const [query,setQuery]=useState(initialQuery);
  const [error,setError]=useState(false);
  useEffect(()=>{if(initialProjects)return;const controller=new AbortController();fetch("/api/public/projects",{signal:controller.signal}).then(async r=>{if(!r.ok)throw Error();return r.json();}).then(data=>setProjects(data.projects||[])).catch(()=>{if(!controller.signal.aborted)setError(true);});return()=>controller.abort();},[initialProjects]);
- const added:LockerProject[]=projects.map(p=>({name:p.name,status:"live",label:"Live",lockerPath:"/projects/"+p.slug,glow:"studio",preview:p.preview}));
+ const added:LockerProject[]=projects.filter(p=>p.slug!=="magapixel-studio").map(p=>({name:p.name,status:"live",label:"Live",lockerPath:"/projects/"+p.slug,glow:"studio",preview:p.preview}));
  const all=[...LEGACY_PROJECTS,...added].filter(p=>!hideRetrograve||p.lockerPath!=="/retrograve");
  const filtered=all.filter(p=>p.name.toLowerCase().includes(query.trim().toLowerCase()));
  return <section aria-label="Project directory">
