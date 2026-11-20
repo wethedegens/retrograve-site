@@ -136,7 +136,7 @@ export async function signInWithSolana(
   const statement =
     purpose === "collector"
       ? "Sign in to LockScreened to verify NFT ownership and make a wallpaper. This does not authorize a transaction, transfer, sale, or token approval."
-      : "Sign in to LockScreened Creator Studio. This does not authorize a transaction, transfer, sale, or token approval.";
+      : "Sign in to LockScreened Creator Studio. No transaction, transfer, or token approval.";
 
   const message = [
     `${currentUrl.host} wants you to sign in with your Solana account:`,
