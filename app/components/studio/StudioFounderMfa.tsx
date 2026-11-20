@@ -111,7 +111,7 @@ export default function StudioFounderMfa({ session }: { session: LockScreenedSes
   return (
     <section className={styles.panel} aria-label="Founder two-step verification">
       <h2>Founder two-step verification</h2>
-      <p>Verify your email once. Use a six-digit verification code from Apple Passwords or an authenticator app to approve sensitive Studio actions.</p>
+      <p>Verify your email once. For sensitive Studio actions, enter a six-digit code from Apple Passwords or your authenticator app.</p>
       {state && !state.confirmedEmail && (
         <>
           <form className={styles.form} onSubmit={(event) => { event.preventDefault(); void sendEmail(); }}>
@@ -129,8 +129,8 @@ export default function StudioFounderMfa({ session }: { session: LockScreenedSes
         <button type="button" onClick={start} disabled={busy}>Set up verification codes</button>}
       {setup && (
         <div className={styles.setup}>
-          <p>On iPhone, scan this QR code with Camera to open Passwords. You can also scan it in your preferred authenticator app.</p>
-          <p>In Apple Passwords, choose an entry for this Studio website if you have one. If asked to add the code without a website, you can save it and enter the code manually.</p>
+          <p>Scan the QR code with your iPhone Camera to open Apple Passwords, or scan it in your authenticator app.</p>
+          <p>If Apple Passwords asks to add the code without a website, you can save it anyway. Then enter the current six-digit code below.</p>
           <p>Keep the QR code and setup key private.</p>
           {/* The provider-supplied QR is a local data URL and is never sent to an image server. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -139,7 +139,7 @@ export default function StudioFounderMfa({ session }: { session: LockScreenedSes
           <button type="button" onClick={cancel} disabled={busy}>Cancel setup</button>
         </div>
       )}
-      {needsCode && !setup && <p>Open Apple Passwords or your authenticator app and enter the current code for LockScreened Studio.</p>}
+      {needsCode && !setup && <p>Enter the current LockScreened Studio code from Apple Passwords or your authenticator app.</p>}
       {needsCode && (
         <form className={styles.form} onSubmit={(event) => { event.preventDefault(); void verify(); }}>
           {!setup && (state?.factors.length ?? 0) > 1 &&
