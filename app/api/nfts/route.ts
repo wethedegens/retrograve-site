@@ -1,5 +1,12 @@
 // app/api/nfts/route.ts
 import { NextRequest, NextResponse } from "next/server";
+import { PublicKey } from "@solana/web3.js";
+import { readBoundedNftMedia } from "../../lib/lockscreened/server/publicNftMedia";
+
+const MAX_REQUEST_BYTES = 16 * 1024;
+const PAGE_SIZE = 500;
+const MAX_PAGES = 20;
+const LOOKUP_TIMEOUT_MS = 15_000;
 
 /** ----- Types ----- */
 type DASAsset = {
@@ -32,7 +39,8 @@ async function fetchDASPage(
   owner: string,
   endpoint: string,
   page: number,
-  limit: number
+  limit: number,
+  signal: AbortSignal
 ) {
   const body = {
     jsonrpc: "2.0",
@@ -46,6 +54,8 @@ async function fetchDASPage(
     headers: { "content-type": "application/json" },
     body: JSON.stringify(body),
     cache: "no-store",
+    redirect: "error",
+    signal,
   });
 
   return resp;
@@ -56,10 +66,16 @@ async function fetchRestPage(
   owner: string,
   apiKey: string,
   page: number,
-  limit: number
+  limit: number,
+  signal: AbortSignal
 ) {
-  const url = `${resolveHeliusRestBase()}/v0/addresses/${owner}/nfts?api-key=${apiKey}&pageNumber=${page}&pageSize=${limit}`;
-  const resp = await fetch(url, { cache: "no-store" });
+  const query = new URLSearchParams({
+    "api-key": apiKey,
+    pageNumber: String(page),
+    pageSize: String(limit),
+  });
+  const url = `${resolveHeliusRestBase()}/v0/addresses/${owner}/nfts?${query}`;
+  const resp = await fetch(url, { cache: "no-store", redirect: "error", signal });
   return resp;
 }
 
@@ -73,7 +89,7 @@ function normalizeAndFilter(
 
   const allowCreators = creatorsCsv
     .split(",")
-    .map((s) => s.trim().toLowerCase())
+    .map((s) => s.trim())
     .filter(Boolean);
 
   let inCollectionCount = 0;
@@ -91,7 +107,7 @@ function normalizeAndFilter(
 
     const hasCreator = allowCreators.length
       ? (a.creators || []).some((c) =>
-          allowCreators.includes((c?.address || "").trim().toLowerCase())
+          allowCreators.includes((c?.address || "").trim())
         )
       : false;
 
@@ -179,60 +195,25 @@ function adaptHeliusRestToDas(rest: any[]): DASAsset[] {
   });
 }
 
-/** ----- NEW: Off-chain creator match (only when requested) ----- */
-async function offchainCreatorMatch(assets: DASAsset[], allowCreators: string[]) {
-  const allow = allowCreators.map((a) => a.trim().toLowerCase()).filter(Boolean);
-  if (!allow.length) return [];
-
-  async function fetchJson(uri: string) {
-    if (!uri) return null;
-    const u = String(uri);
-    const url = u.startsWith("ipfs://")
-      ? `/api/meta?u=${encodeURIComponent(u)}`
-      : `/api/meta?u=${encodeURIComponent(u)}`;
-
-    const r = await fetch(url, { cache: "no-store" });
-    if (!r.ok) return null;
-    return (await r.json().catch(() => null)) as any;
-  }
-
-  const matched: DASAsset[] = [];
-
-  // keep it simple + safe: sequential so you don't get rate-limited
-  for (const a of assets) {
-    const uri = a.content?.json_uri || "";
-    if (!uri) continue;
-
-    const j = await fetchJson(uri);
-    const creators =
-      j?.properties?.creators ||
-      j?.creators ||
-      j?.data?.creators ||
-      j?.properties?.files?.creators ||
-      [];
-
-    const addrs = Array.isArray(creators)
-      ? creators
-          .map((c: any) => String(c?.address || c?.creator || "").toLowerCase())
-          .filter(Boolean)
-      : [];
-
-    if (addrs.some((addr) => allow.includes(addr))) {
-      matched.push(a);
-    }
-  }
-
-  return matched;
-}
-
 /** ----- POST ----- */
 export async function POST(req: NextRequest) {
+  const signal = AbortSignal.timeout(LOOKUP_TIMEOUT_MS);
   try {
-    const body = await req.json().catch(() => ({}));
-    const owner = body?.owner as string | undefined;
-
-    if (!owner || typeof owner !== "string") {
-      return NextResponse.json({ error: "Missing owner" }, { status: 400 });
+    let body;
+    try {
+      const bytes = await readBoundedNftMedia(req, MAX_REQUEST_BYTES);
+      body = JSON.parse(new TextDecoder().decode(bytes));
+    } catch {
+      return NextResponse.json({ error: "Invalid NFT lookup request." }, { status: 400 });
+    }
+    const owner = typeof body?.owner === "string" ? body.owner.trim() : "";
+    if (owner.length < 32 || owner.length > 44) {
+      return NextResponse.json({ error: "Invalid Solana owner address" }, { status: 400 });
+    }
+    try {
+      if (new PublicKey(owner).toBase58() !== owner) throw new Error("Invalid address");
+    } catch {
+      return NextResponse.json({ error: "Invalid Solana owner address" }, { status: 400 });
     }
 
     const rpcEndpoint = resolveHeliusRpc();
@@ -242,9 +223,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "RPC not configured. Set NEXT_PUBLIC_SOLANA_RPC or HELIUS_API_KEY.",
+            "NFT lookup is unavailable.",
         },
-        { status: 500 }
+        { status: 503 }
       );
     }
 
@@ -271,11 +252,8 @@ export async function POST(req: NextRequest) {
     const effectiveCollection = (bodyCollection || envCollection).trim();
     const effectiveCreators = (bodyCreators || envCreators).trim();
 
-    console.log("CFG collection:", effectiveCollection || "(none)");
-    console.log("CFG creators:", effectiveCreators || "(none)");
-
     const ALL: DASAsset[] = [];
-    const LIMIT = 500;
+    let walletLimitReached = false;
 
     let usedRpc = false;
     let lastStatus = 0;
@@ -283,12 +261,12 @@ export async function POST(req: NextRequest) {
     // ----- DAS RPC -----
     if (rpcEndpoint) {
       usedRpc = true;
-      for (let page = 1; page < 9999; page++) {
-        const r = await fetchDASPage(owner, rpcEndpoint, page, LIMIT);
+      for (let page = 1; page <= MAX_PAGES; page++) {
+        const r = await fetchDASPage(owner, rpcEndpoint, page, PAGE_SIZE, signal);
         lastStatus = r.status;
 
         if (!r.ok) {
-          console.error("DAS RPC page error:", page, r.status, await r.text());
+          console.error("DAS RPC page error:", page, r.status);
           break;
         }
 
@@ -297,18 +275,19 @@ export async function POST(req: NextRequest) {
         if (!items.length) break;
 
         ALL.push(...items);
-        if (items.length < LIMIT) break;
+        if (items.length < PAGE_SIZE) break;
+        walletLimitReached = page === MAX_PAGES;
       }
     }
 
     // ----- REST fallback -----
     if (ALL.length === 0 && apiKey) {
-      for (let page = 1; page < 9999; page++) {
-        const rr = await fetchRestPage(owner, apiKey, page, LIMIT);
+      for (let page = 1; page <= MAX_PAGES; page++) {
+        const rr = await fetchRestPage(owner, apiKey, page, PAGE_SIZE, signal);
         lastStatus = rr.status;
 
         if (!rr.ok) {
-          console.error("REST page error:", page, rr.status, await rr.text());
+          console.error("REST page error:", page, rr.status);
           break;
         }
 
@@ -317,41 +296,32 @@ export async function POST(req: NextRequest) {
         if (!adapted.length) break;
 
         ALL.push(...adapted);
-        if (adapted.length < LIMIT) break;
+        if (adapted.length < PAGE_SIZE) break;
+        walletLimitReached = page === MAX_PAGES;
       }
     }
 
     if (ALL.length === 0 && usedRpc && lastStatus === 401) {
       return NextResponse.json(
-        { error: "Invalid Helius API key" },
-        { status: 401 }
+        { error: "NFT lookup is temporarily unavailable." },
+        { status: 502 }
       );
     }
 
-    // First pass: DAS-native filtering
-    let nfts = normalizeAndFilter(ALL, {
+    if (walletLimitReached) {
+      return NextResponse.json({ error: "Wallet contains too many NFTs for a single lookup." }, { status: 422 });
+    }
+
+    const nfts = normalizeAndFilter(ALL, {
       collectionId: effectiveCollection,
       creatorsCsv: effectiveCreators,
     });
-
-    // ✅ Second pass: off-chain creator fallback
-    // Only if: creators were requested AND first pass returned 0
-    if (nfts.length === 0 && effectiveCreators.trim()) {
-      const allowCreators = effectiveCreators
-        .split(",")
-        .map((s: string) => s.trim())
-        .filter(Boolean);
-
-      const matchedAssets = await offchainCreatorMatch(ALL, allowCreators);
-      nfts = normalizeAndFilter(matchedAssets, {
-        collectionId: "", // already filtered
-        creatorsCsv: "",  // already filtered
-      });
-    }
-
     return NextResponse.json({ nfts });
-  } catch (e) {
-    console.error("NFT fetch failed:", e);
+  } catch {
+    if (signal.aborted) {
+      return NextResponse.json({ error: "NFT lookup timed out." }, { status: 504 });
+    }
+    console.error("NFT fetch failed");
     return NextResponse.json({ error: "Failed to fetch NFTs" }, { status: 500 });
   }
 }

@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 
-type FAQItem = {
+export type FAQItem = {
   question: string;
   answer: string;
 };
@@ -17,7 +17,7 @@ const FAQ_ITEMS: FAQItem[] = [
   {
     question: "Is LockScreened free to use?",
     answer:
-      "Yes. Browsing, swapping backgrounds, and exporting wallpapers from live partner lockers is free for eligible holders. Some partners may offer premium traits or upgrades separately.",
+      "Browsing projects and making wallpapers in the current live lockers is free for eligible holders.",
   },
   {
     question: "Do I need to connect my wallet?",
@@ -27,12 +27,12 @@ const FAQ_ITEMS: FAQItem[] = [
   {
     question: "Is connecting my wallet safe?",
     answer:
-      "Yes. LockScreened is view-only and does not request any transfer permissions. Always double-check you are on the official RetroGrave / LockScreened URLs before connecting, and never approve transactions you don’t recognize.",
+      "LockScreened checks which NFTs you own. Studio lockers may ask you to sign an off-chain login message; they do not ask for an NFT transfer, token approval, seed phrase, or private key. Check that you are on the official LockScreened site before connecting.",
   },
   {
     question: "Which wallets are supported?",
     answer:
-      "We currently support major Solana wallets that work with the standard wallet adapter (like Phantom and similar wallets). Support may expand over time as we add new partner projects and ecosystems.",
+      "Phantom is supported for Solana collections. On a phone, open LockScreened inside Phantom’s browser to connect and sign in.",
   },
   {
     question: "What happens to my NFTs when I use the locker?",
@@ -42,7 +42,7 @@ const FAQ_ITEMS: FAQItem[] = [
   {
     question: "Can I upload my own backgrounds?",
     answer:
-      "Yes. Most lockers will let you upload your own custom backgrounds so you can match your NFT to your personal style. Just be sure to use high-resolution images for the best results.",
+      "Background options depend on the project. Studio lockers offer your selected NFT’s original background and any extra backgrounds provided by its creator. Some legacy lockers also support personal image uploads.",
   },
   {
     question: "What devices are supported?",
@@ -55,21 +55,33 @@ const FAQ_ITEMS: FAQItem[] = [
       "That’s the plan. LockScreened is built as a multi-project ecosystem. As new partners join, they’ll get their own lockers and appear in the Partner Projects grid.",
   },
   {
-    question: "Where can I get help if something looks off?",
+    question: "What should I check if a locker is not working?",
     answer:
-      "If something looks broken or off, hop into the RetroGrave / LockScreened Discord and drop a message in the support channel. Screenshots and device details are super helpful.",
+      "Check that you are using the wallet that holds the NFT, then reopen the locker. If the issue is with your wallet app, use your wallet provider's official support. Keep your recovery phrase and private key to yourself.",
   },
 ];
 
 export default function LockscreenedFAQ() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  return <FaqAccordion title="FAQ" items={FAQ_ITEMS} initiallyOpen={0} />;
+}
+
+export function FaqAccordion({
+  title,
+  items,
+  initiallyOpen = null,
+}: {
+  title: string;
+  items: readonly FAQItem[];
+  initiallyOpen?: number | null;
+}) {
+  const [openIndex, setOpenIndex] = useState<number | null>(initiallyOpen);
 
   return (
     <div className="faq-wrap">
-      <h2 className="faq-title">FAQ</h2>
+      <h2 className="faq-title">{title}</h2>
 
       <div className="faq-list">
-        {FAQ_ITEMS.map((item, index) => {
+        {items.map((item, index) => {
           const isOpen = openIndex === index;
 
           return (
@@ -82,12 +94,12 @@ export default function LockscreenedFAQ() {
                 aria-expanded={isOpen}
               >
                 <span>{item.question}</span>
-                <span className={`faq-icon ${isOpen ? "open" : ""}`}>
+                <span aria-hidden="true" className={`faq-icon ${isOpen ? "open" : ""}`}>
                   {isOpen ? "–" : "+"}
                 </span>
               </button>
 
-              <div className={`faq-answer ${isOpen ? "open" : ""}`}>
+              <div aria-hidden={!isOpen} className={`faq-answer ${isOpen ? "open" : ""}`}>
                 <p>{item.answer}</p>
               </div>
             </div>
@@ -161,6 +173,8 @@ export default function LockscreenedFAQ() {
           font-family: "VT323", monospace;
           font-size: 20px;
           width: 28px;
+          flex: 0 0 28px;
+          margin-left: 10px;
           text-align: center;
           border-radius: 999px;
           border: 1px solid rgba(230, 210, 255, 0.6);

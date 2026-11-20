@@ -1,9 +1,18 @@
 "use client";
+import ProjectSearch from "./ProjectSearch";
+import StudioWordmark from "./studio/StudioWordmark";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { usePathname } from "next/navigation";
 import type { TopNavProject } from "./TopNavWrapper";
+
+// Wallet discovery uses browser extensions and can differ from server HTML.
+const StudioWalletButton = dynamic(
+  () => import("@solana/wallet-adapter-react-ui").then(module => module.WalletMultiButton),
+  { ssr: false, loading: () => <button className="wallet-adapter-button" disabled>Loading wallet…</button> }
+);
 
 type ProjectLinks = {
   homeHref: string;
@@ -18,8 +27,6 @@ type ProjectLinks = {
 const LINKS: Record<TopNavProject, ProjectLinks> = {
   retrograve: {
     homeHref: "/",
-    myHref: "/retrograves-nfts",
-    myLabel: "MY RETROGRAVES",
     collectHref: "https://magiceden.io",
     communityHref: "https://discord.gg/rRG2YDbHYA",
     xHref: "https://x.com/RETROGRAVE_NFT",
@@ -108,51 +115,50 @@ export default function TopNav({ project }: { project: TopNavProject }) {
   const cfg = LINKS[project];
   const pathname = usePathname() || "";
 
-  const homeActive = isActive(pathname, cfg.homeHref);
   const myActive = cfg.myHref ? isActive(pathname, cfg.myHref) : false;
+  const showProjectDiscord =
+    project !== "retrograve" ||
+    ["/retrograve", "/retrograves-nfts", "/locker", "/locker/retrograve"].includes(pathname);
 
   return (
     <header className="topnav">
       <div className="inner">
-        <div className="left" aria-hidden="true" />
+        <Link className="brand" href="/" aria-label="LockScreened home"><StudioWordmark /></Link>
 
         <nav className="center" aria-label="Top navigation">
-          <Link className={`navlink ${homeActive ? "active" : ""}`} href={cfg.homeHref}>
-            HOME
-          </Link>
-
           {cfg.myHref && cfg.myLabel ? (
             <Link className={`navlink ${myActive ? "active" : ""}`} href={cfg.myHref}>
               {cfg.myLabel}
             </Link>
           ) : null}
 
-          <a className="navlink" href={cfg.communityHref} target="_blank" rel="noreferrer">
-            COMMUNITY
-          </a>
+          {showProjectDiscord && (
+            <a className="navlink" href={cfg.communityHref} target="_blank" rel="noreferrer">
+              PROJECT DISCORD
+            </a>
+          )}
 
-          <a className="navlink" href={cfg.collectHref} target="_blank" rel="noreferrer">
-            COLLECT NOW
-          </a>
 
-          <a className="navlink" href={cfg.xHref} target="_blank" rel="noreferrer">
-            FOLLOW ON X
-          </a>
+          <Link className="navlink" href="/studio" title="Creator Studio for founders">CREATOR STUDIO</Link>
+          <Link className={`navlink ${isActive(pathname, "/faq") ? "active" : ""}`} href="/faq">FAQ</Link>
+          <Link
+            className={`navlink ${pathname === "/security" ? "active" : ""}`}
+            href="/security"
+            aria-current={pathname === "/security" ? "page" : undefined}
+          >
+            SECURITY
+          </Link>
+          <ProjectSearch />
         </nav>
 
         <div className="right">
           <div className="walletWrap">
-            <WalletMultiButton />
+            {pathname === "/studio" || pathname.startsWith("/studio/")
+              ? <StudioWalletButton />
+              : <WalletMultiButton />}
           </div>
 
-          <Link className="logoLink" href="/" aria-label="LockScreened home">
-            <img
-              src="/lockscreened-logo.png"
-              alt="LockScreened logo"
-              className="logoImg"
-              draggable={false}
-            />
-          </Link>
+
         </div>
       </div>
 
@@ -168,18 +174,17 @@ export default function TopNav({ project }: { project: TopNavProject }) {
         }
 
         .inner {
-          max-width: 1200px;
+          max-width: 1440px;
           margin: 0 auto;
           padding: 10px 14px;
           display: grid;
-          grid-template-columns: 1fr auto 1fr;
+          grid-template-columns: auto minmax(0, 1fr) auto;
           align-items: center;
           gap: 10px;
         }
 
-        .left {
-          height: 1px;
-        }
+        .brand { display: inline-flex; align-items: center; min-height: 48px; text-decoration: none; }
+        .brand:focus-visible { outline: 2px solid #fff; outline-offset: 6px; border-radius: 4px; }
 
         .center {
           display: flex;
@@ -237,44 +242,18 @@ export default function TopNav({ project }: { project: TopNavProject }) {
           backdrop-filter: none !important;
         }
 
-        .logoLink {
-          width: 42px;
-          height: 42px;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 12px;
-          background: rgba(255, 255, 255, 0.08);
-          border: 1px solid rgba(255, 255, 255, 0.16);
-          box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
-          text-decoration: none;
+        @media (max-width: 1150px) {
+          .inner { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; }
+          .brand { grid-column: 1; grid-row: 1; }
+          .right { grid-column: 2; grid-row: 1; }
+          .center { grid-column: 1 / -1; grid-row: 2; gap: 14px; padding-bottom: 4px; }
         }
-
-        .logoImg {
-          width: 30px;
-          height: 30px;
-          object-fit: contain;
-          display: block;
-          opacity: 1;
-          filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.45));
-        }
-
-        @media (max-width: 900px) {
-          .inner {
-            grid-template-columns: 1fr;
-            gap: 8px;
-          }
-          .center {
-            order: 2;
-            gap: 14px;
-          }
-          .right {
-            order: 1;
-            justify-content: space-between;
-          }
-          .left {
-            display: none;
-          }
+        @media (max-width: 480px) {
+          .brand :global(.studio-wordmark) { font-size: 16px; gap: 6px; }
+          .brand :global(svg) { width: 22px; height: 30px; }
+          .brand :global(small) { display: none; }
+          .walletWrap :global(.wallet-adapter-button) { padding: 0 10px; font-size: 12px; height: 40px; }
+          .center { gap: 14px; }
         }
       `}</style>
     </header>

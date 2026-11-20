@@ -10,6 +10,7 @@ import {
   useState,
 } from "react";
 import { getBackgroundImagePath, type DeviceVariant } from "../backgroundsConfig";
+import { magapixelLayerCandidates } from "../lib/lockscreened/magapixelLayerAssets";
 
 export type BgChoice =
   | { kind: "color"; value: string }
@@ -40,9 +41,7 @@ export type ExportImageOptions = {
   device?: DeviceVariant;
 };
 
-const BASE_TRAITS_DIR = "/magapixel";
 const LAYER_ORDER = ["Skin", "Face", "Body", "Head", "Glasses", "Hand"];
-const CANDIDATE_EXTS = [".png", ".webp"];
 
 const PRESETS: Record<string, Size> = {
   master: { w: 1440, h: 3200 },
@@ -82,16 +81,6 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-function slugify(s: string) {
-  return s
-    .toLowerCase()
-    .replace(/&/g, " and ")
-    .replace(/[+]/g, " plus ")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-}
-
 function hasLayerTraits(attrs?: MetaAttribute[] | null): boolean {
   if (!attrs || !attrs.length) return false;
   const target = ["skin", "face", "body", "head", "glasses", "hand"];
@@ -108,7 +97,7 @@ async function loadExistingLayersPerType(
 
   const byType = new Map<string, MetaAttribute>();
   for (const a of attrs) {
-    const t = String(a?.trait_type || "").trim();
+    const t = String(a?.trait_type || "").trim().toLowerCase();
     if (!t) continue;
     byType.set(t, a);
   }
@@ -116,15 +105,10 @@ async function loadExistingLayersPerType(
   const images: HTMLImageElement[] = [];
 
   for (const type of LAYER_ORDER) {
-    const attr = byType.get(type);
+    const attr = byType.get(type.toLowerCase());
     if (!attr || attr.value == null) continue;
 
-    const typeSeg = slugify(type);
-    const valSeg = slugify(String(attr.value));
-
-    const candidates = CANDIDATE_EXTS.map(
-      (ext) => `${BASE_TRAITS_DIR}/${typeSeg}/${valSeg}${ext}`
-    );
+    const candidates = magapixelLayerCandidates(type, String(attr.value));
 
     let loaded: HTMLImageElement | null = null;
     for (const url of candidates) {

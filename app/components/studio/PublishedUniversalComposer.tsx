@@ -1,0 +1,286 @@
+// app/components/studio/PublishedUniversalComposer.tsx
+"use client";
+
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+} from "react";
+import type {
+  ComposerHandle,
+  ExportImageOptions,
+  MetaAttribute,
+} from "../Composer";
+import type { StudioBgChoice } from "./PublishedBackgroundPicker";
+
+type Layer = {
+  id: string;
+  trait_type: string;
+  display_name: string;
+  layer_order: number;
+  is_background?: boolean;
+};
+
+type PublishedTraitAsset = {
+  layer_id: string;
+  trait_value: string;
+  url: string;
+};
+
+function normalize(value: string) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function slug(value: string) {
+  return normalize(value)
+    .replace(/&/g, " and ")
+    .replace(/[+]/g, " plus ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function loadImage(src: string) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error("Could not load render asset."));
+    image.src = src;
+  });
+}
+
+async function drawBackground(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  bg: StudioBgChoice,
+  device: "phone" | "ipad" | "desktop"
+) {
+  if (bg.kind === "color") {
+    ctx.fillStyle = bg.value || "#241c38";
+    ctx.fillRect(0, 0, width, height);
+    return;
+  }
+
+  if (bg.kind !== "image") return;
+
+  const src =
+    bg.deviceAssets?.[device] ||
+    bg.image ||
+    bg.value;
+
+  if (!src) return;
+
+  const image = await loadImage(src);
+  const scale = Math.max(width / image.width, height / image.height);
+  const drawW = image.width * scale;
+  const drawH = image.height * scale;
+  ctx.drawImage(image, (width - drawW) / 2, height - drawH, drawW, drawH);
+}
+
+const PublishedUniversalComposer = forwardRef<
+  ComposerHandle,
+  {
+    attributes: MetaAttribute[];
+    layers: Layer[];
+    assets: PublishedTraitAsset[];
+    bg: StudioBgChoice;
+    nftName?: string;
+    renderProfile?: any;
+    useOriginalBackground?: boolean;
+  }
+>(({ attributes, layers, assets, bg, nftName, renderProfile, useOriginalBackground=false }, ref) => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  const matchedUrls = useMemo(() => {
+    const ordered = [...layers].sort(
+      (a, b) => Number(a.layer_order || 0) - Number(b.layer_order || 0)
+    );
+
+    const results: {url:string; background:boolean}[] = [];
+
+    for (const layer of ordered) {
+      const customBackgroundSelected = bg.kind === "image";
+      const omitOriginalBackground =
+        customBackgroundSelected &&
+        renderProfile?.backgroundHandling === "omit_original_when_custom";
+
+      if (omitOriginalBackground && layer.is_background) {
+        continue;
+      }
+
+      const attr = attributes.find(
+        (item) =>
+          slug(String(item?.trait_type || "")) === slug(layer.trait_type)
+      );
+      if (!attr || attr.value == null) continue;
+
+      const asset = assets.find(
+        (item) =>
+          item.layer_id === layer.id &&
+          slug(item.trait_value) === slug(String(attr.value))
+      );
+
+      if (asset?.url) results.push({url:asset.url,background:Boolean(layer.is_background)});
+    }
+
+    return results;
+  }, [attributes, layers, assets, bg, renderProfile]);
+
+  async function draw(
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+    device: "phone" | "ipad" | "desktop"
+  ) {
+    ctx.clearRect(0, 0, width, height);
+    ctx.imageSmoothingEnabled = false;
+
+    await drawBackground(ctx, width, height, bg, device);
+
+    const images = await Promise.all(matchedUrls.map(asset=>loadImage(asset.url)));
+    if (!images.length) return;
+
+    const base = images[0];
+    const placement = renderProfile?.devicePlacement?.[device] || {};
+    const profileScale = Math.min(
+      1.8,
+      Math.max(0.4, Number(placement.scale || 1))
+    );
+    const scale =
+      Math.min(width / base.width, height / base.height) * profileScale;
+    const drawW = base.width * scale;
+    const drawH = base.height * scale;
+
+    const x = placement.x || "center";
+    const y = placement.y || "bottom";
+
+    const dx =
+      x === "left" ? 0 : x === "right" ? width - drawW : (width - drawW) / 2;
+    const dy =
+      y === "top" ? 0 : y === "center" ? (height - drawH) / 2 : height - drawH;
+
+    if (useOriginalBackground) {
+      for (let i=0;i<images.length;i++) if(matchedUrls[i].background) {
+        const image=images[i];
+        const cover=Math.max(width/image.width,height/image.height);
+        ctx.drawImage(image,(width-image.width*cover)/2,(height-image.height*cover)/2,image.width*cover,image.height*cover);
+      }
+    }
+    for (let i=0;i<images.length;i++) {
+      if(useOriginalBackground&&matchedUrls[i].background)continue;
+      const image=images[i];
+      ctx.drawImage(image, dx, dy, drawW, drawH);
+    }
+  }
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    canvas.width = 835;
+    canvas.height = 1856;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    draw(ctx, canvas.width, canvas.height, "phone");
+  }, [matchedUrls, bg, useOriginalBackground, renderProfile]);
+
+  useImperativeHandle(ref, () => ({
+    async exportImage(opts: ExportImageOptions) {
+      const canvas = document.createElement("canvas");
+      canvas.width = opts.width;
+      canvas.height = opts.height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return null;
+
+      await draw(
+        ctx,
+        opts.width,
+        opts.height,
+        opts.device || "phone"
+      );
+
+      return await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, "image/png")
+      );
+    },
+
+    async exportAt(size: any) {
+      const presets: Record<string, { w: number; h: number }> = {
+        master: { w: 1440, h: 3200 },
+        "iphone-15pmax": { w: 1290, h: 2796 },
+        "iphone-15pro": { w: 1179, h: 2556 },
+        "android-20-9": { w: 1080, h: 2400 },
+        "android-qhd+": { w: 1440, h: 3040 },
+      };
+
+      const target =
+        typeof size === "string"
+          ? presets[size]
+          : { w: size.w, h: size.h };
+
+      if (!target) return;
+
+      const blob = await (async () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = target.w;
+        canvas.height = target.h;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return null;
+        await draw(ctx, target.w, target.h, "phone");
+        return await new Promise<Blob | null>((resolve) =>
+          canvas.toBlob(resolve, "image/png")
+        );
+      })();
+
+      if (!blob) return;
+
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download =
+        String(nftName || "lockscreened")
+          .replace(/\s+/g, "_") +
+        "_" +
+        target.w +
+        "x" +
+        target.h +
+        ".png";
+      anchor.click();
+      URL.revokeObjectURL(url);
+    },
+  }));
+
+  return (
+    <div
+      style={{
+        width: 340,
+        maxWidth: "88vw",
+        aspectRatio: "9 / 19.5",
+        borderRadius: 26,
+        overflow: "hidden",
+        background: "#221a33",
+        boxShadow: "0 18px 44px rgba(0,0,0,.45)",
+        padding: 8,
+      }}
+    >
+      <canvas
+        ref={canvasRef}
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "contain",
+          imageRendering: "pixelated",
+          display: "block",
+        }}
+      />
+    </div>
+  );
+});
+
+PublishedUniversalComposer.displayName = "PublishedUniversalComposer";
+export default PublishedUniversalComposer;

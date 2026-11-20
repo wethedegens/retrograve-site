@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const HELIUS_API_KEY = process.env.HELIUS_API_KEY!;
+import { PublicKey } from "@solana/web3.js";
+import { readBoundedNftMedia } from "../../lib/lockscreened/server/publicNftMedia";
+
+const MAX_REQUEST_BYTES = 4 * 1024;
+const LOOKUP_TIMEOUT_MS = 10_000;
 const COLLECTION_ADDRESS = process.env.COLLECTION_ADDRESS || "";
 const CREATOR_ADDRESS = process.env.CREATOR_ADDRESS || "";
 
@@ -15,12 +19,31 @@ function pickImageUrl(n: any): string | null {
 }
 
 export async function POST(req: NextRequest) {
+  let owner: string;
   try {
-    const { owner } = (await req.json()) as { owner: string };
-    if (!owner) return NextResponse.json({ error: "missing owner" }, { status: 400 });
+    const bytes = await readBoundedNftMedia(req, MAX_REQUEST_BYTES);
+    const body = JSON.parse(new TextDecoder().decode(bytes));
+    owner = typeof body?.owner === "string" ? body.owner.trim() : "";
+    if (owner.length < 32 || owner.length > 44 || new PublicKey(owner).toBase58() !== owner) {
+      throw new Error("Invalid owner.");
+    }
+  } catch {
+    return NextResponse.json({ error: "Invalid Solana owner address" }, { status: 400 });
+  }
 
-    const url = `https://api.helius.xyz/v0/addresses/${owner}/nfts?api-key=${HELIUS_API_KEY}`;
-    const res = await fetch(url, { cache: "no-store" });
+  const apiKey = process.env.HELIUS_API_KEY?.trim();
+  if (!apiKey) {
+    return NextResponse.json({ error: "NFT verification is unavailable." }, { status: 503 });
+  }
+
+  try {
+    const url = new URL(`https://api.helius.xyz/v0/addresses/${owner}/nfts`);
+    url.searchParams.set("api-key", apiKey);
+    const res = await fetch(url, {
+      cache: "no-store",
+      redirect: "error",
+      signal: AbortSignal.timeout(LOOKUP_TIMEOUT_MS),
+    });
     if (!res.ok) return NextResponse.json({ error: "helius failed" }, { status: 502 });
 
     const nfts = (await res.json()) as any[];
@@ -49,7 +72,7 @@ export async function POST(req: NextRequest) {
       .filter((x) => x.image);
 
     return NextResponse.json({ items, verified: items.length > 0 });
-  } catch (e: any) {
-    return NextResponse.json({ error: e?.message || "server error" }, { status: 500 });
+  } catch {
+    return NextResponse.json({ error: "NFT verification is temporarily unavailable." }, { status: 502 });
   }
 }

@@ -1,0 +1,5 @@
+.page { position: relative; min-height: 100vh; background: #07060d; color: #eee; }
+.content { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 36px 20px 80px; }
+.title { margin: 0 0 28px; font: 700 clamp(26px, 4vw, 38px)/1.2 Arial, sans-serif; text-align: center; }
+.founders { margin: 32px 0 0; color: #bbb; text-align: center; line-height: 1.6; }
+.founders a, .founders a:visited { color: #fff; text-decoration: underline; text-underline-offset: 4px; }
