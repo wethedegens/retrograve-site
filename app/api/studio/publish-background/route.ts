@@ -1,3 +1,4 @@
+import { studioFounderMfaBlock } from "../../../lib/lockscreened/server/founderMfa";
 // app/api/studio/publish-background/route.ts
 import { NextResponse } from "next/server";
 import { publicPreviewPath, STORAGE_BUCKETS } from "../../../lib/lockscreened/storagePaths";
@@ -50,6 +51,9 @@ export async function POST(request: Request) {
         { status: 401 }
       );
     }
+
+    const mfaBlock = await studioFounderMfaBlock(accessToken);
+    if (mfaBlock) return mfaBlock;
 
     const allowed = await consumeStudioActionRateLimit(
       accessToken,

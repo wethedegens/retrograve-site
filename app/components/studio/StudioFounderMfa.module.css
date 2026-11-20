@@ -1,0 +1,28 @@
+.panel {
+  display: grid;
+  gap: 10px;
+  margin-block: 12px;
+  padding: 16px;
+  border: 1px solid rgba(169, 255, 210, .24);
+  border-radius: 14px;
+  background: #141722;
+}
+.panel h2 { margin: 0; font-size: 16px; }
+.panel p { margin: 0; color: #ddd; line-height: 1.45; }
+.panel button, .panel select, .panel input {
+  min-height: 38px;
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1px solid #7d8496;
+  background: #202637;
+  color: #fff;
+}
+.panel button { justify-self: start; cursor: pointer; }
+.panel button:disabled { opacity: .55; cursor: default; }
+.panel label { display: grid; gap: 5px; }
+.panel input { width: 10ch; }
+.panel img { background: #fff; padding: 6px; }
+.panel .verified { color: #a9ffd2; }
+.form, .setup { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+.setup { flex-direction: column; align-items: start; }
+.setup code { display: block; overflow-wrap: anywhere; margin-block: 5px; }

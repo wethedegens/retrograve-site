@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import StudioFounderMfa from "./StudioFounderMfa";
 import { useWallet } from "@solana/wallet-adapter-react";
 import {
   getFreshSession,
@@ -190,6 +191,8 @@ export default function StudioWalletAuth() {
         )}
         <span style={safePill}>OFF-CHAIN SIGNATURE ONLY</span>
       </div>
+
+      {session && !mismatch && <StudioFounderMfa key={session.user.id} session={session} />}
 
       {message ? (
         <div style={{ color: "rgba(255,255,255,.7)", fontSize: 10 }}>
