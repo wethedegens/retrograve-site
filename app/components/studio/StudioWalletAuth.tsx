@@ -27,6 +27,14 @@ export default function StudioWalletAuth() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    // Email confirmation can return a provider token in the fragment. Studio
+    // keeps the wallet session and does not import an email-link session.
+    const url = new URL(window.location.href);
+    const callback = new URLSearchParams(url.hash.slice(1));
+    if (callback.has("access_token") || callback.has("error_code")) {
+      url.hash = "";
+      window.history.replaceState(window.history.state, "", url.href);
+    }
     let active = true;
 
     async function sync() {

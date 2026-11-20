@@ -133,6 +133,7 @@ export async function signInWithSolana(
     localUrl.hostname = "localhost";
     throw new Error(`Local wallet sign-in requires ${localUrl.origin}${localUrl.pathname}. Keep this tab open to preserve your current setup, and open that address in your wallet browser.`);
   }
+  currentUrl.hash = "";
   const statement =
     purpose === "collector"
       ? "Sign in to LockScreened to verify NFT ownership and make a wallpaper. This does not authorize a transaction, transfer, sale, or token approval."
@@ -248,9 +249,9 @@ export async function signOutStudio() {
 
 type StudioTotpFactor = { id: string; friendly_name?: string; factor_type: string; status: string };
 export type StudioTotpEnrollment = { id: string; qr: string; secret: string };
-export type StudioTotpState = { verified: boolean; factors: StudioTotpFactor[] };
+export type StudioTotpState = { verified: boolean; confirmedEmail: boolean; factors: StudioTotpFactor[] };
 
-function studioTokenClaims(accessToken: string): { sub?: string; aal?: string } {
+function studioTokenClaims(accessToken: string): { sub?: string; aal?: string; amr?: { method?: string }[] } {
   try {
     const encoded = accessToken.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
     return JSON.parse(atob(encoded));
@@ -262,9 +263,10 @@ function studioTokenClaims(accessToken: string): { sub?: string; aal?: string } 
 // This browser check is for presentation. Protected writes check the
 // verified request's assurance level via Supabase in the server and database.
 export async function getStudioTotpState(session: LockScreenedSession): Promise<StudioTotpState> {
-  const data = await studioTotpRequest<{ factors?: StudioTotpFactor[] }>(session, "user");
+  const data = await studioTotpRequest<{ email?: string; email_confirmed_at?: string; factors?: StudioTotpFactor[] }>(session, "user");
   return {
-    verified: studioTokenClaims(session.access_token).aal === "aal2",
+    verified: studioTokenClaims(session.access_token).aal === "aal2" && Boolean(data.email && data.email_confirmed_at),
+    confirmedEmail: Boolean(data.email && data.email_confirmed_at),
     factors: (data.factors ?? []).filter((factor) => factor.factor_type === "totp" && factor.status === "verified"),
   };
 }
@@ -293,7 +295,16 @@ async function studioTotpRequest<T>(
   return response.json() as Promise<T>;
 }
 
+export async function requestStudioVerificationEmail(session: LockScreenedSession, value: string) {
+  const email = value.trim();
+  if (!email || email.length > 254) throw new Error("Enter a valid email address.");
+  const redirect = new URL("/studio/", window.location.origin);
+  const params = new URLSearchParams({ redirect_to: redirect.href });
+  await studioTotpRequest(session, "user?" + params, "PUT", { email });
+}
+
 export async function beginStudioTotp(session: LockScreenedSession): Promise<StudioTotpEnrollment> {
+  if (!(await getStudioTotpState(session)).confirmedEmail) throw new Error("Verify your email first.");
   const result = await studioTotpRequest<{ id: string; totp: { qr_code: string; secret: string } }>(
     session, "factors", "POST", { factor_type: "totp", issuer: "LockScreened Studio" }
   );
@@ -315,7 +326,8 @@ export async function verifyStudioTotp(session: LockScreenedSession, factorId: s
   if (!challengeId) throw new Error("Authenticator challenge is unavailable.");
   const result = await studioTotpRequest<LockScreenedSession>(session, path + "/verify", "POST", { challenge_id: challengeId, code });
   const claims = studioTokenClaims(result.access_token);
-  if (claims.aal !== "aal2" || !claims.sub || claims.sub !== session.user?.id ||
+  if (claims.aal !== "aal2" || !Array.isArray(claims.amr) ||
+      !claims.amr.some((entry) => entry?.method === "web3") || !claims.sub || claims.sub !== session.user?.id ||
       readStoredSession()?.access_token !== session.access_token) {
     throw new Error("Reload Studio and verify your authenticator again.");
   }

@@ -21,6 +21,7 @@
 .panel button:disabled { opacity: .55; cursor: default; }
 .panel label { display: grid; gap: 5px; }
 .panel input { width: 10ch; }
+.panel .email { width: min(29ch, 100%); }
 .panel img { background: #fff; padding: 6px; }
 .panel .verified { color: #a9ffd2; }
 .form, .setup { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }

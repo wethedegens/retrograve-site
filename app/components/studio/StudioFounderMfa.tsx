@@ -5,6 +5,7 @@ import {
   beginStudioTotp,
   cancelStudioTotp,
   getStudioTotpState,
+  requestStudioVerificationEmail,
   verifyStudioTotp,
   type LockScreenedSession,
   type StudioTotpEnrollment,
@@ -16,6 +17,7 @@ export default function StudioFounderMfa({ session }: { session: LockScreenedSes
   const [state, setState] = useState<StudioTotpState | null>(null);
   const [setup, setSetup] = useState<StudioTotpEnrollment | null>(null);
   const [factorId, setFactorId] = useState("");
+  const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
@@ -32,6 +34,33 @@ export default function StudioFounderMfa({ session }: { session: LockScreenedSes
     );
     return () => { active = false; };
   }, [session]);
+
+  async function sendEmail() {
+    setBusy(true);
+    setMessage("");
+    try {
+      await requestStudioVerificationEmail(session, email);
+      setMessage("Open the verification link in your email, then return here and check your verification status.");
+    } catch {
+      setMessage("Could not send the verification email. Check the address and try again later.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function checkEmail() {
+    setBusy(true);
+    setMessage("");
+    try {
+      const next = await getStudioTotpState(session);
+      setState(next);
+      setMessage(next.confirmedEmail ? "Email verified." : "Email confirmation is still pending.");
+    } catch {
+      setMessage("Sign in with your wallet again, then check your verification status.");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function start() {
     setBusy(true);
@@ -78,13 +107,25 @@ export default function StudioFounderMfa({ session }: { session: LockScreenedSes
     }
   }
 
-  const needsCode = !!setup || Boolean(state?.factors.length && !state.verified);
+  const needsCode = !!setup || Boolean(state?.confirmedEmail && state.factors.length && !state.verified);
   return (
     <section className={styles.panel} aria-label="Founder two-step verification">
       <h2>Founder two-step verification</h2>
-      <p>Use an authenticator app to verify this Studio session for publishing and project changes.</p>
+      <p>Verify your email once, then use an authenticator app to approve sensitive Studio actions.</p>
+      {state && !state.confirmedEmail && (
+        <>
+          <form className={styles.form} onSubmit={(event) => { event.preventDefault(); void sendEmail(); }}>
+            <label>Founder email
+              <input className={styles.email} type="email" autoComplete="email" maxLength={254}
+                value={email} onChange={(event) => setEmail(event.target.value)} required disabled={busy} />
+            </label>
+            <button type="submit" disabled={busy || !email.trim()}>Send verification email</button>
+          </form>
+          <button type="button" onClick={checkEmail} disabled={busy}>Check verification status</button>
+        </>
+      )}
       {state?.verified && <p className={styles.verified}>Verified for this session</p>}
-      {state && !state.verified && !state.factors.length && !setup &&
+      {state?.confirmedEmail && !state.verified && !state.factors.length && !setup &&
         <button type="button" onClick={start} disabled={busy}>Set up authenticator</button>}
       {setup && (
         <div className={styles.setup}>

@@ -72,7 +72,15 @@ export async function getAuthenticatedUser(accessToken: string) {
     return null;
   }
   if (!response.ok) throw supabaseRequestError(response);
-  return readSupabaseJson<any>(response);
+  const user = await readSupabaseJson<{ id?: string }>(response);
+  try {
+    // The Auth service above validated this same token before we inspect claims.
+    const claims = JSON.parse(Buffer.from(accessToken.split(".")[1], "base64url").toString("utf8"));
+    return user?.id && claims.sub === user.id && Array.isArray(claims.amr) &&
+      claims.amr.some((entry: { method?: string }) => entry?.method === "web3") ? user as any : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function restAsUser<T>(
