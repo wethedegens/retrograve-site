@@ -40,7 +40,7 @@ export default function StudioFounderMfa({ session }: { session: LockScreenedSes
     setMessage("");
     try {
       await requestStudioVerificationEmail(session, email);
-      setMessage("Open the verification link in your email, then return here and check your verification status.");
+      setMessage("Open the verification link in your email, then return to this Studio tab and select Check verification status.");
     } catch {
       setMessage("Could not send the verification email. Check the address and try again later.");
     } finally {
@@ -68,7 +68,7 @@ export default function StudioFounderMfa({ session }: { session: LockScreenedSes
     try {
       setSetup(await beginStudioTotp(session));
     } catch {
-      setMessage("Could not start authenticator setup. Try again.");
+      setMessage("Could not start verification code setup. Try again.");
     } finally {
       setBusy(false);
     }
@@ -111,7 +111,7 @@ export default function StudioFounderMfa({ session }: { session: LockScreenedSes
   return (
     <section className={styles.panel} aria-label="Founder two-step verification">
       <h2>Founder two-step verification</h2>
-      <p>Verify your email once, then use an authenticator app to approve sensitive Studio actions.</p>
+      <p>Verify your email once. Use a six-digit verification code from Apple Passwords or an authenticator app to approve sensitive Studio actions.</p>
       {state && !state.confirmedEmail && (
         <>
           <form className={styles.form} onSubmit={(event) => { event.preventDefault(); void sendEmail(); }}>
@@ -126,10 +126,12 @@ export default function StudioFounderMfa({ session }: { session: LockScreenedSes
       )}
       {state?.verified && <p className={styles.verified}>Verified for this session</p>}
       {state?.confirmedEmail && !state.verified && !state.factors.length && !setup &&
-        <button type="button" onClick={start} disabled={busy}>Set up authenticator</button>}
+        <button type="button" onClick={start} disabled={busy}>Set up verification codes</button>}
       {setup && (
         <div className={styles.setup}>
-          <p>Scan this QR code in your authenticator app. Keep the QR code and setup key private.</p>
+          <p>On iPhone, scan this QR code with Camera to open Passwords. You can also scan it in your preferred authenticator app.</p>
+          <p>In Apple Passwords, choose an entry for this Studio website if you have one. If asked to add the code without a website, you can save it and enter the code manually.</p>
+          <p>Keep the QR code and setup key private.</p>
           {/* The provider-supplied QR is a local data URL and is never sent to an image server. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={setup.qr} width={180} height={180} alt="Authenticator setup QR code" />
@@ -137,6 +139,7 @@ export default function StudioFounderMfa({ session }: { session: LockScreenedSes
           <button type="button" onClick={cancel} disabled={busy}>Cancel setup</button>
         </div>
       )}
+      {needsCode && !setup && <p>Open Apple Passwords or your authenticator app and enter the current code for LockScreened Studio.</p>}
       {needsCode && (
         <form className={styles.form} onSubmit={(event) => { event.preventDefault(); void verify(); }}>
           {!setup && (state?.factors.length ?? 0) > 1 &&
@@ -146,7 +149,7 @@ export default function StudioFounderMfa({ session }: { session: LockScreenedSes
                   <option key={factor.id} value={factor.id}>{factor.friendly_name || `Authenticator ${index + 1}`}</option>)}
               </select>
             </label>}
-          <label>Six-digit code
+          <label>Six-digit verification code
             <input value={code} onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
               type="text" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" required disabled={busy} />
           </label>
