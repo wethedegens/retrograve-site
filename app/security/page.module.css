@@ -1,0 +1,47 @@
+.page {
+  min-height: 100vh;
+  background: #0a090f;
+  color: #f2f2f2;
+}
+
+.content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: clamp(32px, 7vw, 72px) 20px 80px;
+}
+
+.intro { max-width: 660px; margin-bottom: 28px; }
+.intro h1 {
+  margin: 0 0 12px;
+  font-size: clamp(36px, 7vw, 62px);
+  line-height: 1.05;
+  letter-spacing: -.05em;
+}
+
+.content h2 { margin: 0 0 10px; font-size: 21px; }
+.content p, .content li { color: #d0cdd6; font-size: 16px; line-height: 1.65; }
+.content p { margin: 0; }
+.content strong { color: #fff; }
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr));
+  gap: 12px;
+}
+
+.steps article, .check {
+  border: 1px solid #34313b;
+  border-radius: 16px;
+  padding: clamp(16px, 3vw, 24px);
+  background: #14121b;
+}
+
+.check { margin: 16px 0 34px; border-color: #295648; background: #111b18; }
+.check ul { margin: 0; padding-left: 22px; }
+.check li + li { margin-top: 6px; }
+
+.questions details { border-bottom: 1px solid #34313b; }
+.questions summary { cursor: pointer; padding: 15px 2px; font-weight: 700; line-height: 1.4; }
+.questions details p { padding: 0 2px 15px; max-width: 74ch; }
+.questions a { color: #a9f5d7; text-decoration: underline; text-underline-offset: 3px; }
+.questions :is(a, summary):focus-visible { outline: 2px solid #a9f5d7; outline-offset: 4px; }

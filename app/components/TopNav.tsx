@@ -136,6 +136,7 @@ export default function TopNav({ project }: { project: TopNavProject }) {
 
           <Link className="navlink" href="/studio" title="Creator Studio for founders">CREATOR STUDIO</Link>
           <Link className={`navlink ${isActive(pathname, "/faq") ? "active" : ""}`} href="/faq">FAQ</Link>
+          <Link className={`navlink ${pathname === "/security" ? "active" : ""}`} href="/security" aria-current={pathname === "/security" ? "page" : undefined}>SECURITY</Link>
           <ProjectSearch />
         </nav>
 
