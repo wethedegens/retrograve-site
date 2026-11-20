@@ -40,6 +40,8 @@ async function fetchCollectionAuthoritySnapshot(
     method: "POST",
     headers: { "content-type": "application/json" },
     cache: "no-store",
+    redirect: "error",
+    signal: AbortSignal.timeout(12_000),
     body: JSON.stringify({
       jsonrpc: "2.0",
       id: "lockscreened-collection-authority",
@@ -55,7 +57,7 @@ async function fetchCollectionAuthoritySnapshot(
   const payload = await response.json();
   if (payload?.error) {
     throw new Error(
-      payload.error?.message || "Helius could not inspect this collection."
+      "Helius could not inspect this collection."
     );
   }
 
@@ -170,6 +172,8 @@ export async function assetBelongsToCollection(args: {
     method: "POST",
     headers: { "content-type": "application/json" },
     cache: "no-store",
+    redirect: "error",
+    signal: AbortSignal.timeout(12_000),
     body: JSON.stringify({
       jsonrpc: "2.0",
       id: "lockscreened-asset-membership",
@@ -185,7 +189,7 @@ export async function assetBelongsToCollection(args: {
   const payload = await response.json();
   if (payload?.error) {
     throw new Error(
-      payload.error?.message || "Helius could not inspect this NFT."
+      "Helius could not inspect this NFT."
     );
   }
 

@@ -34,6 +34,8 @@ export async function getCollectionValidationSample(
         method: "POST",
         headers: { "content-type": "application/json" },
         cache: "no-store",
+        redirect: "error",
+        signal: AbortSignal.timeout(12_000),
         body: JSON.stringify({
           jsonrpc: "2.0",
           id: "lockscreened-validation-sample",
@@ -56,7 +58,7 @@ export async function getCollectionValidationSample(
       const payload = await response.json();
       if (payload?.error) {
         throw new Error(
-          payload.error?.message || "Helius could not load collection assets."
+          "Helius could not load collection assets."
         );
       }
 

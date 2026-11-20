@@ -47,7 +47,13 @@ const nextConfig = {
       // permissions, or referrer behavior on the mature legacy site.
       {
         source: "/studio/:path*",
-        headers: privateStudioHeaders,
+        headers: [
+          ...privateStudioHeaders,
+          {
+            key: "Content-Security-Policy",
+            value: "frame-ancestors 'none'; object-src 'none'; base-uri 'self'",
+          },
+        ],
       },
       {
         source: "/api/studio/:path*",

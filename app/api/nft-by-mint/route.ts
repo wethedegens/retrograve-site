@@ -1,5 +1,7 @@
 // app/api/nft-by-mint/route.ts
 import { NextResponse } from "next/server";
+import { PublicKey } from "@solana/web3.js";
+import { fetchPublicNftMetadata, getPublicNftMediaUrl } from "../../lib/lockscreened/server/publicNftMedia";
 
 type MetaAttr = { trait_type?: string; value?: string | number | null };
 type MetaJson = {
@@ -7,6 +9,8 @@ type MetaJson = {
   image?: string;
   attributes?: MetaAttr[];
 };
+
+const LOOKUP_TIMEOUT_MS = 10_000;
 
 export async function GET(req: Request) {
   try {
@@ -21,16 +25,17 @@ export async function GET(req: Request) {
       );
     }
 
-    // 1) If a metadata URI is passed explicitly, just fetch that JSON directly
     if (uri) {
-      const r = await fetch(uri, { cache: "no-store" });
-      if (!r.ok) {
-        return NextResponse.json(
-          { error: `Failed to fetch metadata (${r.status})` },
-          { status: 502 }
-        );
+      const metadataUrl = getPublicNftMediaUrl(uri);
+      if (!metadataUrl) {
+        return NextResponse.json({ error: "Unsupported NFT metadata URL." }, { status: 400 });
       }
-      const meta = (await r.json()) as MetaJson;
+      let meta: MetaJson;
+      try {
+        meta = (await fetchPublicNftMetadata(metadataUrl)) as MetaJson;
+      } catch {
+        return NextResponse.json({ error: "NFT metadata unavailable." }, { status: 502 });
+      }
 
       return NextResponse.json({
         id: mint || meta?.name || "",
@@ -40,15 +45,23 @@ export async function GET(req: Request) {
       });
     }
 
-    // 2) No URI, but we DO have a mint – resolve via Helius "getAsset"
+    try {
+      if (mint.length < 32 || mint.length > 44 || new PublicKey(mint).toBase58() !== mint) {
+        throw new Error("Invalid mint.");
+      }
+    } catch {
+      return NextResponse.json({ error: "Invalid Solana mint address" }, { status: 400 });
+    }
+
+    // Resolve the mint through Helius when no metadata URI was supplied.
     const rpcUrl =
       process.env.SOLANA_RPC_URL || process.env.NEXT_PUBLIC_SOLANA_RPC;
 
     if (!rpcUrl) {
       console.error("Missing SOLANA_RPC_URL / NEXT_PUBLIC_SOLANA_RPC in env");
       return NextResponse.json(
-        { error: "Server not configured with SOLANA_RPC_URL" },
-        { status: 500 }
+        { error: "NFT metadata lookup is unavailable." },
+        { status: 503 }
       );
     }
 
@@ -69,11 +82,13 @@ export async function GET(req: Request) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       cache: "no-store",
+      redirect: "error",
+      signal: AbortSignal.timeout(LOOKUP_TIMEOUT_MS),
       body: JSON.stringify(rpcBody),
     });
 
     if (!rpcResp.ok) {
-      console.error("Helius getAsset error:", rpcResp.status, rpcResp.statusText);
+      console.error("Helius getAsset failed with status:", rpcResp.status);
       return NextResponse.json(
         { error: "Failed to fetch metadata from Helius getAsset" },
         { status: 502 }
@@ -129,11 +144,10 @@ export async function GET(req: Request) {
       },
       { status: 200 }
     );
-  } catch (e: any) {
-    console.error("nft-by-mint route error:", e);
+  } catch {
     return NextResponse.json(
-      { error: e?.message || "unknown error" },
-      { status: 500 }
+      { error: "NFT metadata lookup is temporarily unavailable." },
+      { status: 502 }
     );
   }
 }

@@ -12,6 +12,7 @@ export default function FAQPage() {
         <h1 className={styles.title}>Help with your locker</h1>
         <LockscreenedFAQ />
         <p className={styles.founders}>Building a locker for your collection? <Link href="/studio#founder-faq">Read the Founder Studio FAQ</Link></p>
+        <p className={styles.founders}>Questions about wallet safety or private artwork? <Link href="/security">Read about Security</Link></p>
       </section>
     </main>
   );

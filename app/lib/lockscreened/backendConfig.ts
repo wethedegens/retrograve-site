@@ -18,24 +18,18 @@ export type BackendStatus = {
 export function getBackendStatus(): BackendStatus {
   const missing: string[] = [];
 
-  const supabaseUrl =
-    process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ||
-    LOCKSCREENED_DEV_SUPABASE_URL;
-  const supabasePublishableKey =
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() ||
-    LOCKSCREENED_DEV_SUPABASE_PUBLISHABLE_KEY;
-
+  const config = getPublicSupabaseConfig();
   const heliusKey = process.env.HELIUS_API_KEY?.trim();
 
-  if (!supabaseUrl) missing.push("NEXT_PUBLIC_SUPABASE_URL");
-  if (!supabasePublishableKey) {
+  if (!config && !process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()) {
+    missing.push("NEXT_PUBLIC_SUPABASE_URL");
+  }
+  if (!config && !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim()) {
     missing.push("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY");
   }
   if (!heliusKey) missing.push("HELIUS_API_KEY");
 
-  const supabaseConfigured = Boolean(
-    supabaseUrl && supabasePublishableKey
-  );
+  const supabaseConfigured = Boolean(config);
   const heliusConfigured = Boolean(heliusKey);
 
   return {
@@ -47,14 +41,16 @@ export function getBackendStatus(): BackendStatus {
 }
 
 export function getPublicSupabaseConfig() {
-  const url =
-    process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ||
-    LOCKSCREENED_DEV_SUPABASE_URL;
-  const publishableKey =
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() ||
-    LOCKSCREENED_DEV_SUPABASE_PUBLISHABLE_KEY;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim();
+  if (url && publishableKey) return { url, publishableKey };
 
-  if (!url || !publishableKey) return null;
+  if (process.env.NODE_ENV === "development" && !url && !publishableKey) {
+    return {
+      url: LOCKSCREENED_DEV_SUPABASE_URL,
+      publishableKey: LOCKSCREENED_DEV_SUPABASE_PUBLISHABLE_KEY,
+    };
+  }
 
-  return { url, publishableKey };
+  return null;
 }

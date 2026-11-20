@@ -8,10 +8,10 @@ export async function GET() {
   try {
     const projects = await listPublishedStudioProjects();
     return NextResponse.json({ projects });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Could not load creator projects." },
-      { status: 500 }
+      { error: "Could not load creator projects." },
+      { status: 503, headers: { "cache-control": "no-store" } }
     );
   }
 }

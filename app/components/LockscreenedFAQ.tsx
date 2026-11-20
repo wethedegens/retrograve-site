@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 
-type FAQItem = {
+export type FAQItem = {
   question: string;
   answer: string;
 };
@@ -55,21 +55,33 @@ const FAQ_ITEMS: FAQItem[] = [
       "That’s the plan. LockScreened is built as a multi-project ecosystem. As new partners join, they’ll get their own lockers and appear in the Partner Projects grid.",
   },
   {
-    question: "Where can I get help if something looks off?",
+    question: "What should I check if a locker is not working?",
     answer:
-      "Use the Community link on LockScreened or the project’s page to ask for help. Include your device model and a screenshot of the issue. Never share your seed phrase or private key.",
+      "Check that you are using the wallet that holds the NFT, then reopen the locker. If the issue is with your wallet app, use your wallet provider's official support. Keep your recovery phrase and private key to yourself.",
   },
 ];
 
 export default function LockscreenedFAQ() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  return <FaqAccordion title="FAQ" items={FAQ_ITEMS} initiallyOpen={0} />;
+}
+
+export function FaqAccordion({
+  title,
+  items,
+  initiallyOpen = null,
+}: {
+  title: string;
+  items: readonly FAQItem[];
+  initiallyOpen?: number | null;
+}) {
+  const [openIndex, setOpenIndex] = useState<number | null>(initiallyOpen);
 
   return (
     <div className="faq-wrap">
-      <h2 className="faq-title">FAQ</h2>
+      <h2 className="faq-title">{title}</h2>
 
       <div className="faq-list">
-        {FAQ_ITEMS.map((item, index) => {
+        {items.map((item, index) => {
           const isOpen = openIndex === index;
 
           return (
@@ -82,12 +94,12 @@ export default function LockscreenedFAQ() {
                 aria-expanded={isOpen}
               >
                 <span>{item.question}</span>
-                <span className={`faq-icon ${isOpen ? "open" : ""}`}>
+                <span aria-hidden="true" className={`faq-icon ${isOpen ? "open" : ""}`}>
                   {isOpen ? "–" : "+"}
                 </span>
               </button>
 
-              <div className={`faq-answer ${isOpen ? "open" : ""}`}>
+              <div aria-hidden={!isOpen} className={`faq-answer ${isOpen ? "open" : ""}`}>
                 <p>{item.answer}</p>
               </div>
             </div>
@@ -161,6 +173,8 @@ export default function LockscreenedFAQ() {
           font-family: "VT323", monospace;
           font-size: 20px;
           width: 28px;
+          flex: 0 0 28px;
+          margin-left: 10px;
           text-align: center;
           border-radius: 999px;
           border: 1px solid rgba(230, 210, 255, 0.6);

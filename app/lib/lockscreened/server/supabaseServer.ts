@@ -26,28 +26,53 @@ function adminKey() {
   return key;
 }
 
-async function parseError(response: Response) {
+const SUPABASE_TIMEOUT_MS = 12_000;
+
+async function fetchSupabase(url: string, init: RequestInit) {
+  const timeout = AbortSignal.timeout(SUPABASE_TIMEOUT_MS);
   try {
-    const data = await response.json();
-    return data?.message || data?.hint || data?.error || `Supabase request failed (${response.status}).`;
+    return await fetch(url, {
+      ...init,
+      cache: "no-store",
+      redirect: "error",
+      signal: init.signal ? AbortSignal.any([init.signal, timeout]) : timeout,
+    });
   } catch {
-    return `Supabase request failed (${response.status}).`;
+    throw new Error("Creator Studio could not reach its data service.");
+  }
+}
+
+function supabaseRequestError(response: Response) {
+  void response.body?.cancel().catch(() => {});
+  return new Error("Creator Studio data service request failed (" + response.status + ").");
+}
+
+async function readSupabaseJson<T>(response: Response, allowEmpty = false): Promise<T> {
+  try {
+    const body = await response.text();
+    if (allowEmpty && !body.trim()) return undefined as T;
+    return JSON.parse(body) as T;
+  } catch {
+    throw new Error("Creator Studio received an unreadable data service response.");
   }
 }
 
 export async function getAuthenticatedUser(accessToken: string) {
   const { url, publishableKey } = publicConfig();
 
-  const response = await fetch(url + "/auth/v1/user", {
+  const response = await fetchSupabase(url + "/auth/v1/user", {
     headers: {
       apikey: publishableKey,
       Authorization: "Bearer " + accessToken,
     },
-    cache: "no-store",
   });
 
-  if (!response.ok) return null;
-  return await response.json();
+  if (response.status === 401 || response.status === 403) {
+    void response.body?.cancel().catch(() => {});
+    return null;
+  }
+  if (!response.ok) throw supabaseRequestError(response);
+  return readSupabaseJson<any>(response);
 }
 
 export async function restAsUser<T>(
@@ -57,22 +82,20 @@ export async function restAsUser<T>(
 ): Promise<T> {
   const { url, publishableKey } = publicConfig();
 
-  const response = await fetch(url + "/rest/v1/" + path, {
+  const headers = new Headers(init?.headers);
+  headers.set("apikey", publishableKey);
+  headers.set("authorization", "Bearer " + accessToken);
+  if (!headers.has("content-type")) headers.set("content-type", "application/json");
+
+  const response = await fetchSupabase(url + "/rest/v1/" + path, {
     ...init,
-    headers: {
-      apikey: publishableKey,
-      Authorization: "Bearer " + accessToken,
-      "content-type": "application/json",
-      ...(init?.headers || {}),
-    },
-    cache: "no-store",
+    headers,
   });
 
-  if (!response.ok) throw new Error(await parseError(response));
+  if (!response.ok) throw supabaseRequestError(response);
   if (response.status === 204) return undefined as T;
   // PostgREST can return 201 with no body for Prefer: return=minimal.
-  const body = await response.text();
-  return body.trim() ? JSON.parse(body) as T : undefined as T;
+  return readSupabaseJson<T>(response, true);
 }
 
 export async function restAsAdmin<T>(
@@ -80,35 +103,24 @@ export async function restAsAdmin<T>(
   init?: RequestInit
 ): Promise<T> {
   const { url } = publicConfig();
-  const key = adminKey();
-
-  const headers: Record<string, string> = {
-    apikey: key,
-    "content-type": "application/json",
-  };
-
-  // Legacy service_role keys are JWTs and expect an Authorization header.
-  // New sb_secret_* keys are translated by the Supabase gateway from apikey.
-  if (!key.startsWith("sb_secret_")) {
-    headers.Authorization = "Bearer " + key;
+  const headers = new Headers(init?.headers);
+  headers.delete("authorization");
+  for (const [name, value] of Object.entries(adminHeaders())) {
+    headers.set(name, value);
   }
 
-  const response = await fetch(url + "/rest/v1/" + path, {
+  const response = await fetchSupabase(url + "/rest/v1/" + path, {
     ...init,
-    headers: {
-      ...headers,
-      ...(init?.headers || {}),
-    },
-    cache: "no-store",
+    headers,
   });
 
-  if (!response.ok) throw new Error(await parseError(response));
+  if (!response.ok) throw supabaseRequestError(response);
   if (response.status === 204) return undefined as T;
-  return (await response.json()) as T;
+  return readSupabaseJson<T>(response, true);
 }
 
 
-function adminStorageHeaders() {
+function adminHeaders() {
   const key = adminKey();
   const headers: Record<string, string> = {
     apikey: key,
@@ -129,17 +141,16 @@ export async function deleteStorageObjectsAsAdmin(args: {
   if (!args.paths.length) return;
 
   const { url } = publicConfig();
-  const response = await fetch(
+  const response = await fetchSupabase(
     `${url}/storage/v1/object/${encodeURIComponent(args.bucket)}`,
     {
       method: "DELETE",
-      headers: adminStorageHeaders(),
+      headers: adminHeaders(),
       body: JSON.stringify({ prefixes: args.paths }),
-      cache: "no-store",
     }
   );
 
-  if (!response.ok) throw new Error(await parseError(response));
+  if (!response.ok) throw supabaseRequestError(response);
 }
 
 export async function copyStorageObjectAsAdmin(args: {
@@ -150,20 +161,19 @@ export async function copyStorageObjectAsAdmin(args: {
 }) {
   const { url } = publicConfig();
 
-  const response = await fetch(url + "/storage/v1/object/copy", {
+  const response = await fetchSupabase(url + "/storage/v1/object/copy", {
     method: "POST",
-    headers: adminStorageHeaders(),
+    headers: adminHeaders(),
     body: JSON.stringify({
       bucketId: args.sourceBucket,
       sourceKey: args.sourcePath,
       destinationKey: args.destinationPath,
       destinationBucket: args.destinationBucket,
     }),
-    cache: "no-store",
   });
 
-  if (!response.ok) throw new Error(await parseError(response));
-  return await response.json();
+  if (!response.ok) throw supabaseRequestError(response);
+  return readSupabaseJson<any>(response);
 }
 
 export function publicStorageUrl(bucket: string, path: string) {
@@ -184,7 +194,7 @@ export async function consumeStudioActionRateLimit(
 ) {
   const { url, publishableKey } = publicConfig();
 
-  const response = await fetch(url + "/rest/v1/rpc/consume_studio_action", {
+  const response = await fetchSupabase(url + "/rest/v1/rpc/consume_studio_action", {
     method: "POST",
     headers: {
       apikey: publishableKey,
@@ -192,12 +202,11 @@ export async function consumeStudioActionRateLimit(
       "content-type": "application/json",
     },
     body: JSON.stringify({ action_name: action }),
-    cache: "no-store",
   });
 
-  if (!response.ok) throw new Error(await parseError(response));
+  if (!response.ok) throw supabaseRequestError(response);
 
-  const allowed = await response.json();
+  const allowed = await readSupabaseJson<unknown>(response);
   return allowed === true;
 }
 
@@ -223,8 +232,8 @@ export async function readStudioRenderObject(bucket: "creator-source-private" | 
   if (!["creator-source-private", "published-public"].includes(bucket) || !path || path.includes("\\") || path.split("/").some(part => !part || part === "." || part === "..")) throw new Error("Invalid render source.");
   const { url } = publicConfig();
   const encoded = path.split("/").map(encodeURIComponent).join("/");
-  const response = await fetch(`${url}/storage/v1/object/authenticated/${bucket}/${encoded}`, {
-    headers: adminStorageHeaders(), cache: "no-store", redirect: "error", signal: AbortSignal.timeout(12000),
+  const response = await fetchSupabase(`${url}/storage/v1/object/authenticated/${bucket}/${encoded}`, {
+    headers: adminHeaders(),
   });
   if (!response.ok || !response.body) throw new Error("Saved artwork is unavailable.");
   if (Number(response.headers.get("content-length") || 0) > maxBytes) { await response.body.cancel(); throw new Error("Render source is too large."); }

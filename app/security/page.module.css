@@ -1,0 +1,32 @@
+.intro {
+  max-width: 620px;
+  margin: -12px auto 26px;
+  color: #cbc5d9;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.walletCheck {
+  margin: 0 0 34px;
+  padding: 17px 20px;
+  border: 1px solid #5f4975;
+  border-radius: 14px;
+  background: #171021;
+  color: #eee4fa;
+}
+
+.walletCheck h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.walletCheck p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.groups {
+  display: grid;
+  gap: 30px;
+}
+

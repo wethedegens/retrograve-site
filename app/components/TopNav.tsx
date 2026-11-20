@@ -116,6 +116,9 @@ export default function TopNav({ project }: { project: TopNavProject }) {
   const pathname = usePathname() || "";
 
   const myActive = cfg.myHref ? isActive(pathname, cfg.myHref) : false;
+  const showProjectDiscord =
+    project !== "retrograve" ||
+    ["/retrograve", "/retrograves-nfts", "/locker", "/locker/retrograve"].includes(pathname);
 
   return (
     <header className="topnav">
@@ -129,13 +132,22 @@ export default function TopNav({ project }: { project: TopNavProject }) {
             </Link>
           ) : null}
 
-          <a className="navlink" href={cfg.communityHref} target="_blank" rel="noreferrer">
-            COMMUNITY
-          </a>
+          {showProjectDiscord && (
+            <a className="navlink" href={cfg.communityHref} target="_blank" rel="noreferrer">
+              PROJECT DISCORD
+            </a>
+          )}
 
 
           <Link className="navlink" href="/studio" title="Creator Studio for founders">CREATOR STUDIO</Link>
           <Link className={`navlink ${isActive(pathname, "/faq") ? "active" : ""}`} href="/faq">FAQ</Link>
+          <Link
+            className={`navlink ${pathname === "/security" ? "active" : ""}`}
+            href="/security"
+            aria-current={pathname === "/security" ? "page" : undefined}
+          >
+            SECURITY
+          </Link>
           <ProjectSearch />
         </nav>
 

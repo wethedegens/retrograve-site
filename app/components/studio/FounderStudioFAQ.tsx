@@ -156,8 +156,8 @@ const groups=[
         "Review the welcome page and links, use the regular holder route, select an owned supported NFT, customize it, and save a PNG on desktop and phone. If you cannot test with another holder wallet, keep that limitation explicit and make it an early check with invited holders."
       ],
       [
-        "Where can I get help?",
-        "Use the Community link and describe where you got stuck. Include the project URL, what you expected, the exact message and a screenshot. Keep private source files private unless there is an agreed secure upload method. Never post API keys, wallet secrets or session tokens."
+        "How do I troubleshoot a Studio issue?",
+        "Start with the relevant answer above. If the issue is with your wallet app, use your wallet provider's official support. If you share a screenshot while troubleshooting, crop out private project details and any account information."
       ]
     ]
   }
