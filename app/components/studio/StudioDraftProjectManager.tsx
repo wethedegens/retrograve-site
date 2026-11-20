@@ -1,5 +1,6 @@
 // app/components/studio/StudioDraftProjectManager.tsx
 "use client";
+import StudioFounderMfa from "./StudioFounderMfa";
 import FounderStudioFAQ from "./FounderStudioFAQ";
 
 import { useEffect, useState } from "react";
@@ -388,6 +389,7 @@ export default function StudioDraftProjectManager({
 
   return (
     <div style={{ display: "grid", gap: 13 }}>
+      <StudioFounderMfa key={session.user.id} session={session} />
       <section style={panel}>
         <div
           style={{

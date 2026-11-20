@@ -1,3 +1,4 @@
+import { studioFounderMfaBlock } from "../../../lib/lockscreened/server/founderMfa";
 // app/api/studio/publish-project/route.ts
 import { NextResponse } from "next/server";
 import { requireCurrentCollectionAuthority, studioSecurityErrorStatus } from "../../../lib/lockscreened/server/currentAuthority";
@@ -34,6 +35,9 @@ export async function POST(request: Request) {
     if (!user?.id) {
       return NextResponse.json({ error: "Studio session expired." }, { status: 401 });
     }
+
+    const mfaBlock = await studioFounderMfaBlock(accessToken);
+    if (mfaBlock) return mfaBlock;
 
     const allowed = await consumeStudioActionRateLimit(
       accessToken,

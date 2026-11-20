@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import StudioFounderMfa from "./StudioFounderMfa";
 import { useWallet } from "@solana/wallet-adapter-react";
 import {
   getFreshSession,
@@ -26,6 +27,14 @@ export default function StudioWalletAuth() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    // Email confirmation can return a provider token in the fragment. Studio
+    // keeps the wallet session and does not import an email-link session.
+    const url = new URL(window.location.href);
+    const callback = new URLSearchParams(url.hash.slice(1));
+    if (callback.has("access_token") || callback.has("error_code")) {
+      url.hash = "";
+      window.history.replaceState(window.history.state, "", url.href);
+    }
     let active = true;
 
     async function sync() {
@@ -190,6 +199,8 @@ export default function StudioWalletAuth() {
         )}
         <span style={safePill}>OFF-CHAIN SIGNATURE ONLY</span>
       </div>
+
+      {session && !mismatch && <StudioFounderMfa key={session.user.id} session={session} />}
 
       {message ? (
         <div style={{ color: "rgba(255,255,255,.7)", fontSize: 10 }}>
