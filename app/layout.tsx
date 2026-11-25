@@ -8,10 +8,23 @@ import RedirectOnConnect from "./components/RedirectOnConnect";
 import TopNavWrapper from "./components/TopNavWrapper";
 import StyledJsxRegistry from "./registry";
 
+const siteTitle = "LockScreened";
+const siteDescription = "Turn NFTs you own into custom wallpapers for your phone, tablet, or desktop.";
+
 export const metadata: Metadata = {
-  title: "LockScreened / RetroGrave",
-  description:
-    "LockScreened hub for phone-native NFT lock screens, plus RetroGrave legendary lock screens.",
+  title: siteTitle,
+  description: siteDescription,
+  openGraph: {
+    type: "website",
+    siteName: siteTitle,
+    title: siteTitle,
+    description: siteDescription,
+  },
+  twitter: {
+    card: "summary",
+    title: siteTitle,
+    description: siteDescription,
+  },
 };
 
 // ✅ keep build stable for wallet-driven pages
